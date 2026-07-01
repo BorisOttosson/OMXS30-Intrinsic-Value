@@ -121,10 +121,14 @@ const elements = {
   metricValueSub: document.querySelector("#metricValueSub"),
   metricMos: document.querySelector("#metricMos"),
   metricMosSub: document.querySelector("#metricMosSub"),
+  metricReverseLabel: document.querySelector("#metricReverseLabel"),
   metricReverse: document.querySelector("#metricReverse"),
   metricReverseSub: document.querySelector("#metricReverseSub"),
   metricScore: document.querySelector("#metricScore"),
   metricScoreSub: document.querySelector("#metricScoreSub"),
+  valuationPrimaryLabel: document.querySelector("#valuationPrimaryLabel"),
+  valuationSecondaryLabel: document.querySelector("#valuationSecondaryLabel"),
+  valuationTertiaryLabel: document.querySelector("#valuationTertiaryLabel"),
   dcfValue: document.querySelector("#dcfValue"),
   peValue: document.querySelector("#peValue"),
   currentPe: document.querySelector("#currentPe"),
@@ -161,23 +165,34 @@ const elements = {
 function createDefaultCompanies() {
   return omxs30Seed.map(([ticker, name, sector], index) => {
     const defaults = sectorDefaults[sector];
+    const category = getCompanyType(ticker);
     const price = round(58 + (index % 9) * 28 + Math.floor(index / 3) * 11 + (sector.length % 5) * 9, 2);
     const peAnchor = defaults.targetPe * (0.86 + (index % 5) * 0.045);
     const eps = round(price / peAnchor, 2);
     const fcfPerShare = round(eps * (0.76 + (index % 4) * 0.08), 2);
     const debt = sector === "Financials" ? 0 : round(((index % 7) - 3) * 1.65, 2);
     const [industryScore, companyScore, leadershipScore] = defaults.quality;
+    const bookValuePerShare = category === "bank"
+      ? round(price / 1.15, 2)
+      : (category === "investment" ? round(price * 1.12, 2) : round(price * 0.42, 2));
+    const roe = category === "bank"
+      ? round(12.5 + (index % 4) * 0.6, 1)
+      : round((eps / Math.max(bookValuePerShare, 1)) * 100, 1);
+    const normalizedFcfPerShare = category === "cyclical" ? round(fcfPerShare * 1.12, 2) : fcfPerShare;
 
     return {
       id: ticker.toLowerCase().replace(/[^a-z0-9]/g, "-"),
       ticker,
       name,
       sector,
-      companyType: getCompanyType(ticker),
+      companyType: category,
       marketPrice: price,
       fcfPerShare,
       eps,
       netDebtPerShare: debt,
+      bookValuePerShare,
+      roe,
+      normalizedFcfPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
       consensusGrowth: round(defaults.consensusGrowth + ((index % 4) - 1) * 0.25, 1),
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
@@ -287,10 +302,14 @@ function applyMarketData(currentCompanies, marketCompanies) {
       forwardPe: numberOrNull(market.forwardPe),
       analystTargetMeanPrice: numberOrNull(market.analystTargetMeanPrice),
       recommendationMean: numberOrNull(market.recommendationMean),
+      roe: numberOrNull(market.roe),
+      normalizedFcfPerShare: numberOrNull(market.normalizedFcfPerShare),
       financialCurrency: market.financialCurrency ?? null,
       financialToQuoteFx: numberOrNull(market.financialToQuoteFx),
       errors: market.errors ?? []
     };
+
+    const marketBookValue = market.bookValuePerShare ?? market.equityPerShare;
 
     return {
       ...seedCompany,
@@ -300,6 +319,9 @@ function applyMarketData(currentCompanies, marketCompanies) {
       fcfPerShare: numberOrFallback(market.fcfPerShare, current.fcfPerShare ?? seedCompany.fcfPerShare),
       eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
       netDebtPerShare: numberOrFallback(market.netDebtPerShare, current.netDebtPerShare ?? seedCompany.netDebtPerShare),
+      bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
+      roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
+      normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
       growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
       consensusGrowth: numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? seedCompany.consensusGrowth),
       targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
@@ -357,11 +379,13 @@ function asNumber(value, fallback = 0) {
 }
 
 function numberOrNull(value) {
+  if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
 
 function numberOrFallback(value, fallback) {
+  if (value === null || value === undefined || value === "") return fallback;
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 }
@@ -457,6 +481,211 @@ function calculatePeValue(company, scenario = "base") {
   return eps > 0 && targetPe > 0 ? eps * targetPe : NaN;
 }
 
+function averageValid(values) {
+  const validValues = values.filter(Number.isFinite);
+  return validValues.length ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length : NaN;
+}
+
+function weightedAverage(items) {
+  const validItems = items.filter((item) => Number.isFinite(item.value) && item.weight > 0);
+  const totalWeight = validItems.reduce((sum, item) => sum + item.weight, 0);
+  if (!validItems.length || totalWeight <= 0) return NaN;
+  return validItems.reduce((sum, item) => sum + item.value * item.weight, 0) / totalWeight;
+}
+
+function getBookValuePerShare(company) {
+  return numberOrNull(company.bookValuePerShare) ?? numberOrNull(company.fundamentals?.equityPerShare);
+}
+
+function getRoe(company) {
+  const manualRoe = numberOrNull(company.roe);
+  if (manualRoe !== null) return manualRoe;
+
+  const bookValuePerShare = getBookValuePerShare(company);
+  if (bookValuePerShare && bookValuePerShare > 0 && asNumber(company.eps) > 0) {
+    return (asNumber(company.eps) / bookValuePerShare) * 100;
+  }
+
+  const fundamentals = company.fundamentals ?? {};
+  const netIncome = numberOrNull(fundamentals.netIncome);
+  const bookEquity = numberOrNull(fundamentals.bookEquity);
+  if (netIncome !== null && bookEquity && bookEquity > 0) {
+    return (netIncome / bookEquity) * 100;
+  }
+
+  return NaN;
+}
+
+function getNormalizedFcfPerShare(company) {
+  return numberOrNull(company.normalizedFcfPerShare) ?? numberOrNull(company.fcfPerShare);
+}
+
+function getNavPerShare(company) {
+  return numberOrNull(company.navPerShare)
+    ?? numberOrNull(company.bookValuePerShare)
+    ?? numberOrNull(company.fundamentals?.analystTargetMeanPrice)
+    ?? numberOrNull(company.fundamentals?.equityPerShare);
+}
+
+function calculateOperatingModel(company, scenario) {
+  const dcf = calculateDcf(company, scenario);
+  const peValue = calculatePeValue(company, scenario);
+  const currentPe = asNumber(company.eps) > 0 ? asNumber(company.marketPrice) / asNumber(company.eps) : NaN;
+  const reverse = calculateReverseDcf(company);
+  const reverseBurdenScore = Number.isFinite(reverse.value)
+    ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
+    : 50;
+
+  return {
+    dcf,
+    peValue,
+    currentPe,
+    blendedValue: averageValid([dcf.value, peValue]),
+    primaryLabel: "DCF value",
+    primaryValue: dcf.value,
+    secondaryLabel: "P/E value",
+    secondaryValue: peValue,
+    tertiaryLabel: "Current P/E",
+    tertiaryValue: Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-",
+    reverseLabel: "Reverse DCF",
+    reverseValue: reverse.label,
+    reverseSub: `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`,
+    valueDescription: Number.isFinite(dcf.value) || Number.isFinite(peValue)
+      ? `${formatCurrency(dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(peValue, company.currency ?? "SEK")} P/E`
+      : "Needs FCF or EPS inputs",
+    modelSupportScore: reverseBurdenScore,
+    modelWarning: "",
+    chartTitle: "Projected FCF / share"
+  };
+}
+
+function calculateBankModel(company, scenario) {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const currency = company.currency ?? "SEK";
+  const price = asNumber(company.marketPrice);
+  const bookValuePerShare = getBookValuePerShare(company);
+  const roe = getRoe(company);
+  const costOfEquity = Math.max(0.01, (asNumber(company.wacc) + adjustment.wacc) / 100);
+  const growth = clamp(asNumber(company.terminalGrowth) / 100, 0, 0.04);
+  const justifiedPb = bookValuePerShare && bookValuePerShare > 0 && Number.isFinite(roe) && costOfEquity > growth
+    ? clamp(((roe / 100) - growth) / (costOfEquity - growth), 0.4, 2.8)
+    : NaN;
+  const pbValue = Number.isFinite(justifiedPb) ? bookValuePerShare * justifiedPb : NaN;
+  const peValue = calculatePeValue(company, scenario);
+  const currentPb = bookValuePerShare && bookValuePerShare > 0 ? price / bookValuePerShare : NaN;
+  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
+  const roeSpread = Number.isFinite(roe) ? roe - costOfEquity * 100 : NaN;
+
+  return {
+    dcf: { value: NaN, flows: [], error: "" },
+    peValue,
+    currentPe,
+    blendedValue: weightedAverage([
+      { value: pbValue, weight: 0.65 },
+      { value: peValue, weight: 0.35 }
+    ]),
+    primaryLabel: "P/B value",
+    primaryValue: pbValue,
+    secondaryLabel: "P/E value",
+    secondaryValue: peValue,
+    tertiaryLabel: "ROE / P/B",
+    tertiaryValue: Number.isFinite(roe) || Number.isFinite(currentPb)
+      ? `${formatPercent(roe, 1)} / ${Number.isFinite(currentPb) ? `${formatDecimal(currentPb, 1)}x` : "-"}`
+      : "-",
+    reverseLabel: "ROE spread",
+    reverseValue: formatPercent(roeSpread, 1),
+    reverseSub: "Versus required return",
+    valueDescription: Number.isFinite(pbValue)
+      ? `${formatDecimal(justifiedPb, 1)}x justified P/B | ${formatCurrency(peValue, currency)} P/E`
+      : "Needs book equity per share and ROE",
+    modelSupportScore: Number.isFinite(roeSpread) ? clamp(50 + roeSpread * 5, 0, 100) : 50,
+    modelWarning: Number.isFinite(pbValue) ? "" : "Add book value per share and ROE for the bank model.",
+    chartTitle: "Bank model"
+  };
+}
+
+function calculateInvestmentModel(company, scenario) {
+  const currency = company.currency ?? "SEK";
+  const price = asNumber(company.marketPrice);
+  const navPerShare = getNavPerShare(company);
+  const peValue = calculatePeValue(company, scenario);
+  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
+  const peUseful = Number.isFinite(peValue) && Number.isFinite(currentPe) && currentPe > 0 && currentPe < 45;
+  const navDiscount = navPerShare && navPerShare > 0 ? ((navPerShare - price) / navPerShare) * 100 : NaN;
+
+  return {
+    dcf: { value: NaN, flows: [], error: "" },
+    peValue,
+    currentPe,
+    blendedValue: weightedAverage([
+      { value: navPerShare, weight: 0.8 },
+      { value: peUseful ? peValue : NaN, weight: 0.2 }
+    ]),
+    primaryLabel: "NAV value",
+    primaryValue: navPerShare,
+    secondaryLabel: "P/E value",
+    secondaryValue: peUseful ? peValue : NaN,
+    tertiaryLabel: "NAV discount",
+    tertiaryValue: formatPercent(navDiscount, 1),
+    reverseLabel: "NAV discount",
+    reverseValue: formatPercent(navDiscount, 1),
+    reverseSub: "Discount/premium to NAV",
+    valueDescription: Number.isFinite(navPerShare)
+      ? `${formatCurrency(navPerShare, currency)} NAV | ${peUseful ? `${formatCurrency(peValue, currency)} P/E` : "P/E not useful"}`
+      : "Needs NAV per share",
+    modelSupportScore: Number.isFinite(navDiscount) ? clamp(50 + navDiscount * 1.2, 0, 100) : 50,
+    modelWarning: Number.isFinite(navPerShare) ? "" : "Add NAV per share for the investment-company model.",
+    chartTitle: "Investment company model"
+  };
+}
+
+function calculateCyclicalModel(company, scenario) {
+  const currency = company.currency ?? "SEK";
+  const price = asNumber(company.marketPrice);
+  const normalizedFcf = getNormalizedFcfPerShare(company);
+  const normalizedMultiple = clamp(asNumber(company.targetPe) * 0.85, 7, 16);
+  const netDebt = asNumber(company.netDebtPerShare);
+  const normalizedFcfValue = normalizedFcf && normalizedFcf > 0
+    ? normalizedFcf * normalizedMultiple - netDebt
+    : NaN;
+  const peValue = calculatePeValue(company, scenario);
+  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
+  const normalizedFcfYield = price > 0 && normalizedFcf && normalizedFcf > 0 ? (normalizedFcf / price) * 100 : NaN;
+
+  return {
+    dcf: { value: NaN, flows: [], error: "" },
+    peValue,
+    currentPe,
+    blendedValue: weightedAverage([
+      { value: normalizedFcfValue, weight: 0.7 },
+      { value: peValue, weight: 0.3 }
+    ]),
+    primaryLabel: "Norm. FCF value",
+    primaryValue: normalizedFcfValue,
+    secondaryLabel: "P/E value",
+    secondaryValue: peValue,
+    tertiaryLabel: "Norm. FCF yield",
+    tertiaryValue: formatPercent(normalizedFcfYield, 1),
+    reverseLabel: "Norm. FCF yield",
+    reverseValue: formatPercent(normalizedFcfYield, 1),
+    reverseSub: "Mid-cycle cash flow yield",
+    valueDescription: Number.isFinite(normalizedFcfValue)
+      ? `${formatDecimal(normalizedMultiple, 1)}x normalized FCF | ${formatCurrency(peValue, currency)} P/E`
+      : "Needs normalized FCF per share",
+    modelSupportScore: Number.isFinite(normalizedFcfYield) ? clamp(45 + normalizedFcfYield * 5, 0, 100) : 50,
+    modelWarning: Number.isFinite(normalizedFcfValue) ? "" : "Add normalized FCF per share for the cyclical model.",
+    chartTitle: "Normalized FCF model"
+  };
+}
+
+function calculateCategoryModel(company, scenario) {
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  if (category === "bank") return calculateBankModel(company, scenario);
+  if (category === "investment") return calculateInvestmentModel(company, scenario);
+  if (category === "cyclical") return calculateCyclicalModel(company, scenario);
+  return calculateOperatingModel(company, scenario);
+}
+
 function calculateReverseDcf(company) {
   const price = asNumber(company.marketPrice);
   if (price <= 0 || asNumber(company.fcfPerShare) <= 0) return { value: NaN, label: "-" };
@@ -488,42 +717,36 @@ function calculateReverseDcf(company) {
 }
 
 function calculateCompany(company, scenario = state.scenario) {
-  const dcf = calculateDcf(company, scenario);
-  const peValue = calculatePeValue(company, scenario);
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const model = calculateCategoryModel(company, scenario);
   const marketPrice = asNumber(company.marketPrice);
-  const validValues = [dcf.value, peValue].filter(Number.isFinite);
-  const blendedValue = validValues.length ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length : NaN;
+  const blendedValue = model.blendedValue;
   const marginOfSafety = marketPrice > 0 && Number.isFinite(blendedValue)
     ? ((blendedValue - marketPrice) / marketPrice) * 100
     : NaN;
-  const currentPe = asNumber(company.eps) > 0 ? marketPrice / asNumber(company.eps) : NaN;
-  const reverse = calculateReverseDcf(company);
   const qualityScore = calculateQualityScore(company);
-  const reverseBurdenScore = Number.isFinite(reverse.value)
-    ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
-    : 50;
   const valuationScore = Number.isFinite(marginOfSafety) ? clamp(50 + marginOfSafety * 1.2, 0, 100) : 50;
-  const researchScore = round((qualityScore * 0.42) + (valuationScore * 0.38) + (reverseBurdenScore * 0.2), 0);
-  const portfolioScore = round((valuationScore * 0.5) + (reverseBurdenScore * 0.25) + (qualityScore * 0.25), 0);
-  const category = normalizeCompanyType(company.companyType, company.ticker);
-  const stance = getStance(marginOfSafety, qualityScore);
-  const modelWarning = getCompanyModelWarning(category);
-  const displayStance = category === "operating"
-    ? stance
-    : { key: "model-needed", label: getCompanyTypeShortLabel(category) };
+  const modelSupportScore = Number.isFinite(model.modelSupportScore) ? model.modelSupportScore : 50;
+  const researchScore = round((qualityScore * 0.42) + (valuationScore * 0.4) + (modelSupportScore * 0.18), 0);
+  const portfolioScore = round((valuationScore * 0.55) + (modelSupportScore * 0.2) + (qualityScore * 0.25), 0);
+  const stance = Number.isFinite(marginOfSafety)
+    ? getStance(marginOfSafety, qualityScore)
+    : { key: "model-needed", label: "Model needed" };
 
   return {
-    dcf,
-    peValue,
+    dcf: model.dcf,
+    peValue: model.peValue,
     blendedValue,
     marginOfSafety,
-    currentPe,
-    reverse,
+    currentPe: model.currentPe,
+    reverse: { label: model.reverseValue, value: model.modelSupportScore },
     qualityScore,
     researchScore,
     portfolioScore,
-    stance: displayStance,
-    modelWarning,
+    stance,
+    category,
+    model,
+    modelWarning: model.modelWarning,
     valuationStance: stance,
     growthGap: asNumber(company.growth5y) - asNumber(company.consensusGrowth)
   };
@@ -673,15 +896,16 @@ function renderHeader() {
   if (!company) return;
 
   const calc = calculateCompany(company);
+  const category = normalizeCompanyType(company.companyType, company.ticker);
   elements.selectedTicker.textContent = company.ticker;
   elements.selectedName.textContent = company.name;
-  elements.selectedMeta.textContent = `${company.sector} | ${getCompanyTypeLabel(company.companyType)} | ${company.source}`;
-  elements.inputBadge.textContent = company.companyType !== "operating"
-    ? getCompanyModelLabel(company.companyType)
+  elements.selectedMeta.textContent = `${company.sector} | ${getCompanyTypeLabel(category)} | ${company.source}`;
+  elements.inputBadge.textContent = category !== "operating"
+    ? getCompanyModelLabel(category)
     : (company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
-  elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(company.companyType)}`;
+  elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(category)}`;
 }
 
 function renderDataStatus() {
@@ -707,9 +931,10 @@ function renderCompanyList(updateHtml = true) {
     .map((company) => ({ company, calc: calculateCompany(company, "base") }))
     .filter(({ company, calc }) => {
       const query = state.filters.search;
+      const category = normalizeCompanyType(company.companyType, company.ticker);
       const matchesQuery = !query || `${company.ticker} ${company.name}`.toLowerCase().includes(query);
       const matchesSector = state.filters.sector === "all" || company.sector === state.filters.sector;
-      const matchesType = state.filters.companyType === "all" || company.companyType === state.filters.companyType;
+      const matchesType = state.filters.companyType === "all" || category === state.filters.companyType;
       const matchesStance = state.filters.stance === "all" || calc.stance.key === state.filters.stance;
       return matchesQuery && matchesSector && matchesType && matchesStance;
     })
@@ -719,9 +944,9 @@ function renderCompanyList(updateHtml = true) {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
     return `
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
-        <span class="company-main">
-          <span class="company-name">${escapeHtml(company.name)}</span>
-          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)} | ${escapeHtml(getCompanyTypeShortLabel(company.companyType))}</span>
+          <span class="company-main">
+            <span class="company-name">${escapeHtml(company.name)}</span>
+          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
@@ -757,18 +982,22 @@ function renderMetrics() {
 
   const calc = calculateCompany(company);
   elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
-  elements.metricValueSub.textContent = calc.modelWarning || `${formatCurrency(calc.dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(calc.peValue, company.currency ?? "SEK")} P/E`;
+  elements.metricValueSub.textContent = calc.model.valueDescription;
   elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
   elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
   elements.metricMosSub.textContent = `Price ${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}`;
-  elements.metricReverse.textContent = calc.reverse.label;
-  elements.metricReverseSub.textContent = `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`;
+  elements.metricReverseLabel.textContent = calc.model.reverseLabel;
+  elements.metricReverse.textContent = calc.model.reverseValue;
+  elements.metricReverseSub.textContent = calc.model.reverseSub;
   elements.metricScore.textContent = Number.isFinite(calc.researchScore) ? `${calc.researchScore}` : "-";
   elements.metricScoreSub.textContent = calc.stance.label;
 
-  elements.dcfValue.textContent = formatCurrency(calc.dcf.value, company.currency ?? "SEK");
-  elements.peValue.textContent = formatCurrency(calc.peValue, company.currency ?? "SEK");
-  elements.currentPe.textContent = Number.isFinite(calc.currentPe) ? `${formatDecimal(calc.currentPe, 1)}x` : "-";
+  elements.valuationPrimaryLabel.textContent = calc.model.primaryLabel;
+  elements.valuationSecondaryLabel.textContent = calc.model.secondaryLabel;
+  elements.valuationTertiaryLabel.textContent = calc.model.tertiaryLabel;
+  elements.dcfValue.textContent = formatCurrency(calc.model.primaryValue, company.currency ?? "SEK");
+  elements.peValue.textContent = formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK");
+  elements.currentPe.textContent = calc.model.tertiaryValue;
 }
 
 function renderOutlook() {
@@ -826,21 +1055,26 @@ function renderSectorBars() {
 
 function renderSyntheticPortfolio() {
   const rankedByCategory = getRankedCompaniesByCategory();
-  const operatingCompanies = rankedByCategory.operating.slice(0, 12);
+  const allRanked = Object.values(rankedByCategory)
+    .flat()
+    .filter((item) => Number.isFinite(item.calc.blendedValue) && Number.isFinite(item.calc.marginOfSafety))
+    .sort(compareRankedCompanies);
+  const topPortfolio = allRanked.slice(0, 12);
 
-  elements.syntheticCount.textContent = `${operatingCompanies.length} operating`;
-  const averageMos = operatingCompanies.length
-    ? operatingCompanies.reduce((sum, item) => sum + item.calc.marginOfSafety, 0) / operatingCompanies.length
+  elements.syntheticCount.textContent = `${topPortfolio.length} names`;
+  const averageMos = topPortfolio.length
+    ? topPortfolio.reduce((sum, item) => sum + item.calc.marginOfSafety, 0) / topPortfolio.length
     : NaN;
-  elements.syntheticSummary.textContent = operatingCompanies.length
-    ? `Operating equal weight ${formatDecimal(100 / operatingCompanies.length, 1)}% | Avg safety ${formatPercent(averageMos, 1)}`
-    : "No operating companies ranked yet";
+  elements.syntheticSummary.textContent = topPortfolio.length
+    ? `Category-fit models | Equal weight ${formatDecimal(100 / topPortfolio.length, 1)}% | Avg safety ${formatPercent(averageMos, 1)}`
+    : "Add model inputs to rank the portfolio";
 
   elements.syntheticPortfolio.innerHTML = `
-    ${renderPortfolioSection("Operating Companies", getCompanyModelLabel("operating"), operatingCompanies, "value")}
-    ${renderPortfolioSection("Banks", getCompanyModelLabel("bank"), rankedByCategory.bank, "model")}
-    ${renderPortfolioSection("Investment Companies", getCompanyModelLabel("investment"), rankedByCategory.investment, "model")}
-    ${renderPortfolioSection("Asset-heavy Cyclicals", getCompanyModelLabel("cyclical"), rankedByCategory.cyclical, "model")}
+    ${renderPortfolioSection("Best 12 Across Fit Models", "Equal-weight synthetic portfolio candidates", topPortfolio)}
+    ${renderPortfolioSection("Operating Companies", getCompanyModelLabel("operating"), rankedByCategory.operating)}
+    ${renderPortfolioSection("Banks", getCompanyModelLabel("bank"), rankedByCategory.bank)}
+    ${renderPortfolioSection("Investment Companies", getCompanyModelLabel("investment"), rankedByCategory.investment)}
+    ${renderPortfolioSection("Asset-heavy Cyclicals", getCompanyModelLabel("cyclical"), rankedByCategory.cyclical)}
   `;
 }
 
@@ -861,17 +1095,20 @@ function getRankedCompaniesByCategory() {
       categories[category].push(item);
     });
 
-  Object.values(categories).forEach((items) => {
-    items.sort((left, right) => {
-      if (right.calc.portfolioScore !== left.calc.portfolioScore) return right.calc.portfolioScore - left.calc.portfolioScore;
-      return right.calc.marginOfSafety - left.calc.marginOfSafety;
-    });
-  });
+  Object.values(categories).forEach((items) => items.sort(compareRankedCompanies));
 
   return categories;
 }
 
-function renderPortfolioSection(title, subtitle, items, mode) {
+function compareRankedCompanies(left, right) {
+  const rightValued = Number.isFinite(right.calc.blendedValue) ? 1 : 0;
+  const leftValued = Number.isFinite(left.calc.blendedValue) ? 1 : 0;
+  if (rightValued !== leftValued) return rightValued - leftValued;
+  if (right.calc.portfolioScore !== left.calc.portfolioScore) return right.calc.portfolioScore - left.calc.portfolioScore;
+  return numberOrFallback(right.calc.marginOfSafety, -999) - numberOrFallback(left.calc.marginOfSafety, -999);
+}
+
+function renderPortfolioSection(title, subtitle, items) {
   return `
     <div class="portfolio-block">
       <div class="portfolio-block-title">
@@ -882,23 +1119,27 @@ function renderPortfolioSection(title, subtitle, items, mode) {
         <span>Rank</span>
         <span>Company</span>
         <span>Price</span>
-        <span>${mode === "value" ? "Intrinsic" : "Model"}</span>
-        <span>${mode === "value" ? "Safety" : "Status"}</span>
+        <span>Intrinsic</span>
+        <span>Safety</span>
         <span>Score</span>
       </div>
-      ${items.map(({ company, calc }, index) => `
-        <button class="synthetic-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
-          <span>${index + 1}</span>
-          <span>
-            <strong>${escapeHtml(company.name)}</strong>
-            <small>${escapeHtml(company.ticker)}</small>
-          </span>
-          <span>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</span>
-          <span>${mode === "value" ? formatCurrency(calc.blendedValue, company.currency ?? "SEK") : escapeHtml(getCompanyModelLabel(company.companyType))}</span>
-          <span class="${mode === "value" ? (calc.marginOfSafety >= 0 ? "is-positive" : "is-negative") : "is-amber"}">${mode === "value" ? formatPercent(calc.marginOfSafety, 1) : "Separate"}</span>
-          <span>${mode === "value" ? calc.portfolioScore : calc.researchScore}</span>
-        </button>
-      `).join("") || `<div class="empty-row">No companies in this bucket</div>`}
+      ${items.map(({ company, calc }, index) => {
+        const category = normalizeCompanyType(company.companyType, company.ticker);
+        const valued = Number.isFinite(calc.blendedValue) && Number.isFinite(calc.marginOfSafety);
+        return `
+          <button class="synthetic-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
+            <span>${index + 1}</span>
+            <span>
+              <strong>${escapeHtml(company.name)}</strong>
+              <small>${escapeHtml(company.ticker)} | ${escapeHtml(getCompanyTypeShortLabel(category))}</small>
+            </span>
+            <span>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</span>
+            <span>${valued ? formatCurrency(calc.blendedValue, company.currency ?? "SEK") : escapeHtml(calc.model.valueDescription)}</span>
+            <span class="${valued ? (calc.marginOfSafety >= 0 ? "is-positive" : "is-negative") : "is-amber"}">${valued ? formatPercent(calc.marginOfSafety, 1) : "Needs input"}</span>
+            <span>${valued ? calc.portfolioScore : calc.researchScore}</span>
+          </button>
+        `;
+      }).join("") || `<div class="empty-row">No companies in this bucket</div>`}
     </div>
   `;
 }
@@ -945,10 +1186,22 @@ function drawDcfChart() {
   const height = rect.height;
   const calc = calculateCompany(company);
   const flows = calc.dcf.flows;
+  const category = normalizeCompanyType(company.companyType, company.ticker);
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#fbfcfb";
   context.fillRect(0, 0, width, height);
+
+  if (category !== "operating") {
+    context.fillStyle = "#17201b";
+    context.font = "14px Inter, sans-serif";
+    context.fillText(calc.model.chartTitle, 22, 34);
+    context.fillStyle = "#66706b";
+    context.fillText(calc.model.valueDescription, 22, 62);
+    context.fillText(`${calc.model.primaryLabel}: ${formatCurrency(calc.model.primaryValue, company.currency ?? "SEK")}`, 22, 92);
+    context.fillText(`${calc.model.secondaryLabel}: ${formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK")}`, 22, 120);
+    return;
+  }
 
   if (!flows.length) {
     context.fillStyle = "#66706b";
@@ -992,7 +1245,7 @@ function drawDcfChart() {
   context.fillStyle = "#17201b";
   context.font = "13px Inter, sans-serif";
   context.textAlign = "left";
-  context.fillText("Projected FCF / share", padding.left, 18);
+  context.fillText(calc.model.chartTitle, padding.left, 18);
 }
 
 function roundedRect(context, x, y, width, height, radius) {

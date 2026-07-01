@@ -10,9 +10,11 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from statistics import median
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_PATH = Path(__file__).resolve()
+ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
 CATEGORY_TICKERS = {
@@ -193,6 +195,15 @@ def per_share(value: float | None, shares: float | None, exchange_rate: float) -
     return (value * exchange_rate) / shares
 
 
+def median_per_share(values: list[float], shares: float | None, exchange_rate: float) -> float | None:
+    if not shares or shares <= 0:
+        return None
+    per_share_values = [(value * exchange_rate) / shares for value in values if finite(value) is not None]
+    positives = [value for value in per_share_values if value > 0]
+    sample = positives or per_share_values
+    return median(sample) if sample else None
+
+
 def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str, str], float]) -> dict[str, Any]:
     errors: list[str] = []
     ticker_obj = yf.Ticker(ticker)
@@ -280,6 +291,9 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
 
     fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
     net_debt_per_share = per_share((total_debt or 0) - (cash or 0), shares, exchange_rate)
+    book_value_per_share = per_share(equity, shares, exchange_rate)
+    roe = (net_income / equity * 100) if net_income is not None and equity and equity > 0 else None
+    normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
 
     output = {
         "id": company_id(ticker),
@@ -310,8 +324,11 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "fcfPerShare": fcf_per_share,
         "eps": eps_per_share,
         "netDebtPerShare": net_debt_per_share,
-        "equityPerShare": per_share(equity, shares, exchange_rate),
+        "bookValuePerShare": book_value_per_share,
+        "equityPerShare": book_value_per_share,
         "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
+        "roe": roe,
+        "normalizedFcfPerShare": normalized_fcf_per_share,
         "growth5y": fallback_growth,
         "consensusGrowth": growth or pct(pick(info, ["earningsGrowth", "revenueGrowth"])),
         "targetPe": target_pe,
