@@ -1,5 +1,37 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
 const MARKET_DATA_URL = "data/omxs30-data.json";
+const companyCategoryDefinitions = {
+  operating: {
+    label: "Operating company",
+    shortLabel: "Operating",
+    model: "DCF + reverse DCF + P/E",
+    warning: ""
+  },
+  bank: {
+    label: "Bank",
+    shortLabel: "Bank",
+    model: "P/B + ROE + P/E",
+    warning: "Use P/B, ROE versus cost of equity, and P/E instead of FCF DCF."
+  },
+  investment: {
+    label: "Investment company",
+    shortLabel: "Investment",
+    model: "NAV discount/premium + P/E",
+    warning: "Use NAV discount/premium as the primary model; DCF is not reliable here."
+  },
+  cyclical: {
+    label: "Asset-heavy cyclical",
+    shortLabel: "Cyclical",
+    model: "Normalized earnings/FCF",
+    warning: "Use normalized mid-cycle earnings or FCF, not one-year FCF."
+  }
+};
+
+const categoryTickers = {
+  bank: new Set(["SHB-A.ST", "NDA-SE.ST", "SEB-A.ST", "SWED-A.ST"]),
+  investment: new Set(["EQT.ST", "INDU-C.ST", "INVE-B.ST"]),
+  cyclical: new Set(["BOL.ST", "SCA-B.ST", "SKA-B.ST", "SKF-B.ST", "SAND.ST", "VOLV-B.ST"])
+};
 
 const sectorDefaults = {
   "Industrials": { growth5y: 6.0, consensusGrowth: 5.7, wacc: 8.7, terminalGrowth: 2.2, targetPe: 18, quality: [4, 4, 4] },
@@ -65,6 +97,7 @@ let state = {
   filters: {
     search: "",
     sector: "all",
+    companyType: "all",
     stance: "all"
   }
 };
@@ -74,6 +107,7 @@ state.selectedId = state.companies[0]?.id ?? null;
 const elements = {
   companyList: document.querySelector("#companyList"),
   sectorFilter: document.querySelector("#sectorFilter"),
+  typeFilter: document.querySelector("#typeFilter"),
   stanceFilter: document.querySelector("#stanceFilter"),
   searchInput: document.querySelector("#searchInput"),
   valuationForm: document.querySelector("#valuationForm"),
@@ -139,6 +173,7 @@ function createDefaultCompanies() {
       ticker,
       name,
       sector,
+      companyType: getCompanyType(ticker),
       marketPrice: price,
       fcfPerShare,
       eps,
@@ -176,7 +211,14 @@ function loadCompanies() {
 function mergeWithSeed(savedCompanies) {
   const defaults = createDefaultCompanies();
   const savedById = new Map(savedCompanies.map((company) => [company.id, company]));
-  return defaults.map((company) => ({ ...company, ...savedById.get(company.id) }));
+  return defaults.map((company) => {
+    const saved = savedById.get(company.id) ?? {};
+    return {
+      ...company,
+      ...saved,
+      companyType: normalizeCompanyType(saved.companyType, company.ticker)
+    };
+  });
 }
 
 function saveCompanies() {
@@ -253,6 +295,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
     return {
       ...seedCompany,
       ...current,
+      companyType: normalizeCompanyType(market.companyType ?? current.companyType, seedCompany.ticker),
       marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
       fcfPerShare: numberOrFallback(market.fcfPerShare, current.fcfPerShare ?? seedCompany.fcfPerShare),
       eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
@@ -277,6 +320,35 @@ function applyMarketData(currentCompanies, marketCompanies) {
 
 function getSelectedCompany() {
   return state.companies.find((company) => company.id === state.selectedId) ?? state.companies[0];
+}
+
+function getCompanyType(ticker) {
+  if (categoryTickers.bank.has(ticker)) return "bank";
+  if (categoryTickers.investment.has(ticker)) return "investment";
+  if (categoryTickers.cyclical.has(ticker)) return "cyclical";
+  return "operating";
+}
+
+function normalizeCompanyType(companyType, ticker) {
+  if (companyType === "producer") return getCompanyType(ticker);
+  if (companyCategoryDefinitions[companyType]) return companyType;
+  return getCompanyType(ticker);
+}
+
+function getCompanyTypeLabel(companyType) {
+  return companyCategoryDefinitions[companyType]?.label ?? companyCategoryDefinitions.operating.label;
+}
+
+function getCompanyTypeShortLabel(companyType) {
+  return companyCategoryDefinitions[companyType]?.shortLabel ?? companyCategoryDefinitions.operating.shortLabel;
+}
+
+function getCompanyModelLabel(companyType) {
+  return companyCategoryDefinitions[companyType]?.model ?? companyCategoryDefinitions.operating.model;
+}
+
+function getCompanyModelWarning(companyType) {
+  return companyCategoryDefinitions[companyType]?.warning ?? "";
 }
 
 function asNumber(value, fallback = 0) {
@@ -433,7 +505,12 @@ function calculateCompany(company, scenario = state.scenario) {
   const valuationScore = Number.isFinite(marginOfSafety) ? clamp(50 + marginOfSafety * 1.2, 0, 100) : 50;
   const researchScore = round((qualityScore * 0.42) + (valuationScore * 0.38) + (reverseBurdenScore * 0.2), 0);
   const portfolioScore = round((valuationScore * 0.5) + (reverseBurdenScore * 0.25) + (qualityScore * 0.25), 0);
+  const category = normalizeCompanyType(company.companyType, company.ticker);
   const stance = getStance(marginOfSafety, qualityScore);
+  const modelWarning = getCompanyModelWarning(category);
+  const displayStance = category === "operating"
+    ? stance
+    : { key: "model-needed", label: getCompanyTypeShortLabel(category) };
 
   return {
     dcf,
@@ -445,7 +522,9 @@ function calculateCompany(company, scenario = state.scenario) {
     qualityScore,
     researchScore,
     portfolioScore,
-    stance,
+    stance: displayStance,
+    modelWarning,
+    valuationStance: stance,
     growthGap: asNumber(company.growth5y) - asNumber(company.consensusGrowth)
   };
 }
@@ -503,6 +582,11 @@ function bindEvents() {
 
   elements.sectorFilter.addEventListener("change", (event) => {
     state.filters.sector = event.target.value;
+    renderCompanyList();
+  });
+
+  elements.typeFilter.addEventListener("change", (event) => {
+    state.filters.companyType = event.target.value;
     renderCompanyList();
   });
 
@@ -591,11 +675,13 @@ function renderHeader() {
   const calc = calculateCompany(company);
   elements.selectedTicker.textContent = company.ticker;
   elements.selectedName.textContent = company.name;
-  elements.selectedMeta.textContent = `${company.sector} | ${company.source}`;
-  elements.inputBadge.textContent = company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs");
+  elements.selectedMeta.textContent = `${company.sector} | ${getCompanyTypeLabel(company.companyType)} | ${company.source}`;
+  elements.inputBadge.textContent = company.companyType !== "operating"
+    ? getCompanyModelLabel(company.companyType)
+    : (company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
-  elements.valuationSubtitle.textContent = scenarioAdjustments[state.scenario].label;
+  elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(company.companyType)}`;
 }
 
 function renderDataStatus() {
@@ -623,8 +709,9 @@ function renderCompanyList(updateHtml = true) {
       const query = state.filters.search;
       const matchesQuery = !query || `${company.ticker} ${company.name}`.toLowerCase().includes(query);
       const matchesSector = state.filters.sector === "all" || company.sector === state.filters.sector;
+      const matchesType = state.filters.companyType === "all" || company.companyType === state.filters.companyType;
       const matchesStance = state.filters.stance === "all" || calc.stance.key === state.filters.stance;
-      return matchesQuery && matchesSector && matchesStance;
+      return matchesQuery && matchesSector && matchesType && matchesStance;
     })
     .sort((left, right) => right.calc.researchScore - left.calc.researchScore);
 
@@ -634,7 +721,7 @@ function renderCompanyList(updateHtml = true) {
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
         <span class="company-main">
           <span class="company-name">${escapeHtml(company.name)}</span>
-          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)}</span>
+          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)} | ${escapeHtml(getCompanyTypeShortLabel(company.companyType))}</span>
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
@@ -670,7 +757,7 @@ function renderMetrics() {
 
   const calc = calculateCompany(company);
   elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
-  elements.metricValueSub.textContent = `${formatCurrency(calc.dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(calc.peValue, company.currency ?? "SEK")} P/E`;
+  elements.metricValueSub.textContent = calc.modelWarning || `${formatCurrency(calc.dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(calc.peValue, company.currency ?? "SEK")} P/E`;
   elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
   elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
   elements.metricMosSub.textContent = `Price ${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}`;
@@ -738,45 +825,81 @@ function renderSectorBars() {
 }
 
 function renderSyntheticPortfolio() {
-  const ranked = state.companies
-    .map((company) => ({ company, calc: calculateCompany(company, "base") }))
-    .filter(({ calc }) => Number.isFinite(calc.blendedValue) && Number.isFinite(calc.marginOfSafety))
-    .sort((left, right) => {
-      if (right.calc.portfolioScore !== left.calc.portfolioScore) return right.calc.portfolioScore - left.calc.portfolioScore;
-      return right.calc.marginOfSafety - left.calc.marginOfSafety;
-    })
-    .slice(0, 12);
+  const rankedByCategory = getRankedCompaniesByCategory();
+  const operatingCompanies = rankedByCategory.operating.slice(0, 12);
 
-  elements.syntheticCount.textContent = `${ranked.length} names`;
-  const averageMos = ranked.length
-    ? ranked.reduce((sum, item) => sum + item.calc.marginOfSafety, 0) / ranked.length
+  elements.syntheticCount.textContent = `${operatingCompanies.length} operating`;
+  const averageMos = operatingCompanies.length
+    ? operatingCompanies.reduce((sum, item) => sum + item.calc.marginOfSafety, 0) / operatingCompanies.length
     : NaN;
-  elements.syntheticSummary.textContent = ranked.length
-    ? `Equal weight ${formatDecimal(100 / ranked.length, 1)}% | Avg safety ${formatPercent(averageMos, 1)}`
-    : "No ranked companies yet";
+  elements.syntheticSummary.textContent = operatingCompanies.length
+    ? `Operating equal weight ${formatDecimal(100 / operatingCompanies.length, 1)}% | Avg safety ${formatPercent(averageMos, 1)}`
+    : "No operating companies ranked yet";
 
   elements.syntheticPortfolio.innerHTML = `
-    <div class="synthetic-header">
-      <span>Rank</span>
-      <span>Company</span>
-      <span>Price</span>
-      <span>Intrinsic</span>
-      <span>Safety</span>
-      <span>Score</span>
+    ${renderPortfolioSection("Operating Companies", getCompanyModelLabel("operating"), operatingCompanies, "value")}
+    ${renderPortfolioSection("Banks", getCompanyModelLabel("bank"), rankedByCategory.bank, "model")}
+    ${renderPortfolioSection("Investment Companies", getCompanyModelLabel("investment"), rankedByCategory.investment, "model")}
+    ${renderPortfolioSection("Asset-heavy Cyclicals", getCompanyModelLabel("cyclical"), rankedByCategory.cyclical, "model")}
+  `;
+}
+
+function getRankedCompaniesByCategory() {
+  const categories = {
+    operating: [],
+    bank: [],
+    investment: [],
+    cyclical: []
+  };
+
+  state.companies
+    .map((company) => ({ company, calc: calculateCompany(company, "base") }))
+    .forEach((item) => {
+      const category = normalizeCompanyType(item.company.companyType, item.company.ticker);
+      const hasValuation = Number.isFinite(item.calc.blendedValue) && Number.isFinite(item.calc.marginOfSafety);
+      if (category === "operating" && !hasValuation) return;
+      categories[category].push(item);
+    });
+
+  Object.values(categories).forEach((items) => {
+    items.sort((left, right) => {
+      if (right.calc.portfolioScore !== left.calc.portfolioScore) return right.calc.portfolioScore - left.calc.portfolioScore;
+      return right.calc.marginOfSafety - left.calc.marginOfSafety;
+    });
+  });
+
+  return categories;
+}
+
+function renderPortfolioSection(title, subtitle, items, mode) {
+  return `
+    <div class="portfolio-block">
+      <div class="portfolio-block-title">
+        <h4>${escapeHtml(title)}</h4>
+        <p>${escapeHtml(subtitle)}</p>
+      </div>
+      <div class="synthetic-header">
+        <span>Rank</span>
+        <span>Company</span>
+        <span>Price</span>
+        <span>${mode === "value" ? "Intrinsic" : "Model"}</span>
+        <span>${mode === "value" ? "Safety" : "Status"}</span>
+        <span>Score</span>
+      </div>
+      ${items.map(({ company, calc }, index) => `
+        <button class="synthetic-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
+          <span>${index + 1}</span>
+          <span>
+            <strong>${escapeHtml(company.name)}</strong>
+            <small>${escapeHtml(company.ticker)}</small>
+          </span>
+          <span>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</span>
+          <span>${mode === "value" ? formatCurrency(calc.blendedValue, company.currency ?? "SEK") : escapeHtml(getCompanyModelLabel(company.companyType))}</span>
+          <span class="${mode === "value" ? (calc.marginOfSafety >= 0 ? "is-positive" : "is-negative") : "is-amber"}">${mode === "value" ? formatPercent(calc.marginOfSafety, 1) : "Separate"}</span>
+          <span>${mode === "value" ? calc.portfolioScore : calc.researchScore}</span>
+        </button>
+      `).join("") || `<div class="empty-row">No companies in this bucket</div>`}
     </div>
-    ${ranked.map(({ company, calc }, index) => `
-      <button class="synthetic-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
-        <span>${index + 1}</span>
-        <span>
-          <strong>${escapeHtml(company.name)}</strong>
-          <small>${escapeHtml(company.ticker)}</small>
-        </span>
-        <span>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</span>
-        <span>${formatCurrency(calc.blendedValue, company.currency ?? "SEK")}</span>
-        <span class="${calc.marginOfSafety >= 0 ? "is-positive" : "is-negative"}">${formatPercent(calc.marginOfSafety, 1)}</span>
-        <span>${calc.portfolioScore}</span>
-      </button>
-    `).join("")}
   `;
 }
 

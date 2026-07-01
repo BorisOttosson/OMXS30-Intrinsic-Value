@@ -15,6 +15,11 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
+CATEGORY_TICKERS = {
+    "bank": {"SHB-A.ST", "NDA-SE.ST", "SEB-A.ST", "SWED-A.ST"},
+    "investment": {"EQT.ST", "INDU-C.ST", "INVE-B.ST"},
+    "cyclical": {"BOL.ST", "SCA-B.ST", "SKA-B.ST", "SKF-B.ST", "SAND.ST", "VOLV-B.ST"},
+}
 
 OMXS30 = [
     ("ABB.ST", "ABB Ltd", "Industrials"),
@@ -52,6 +57,13 @@ OMXS30 = [
 
 def company_id(ticker: str) -> str:
     return "".join(ch.lower() if ch.isalnum() else "-" for ch in ticker).strip("-")
+
+
+def company_type(ticker: str) -> str:
+    for category, tickers in CATEGORY_TICKERS.items():
+        if ticker in tickers:
+            return category
+    return "operating"
 
 
 def finite(value: Any) -> float | None:
@@ -274,6 +286,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "ticker": ticker,
         "name": name,
         "sector": sector,
+        "companyType": company_type(ticker),
         "source": "Yahoo Finance",
         "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "currency": quote_currency,

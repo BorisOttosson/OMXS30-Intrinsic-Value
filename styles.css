@@ -467,6 +467,11 @@ button:focus-visible,
   color: var(--amber);
 }
 
+.status-badge.model-needed {
+  background: #fff3df;
+  color: var(--amber);
+}
+
 .input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -574,7 +579,34 @@ button:focus-visible,
 
 .synthetic-table {
   display: grid;
+  gap: 18px;
+}
+
+.portfolio-block {
+  display: grid;
   gap: 6px;
+}
+
+.portfolio-block-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 4px;
+}
+
+.portfolio-block-title h4,
+.portfolio-block-title p {
+  margin: 0;
+}
+
+.portfolio-block-title h4 {
+  font-size: 0.94rem;
+}
+
+.portfolio-block-title p {
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .synthetic-header,
@@ -618,6 +650,13 @@ button:focus-visible,
 
 .synthetic-row small {
   margin-top: 2px;
+  color: var(--muted);
+}
+
+.empty-row {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 12px;
   color: var(--muted);
 }
 
@@ -811,6 +850,10 @@ input[type="range"] {
   .synthetic-header,
   .synthetic-row {
     min-width: 700px;
+  }
+
+  .portfolio-block-title {
+    display: grid;
   }
 
   .model-panel {

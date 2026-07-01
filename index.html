@@ -56,6 +56,18 @@
               <select id="sectorFilter"></select>
             </label>
             <label>
+              <span>Category</span>
+              <select id="typeFilter">
+                <option value="all">All</option>
+                <option value="operating">Operating</option>
+                <option value="bank">Banks</option>
+                <option value="investment">Investment</option>
+                <option value="cyclical">Cyclicals</option>
+              </select>
+            </label>
+          </div>
+          <div class="filter-row">
+            <label>
               <span>View</span>
               <select id="stanceFilter">
                 <option value="all">All</option>
@@ -64,6 +76,7 @@
                 <option value="fair">Fair</option>
                 <option value="rich">Rich</option>
                 <option value="stretched">Stretched</option>
+                <option value="model-needed">Model needed</option>
               </select>
             </label>
           </div>
@@ -122,9 +135,9 @@
           <div class="panel-title">
             <div>
               <h3>Synthetic Portfolio</h3>
-              <p id="syntheticSummary">Top 12 by value gap, reverse DCF burden, and quality</p>
+              <p id="syntheticSummary">Operating companies ranked by valuation and quality</p>
             </div>
-            <span class="ticker-pill" id="syntheticCount">12 names</span>
+            <span class="ticker-pill" id="syntheticCount">12 operating</span>
           </div>
           <div class="synthetic-table" id="syntheticPortfolio"></div>
         </section>
