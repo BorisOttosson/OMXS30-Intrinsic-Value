@@ -33,6 +33,39 @@ const categoryTickers = {
   cyclical: new Set(["BOL.ST", "SCA-B.ST", "SKA-B.ST", "SKF-B.ST", "SAND.ST", "VOLV-B.ST"])
 };
 
+const companyWordmarks = {
+  "ABB.ST": "ABB",
+  "ADDT-B.ST": "Addtech",
+  "ALFA.ST": "Alfa Laval",
+  "ASSA-B.ST": "ASSA ABLOY",
+  "AZN.ST": "AstraZeneca",
+  "ATCO-A.ST": "Atlas Copco",
+  "BOL.ST": "Boliden",
+  "EPI-A.ST": "Epiroc",
+  "EQT.ST": "EQT",
+  "ERIC-B.ST": "ERICSSON",
+  "ESSITY-B.ST": "Essity",
+  "EVO.ST": "Evolution",
+  "SHB-A.ST": "Handelsbanken",
+  "HM-B.ST": "H&M",
+  "HEXA-B.ST": "Hexagon",
+  "INDU-C.ST": "Industrivarden",
+  "INVE-B.ST": "investor",
+  "LIFCO-B.ST": "Lifco",
+  "NIBE-B.ST": "NIBE",
+  "NDA-SE.ST": "Nordea",
+  "SAAB-B.ST": "SAAB",
+  "SAND.ST": "Sandvik",
+  "SCA-B.ST": "SCA",
+  "SEB-A.ST": "SEB",
+  "SKA-B.ST": "Skanska",
+  "SKF-B.ST": "SKF",
+  "SWED-A.ST": "Swedbank",
+  "TEL2-B.ST": "Tele2",
+  "TELIA.ST": "Telia",
+  "VOLV-B.ST": "VOLVO"
+};
+
 const sectorDefaults = {
   "Industrials": { growth5y: 6.0, consensusGrowth: 5.7, wacc: 8.7, terminalGrowth: 2.2, targetPe: 18, quality: [4, 4, 4] },
   "Financials": { growth5y: 4.1, consensusGrowth: 3.9, wacc: 9.4, terminalGrowth: 1.8, targetPe: 12, quality: [3, 4, 4] },
@@ -112,6 +145,7 @@ const elements = {
   searchInput: document.querySelector("#searchInput"),
   valuationForm: document.querySelector("#valuationForm"),
   selectedTicker: document.querySelector("#selectedTicker"),
+  selectedLogo: document.querySelector("#selectedLogo"),
   selectedName: document.querySelector("#selectedName"),
   selectedMeta: document.querySelector("#selectedMeta"),
   inputBadge: document.querySelector("#inputBadge"),
@@ -119,6 +153,7 @@ const elements = {
   valuationSubtitle: document.querySelector("#valuationSubtitle"),
   metricValue: document.querySelector("#metricValue"),
   metricValueSub: document.querySelector("#metricValueSub"),
+  heroCurrentPrice: document.querySelector("#heroCurrentPrice"),
   metricMos: document.querySelector("#metricMos"),
   metricMosSub: document.querySelector("#metricMosSub"),
   metricReverseLabel: document.querySelector("#metricReverseLabel"),
@@ -155,6 +190,7 @@ const elements = {
   fundShares: document.querySelector("#fundShares"),
   fundFcfYield: document.querySelector("#fundFcfYield"),
   footerDataNote: document.querySelector("#footerDataNote"),
+  tickerSnapshot: document.querySelector("#tickerSnapshot"),
   exportBtn: document.querySelector("#exportBtn"),
   importFile: document.querySelector("#importFile"),
   resetSelectedBtn: document.querySelector("#resetSelectedBtn"),
@@ -373,6 +409,10 @@ function getCompanyModelWarning(companyType) {
   return companyCategoryDefinitions[companyType]?.warning ?? "";
 }
 
+function getCompanyWordmark(company) {
+  return companyWordmarks[company.ticker] ?? company.name;
+}
+
 function asNumber(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
@@ -402,6 +442,16 @@ function clamp(value, min, max) {
 function formatSek(value) {
   if (!Number.isFinite(value)) return "-";
   return `${Math.round(value).toLocaleString("sv-SE")} SEK`;
+}
+
+function formatPriceNumber(value) {
+  if (!Number.isFinite(value)) return "-";
+  return Math.round(value).toLocaleString("sv-SE");
+}
+
+function formatTickerMoney(value, currency = "SEK") {
+  if (!Number.isFinite(value)) return "-";
+  return `${formatPriceNumber(value)} ${currency}`;
 }
 
 function formatCurrency(value, currency = "SEK") {
@@ -898,8 +948,9 @@ function renderHeader() {
   const calc = calculateCompany(company);
   const category = normalizeCompanyType(company.companyType, company.ticker);
   elements.selectedTicker.textContent = company.ticker;
+  elements.selectedLogo.textContent = getCompanyWordmark(company);
   elements.selectedName.textContent = company.name;
-  elements.selectedMeta.textContent = `${company.sector} | ${getCompanyTypeLabel(category)} | ${company.source}`;
+  elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${company.source}`;
   elements.inputBadge.textContent = category !== "operating"
     ? getCompanyModelLabel(category)
     : (company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
@@ -919,6 +970,7 @@ function renderDataStatus() {
   elements.footerDataNote.textContent = state.marketData.loaded
     ? `Market data: ${state.marketData.provider}, ${timestamp}.`
     : "OMXS30 seed composition: 2025-07-01.";
+  elements.tickerSnapshot.textContent = `Snapshot: ${timestamp}`;
 }
 
 function renderCompanyList(updateHtml = true) {
@@ -945,12 +997,12 @@ function renderCompanyList(updateHtml = true) {
     return `
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
         <span class="company-price">
-          <strong>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</strong>
-          <small>Price</small>
+          <strong>${formatPriceNumber(asNumber(company.marketPrice))}</strong>
+          <small>${escapeHtml(company.currency ?? "SEK")}</small>
         </span>
         <span class="company-main">
-          <span class="company-name">${escapeHtml(company.name)}</span>
-          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
+          <span class="company-name">${escapeHtml(getCompanyWordmark(company))}</span>
+          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
@@ -987,9 +1039,10 @@ function renderMetrics() {
   const calc = calculateCompany(company);
   elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
   elements.metricValueSub.textContent = calc.model.valueDescription;
+  elements.heroCurrentPrice.textContent = formatTickerMoney(asNumber(company.marketPrice), company.currency ?? "SEK");
   elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
   elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
-  elements.metricMosSub.textContent = `Price ${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}`;
+  elements.metricMosSub.textContent = calc.marginOfSafety >= 0 ? "upside" : "downside";
   elements.metricReverseLabel.textContent = calc.model.reverseLabel;
   elements.metricReverse.textContent = calc.model.reverseValue;
   elements.metricReverseSub.textContent = calc.model.reverseSub;
@@ -1193,14 +1246,14 @@ function drawDcfChart() {
   const category = normalizeCompanyType(company.companyType, company.ticker);
 
   context.clearRect(0, 0, width, height);
-  context.fillStyle = "#fbfcfb";
+  context.fillStyle = "#071b2e";
   context.fillRect(0, 0, width, height);
 
   if (category !== "operating") {
-    context.fillStyle = "#17201b";
+    context.fillStyle = "#f8fbff";
     context.font = "14px Inter, sans-serif";
     context.fillText(calc.model.chartTitle, 22, 34);
-    context.fillStyle = "#66706b";
+    context.fillStyle = "#b8c0ca";
     context.fillText(calc.model.valueDescription, 22, 62);
     context.fillText(`${calc.model.primaryLabel}: ${formatCurrency(calc.model.primaryValue, company.currency ?? "SEK")}`, 22, 92);
     context.fillText(`${calc.model.secondaryLabel}: ${formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK")}`, 22, 120);
@@ -1208,7 +1261,7 @@ function drawDcfChart() {
   }
 
   if (!flows.length) {
-    context.fillStyle = "#66706b";
+    context.fillStyle = "#b8c0ca";
     context.font = "14px Inter, sans-serif";
     context.fillText("DCF input conflict", 22, 34);
     return;
@@ -1220,7 +1273,7 @@ function drawDcfChart() {
   const maxFlow = Math.max(...flows.map((flow) => flow.cashFlow), asNumber(company.fcfPerShare));
   const barWidth = Math.min(58, chartWidth / flows.length * 0.54);
 
-  context.strokeStyle = "#dbe3dc";
+  context.strokeStyle = "rgba(220, 229, 240, 0.28)";
   context.lineWidth = 1;
   context.beginPath();
   context.moveTo(padding.left, padding.top);
@@ -1233,20 +1286,20 @@ function drawDcfChart() {
     const barHeight = Math.max(2, (flow.cashFlow / maxFlow) * chartHeight);
     const y = height - padding.bottom - barHeight;
     const gradient = context.createLinearGradient(0, y, 0, height - padding.bottom);
-    gradient.addColorStop(0, "#3267c8");
-    gradient.addColorStop(1, "#1f7a5a");
+    gradient.addColorStop(0, "#6aa7ff");
+    gradient.addColorStop(1, "#72d05f");
 
     context.fillStyle = gradient;
     roundedRect(context, x, y, barWidth, barHeight, 6);
     context.fill();
 
-    context.fillStyle = "#66706b";
+    context.fillStyle = "#b8c0ca";
     context.font = "12px Inter, sans-serif";
     context.textAlign = "center";
     context.fillText(`Y${flow.year}`, x + barWidth / 2, height - 18);
   });
 
-  context.fillStyle = "#17201b";
+  context.fillStyle = "#f8fbff";
   context.font = "13px Inter, sans-serif";
   context.textAlign = "left";
   context.fillText(calc.model.chartTitle, padding.left, 18);

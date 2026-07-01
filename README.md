@@ -2,9 +2,11 @@
 
 A local personal finance research app for valuing the OMXS30 universe with:
 
-- Discounted cash flow value per share
-- Reverse DCF implied 5 year FCF growth
-- P/E fair value
+- Category-fit intrinsic value models
+- Operating company DCF, reverse DCF, and P/E
+- Bank P/B, ROE spread, and P/E
+- Investment company NAV discount/premium and P/E where useful
+- Cyclical normalized FCF and P/E
 - Industry, company, and leadership scorecard
 - Yahoo Finance/yfinance refresh pipeline for prices and fundamentals
 - Top 12 synthetic portfolio ranking
@@ -47,7 +49,7 @@ That writes:
 data/omxs30-data.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, and qualitative scores editable, while market price, EPS, free cash flow per share, net debt per share, growth estimates, P/E inputs, equity, liabilities, debt, cash, revenue, market cap, and shares come from the latest generated data file where Yahoo has coverage.
+Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, and qualitative scores editable, while market price, EPS, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, equity, liabilities, debt, cash, revenue, market cap, and shares come from the latest generated data file where Yahoo has coverage.
 
 Yahoo Finance access is handled through `yfinance`, which is an unofficial open-source wrapper around Yahoo's publicly available data. Treat it as a personal research feed, not as guaranteed production market data.
 
@@ -67,7 +69,9 @@ data/omxs30-data.json
 
 GitHub Pages then serves the updated data file with the website.
 
-## Formulas
+## Model Formulas
+
+### Operating Companies
 
 DCF uses five annual FCF/share projections, discounted by WACC, plus a Gordon growth terminal value:
 
@@ -85,6 +89,37 @@ P/E value = EPS x target P/E
 ```
 
 The blended value is the average of valid DCF and P/E values.
+
+### Banks
+
+Banks use a justified P/B model:
+
+```text
+Justified P/B = (ROE - long-term growth) / (cost of equity - long-term growth)
+P/B value = book value/share x justified P/B
+```
+
+The bank blended value weights P/B at 65% and P/E at 35%.
+
+### Investment Companies
+
+Investment companies use NAV discount/premium as the main anchor:
+
+```text
+NAV discount = (NAV/share - market price) / NAV/share
+```
+
+The blended value weights NAV at 80% and P/E at 20% when P/E is useful.
+
+### Asset-heavy Cyclicals
+
+Cyclicals use normalized FCF rather than one-year FCF:
+
+```text
+Normalized FCF value = normalized FCF/share x normalized FCF multiple - net debt/share
+```
+
+The cyclical blended value weights normalized FCF at 70% and P/E at 30%.
 
 ## Company Categories
 
