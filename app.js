@@ -1,0 +1,947 @@
+const STORAGE_KEY = "intrinsic-value-omxs30-v1";
+const MARKET_DATA_URL = "data/omxs30-data.json";
+
+const sectorDefaults = {
+  "Industrials": { growth5y: 6.0, consensusGrowth: 5.7, wacc: 8.7, terminalGrowth: 2.2, targetPe: 18, quality: [4, 4, 4] },
+  "Financials": { growth5y: 4.1, consensusGrowth: 3.9, wacc: 9.4, terminalGrowth: 1.8, targetPe: 12, quality: [3, 4, 4] },
+  "Information Technology": { growth5y: 7.3, consensusGrowth: 7.0, wacc: 9.0, terminalGrowth: 2.4, targetPe: 22, quality: [4, 4, 3] },
+  "Health Care": { growth5y: 7.0, consensusGrowth: 6.6, wacc: 8.4, terminalGrowth: 2.5, targetPe: 21, quality: [4, 4, 4] },
+  "Consumer Discretionary": { growth5y: 5.2, consensusGrowth: 4.8, wacc: 9.2, terminalGrowth: 2.0, targetPe: 17, quality: [3, 3, 3] },
+  "Consumer Staples": { growth5y: 3.6, consensusGrowth: 3.4, wacc: 7.8, terminalGrowth: 1.9, targetPe: 17, quality: [3, 4, 4] },
+  "Communication Services": { growth5y: 2.7, consensusGrowth: 2.5, wacc: 8.2, terminalGrowth: 1.4, targetPe: 12, quality: [2, 3, 3] },
+  "Materials": { growth5y: 3.8, consensusGrowth: 3.6, wacc: 9.1, terminalGrowth: 1.7, targetPe: 11, quality: [3, 3, 3] }
+};
+
+const omxs30Seed = [
+  ["ABB.ST", "ABB Ltd", "Industrials"],
+  ["ADDT-B.ST", "Addtech B", "Industrials"],
+  ["ALFA.ST", "Alfa Laval", "Industrials"],
+  ["ASSA-B.ST", "Assa Abloy B", "Industrials"],
+  ["AZN.ST", "AstraZeneca", "Health Care"],
+  ["ATCO-A.ST", "Atlas Copco A", "Industrials"],
+  ["BOL.ST", "Boliden", "Materials"],
+  ["EPI-A.ST", "Epiroc A", "Industrials"],
+  ["EQT.ST", "EQT", "Financials"],
+  ["ERIC-B.ST", "Ericsson B", "Information Technology"],
+  ["ESSITY-B.ST", "Essity B", "Consumer Staples"],
+  ["EVO.ST", "Evolution", "Consumer Discretionary"],
+  ["SHB-A.ST", "Handelsbanken A", "Financials"],
+  ["HM-B.ST", "Hennes & Mauritz B", "Consumer Discretionary"],
+  ["HEXA-B.ST", "Hexagon B", "Information Technology"],
+  ["INDU-C.ST", "Industrivarden C", "Financials"],
+  ["INVE-B.ST", "Investor B", "Financials"],
+  ["LIFCO-B.ST", "Lifco B", "Industrials"],
+  ["NIBE-B.ST", "Nibe Industrier B", "Industrials"],
+  ["NDA-SE.ST", "Nordea Bank Abp", "Financials"],
+  ["SAAB-B.ST", "Saab B", "Industrials"],
+  ["SAND.ST", "Sandvik", "Industrials"],
+  ["SCA-B.ST", "SCA B", "Materials"],
+  ["SEB-A.ST", "SEB A", "Financials"],
+  ["SKA-B.ST", "Skanska B", "Industrials"],
+  ["SKF-B.ST", "SKF B", "Industrials"],
+  ["SWED-A.ST", "Swedbank A", "Financials"],
+  ["TEL2-B.ST", "Tele2 B", "Communication Services"],
+  ["TELIA.ST", "Telia Company", "Communication Services"],
+  ["VOLV-B.ST", "Volvo B", "Industrials"]
+];
+
+const scenarioAdjustments = {
+  base: { label: "Base case", growth: 0, wacc: 0, targetPe: 0 },
+  bear: { label: "Bear case", growth: -2.0, wacc: 1.0, targetPe: -2.0 },
+  bull: { label: "Bull case", growth: 2.0, wacc: -0.7, targetPe: 2.0 }
+};
+
+let state = {
+  companies: loadCompanies(),
+  selectedId: null,
+  scenario: "base",
+  marketData: {
+    loaded: false,
+    status: "Sample inputs",
+    generatedAt: null,
+    provider: null,
+    errors: []
+  },
+  filters: {
+    search: "",
+    sector: "all",
+    stance: "all"
+  }
+};
+
+state.selectedId = state.companies[0]?.id ?? null;
+
+const elements = {
+  companyList: document.querySelector("#companyList"),
+  sectorFilter: document.querySelector("#sectorFilter"),
+  stanceFilter: document.querySelector("#stanceFilter"),
+  searchInput: document.querySelector("#searchInput"),
+  valuationForm: document.querySelector("#valuationForm"),
+  selectedTicker: document.querySelector("#selectedTicker"),
+  selectedName: document.querySelector("#selectedName"),
+  selectedMeta: document.querySelector("#selectedMeta"),
+  inputBadge: document.querySelector("#inputBadge"),
+  stanceBadge: document.querySelector("#stanceBadge"),
+  valuationSubtitle: document.querySelector("#valuationSubtitle"),
+  metricValue: document.querySelector("#metricValue"),
+  metricValueSub: document.querySelector("#metricValueSub"),
+  metricMos: document.querySelector("#metricMos"),
+  metricMosSub: document.querySelector("#metricMosSub"),
+  metricReverse: document.querySelector("#metricReverse"),
+  metricReverseSub: document.querySelector("#metricReverseSub"),
+  metricScore: document.querySelector("#metricScore"),
+  metricScoreSub: document.querySelector("#metricScoreSub"),
+  dcfValue: document.querySelector("#dcfValue"),
+  peValue: document.querySelector("#peValue"),
+  currentPe: document.querySelector("#currentPe"),
+  qualityRing: document.querySelector("#qualityRing"),
+  qualitySummary: document.querySelector("#qualitySummary"),
+  growthGap: document.querySelector("#growthGap"),
+  qualityScore: document.querySelector("#qualityScore"),
+  portfolioSummary: document.querySelector("#portfolioSummary"),
+  sectorBars: document.querySelector("#sectorBars"),
+  dcfChart: document.querySelector("#dcfChart"),
+  dataStatus: document.querySelector("#dataStatus"),
+  dataTimestamp: document.querySelector("#dataTimestamp"),
+  reloadDataBtn: document.querySelector("#reloadDataBtn"),
+  syntheticPortfolio: document.querySelector("#syntheticPortfolio"),
+  syntheticSummary: document.querySelector("#syntheticSummary"),
+  syntheticCount: document.querySelector("#syntheticCount"),
+  fundamentalsSubtitle: document.querySelector("#fundamentalsSubtitle"),
+  fundMarketCap: document.querySelector("#fundMarketCap"),
+  fundRevenue: document.querySelector("#fundRevenue"),
+  fundEquity: document.querySelector("#fundEquity"),
+  fundLiabilities: document.querySelector("#fundLiabilities"),
+  fundDebt: document.querySelector("#fundDebt"),
+  fundCash: document.querySelector("#fundCash"),
+  fundShares: document.querySelector("#fundShares"),
+  fundFcfYield: document.querySelector("#fundFcfYield"),
+  footerDataNote: document.querySelector("#footerDataNote"),
+  exportBtn: document.querySelector("#exportBtn"),
+  importFile: document.querySelector("#importFile"),
+  resetSelectedBtn: document.querySelector("#resetSelectedBtn"),
+  resetAllBtn: document.querySelector("#resetAllBtn"),
+  toast: document.querySelector("#toast")
+};
+
+function createDefaultCompanies() {
+  return omxs30Seed.map(([ticker, name, sector], index) => {
+    const defaults = sectorDefaults[sector];
+    const price = round(58 + (index % 9) * 28 + Math.floor(index / 3) * 11 + (sector.length % 5) * 9, 2);
+    const peAnchor = defaults.targetPe * (0.86 + (index % 5) * 0.045);
+    const eps = round(price / peAnchor, 2);
+    const fcfPerShare = round(eps * (0.76 + (index % 4) * 0.08), 2);
+    const debt = sector === "Financials" ? 0 : round(((index % 7) - 3) * 1.65, 2);
+    const [industryScore, companyScore, leadershipScore] = defaults.quality;
+
+    return {
+      id: ticker.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+      ticker,
+      name,
+      sector,
+      marketPrice: price,
+      fcfPerShare,
+      eps,
+      netDebtPerShare: debt,
+      growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
+      consensusGrowth: round(defaults.consensusGrowth + ((index % 4) - 1) * 0.25, 1),
+      wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
+      terminalGrowth: defaults.terminalGrowth,
+      targetPe: round(defaults.targetPe + ((index % 3) - 1) * 0.6, 1),
+      portfolioWeight: 0,
+      industryScore,
+      companyScore: clamp(companyScore + ((index % 3) - 1), 1, 5),
+      leadershipScore: clamp(leadershipScore + ((index % 4) === 0 ? 1 : 0), 1, 5),
+      notes: "",
+      source: "Sample input",
+      currency: "SEK",
+      dataUpdatedAt: null,
+      fundamentals: {}
+    };
+  });
+}
+
+function loadCompanies() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return createDefaultCompanies();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed?.companies)) return createDefaultCompanies();
+    return mergeWithSeed(parsed.companies);
+  } catch {
+    return createDefaultCompanies();
+  }
+}
+
+function mergeWithSeed(savedCompanies) {
+  const defaults = createDefaultCompanies();
+  const savedById = new Map(savedCompanies.map((company) => [company.id, company]));
+  return defaults.map((company) => ({ ...company, ...savedById.get(company.id) }));
+}
+
+function saveCompanies() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    companies: state.companies
+  }, null, 2));
+}
+
+async function loadMarketData({ quiet = true } = {}) {
+  try {
+    const response = await fetch(`${MARKET_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!Array.isArray(payload?.companies)) throw new Error("Missing companies");
+
+    state.companies = applyMarketData(state.companies, payload.companies);
+    state.marketData = {
+      loaded: true,
+      status: "Yahoo Finance",
+      generatedAt: payload.generatedAt ?? null,
+      provider: payload.provider ?? "Yahoo Finance via yfinance",
+      errors: payload.companies.flatMap((company) => company.errors ?? [])
+    };
+    saveCompanies();
+    renderAll();
+    if (!quiet) showToast("Market data reloaded");
+  } catch (error) {
+    state.marketData = {
+      loaded: false,
+      status: "Sample or saved inputs",
+      generatedAt: null,
+      provider: null,
+      errors: [String(error?.message ?? error)]
+    };
+    renderDataStatus();
+    if (!quiet) showToast("No market data file found");
+  }
+}
+
+function applyMarketData(currentCompanies, marketCompanies) {
+  const currentById = new Map(currentCompanies.map((company) => [company.id, company]));
+  const marketById = new Map(marketCompanies.map((company) => [company.id, company]));
+
+  return createDefaultCompanies().map((seedCompany) => {
+    const current = currentById.get(seedCompany.id) ?? {};
+    const market = marketById.get(seedCompany.id) ?? {};
+    const fundamentals = {
+      previousClose: numberOrNull(market.previousClose),
+      marketCap: numberOrNull(market.marketCap),
+      sharesOutstanding: numberOrNull(market.sharesOutstanding),
+      totalRevenue: numberOrNull(market.totalRevenue),
+      netIncome: numberOrNull(market.netIncome),
+      operatingCashFlow: numberOrNull(market.operatingCashFlow),
+      capitalExpenditures: numberOrNull(market.capitalExpenditures),
+      freeCashFlow: numberOrNull(market.freeCashFlow),
+      totalAssets: numberOrNull(market.totalAssets),
+      totalLiabilities: numberOrNull(market.totalLiabilities),
+      bookEquity: numberOrNull(market.bookEquity),
+      totalDebt: numberOrNull(market.totalDebt),
+      cash: numberOrNull(market.cash),
+      equityPerShare: numberOrNull(market.equityPerShare),
+      liabilitiesPerShare: numberOrNull(market.liabilitiesPerShare),
+      trailingPe: numberOrNull(market.trailingPe),
+      forwardPe: numberOrNull(market.forwardPe),
+      analystTargetMeanPrice: numberOrNull(market.analystTargetMeanPrice),
+      recommendationMean: numberOrNull(market.recommendationMean),
+      financialCurrency: market.financialCurrency ?? null,
+      financialToQuoteFx: numberOrNull(market.financialToQuoteFx),
+      errors: market.errors ?? []
+    };
+
+    return {
+      ...seedCompany,
+      ...current,
+      marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
+      fcfPerShare: numberOrFallback(market.fcfPerShare, current.fcfPerShare ?? seedCompany.fcfPerShare),
+      eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
+      netDebtPerShare: numberOrFallback(market.netDebtPerShare, current.netDebtPerShare ?? seedCompany.netDebtPerShare),
+      growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
+      consensusGrowth: numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? seedCompany.consensusGrowth),
+      targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
+      currency: market.currency ?? current.currency ?? "SEK",
+      dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
+      source: market.source ? "Yahoo Finance + manual assumptions" : (current.source ?? seedCompany.source),
+      notes: current.notes ?? seedCompany.notes,
+      wacc: current.wacc ?? seedCompany.wacc,
+      terminalGrowth: current.terminalGrowth ?? seedCompany.terminalGrowth,
+      portfolioWeight: current.portfolioWeight ?? seedCompany.portfolioWeight,
+      industryScore: current.industryScore ?? seedCompany.industryScore,
+      companyScore: current.companyScore ?? seedCompany.companyScore,
+      leadershipScore: current.leadershipScore ?? seedCompany.leadershipScore,
+      fundamentals
+    };
+  });
+}
+
+function getSelectedCompany() {
+  return state.companies.find((company) => company.id === state.selectedId) ?? state.companies[0];
+}
+
+function asNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function numberOrNull(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function numberOrFallback(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function round(value, digits = 1) {
+  const factor = 10 ** digits;
+  return Math.round((asNumber(value) + Number.EPSILON) * factor) / factor;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function formatSek(value) {
+  if (!Number.isFinite(value)) return "-";
+  return `${Math.round(value).toLocaleString("sv-SE")} SEK`;
+}
+
+function formatCurrency(value, currency = "SEK") {
+  if (!Number.isFinite(value)) return "-";
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 1_000_000_000_000) return `${sign}${formatDecimal(abs / 1_000_000_000_000, 1)} tn ${currency}`;
+  if (abs >= 1_000_000_000) return `${sign}${formatDecimal(abs / 1_000_000_000, 1)} bn ${currency}`;
+  if (abs >= 1_000_000) return `${sign}${formatDecimal(abs / 1_000_000, 1)} mn ${currency}`;
+  return `${sign}${Math.round(abs).toLocaleString("sv-SE")} ${currency}`;
+}
+
+function formatShares(value) {
+  if (!Number.isFinite(value)) return "-";
+  if (value >= 1_000_000_000) return `${formatDecimal(value / 1_000_000_000, 2)} bn`;
+  if (value >= 1_000_000) return `${formatDecimal(value / 1_000_000, 1)} mn`;
+  return Math.round(value).toLocaleString("sv-SE");
+}
+
+function formatDecimal(value, digits = 1) {
+  if (!Number.isFinite(value)) return "-";
+  return value.toLocaleString("sv-SE", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+}
+
+function formatPercent(value, digits = 1) {
+  if (!Number.isFinite(value)) return "-";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${formatDecimal(value, digits)}%`;
+}
+
+function calculateDcf(company, scenario = "base", growthOverride = null) {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const fcf = asNumber(company.fcfPerShare);
+  const growth = (growthOverride ?? (asNumber(company.growth5y) + adjustment.growth)) / 100;
+  const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
+  const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  const netDebt = asNumber(company.netDebtPerShare);
+
+  if (fcf <= 0 || wacc <= terminalGrowth || wacc <= 0) {
+    return {
+      value: NaN,
+      flows: [],
+      error: "DCF input conflict"
+    };
+  }
+
+  const flows = [];
+  let presentValue = 0;
+
+  for (let year = 1; year <= 5; year += 1) {
+    const cashFlow = fcf * ((1 + growth) ** year);
+    const discounted = cashFlow / ((1 + wacc) ** year);
+    presentValue += discounted;
+    flows.push({ year, cashFlow, discounted });
+  }
+
+  const yearFiveCashFlow = flows[flows.length - 1].cashFlow;
+  const terminalValue = (yearFiveCashFlow * (1 + terminalGrowth)) / (wacc - terminalGrowth);
+  const discountedTerminal = terminalValue / ((1 + wacc) ** 5);
+
+  return {
+    value: presentValue + discountedTerminal - netDebt,
+    flows,
+    terminalValue,
+    discountedTerminal,
+    error: ""
+  };
+}
+
+function calculatePeValue(company, scenario = "base") {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const eps = asNumber(company.eps);
+  const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
+  return eps > 0 && targetPe > 0 ? eps * targetPe : NaN;
+}
+
+function calculateReverseDcf(company) {
+  const price = asNumber(company.marketPrice);
+  if (price <= 0 || asNumber(company.fcfPerShare) <= 0) return { value: NaN, label: "-" };
+
+  const valueAt = (growth) => calculateDcf(company, "base", growth * 100).value;
+  const low = -0.4;
+  const high = 0.6;
+  const lowValue = valueAt(low);
+  const highValue = valueAt(high);
+
+  if (!Number.isFinite(lowValue) || !Number.isFinite(highValue)) return { value: NaN, label: "-" };
+  if (price <= lowValue) return { value: low * 100, label: "< -40.0%" };
+  if (price >= highValue) return { value: high * 100, label: "> +60.0%" };
+
+  let left = low;
+  let right = high;
+  for (let index = 0; index < 70; index += 1) {
+    const middle = (left + right) / 2;
+    const middleValue = valueAt(middle);
+    if (middleValue < price) {
+      left = middle;
+    } else {
+      right = middle;
+    }
+  }
+
+  const value = ((left + right) / 2) * 100;
+  return { value, label: formatPercent(value, 1) };
+}
+
+function calculateCompany(company, scenario = state.scenario) {
+  const dcf = calculateDcf(company, scenario);
+  const peValue = calculatePeValue(company, scenario);
+  const marketPrice = asNumber(company.marketPrice);
+  const validValues = [dcf.value, peValue].filter(Number.isFinite);
+  const blendedValue = validValues.length ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length : NaN;
+  const marginOfSafety = marketPrice > 0 && Number.isFinite(blendedValue)
+    ? ((blendedValue - marketPrice) / marketPrice) * 100
+    : NaN;
+  const currentPe = asNumber(company.eps) > 0 ? marketPrice / asNumber(company.eps) : NaN;
+  const reverse = calculateReverseDcf(company);
+  const qualityScore = calculateQualityScore(company);
+  const reverseBurdenScore = Number.isFinite(reverse.value)
+    ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
+    : 50;
+  const valuationScore = Number.isFinite(marginOfSafety) ? clamp(50 + marginOfSafety * 1.2, 0, 100) : 50;
+  const researchScore = round((qualityScore * 0.42) + (valuationScore * 0.38) + (reverseBurdenScore * 0.2), 0);
+  const portfolioScore = round((valuationScore * 0.5) + (reverseBurdenScore * 0.25) + (qualityScore * 0.25), 0);
+  const stance = getStance(marginOfSafety, qualityScore);
+
+  return {
+    dcf,
+    peValue,
+    blendedValue,
+    marginOfSafety,
+    currentPe,
+    reverse,
+    qualityScore,
+    researchScore,
+    portfolioScore,
+    stance,
+    growthGap: asNumber(company.growth5y) - asNumber(company.consensusGrowth)
+  };
+}
+
+function calculateQualityScore(company) {
+  const industry = asNumber(company.industryScore, 3);
+  const companyAdvantage = asNumber(company.companyScore, 3);
+  const leadership = asNumber(company.leadershipScore, 3);
+  return round(((industry * 0.34) + (companyAdvantage * 0.36) + (leadership * 0.3)) / 5 * 100, 0);
+}
+
+function getStance(marginOfSafety, qualityScore) {
+  if (!Number.isFinite(marginOfSafety)) return { key: "fair", label: "Fair" };
+  if (marginOfSafety >= 25 && qualityScore >= 70) return { key: "attractive", label: "Attractive" };
+  if (marginOfSafety >= 10) return { key: "undervalued", label: "Undervalued" };
+  if (marginOfSafety > -10) return { key: "fair", label: "Fair" };
+  if (marginOfSafety > -25) return { key: "rich", label: "Rich" };
+  return { key: "stretched", label: "Stretched" };
+}
+
+function initialize() {
+  populateSectorFilter();
+  bindEvents();
+  renderAll();
+  loadMarketData({ quiet: true });
+}
+
+function populateSectorFilter() {
+  const sectors = [...new Set(state.companies.map((company) => company.sector))].sort();
+  elements.sectorFilter.innerHTML = [
+    `<option value="all">All sectors</option>`,
+    ...sectors.map((sector) => `<option value="${escapeHtml(sector)}">${escapeHtml(sector)}</option>`)
+  ].join("");
+}
+
+function bindEvents() {
+  elements.companyList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-company-id]");
+    if (!button) return;
+    state.selectedId = button.dataset.companyId;
+    renderAll();
+  });
+
+  elements.syntheticPortfolio.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-company-id]");
+    if (!button) return;
+    state.selectedId = button.dataset.companyId;
+    renderAll();
+  });
+
+  elements.searchInput.addEventListener("input", (event) => {
+    state.filters.search = event.target.value.trim().toLowerCase();
+    renderCompanyList();
+  });
+
+  elements.sectorFilter.addEventListener("change", (event) => {
+    state.filters.sector = event.target.value;
+    renderCompanyList();
+  });
+
+  elements.stanceFilter.addEventListener("change", (event) => {
+    state.filters.stance = event.target.value;
+    renderCompanyList();
+  });
+
+  document.addEventListener("input", (event) => {
+    const company = getSelectedCompany();
+    const field = event.target.dataset.field;
+    const quality = event.target.dataset.quality;
+    if (!field && !quality) return;
+
+    if (field) {
+      company[field] = field === "notes" ? event.target.value : asNumber(event.target.value);
+      company.source = "Edited";
+    }
+
+    if (quality) {
+      company[quality] = asNumber(event.target.value);
+      company.source = "Edited";
+    }
+
+    saveCompanies();
+    renderDependentViews();
+  });
+
+  document.querySelectorAll("[data-scenario]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.scenario = button.dataset.scenario;
+      document.querySelectorAll("[data-scenario]").forEach((item) => item.classList.toggle("is-active", item === button));
+      renderDependentViews();
+    });
+  });
+
+  elements.reloadDataBtn.addEventListener("click", () => loadMarketData({ quiet: false }));
+  elements.exportBtn.addEventListener("click", exportData);
+  elements.importFile.addEventListener("change", importData);
+
+  elements.resetSelectedBtn.addEventListener("click", () => {
+    const selected = getSelectedCompany();
+    if (!selected) return;
+    if (!window.confirm(`Reset ${selected.name} to sample inputs?`)) return;
+    const defaults = createDefaultCompanies();
+    const defaultCompany = defaults.find((company) => company.id === selected.id);
+    if (!defaultCompany) return;
+    state.companies = state.companies.map((company) => company.id === selected.id ? defaultCompany : company);
+    saveCompanies();
+    renderAll();
+    showToast(`${selected.name} reset`);
+  });
+
+  elements.resetAllBtn.addEventListener("click", () => {
+    if (!window.confirm("Reset all OMXS30 sample inputs?")) return;
+    state.companies = createDefaultCompanies();
+    state.selectedId = state.companies[0].id;
+    saveCompanies();
+    renderAll();
+    showToast("All sample inputs reset");
+  });
+}
+
+function renderAll() {
+  renderDataStatus();
+  renderCompanyList();
+  renderForm();
+  renderDependentViews();
+}
+
+function renderDependentViews() {
+  renderHeader();
+  renderMetrics();
+  renderOutlook();
+  renderSectorBars();
+  renderSyntheticPortfolio();
+  renderFundamentals();
+  renderCompanyList();
+  drawDcfChart();
+}
+
+function renderHeader() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  const calc = calculateCompany(company);
+  elements.selectedTicker.textContent = company.ticker;
+  elements.selectedName.textContent = company.name;
+  elements.selectedMeta.textContent = `${company.sector} | ${company.source}`;
+  elements.inputBadge.textContent = company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs");
+  elements.stanceBadge.textContent = calc.stance.label;
+  elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
+  elements.valuationSubtitle.textContent = scenarioAdjustments[state.scenario].label;
+}
+
+function renderDataStatus() {
+  const generatedAt = state.marketData.generatedAt ? new Date(state.marketData.generatedAt) : null;
+  const timestamp = generatedAt && !Number.isNaN(generatedAt.valueOf())
+    ? generatedAt.toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" })
+    : "Run the updater to load Yahoo data";
+
+  elements.dataStatus.textContent = state.marketData.status;
+  elements.dataTimestamp.textContent = timestamp;
+  elements.footerDataNote.textContent = state.marketData.loaded
+    ? `Market data: ${state.marketData.provider}, ${timestamp}.`
+    : "OMXS30 seed composition: 2025-07-01.";
+}
+
+function renderCompanyList(updateHtml = true) {
+  if (!updateHtml) {
+    updateActiveCompanyRow();
+    return;
+  }
+
+  const filtered = state.companies
+    .map((company) => ({ company, calc: calculateCompany(company, "base") }))
+    .filter(({ company, calc }) => {
+      const query = state.filters.search;
+      const matchesQuery = !query || `${company.ticker} ${company.name}`.toLowerCase().includes(query);
+      const matchesSector = state.filters.sector === "all" || company.sector === state.filters.sector;
+      const matchesStance = state.filters.stance === "all" || calc.stance.key === state.filters.stance;
+      return matchesQuery && matchesSector && matchesStance;
+    })
+    .sort((left, right) => right.calc.researchScore - left.calc.researchScore);
+
+  elements.companyList.innerHTML = filtered.map(({ company, calc }) => {
+    const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
+    return `
+      <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
+        <span class="company-main">
+          <span class="company-name">${escapeHtml(company.name)}</span>
+          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)}</span>
+        </span>
+        <span class="company-side">
+          <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
+          <small>${calc.stance.label}</small>
+        </span>
+      </button>
+    `;
+  }).join("") || `<div class="company-row" role="status">No matches</div>`;
+}
+
+function updateActiveCompanyRow() {
+  elements.companyList.querySelectorAll("[data-company-id]").forEach((row) => {
+    row.classList.toggle("is-active", row.dataset.companyId === state.selectedId);
+  });
+}
+
+function renderForm() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  document.querySelectorAll("[data-field]").forEach((input) => {
+    input.value = company[input.dataset.field] ?? "";
+  });
+
+  document.querySelectorAll("[data-quality]").forEach((input) => {
+    input.value = company[input.dataset.quality] ?? 3;
+  });
+}
+
+function renderMetrics() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  const calc = calculateCompany(company);
+  elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
+  elements.metricValueSub.textContent = `${formatCurrency(calc.dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(calc.peValue, company.currency ?? "SEK")} P/E`;
+  elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
+  elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
+  elements.metricMosSub.textContent = `Price ${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}`;
+  elements.metricReverse.textContent = calc.reverse.label;
+  elements.metricReverseSub.textContent = `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`;
+  elements.metricScore.textContent = Number.isFinite(calc.researchScore) ? `${calc.researchScore}` : "-";
+  elements.metricScoreSub.textContent = calc.stance.label;
+
+  elements.dcfValue.textContent = formatCurrency(calc.dcf.value, company.currency ?? "SEK");
+  elements.peValue.textContent = formatCurrency(calc.peValue, company.currency ?? "SEK");
+  elements.currentPe.textContent = Number.isFinite(calc.currentPe) ? `${formatDecimal(calc.currentPe, 1)}x` : "-";
+}
+
+function renderOutlook() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  const calc = calculateCompany(company);
+  elements.qualityRing.textContent = calc.qualityScore;
+  elements.qualityRing.style.borderColor = calc.qualityScore >= 75 ? "var(--green)" : calc.qualityScore >= 55 ? "var(--amber)" : "var(--red)";
+  elements.qualitySummary.textContent = `${company.industryScore}/5 | ${company.companyScore}/5 | ${company.leadershipScore}/5`;
+  elements.growthGap.textContent = formatPercent(calc.growthGap, 1);
+  elements.growthGap.className = calc.growthGap >= 0 ? "is-positive" : "is-negative";
+  elements.qualityScore.textContent = `${calc.qualityScore}/100`;
+  elements.portfolioSummary.textContent = `${calc.stance.label} | ${formatDecimal(asNumber(company.portfolioWeight), 1)}% position`;
+
+  document.querySelectorAll("[data-score-value]").forEach((label) => {
+    const field = label.dataset.scoreValue;
+    label.textContent = `${company[field] ?? 3}/5`;
+  });
+}
+
+function renderSectorBars() {
+  const sectors = new Map();
+  state.companies.forEach((company) => {
+    const calc = calculateCompany(company, "base");
+    if (!sectors.has(company.sector)) sectors.set(company.sector, []);
+    sectors.get(company.sector).push(calc.marginOfSafety);
+  });
+
+  const sectorRows = [...sectors.entries()]
+    .map(([sector, values]) => {
+      const valid = values.filter(Number.isFinite);
+      const average = valid.length ? valid.reduce((sum, value) => sum + value, 0) / valid.length : 0;
+      return { sector, average };
+    })
+    .sort((left, right) => right.average - left.average)
+    .slice(0, 6);
+
+  elements.sectorBars.innerHTML = sectorRows.map(({ sector, average }) => {
+    const width = clamp(Math.abs(average), 2, 55);
+    const cls = average >= 0 ? "positive" : "negative";
+    return `
+      <div class="bar-row">
+        <header>
+          <span>${escapeHtml(sector)}</span>
+          <strong class="${average >= 0 ? "is-positive" : "is-negative"}">${formatPercent(average, 0)}</strong>
+        </header>
+        <div class="bar-track">
+          <div class="bar-fill ${cls}" style="width: ${width}%"></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderSyntheticPortfolio() {
+  const ranked = state.companies
+    .map((company) => ({ company, calc: calculateCompany(company, "base") }))
+    .filter(({ calc }) => Number.isFinite(calc.blendedValue) && Number.isFinite(calc.marginOfSafety))
+    .sort((left, right) => {
+      if (right.calc.portfolioScore !== left.calc.portfolioScore) return right.calc.portfolioScore - left.calc.portfolioScore;
+      return right.calc.marginOfSafety - left.calc.marginOfSafety;
+    })
+    .slice(0, 12);
+
+  elements.syntheticCount.textContent = `${ranked.length} names`;
+  const averageMos = ranked.length
+    ? ranked.reduce((sum, item) => sum + item.calc.marginOfSafety, 0) / ranked.length
+    : NaN;
+  elements.syntheticSummary.textContent = ranked.length
+    ? `Equal weight ${formatDecimal(100 / ranked.length, 1)}% | Avg safety ${formatPercent(averageMos, 1)}`
+    : "No ranked companies yet";
+
+  elements.syntheticPortfolio.innerHTML = `
+    <div class="synthetic-header">
+      <span>Rank</span>
+      <span>Company</span>
+      <span>Price</span>
+      <span>Intrinsic</span>
+      <span>Safety</span>
+      <span>Score</span>
+    </div>
+    ${ranked.map(({ company, calc }, index) => `
+      <button class="synthetic-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
+        <span>${index + 1}</span>
+        <span>
+          <strong>${escapeHtml(company.name)}</strong>
+          <small>${escapeHtml(company.ticker)}</small>
+        </span>
+        <span>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</span>
+        <span>${formatCurrency(calc.blendedValue, company.currency ?? "SEK")}</span>
+        <span class="${calc.marginOfSafety >= 0 ? "is-positive" : "is-negative"}">${formatPercent(calc.marginOfSafety, 1)}</span>
+        <span>${calc.portfolioScore}</span>
+      </button>
+    `).join("")}
+  `;
+}
+
+function renderFundamentals() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  const currency = company.currency ?? "SEK";
+  const fundamentals = company.fundamentals ?? {};
+  const fcfYield = asNumber(company.marketPrice) > 0 && asNumber(company.fcfPerShare) > 0
+    ? (asNumber(company.fcfPerShare) / asNumber(company.marketPrice)) * 100
+    : NaN;
+  const updatedAt = company.dataUpdatedAt ? new Date(company.dataUpdatedAt) : null;
+  const updatedText = updatedAt && !Number.isNaN(updatedAt.valueOf())
+    ? updatedAt.toLocaleDateString("sv-SE")
+    : "No Yahoo data loaded";
+
+  elements.fundamentalsSubtitle.textContent = `${company.source} | ${updatedText}`;
+  elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);
+  elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
+  elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
+  elements.fundLiabilities.textContent = formatCurrency(numberOrNull(fundamentals.totalLiabilities), currency);
+  elements.fundDebt.textContent = formatCurrency(numberOrNull(fundamentals.totalDebt), currency);
+  elements.fundCash.textContent = formatCurrency(numberOrNull(fundamentals.cash), currency);
+  elements.fundShares.textContent = formatShares(numberOrNull(fundamentals.sharesOutstanding));
+  elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
+  elements.fundFcfYield.className = fcfYield >= 0 ? "is-positive" : "is-negative";
+}
+
+function drawDcfChart() {
+  const company = getSelectedCompany();
+  if (!company) return;
+
+  const canvas = elements.dcfChart;
+  const context = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * scale));
+  canvas.height = Math.max(1, Math.floor(rect.height * scale));
+  context.setTransform(scale, 0, 0, scale, 0, 0);
+
+  const width = rect.width;
+  const height = rect.height;
+  const calc = calculateCompany(company);
+  const flows = calc.dcf.flows;
+
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#fbfcfb";
+  context.fillRect(0, 0, width, height);
+
+  if (!flows.length) {
+    context.fillStyle = "#66706b";
+    context.font = "14px Inter, sans-serif";
+    context.fillText("DCF input conflict", 22, 34);
+    return;
+  }
+
+  const padding = { top: 26, right: 22, bottom: 42, left: 46 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const maxFlow = Math.max(...flows.map((flow) => flow.cashFlow), asNumber(company.fcfPerShare));
+  const barWidth = Math.min(58, chartWidth / flows.length * 0.54);
+
+  context.strokeStyle = "#dbe3dc";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(padding.left, padding.top);
+  context.lineTo(padding.left, height - padding.bottom);
+  context.lineTo(width - padding.right, height - padding.bottom);
+  context.stroke();
+
+  flows.forEach((flow, index) => {
+    const x = padding.left + (chartWidth / flows.length) * index + (chartWidth / flows.length - barWidth) / 2;
+    const barHeight = Math.max(2, (flow.cashFlow / maxFlow) * chartHeight);
+    const y = height - padding.bottom - barHeight;
+    const gradient = context.createLinearGradient(0, y, 0, height - padding.bottom);
+    gradient.addColorStop(0, "#3267c8");
+    gradient.addColorStop(1, "#1f7a5a");
+
+    context.fillStyle = gradient;
+    roundedRect(context, x, y, barWidth, barHeight, 6);
+    context.fill();
+
+    context.fillStyle = "#66706b";
+    context.font = "12px Inter, sans-serif";
+    context.textAlign = "center";
+    context.fillText(`Y${flow.year}`, x + barWidth / 2, height - 18);
+  });
+
+  context.fillStyle = "#17201b";
+  context.font = "13px Inter, sans-serif";
+  context.textAlign = "left";
+  context.fillText("Projected FCF / share", padding.left, 18);
+}
+
+function roundedRect(context, x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.arcTo(x + width, y, x + width, y + height, safeRadius);
+  context.arcTo(x + width, y + height, x, y + height, safeRadius);
+  context.arcTo(x, y + height, x, y, safeRadius);
+  context.arcTo(x, y, x + width, y, safeRadius);
+  context.closePath();
+}
+
+function exportData() {
+  const data = JSON.stringify({
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    companies: state.companies
+  }, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "omxs30-intrinsic-value.json";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast("Data exported");
+}
+
+function importData(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    try {
+      const parsed = JSON.parse(String(reader.result));
+      if (!Array.isArray(parsed?.companies)) throw new Error("Missing companies");
+      state.companies = mergeWithSeed(parsed.companies);
+      state.selectedId = state.companies[0]?.id ?? null;
+      saveCompanies();
+      renderAll();
+      showToast("Data imported");
+    } catch {
+      showToast("Import failed");
+    } finally {
+      event.target.value = "";
+    }
+  });
+  reader.readAsText(file);
+}
+
+function showToast(message) {
+  elements.toast.textContent = message;
+  elements.toast.classList.add("is-visible");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => {
+    elements.toast.classList.remove("is-visible");
+  }, 2200);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+window.addEventListener("resize", () => drawDcfChart());
+
+initialize();
