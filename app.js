@@ -944,8 +944,12 @@ function renderCompanyList(updateHtml = true) {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
     return `
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
-          <span class="company-main">
-            <span class="company-name">${escapeHtml(company.name)}</span>
+        <span class="company-price">
+          <strong>${formatCurrency(asNumber(company.marketPrice), company.currency ?? "SEK")}</strong>
+          <small>Price</small>
+        </span>
+        <span class="company-main">
+          <span class="company-name">${escapeHtml(company.name)}</span>
           <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(company.sector)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
         </span>
         <span class="company-side">
