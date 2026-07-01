@@ -86,12 +86,14 @@
           <nav class="company-list" id="companyList" aria-label="OMXS30 companies"></nav>
         </section>
 
-        <header class="topbar">
-          <div class="company-heading">
-            <span class="ticker-pill" id="selectedTicker">OMXS30</span>
-            <h2 id="selectedName">Intrinsic value workspace</h2>
-            <p id="selectedMeta">Seeded OMXS30 universe, editable research inputs</p>
-          </div>
+        <section class="ticker-card selected-ticker-card" aria-label="Selected company valuation ticker">
+          <header class="ticker-card-head">
+            <div class="selected-logo" id="selectedLogo" aria-hidden="true">investor</div>
+            <div class="company-heading">
+              <span class="ticker-pill" id="selectedTicker">OMXS30</span>
+              <h2 id="selectedName">Intrinsic value workspace</h2>
+              <p id="selectedMeta">Seeded OMXS30 universe, editable research inputs</p>
+            </div>
           <div class="topbar-actions">
             <button class="ghost-button" id="resetSelectedBtn" type="button" title="Reset selected company">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -106,29 +108,38 @@
               <span>Reset all</span>
             </button>
           </div>
-        </header>
+          </header>
 
-        <section class="metric-strip" aria-label="Valuation summary">
-          <div class="metric">
-            <span>Blended value</span>
-            <strong id="metricValue">-</strong>
-            <small id="metricValueSub">DCF and P/E</small>
+          <div class="ticker-rule"></div>
+
+          <div class="ticker-value-grid">
+            <div class="ticker-value-block">
+              <span>Current Price</span>
+              <strong id="heroCurrentPrice">-</strong>
+              <small><span id="metricMos">-</span> <span id="metricMosSub">upside</span></small>
+            </div>
+            <div class="ticker-value-block">
+              <span>Intrinsic Value</span>
+              <strong id="metricValue">-</strong>
+              <small id="metricValueSub">DCF and P/E</small>
+            </div>
+            <div class="ticker-value-block">
+              <span id="metricReverseLabel">Reverse DCF</span>
+              <strong id="metricReverse">-</strong>
+              <small id="metricReverseSub">5 year FCF CAGR</small>
+            </div>
+            <div class="ticker-value-block">
+              <span>Research Score</span>
+              <strong id="metricScore">-</strong>
+              <small id="metricScoreSub">Quality plus valuation</small>
+            </div>
           </div>
-          <div class="metric">
-            <span>Margin of safety</span>
-            <strong id="metricMos">-</strong>
-            <small id="metricMosSub">Versus market price</small>
-          </div>
-          <div class="metric">
-            <span id="metricReverseLabel">Reverse DCF</span>
-            <strong id="metricReverse">-</strong>
-            <small id="metricReverseSub">5 year FCF CAGR</small>
-          </div>
-          <div class="metric">
-            <span>Research score</span>
-            <strong id="metricScore">-</strong>
-            <small id="metricScoreSub">Quality plus valuation</small>
-          </div>
+
+          <footer class="ticker-card-foot">
+            <span id="tickerSnapshot">Snapshot: sample data</span>
+            <span>Source: Yahoo Finance + manual assumptions</span>
+            <span>Data snapshot only. Not investment advice.</span>
+          </footer>
         </section>
 
         <section class="workspace-grid">
