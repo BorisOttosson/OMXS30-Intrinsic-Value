@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Intrinsic Value - OMXS30</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260702-cleanlogos">
   </head>
   <body>
     <div class="app-shell">
@@ -88,7 +88,12 @@
 
         <section class="ticker-card selected-ticker-card" aria-label="Selected company valuation ticker">
           <header class="ticker-card-head">
-            <div class="selected-logo" id="selectedLogo" aria-hidden="true">investor</div>
+            <div class="selected-logo-lockup" aria-hidden="true">
+              <span class="selected-logo-image-wrap">
+                <img class="selected-logo-image" id="selectedLogoImage" alt="">
+                <span class="selected-logo-placeholder" id="selectedLogo">Logo PNG</span>
+              </span>
+            </div>
             <div class="company-heading">
               <span class="ticker-pill" id="selectedTicker">OMXS30</span>
               <h2 id="selectedName">Intrinsic value workspace</h2>
@@ -397,6 +402,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260702-cleanlogos"></script>
   </body>
 </html>

@@ -322,6 +322,41 @@ button:focus-visible,
 }
 
 .company-main {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.company-row.logo-missing .company-main {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.company-logo-mark {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 28px;
+  place-items: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+.company-logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.company-row.logo-missing .company-logo-mark,
+.company-logo-mark.is-missing .company-logo-image,
+.company-logo-image[hidden] {
+  display: none;
+}
+
+.company-text {
   min-width: 0;
 }
 
@@ -387,19 +422,56 @@ button:focus-visible,
 
 .ticker-card-head {
   display: grid;
-  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.2fr) auto;
+  grid-template-columns: minmax(300px, 0.88fr) minmax(380px, 1.12fr) auto;
   gap: 34px;
   align-items: start;
 }
 
-.selected-logo {
-  color: #fff;
-  font-size: clamp(3.1rem, 7vw, 6rem);
-  font-weight: 950;
-  letter-spacing: 0;
-  line-height: 0.9;
-  text-transform: none;
-  text-shadow: 0 4px 18px rgba(255, 255, 255, 0.12);
+.selected-logo-lockup {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  min-height: 168px;
+}
+
+.selected-logo-image-wrap {
+  display: grid;
+  width: 100%;
+  max-width: 560px;
+  height: 168px;
+  place-items: center start;
+  overflow: hidden;
+  background: transparent;
+}
+
+.selected-logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.selected-logo-image-wrap.is-missing .selected-logo-image,
+.selected-logo-image[hidden] {
+  display: none;
+}
+
+.selected-logo-placeholder {
+  display: none;
+  width: min(100%, 360px);
+  min-height: 92px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(229, 235, 243, 0.28);
+  border-radius: 8px;
+  color: rgba(229, 235, 243, 0.64);
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.selected-logo-image-wrap.is-missing .selected-logo-placeholder {
+  display: inline-flex;
 }
 
 .ticker-rule {
@@ -967,6 +1039,19 @@ input[type="range"] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .ticker-card-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .selected-logo-lockup {
+    min-height: 118px;
+  }
+
+  .selected-logo-image-wrap {
+    height: 118px;
+  }
+
   .metric-strip,
   .workspace-grid {
     grid-template-columns: 1fr 1fr;
@@ -1011,6 +1096,7 @@ input[type="range"] {
 
   .filters,
   .company-list,
+  .ticker-value-grid,
   .metric-strip,
   .workspace-grid,
   .input-grid,
@@ -1040,6 +1126,31 @@ input[type="range"] {
 
   .topbar h2 {
     font-size: 1.45rem;
+  }
+
+  .selected-ticker-card {
+    padding: 22px;
+  }
+
+  .selected-logo-lockup {
+    min-height: 88px;
+  }
+
+  .selected-logo-image-wrap {
+    height: 88px;
+  }
+
+  .ticker-value-block {
+    min-height: 120px;
+    border-right: 0;
+    border-bottom: 1px solid var(--ticker-line);
+    padding-right: 0;
+    padding-bottom: 18px;
+  }
+
+  .ticker-value-block:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
   }
 
   .metric {

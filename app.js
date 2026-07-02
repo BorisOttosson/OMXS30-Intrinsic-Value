@@ -1,5 +1,6 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
 const MARKET_DATA_URL = "data/omxs30-data.json";
+const LOGO_ASSET_PATH = "assets/logos";
 const companyCategoryDefinitions = {
   operating: {
     label: "Operating company",
@@ -145,6 +146,7 @@ const elements = {
   searchInput: document.querySelector("#searchInput"),
   valuationForm: document.querySelector("#valuationForm"),
   selectedTicker: document.querySelector("#selectedTicker"),
+  selectedLogoImage: document.querySelector("#selectedLogoImage"),
   selectedLogo: document.querySelector("#selectedLogo"),
   selectedName: document.querySelector("#selectedName"),
   selectedMeta: document.querySelector("#selectedMeta"),
@@ -412,6 +414,37 @@ function getCompanyModelWarning(companyType) {
 function getCompanyWordmark(company) {
   return companyWordmarks[company.ticker] ?? company.name;
 }
+
+function getCompanyLogoFileName(company) {
+  return `${company.id}.png`;
+}
+
+function getCompanyLogoUrl(company) {
+  return `${LOGO_ASSET_PATH}/${getCompanyLogoFileName(company)}`;
+}
+
+function logoImageMarkup(company, className) {
+  const logoUrl = getCompanyLogoUrl(company);
+  if (!logoUrl) return "";
+  return `<img class="${className}" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(company.name)} logo" loading="lazy" decoding="async" onload="handleLogoLoad(event)" onerror="handleLogoError(event)">`;
+}
+
+function handleLogoLoad(event) {
+  const image = event.currentTarget;
+  image.hidden = false;
+  image.closest(".company-logo-mark, .selected-logo-image-wrap")?.classList.remove("is-missing");
+  image.closest(".company-row")?.classList.remove("logo-missing");
+}
+
+function handleLogoError(event) {
+  const image = event.currentTarget;
+  image.hidden = true;
+  image.closest(".company-logo-mark, .selected-logo-image-wrap")?.classList.add("is-missing");
+  image.closest(".company-row")?.classList.add("logo-missing");
+}
+
+window.handleLogoLoad = handleLogoLoad;
+window.handleLogoError = handleLogoError;
 
 function asNumber(value, fallback = 0) {
   const number = Number(value);
@@ -947,8 +980,14 @@ function renderHeader() {
 
   const calc = calculateCompany(company);
   const category = normalizeCompanyType(company.companyType, company.ticker);
+  const logoUrl = getCompanyLogoUrl(company);
   elements.selectedTicker.textContent = company.ticker;
-  elements.selectedLogo.textContent = getCompanyWordmark(company);
+  elements.selectedLogo.textContent = "Logo PNG";
+  elements.selectedLogoImage.hidden = false;
+  elements.selectedLogoImage.closest(".selected-logo-image-wrap")?.classList.remove("is-missing");
+  elements.selectedLogoImage.onload = handleLogoLoad;
+  elements.selectedLogoImage.onerror = handleLogoError;
+  elements.selectedLogoImage.src = logoUrl;
   elements.selectedName.textContent = company.name;
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${company.source}`;
   elements.inputBadge.textContent = category !== "operating"
@@ -1001,8 +1040,13 @@ function renderCompanyList(updateHtml = true) {
           <small>${escapeHtml(company.currency ?? "SEK")}</small>
         </span>
         <span class="company-main">
-          <span class="company-name">${escapeHtml(getCompanyWordmark(company))}</span>
-          <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
+          <span class="company-logo-mark">
+            ${logoImageMarkup(company, "company-logo-image")}
+          </span>
+          <span class="company-text">
+            <span class="company-name">${escapeHtml(getCompanyWordmark(company))}</span>
+            <span class="company-ticker">${escapeHtml(company.ticker)} | ${escapeHtml(getCompanyTypeShortLabel(normalizeCompanyType(company.companyType, company.ticker)))}</span>
+          </span>
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
