@@ -1,5 +1,6 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
 const MARKET_DATA_URL = "data/omxs30-data.json";
+const PRICE_DATA_URL = "data/prices.json";
 const LOGO_ASSET_PATH = "assets/logos";
 const companyCategoryDefinitions = {
   operating: {
@@ -168,10 +169,13 @@ let state = {
   selectedId: null,
   scenario: "base",
   marketData: {
-    loaded: false,
+    fundamentalsLoaded: false,
+    pricesLoaded: false,
     status: "Sample inputs",
-    generatedAt: null,
-    provider: null,
+    fundamentalsGeneratedAt: null,
+    pricesGeneratedAt: null,
+    fundamentalsProvider: null,
+    pricesProvider: null,
     errors: []
   },
   filters: {
@@ -239,6 +243,7 @@ const elements = {
   fundFcfYield: document.querySelector("#fundFcfYield"),
   footerDataNote: document.querySelector("#footerDataNote"),
   tickerSnapshot: document.querySelector("#tickerSnapshot"),
+  tickerSource: document.querySelector("#tickerSource"),
   exportBtn: document.querySelector("#exportBtn"),
   importFile: document.querySelector("#importFile"),
   resetSelectedBtn: document.querySelector("#resetSelectedBtn"),
@@ -329,6 +334,18 @@ function saveCompanies() {
 }
 
 async function loadMarketData({ quiet = true } = {}) {
+  const nextMarketData = {
+    fundamentalsLoaded: false,
+    pricesLoaded: false,
+    status: "Sample or saved inputs",
+    fundamentalsGeneratedAt: null,
+    pricesGeneratedAt: null,
+    fundamentalsProvider: null,
+    pricesProvider: null,
+    errors: []
+  };
+  let changed = false;
+
   try {
     const response = await fetch(`${MARKET_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -336,27 +353,43 @@ async function loadMarketData({ quiet = true } = {}) {
     if (!Array.isArray(payload?.companies)) throw new Error("Missing companies");
 
     state.companies = applyMarketData(state.companies, payload.companies);
-    state.marketData = {
-      loaded: true,
-      status: "Yahoo Finance",
-      generatedAt: payload.generatedAt ?? null,
-      provider: payload.provider ?? "Yahoo Finance via yfinance",
-      errors: payload.companies.flatMap((company) => company.errors ?? [])
-    };
+    nextMarketData.fundamentalsLoaded = true;
+    nextMarketData.fundamentalsGeneratedAt = payload.generatedAt ?? null;
+    nextMarketData.fundamentalsProvider = payload.provider ?? "Yahoo Finance via yfinance";
+    nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
+    changed = true;
+  } catch (error) {
+    nextMarketData.errors.push(`fundamentals: ${String(error?.message ?? error)}`);
+  }
+
+  try {
+    const response = await fetch(`${PRICE_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!Array.isArray(payload?.companies)) throw new Error("Missing prices");
+
+    state.companies = applyPriceData(state.companies, payload.companies);
+    nextMarketData.pricesLoaded = true;
+    nextMarketData.pricesGeneratedAt = payload.generatedAt ?? null;
+    nextMarketData.pricesProvider = payload.provider ?? "EODHD quotes";
+    nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
+    changed = true;
+  } catch (error) {
+    nextMarketData.errors.push(`prices: ${String(error?.message ?? error)}`);
+  }
+
+  nextMarketData.status = getDataStatusLabel(nextMarketData);
+  state.marketData = nextMarketData;
+
+  if (changed) {
     saveCompanies();
     renderAll();
     if (!quiet) showToast("Market data reloaded");
-  } catch (error) {
-    state.marketData = {
-      loaded: false,
-      status: "Sample or saved inputs",
-      generatedAt: null,
-      provider: null,
-      errors: [String(error?.message ?? error)]
-    };
-    renderDataStatus();
-    if (!quiet) showToast("No market data file found");
+    return;
   }
+
+  renderDataStatus();
+  if (!quiet) showToast("No market data files found");
 }
 
 function applyMarketData(currentCompanies, marketCompanies) {
@@ -424,6 +457,28 @@ function applyMarketData(currentCompanies, marketCompanies) {
   });
 }
 
+function applyPriceData(currentCompanies, priceCompanies) {
+  const priceById = new Map(priceCompanies.map((company) => [company.id, company]));
+
+  return currentCompanies.map((company) => {
+    const price = priceById.get(company.id) ?? priceById.get(company.ticker);
+    const marketPrice = numberOrNull(price?.marketPrice);
+    if (marketPrice === null) return company;
+
+    return {
+      ...company,
+      marketPrice,
+      currency: price.currency ?? company.currency ?? "SEK",
+      priceSource: price.source ?? "EODHD",
+      priceUpdatedAt: price.priceUpdatedAt ?? price.dataUpdatedAt ?? null,
+      fundamentals: {
+        ...(company.fundamentals ?? {}),
+        previousClose: numberOrNull(price.previousClose) ?? numberOrNull(company.fundamentals?.previousClose)
+      }
+    };
+  });
+}
+
 function getSelectedCompany() {
   return state.companies.find((company) => company.id === state.selectedId) ?? state.companies[0];
 }
@@ -455,6 +510,13 @@ function getCompanyModelLabel(companyType) {
 
 function getCompanyModelWarning(companyType) {
   return companyCategoryDefinitions[companyType]?.warning ?? "";
+}
+
+function getCompanySourceLabel(company) {
+  const parts = [];
+  if (company.priceSource) parts.push(`${company.priceSource} prices`);
+  if (company.source && company.source !== "Sample input") parts.push(`${company.source} fundamentals`);
+  return parts.join(" | ") || "Sample input";
 }
 
 function getCompanyWordmark(company) {
@@ -589,6 +651,25 @@ function formatPercent(value, digits = 1) {
   if (!Number.isFinite(value)) return "-";
   const sign = value > 0 ? "+" : "";
   return `${sign}${formatDecimal(value, digits)}%`;
+}
+
+function formatDateTime(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.valueOf())) return null;
+  return date.toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function formatDate(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.valueOf())) return null;
+  return date.toLocaleDateString("sv-SE");
+}
+
+function getDataStatusLabel(marketData = state.marketData) {
+  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return "EODHD prices + Yahoo fundamentals";
+  if (marketData.pricesLoaded) return "EODHD prices";
+  if (marketData.fundamentalsLoaded) return "Yahoo fundamentals";
+  return "Sample or saved inputs";
 }
 
 function calculateDcf(company, scenario = "base", growthOverride = null) {
@@ -1067,7 +1148,7 @@ function renderHeader() {
   elements.selectedLogoImage.onerror = handleLogoError;
   elements.selectedLogoImage.src = logoUrl;
   elements.selectedName.textContent = company.name;
-  elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${company.source}`;
+  elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
   elements.inputBadge.textContent = category !== "operating"
     ? getCompanyModelLabel(category)
     : (company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
@@ -1077,17 +1158,27 @@ function renderHeader() {
 }
 
 function renderDataStatus() {
-  const generatedAt = state.marketData.generatedAt ? new Date(state.marketData.generatedAt) : null;
-  const timestamp = generatedAt && !Number.isNaN(generatedAt.valueOf())
-    ? generatedAt.toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" })
-    : "Run the updater to load Yahoo data";
+  const priceTimestamp = formatDateTime(state.marketData.pricesGeneratedAt);
+  const fundamentalsTimestamp = formatDateTime(state.marketData.fundamentalsGeneratedAt);
+  const timestamp = [
+    priceTimestamp ? `Prices ${priceTimestamp}` : null,
+    fundamentalsTimestamp ? `Fundamentals ${fundamentalsTimestamp}` : null
+  ].filter(Boolean).join(" | ") || "Run the updaters to load market data";
+
+  const source = [
+    state.marketData.pricesProvider,
+    state.marketData.fundamentalsProvider
+  ].filter(Boolean).join(" + ") || "Sample inputs";
 
   elements.dataStatus.textContent = state.marketData.status;
   elements.dataTimestamp.textContent = timestamp;
-  elements.footerDataNote.textContent = state.marketData.loaded
-    ? `Market data: ${state.marketData.provider}, ${timestamp}.`
+  elements.footerDataNote.textContent = state.marketData.pricesLoaded || state.marketData.fundamentalsLoaded
+    ? `Market data: ${source}. ${timestamp}.`
     : "OMXS30 seed composition: 2025-07-01.";
   elements.tickerSnapshot.textContent = `Snapshot: ${timestamp}`;
+  if (elements.tickerSource) {
+    elements.tickerSource.textContent = `Source: ${source}`;
+  }
 }
 
 function renderCompanyList(updateHtml = true) {

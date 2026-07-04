@@ -8,15 +8,19 @@ import json
 import math
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, time as day_time, timezone
 from pathlib import Path
 from statistics import median
 from typing import Any
+from zoneinfo import ZoneInfo
 
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
+STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
+FUNDAMENTALS_WINDOW_START = day_time(9, 10)
+FUNDAMENTALS_WINDOW_END = day_time(9, 45)
 CATEGORY_TICKERS = {
     "bank": {"SHB-A.ST", "NDA-SE.ST", "SEB-A.ST", "SWED-A.ST"},
     "investment": {"EQT.ST", "INDU-C.ST", "INVE-B.ST"},
@@ -59,6 +63,12 @@ OMXS30 = [
 
 def company_id(ticker: str) -> str:
     return "".join(ch.lower() if ch.isalnum() else "-" for ch in ticker).strip("-")
+
+
+def should_run_fundamentals_update(now: datetime) -> bool:
+    local = now.astimezone(STOCKHOLM_TZ)
+    local_time = local.time().replace(second=0, microsecond=0)
+    return local.weekday() < 5 and FUNDAMENTALS_WINDOW_START <= local_time <= FUNDAMENTALS_WINDOW_END
 
 
 def company_type(ticker: str) -> str:
@@ -347,7 +357,14 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Update OMXS30 data from Yahoo Finance.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
+    parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
     args = parser.parse_args(argv)
+
+    now = datetime.now(timezone.utc)
+    if args.enforce_fundamentals_window and not should_run_fundamentals_update(now):
+        local = now.astimezone(STOCKHOLM_TZ)
+        print(f"Skipping fundamentals update outside Stockholm morning window: {local.isoformat()}")
+        return 0
 
     try:
         import yfinance as yfinance_module

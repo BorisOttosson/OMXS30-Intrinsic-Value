@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Intrinsic Value - OMXS30</title>
-    <link rel="stylesheet" href="styles.css?v=20260704-navy-stickers">
+    <link rel="stylesheet" href="styles.css?v=20260704-price-pipeline">
   </head>
   <body>
     <div class="app-shell">
@@ -142,9 +142,53 @@
 
           <footer class="ticker-card-foot">
             <span id="tickerSnapshot">Snapshot: sample data</span>
-            <span>Source: Yahoo Finance + manual assumptions</span>
+            <span id="tickerSource">Source: Yahoo Finance + manual assumptions</span>
             <span>Data snapshot only. Not investment advice.</span>
           </footer>
+        </section>
+
+        <section class="tool-panel fundamentals-panel" aria-label="Fundamental metrics">
+          <div class="panel-title">
+            <div>
+              <h3>Fundamentals</h3>
+              <p id="fundamentalsSubtitle">Latest loaded metrics</p>
+            </div>
+          </div>
+
+          <div class="fundamental-grid">
+            <div>
+              <span>Market cap</span>
+              <strong id="fundMarketCap">-</strong>
+            </div>
+            <div>
+              <span>Revenue</span>
+              <strong id="fundRevenue">-</strong>
+            </div>
+            <div>
+              <span>Book equity</span>
+              <strong id="fundEquity">-</strong>
+            </div>
+            <div>
+              <span>Liabilities</span>
+              <strong id="fundLiabilities">-</strong>
+            </div>
+            <div>
+              <span>Total debt</span>
+              <strong id="fundDebt">-</strong>
+            </div>
+            <div>
+              <span>Cash</span>
+              <strong id="fundCash">-</strong>
+            </div>
+            <div>
+              <span>Shares</span>
+              <strong id="fundShares">-</strong>
+            </div>
+            <div>
+              <span>FCF yield</span>
+              <strong id="fundFcfYield">-</strong>
+            </div>
+          </div>
         </section>
 
         <section class="workspace-grid">
@@ -321,50 +365,6 @@
             </div>
           </section>
 
-          <section class="tool-panel fundamentals-panel" aria-label="Fundamental metrics">
-            <div class="panel-title">
-              <div>
-                <h3>Fundamentals</h3>
-                <p id="fundamentalsSubtitle">Latest loaded metrics</p>
-              </div>
-            </div>
-
-            <div class="fundamental-grid">
-              <div>
-                <span>Market cap</span>
-                <strong id="fundMarketCap">-</strong>
-              </div>
-              <div>
-                <span>Revenue</span>
-                <strong id="fundRevenue">-</strong>
-              </div>
-              <div>
-                <span>Book equity</span>
-                <strong id="fundEquity">-</strong>
-              </div>
-              <div>
-                <span>Liabilities</span>
-                <strong id="fundLiabilities">-</strong>
-              </div>
-              <div>
-                <span>Total debt</span>
-                <strong id="fundDebt">-</strong>
-              </div>
-              <div>
-                <span>Cash</span>
-                <strong id="fundCash">-</strong>
-              </div>
-              <div>
-                <span>Shares</span>
-                <strong id="fundShares">-</strong>
-              </div>
-              <div>
-                <span>FCF yield</span>
-                <strong id="fundFcfYield">-</strong>
-              </div>
-            </div>
-          </section>
-
           <section class="tool-panel portfolio-panel" aria-label="Portfolio and notes">
             <div class="panel-title">
               <div>
@@ -402,6 +402,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="app.js?v=20260704-herologofit"></script>
+    <script src="app.js?v=20260704-price-pipeline"></script>
   </body>
 </html>
