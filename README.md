@@ -1,6 +1,8 @@
 # Company Logo Files
 
-Use clean transparent PNG wordmarks here. The app looks for these exact file names:
+The app now maps the OMXS30 tickers to the WebP logo files in this folder.
+
+If you later want to replace a logo with a simpler file name, these PNG names also work as fallbacks:
 
 ```text
 abb-st.png
@@ -37,7 +39,7 @@ volv-b-st.png
 
 Recommended format:
 
-- PNG with transparent background
+- PNG or WebP with transparent background
 - Wide wordmark when available
 - At least 800 px wide for sharp display in the large card
 - White or light logo works best on the dark navy card

@@ -67,6 +67,52 @@ const companyWordmarks = {
   "VOLV-B.ST": "VOLVO"
 };
 
+const companyLogoFiles = {
+  "ABB.ST": "ABB_logo.webp",
+  "ADDT-B.ST": "Addtech_logo.webp",
+  "ALFA.ST": "AlfaLaval-Logo.svg.webp",
+  "ASSA-B.ST": "Assa_Abloy.svg.webp",
+  "AZN.ST": "Astrazeneca_text_logo.svg.webp",
+  "ATCO-A.ST": "atco-a-st.png",
+  "BOL.ST": "Boliden.svg.webp",
+  "EPI-A.ST": "Epiroc_logo.svg.webp",
+  "EQT.ST": "EQT_(Unternehmen)_logo.svg.webp",
+  "ERIC-B.ST": "Ericsson_logo.svg.webp",
+  "ESSITY-B.ST": "Essity_Logo_neu.svg.webp",
+  "EVO.ST": "Evolution_logo.svg.webp",
+  "SHB-A.ST": "Handelsbanken.svg.webp",
+  "HM-B.ST": "H&M-Logo.svg.webp",
+  "HEXA-B.ST": "Hexagon_AB_Logo_Color.svg.webp",
+  "INDU-C.ST": "Industrivärden.svg.webp",
+  "INVE-B.ST": "Investor_AB_logo.svg.webp",
+  "LIFCO-B.ST": "Lifco_logo.svg.webp",
+  "NIBE-B.ST": "Nibe_Industrier_logo.svg.webp",
+  "NDA-SE.ST": "Nordea.svg.webp",
+  "SAAB-B.ST": "Saab_wordmark_blue.svg.webp",
+  "SAND.ST": "SANDVIK.svg.webp",
+  "SCA-B.ST": "SCA_company_logo.svg.webp",
+  "SEB-A.ST": "SEB-Wordmark-RGB-Black.webp",
+  "SKA-B.ST": "Skanska_logo.svg.webp",
+  "SKF-B.ST": "SKF-Logo.svg.webp",
+  "SWED-A.ST": "Swedbank_wordmark.svg.webp",
+  "TEL2-B.ST": "Tele2_logo.svg.webp",
+  "TELIA.ST": "Telia_logo_2022.svg.webp",
+  "VOLV-B.ST": "Volvo-Spread-Word-Mark-Black.svg.webp"
+};
+
+const companyHeroLogoFiles = {
+  "ERIC-B.ST": "ericsson-wide.png"
+};
+
+const companyHeroLogoFits = {
+  "ABB.ST": "restrained",
+  "ERIC-B.ST": "wide",
+  "HM-B.ST": "restrained",
+  "SEB-A.ST": "restrained",
+  "TEL2-B.ST": "restrained",
+  "TELIA.ST": "restrained"
+};
+
 const sectorDefaults = {
   "Industrials": { growth5y: 6.0, consensusGrowth: 5.7, wacc: 8.7, terminalGrowth: 2.2, targetPe: 18, quality: [4, 4, 4] },
   "Financials": { growth5y: 4.1, consensusGrowth: 3.9, wacc: 9.4, terminalGrowth: 1.8, targetPe: 12, quality: [3, 4, 4] },
@@ -416,17 +462,37 @@ function getCompanyWordmark(company) {
 }
 
 function getCompanyLogoFileName(company) {
-  return `${company.id}.png`;
+  return companyLogoFiles[company.ticker] ?? `${company.id}.webp`;
 }
 
 function getCompanyLogoUrl(company) {
   return `${LOGO_ASSET_PATH}/${getCompanyLogoFileName(company)}`;
 }
 
+function getCompanyHeroLogoFileName(company) {
+  return companyHeroLogoFiles[company.ticker] ?? getCompanyLogoFileName(company);
+}
+
+function getCompanyHeroLogoUrl(company) {
+  return `${LOGO_ASSET_PATH}/${getCompanyHeroLogoFileName(company)}`;
+}
+
+function getCompanyLogoFallbackUrl(company) {
+  return `${LOGO_ASSET_PATH}/${company.id}.png`;
+}
+
+function getCompanyLogoFit(company) {
+  return "large-wordmark";
+}
+
+function getCompanyHeroLogoFit(company) {
+  return companyHeroLogoFits[company.ticker] ?? "standard";
+}
+
 function logoImageMarkup(company, className) {
   const logoUrl = getCompanyLogoUrl(company);
   if (!logoUrl) return "";
-  return `<img class="${className}" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(company.name)} logo" loading="lazy" decoding="async" onload="handleLogoLoad(event)" onerror="handleLogoError(event)">`;
+  return `<img class="${className}" src="${escapeHtml(logoUrl)}" data-logo-fit="${escapeHtml(getCompanyLogoFit(company))}" data-fallback-logo="${escapeHtml(getCompanyLogoFallbackUrl(company))}" alt="${escapeHtml(company.name)} logo" loading="lazy" decoding="async" onload="handleLogoLoad(event)" onerror="handleLogoError(event)">`;
 }
 
 function handleLogoLoad(event) {
@@ -438,6 +504,13 @@ function handleLogoLoad(event) {
 
 function handleLogoError(event) {
   const image = event.currentTarget;
+  const fallbackLogo = image.dataset.fallbackLogo;
+  if (fallbackLogo && image.dataset.usedFallback !== "true") {
+    image.dataset.usedFallback = "true";
+    image.src = fallbackLogo;
+    return;
+  }
+
   image.hidden = true;
   image.closest(".company-logo-mark, .selected-logo-image-wrap")?.classList.add("is-missing");
   image.closest(".company-row")?.classList.add("logo-missing");
@@ -980,11 +1053,16 @@ function renderHeader() {
 
   const calc = calculateCompany(company);
   const category = normalizeCompanyType(company.companyType, company.ticker);
-  const logoUrl = getCompanyLogoUrl(company);
+  const logoUrl = getCompanyHeroLogoUrl(company);
   elements.selectedTicker.textContent = company.ticker;
   elements.selectedLogo.textContent = "Logo PNG";
   elements.selectedLogoImage.hidden = false;
   elements.selectedLogoImage.closest(".selected-logo-image-wrap")?.classList.remove("is-missing");
+  elements.selectedLogoImage.dataset.usedFallback = "false";
+  elements.selectedLogoImage.dataset.logoFit = getCompanyLogoFit(company);
+  elements.selectedLogoImage.dataset.heroFit = getCompanyHeroLogoFit(company);
+  elements.selectedLogoImage.dataset.fallbackLogo = getCompanyLogoFallbackUrl(company);
+  elements.selectedLogoImage.alt = `${company.name} logo`;
   elements.selectedLogoImage.onload = handleLogoLoad;
   elements.selectedLogoImage.onerror = handleLogoError;
   elements.selectedLogoImage.src = logoUrl;
@@ -1034,7 +1112,7 @@ function renderCompanyList(updateHtml = true) {
   elements.companyList.innerHTML = filtered.map(({ company, calc }) => {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
     return `
-      <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}">
+      <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}" data-logo-fit="${escapeHtml(getCompanyLogoFit(company))}">
         <span class="company-price">
           <strong>${formatPriceNumber(asNumber(company.marketPrice))}</strong>
           <small>${escapeHtml(company.currency ?? "SEK")}</small>

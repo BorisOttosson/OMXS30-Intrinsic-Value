@@ -1,22 +1,30 @@
 :root {
   color-scheme: dark;
   --ink: #f8fbff;
-  --muted: #b8c0ca;
-  --soft: #061421;
-  --paper: #0b2034;
-  --paper-soft: #0e263d;
-  --line: rgba(220, 229, 240, 0.18);
-  --line-strong: rgba(220, 229, 240, 0.36);
-  --charcoal: #061421;
+  --muted: #b9c8d6;
+  --soft: #071d31;
+  --paper: #0e273a;
+  --paper-soft: #142f44;
+  --line: rgba(226, 236, 247, 0.24);
+  --line-strong: rgba(226, 236, 247, 0.42);
+  --charcoal: #071d31;
   --green: #72d05f;
   --blue: #6aa7ff;
   --amber: #e0a646;
   --red: #ef6d73;
   --violet: #9a86d8;
-  --shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
-  --ticker-bg: #061829;
-  --ticker-bg-soft: #0a2238;
-  --ticker-line: rgba(229, 235, 243, 0.32);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.3);
+  --ticker-bg: #1b5475;
+  --ticker-bg-soft: #2c7898;
+  --ticker-line: rgba(238, 246, 252, 0.46);
+  --sticker-bg: #e8f3f8;
+  --sticker-bg-soft: #d7edf7;
+  --sticker-ink: #071927;
+  --sticker-muted: #4b6373;
+  --sticker-line: rgba(192, 217, 231, 0.9);
+  --sticker-green: #167a4b;
+  --sticker-red: #bd3f4c;
+  --sticker-shadow: 0 12px 24px rgba(1, 11, 20, 0.22);
 }
 
 * {
@@ -28,8 +36,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 15% 0%, rgba(55, 105, 145, 0.24), transparent 32rem),
-    linear-gradient(180deg, #081827 0%, #050d16 100%);
+    radial-gradient(circle at 15% 0%, rgba(56, 102, 133, 0.24), transparent 34rem),
+    linear-gradient(180deg, #0c2438 0%, #071827 100%);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
@@ -272,28 +280,39 @@ button:focus-visible,
 
 .company-row {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 62px;
-  gap: 9px;
+  grid-template-columns: 50px minmax(0, 1fr) 58px;
+  gap: 8px;
   align-items: center;
   width: 100%;
   min-height: 62px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--sticker-line);
   border-radius: 8px;
   padding: 9px 10px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
-    var(--ticker-bg);
-  color: var(--ink);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.93), rgba(218, 237, 247, 0.94)),
+    var(--sticker-bg);
+  color: var(--sticker-ink);
   text-align: left;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--sticker-shadow);
+}
+
+.company-row[data-logo-fit="large-wordmark"] {
+  --company-logo-column: 90px;
+  --company-logo-width: 90px;
+  --company-logo-height: 34px;
+}
+
+.company-row[data-company-id="eric-b-st"] {
+  --company-logo-height: 36px;
 }
 
 .company-row:hover,
 .company-row.is-active {
   background:
-    linear-gradient(145deg, rgba(114, 208, 95, 0.11), rgba(255, 255, 255, 0.02)),
-    var(--ticker-bg-soft);
-  border-color: rgba(114, 208, 95, 0.55);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(200, 232, 245, 0.96)),
+    var(--sticker-bg-soft);
+  border-color: rgba(45, 157, 111, 0.62);
+  box-shadow: 0 14px 30px rgba(1, 11, 20, 0.28);
 }
 
 .company-price {
@@ -306,7 +325,7 @@ button:focus-visible,
 .company-price strong {
   display: block;
   overflow: hidden;
-  color: #fff;
+  color: var(--sticker-ink);
   font-size: 0.92rem;
   font-weight: 850;
   line-height: 1.15;
@@ -315,7 +334,7 @@ button:focus-visible,
 }
 
 .company-price small {
-  color: var(--muted);
+  color: var(--sticker-muted);
   font-size: 0.68rem;
   font-weight: 750;
   text-transform: uppercase;
@@ -323,10 +342,16 @@ button:focus-visible,
 
 .company-main {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-columns: var(--company-logo-column, 30px) minmax(0, 1fr);
   align-items: center;
   gap: 9px;
   min-width: 0;
+}
+
+.company-row[data-logo-fit="large-wordmark"] .company-main {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 2px;
 }
 
 .company-row.logo-missing .company-main {
@@ -336,18 +361,25 @@ button:focus-visible,
 .company-logo-mark {
   position: relative;
   display: grid;
-  width: 30px;
-  height: 28px;
+  width: var(--company-logo-width, 30px);
+  height: var(--company-logo-height, 28px);
   place-items: center;
   overflow: hidden;
   background: transparent;
 }
 
+.company-row[data-logo-fit="large-wordmark"] .company-logo-mark {
+  justify-self: start;
+}
+
 .company-logo-image {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
 }
 
 .company-row.logo-missing .company-logo-mark,
@@ -369,16 +401,25 @@ button:focus-visible,
 }
 
 .company-name {
-  color: #fff;
+  color: var(--sticker-ink);
   font-size: 1rem;
   font-weight: 850;
   line-height: 1.2;
 }
 
+.company-row[data-logo-fit="large-wordmark"] .company-name {
+  display: none;
+}
+
 .company-ticker {
   margin-top: 2px;
-  color: var(--muted);
+  color: var(--sticker-muted);
   font-size: 0.76rem;
+}
+
+.company-row[data-logo-fit="large-wordmark"] .company-ticker {
+  margin-top: 0;
+  font-size: 0.68rem;
 }
 
 .company-side {
@@ -396,7 +437,7 @@ button:focus-visible,
 }
 
 .company-side small {
-  color: var(--muted);
+  color: var(--sticker-muted);
   overflow: hidden;
   max-width: 100%;
   font-size: 0.72rem;
@@ -404,13 +445,21 @@ button:focus-visible,
   white-space: nowrap;
 }
 
+.company-row .is-positive {
+  color: var(--sticker-green);
+}
+
+.company-row .is-negative {
+  color: var(--sticker-red);
+}
+
 .ticker-card {
   overflow: hidden;
-  border: 1px solid rgba(225, 234, 245, 0.2);
+  border: 1px solid rgba(225, 234, 245, 0.28);
   border-radius: 24px;
   background:
-    radial-gradient(circle at 12% 10%, rgba(54, 105, 154, 0.2), transparent 28rem),
-    linear-gradient(145deg, #061523, #071b2e 68%, #061421);
+    radial-gradient(circle at 12% 8%, rgba(105, 168, 204, 0.28), transparent 30rem),
+    linear-gradient(145deg, #123b57, #0e2d45 68%, #082033);
   box-shadow: var(--shadow);
 }
 
@@ -449,6 +498,21 @@ button:focus-visible,
   height: 100%;
   object-fit: contain;
   object-position: left center;
+}
+
+.selected-logo-image[data-hero-fit="compact"] {
+  width: min(100%, 340px);
+  height: 118px;
+}
+
+.selected-logo-image[data-hero-fit="restrained"] {
+  width: min(100%, 460px);
+  height: 132px;
+}
+
+.selected-logo-image[data-hero-fit="wide"] {
+  width: min(100%, 560px);
+  height: 142px;
 }
 
 .selected-logo-image-wrap.is-missing .selected-logo-image,
