@@ -1,0 +1,60 @@
+name: Update market data
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs around 09:10 Europe/Stockholm on weekdays.
+    # GitHub schedules use UTC, so both possible UTC hours are listed for daylight saving time.
+    - cron: "10 7,8 * * 1-5"
+
+permissions:
+  contents: write
+
+jobs:
+  update-market-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Fetch Yahoo Finance data
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ -f scripts/update_data.py ]; then
+              python scripts/update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
+            else
+              python update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
+            fi
+          else
+            if [ -f scripts/update_data.py ]; then
+              python scripts/update_data.py --output data/omxs30-data.json
+            else
+              python update_data.py --output data/omxs30-data.json
+            fi
+          fi
+
+      - name: Commit updated data
+        run: |
+          if [ ! -f data/omxs30-data.json ]; then
+            echo "No fundamentals file written"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/omxs30-data.json
+          if git diff --cached --quiet; then
+            echo "No market data changes to commit"
+          else
+            git commit -m "Update market data"
+            git push
+          fi
