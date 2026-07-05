@@ -6,7 +6,7 @@ const companyCategoryDefinitions = {
   operating: {
     label: "Operating company",
     shortLabel: "Operating",
-    model: "DCF + reverse DCF + P/E",
+    model: "DCF + reverse DCF + P/E + EV/EBITDA",
     warning: ""
   },
   bank: {
@@ -24,7 +24,7 @@ const companyCategoryDefinitions = {
   cyclical: {
     label: "Asset-heavy cyclical",
     shortLabel: "Cyclical",
-    model: "Normalized earnings/FCF",
+    model: "Normalized FCF + EV/EBITDA",
     warning: "Use normalized mid-cycle earnings or FCF, not one-year FCF."
   }
 };
@@ -235,11 +235,15 @@ const elements = {
   fundamentalsSubtitle: document.querySelector("#fundamentalsSubtitle"),
   fundMarketCap: document.querySelector("#fundMarketCap"),
   fundRevenue: document.querySelector("#fundRevenue"),
+  fundEbitda: document.querySelector("#fundEbitda"),
+  fundFcf: document.querySelector("#fundFcf"),
+  fundAssets: document.querySelector("#fundAssets"),
   fundEquity: document.querySelector("#fundEquity"),
   fundLiabilities: document.querySelector("#fundLiabilities"),
   fundDebt: document.querySelector("#fundDebt"),
   fundCash: document.querySelector("#fundCash"),
   fundShares: document.querySelector("#fundShares"),
+  fundEvEbitda: document.querySelector("#fundEvEbitda"),
   fundFcfYield: document.querySelector("#fundFcfYield"),
   footerDataNote: document.querySelector("#footerDataNote"),
   tickerSnapshot: document.querySelector("#tickerSnapshot"),
@@ -259,6 +263,7 @@ function createDefaultCompanies() {
     const peAnchor = defaults.targetPe * (0.86 + (index % 5) * 0.045);
     const eps = round(price / peAnchor, 2);
     const fcfPerShare = round(eps * (0.76 + (index % 4) * 0.08), 2);
+    const ebitdaPerShare = round(eps * (1.55 + (index % 4) * 0.12), 2);
     const debt = sector === "Financials" ? 0 : round(((index % 7) - 3) * 1.65, 2);
     const [industryScore, companyScore, leadershipScore] = defaults.quality;
     const bookValuePerShare = category === "bank"
@@ -268,6 +273,10 @@ function createDefaultCompanies() {
       ? round(12.5 + (index % 4) * 0.6, 1)
       : round((eps / Math.max(bookValuePerShare, 1)) * 100, 1);
     const normalizedFcfPerShare = category === "cyclical" ? round(fcfPerShare * 1.12, 2) : fcfPerShare;
+    const normalizedEbitdaPerShare = category === "cyclical" ? round(ebitdaPerShare * 1.08, 2) : ebitdaPerShare;
+    const targetEvToEbitda = category === "bank" || category === "investment"
+      ? 0
+      : round(9.5 + (index % 5) * 0.6, 1);
 
     return {
       id: ticker.toLowerCase().replace(/[^a-z0-9]/g, "-"),
@@ -277,16 +286,19 @@ function createDefaultCompanies() {
       companyType: category,
       marketPrice: price,
       fcfPerShare,
+      ebitdaPerShare,
       eps,
       netDebtPerShare: debt,
       bookValuePerShare,
       roe,
       normalizedFcfPerShare,
+      normalizedEbitdaPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
       consensusGrowth: round(defaults.consensusGrowth + ((index % 4) - 1) * 0.25, 1),
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
       terminalGrowth: defaults.terminalGrowth,
       targetPe: round(defaults.targetPe + ((index % 3) - 1) * 0.6, 1),
+      targetEvToEbitda,
       portfolioWeight: 0,
       industryScore,
       companyScore: clamp(companyScore + ((index % 3) - 1), 1, 5),
@@ -404,6 +416,8 @@ function applyMarketData(currentCompanies, marketCompanies) {
       marketCap: numberOrNull(market.marketCap),
       sharesOutstanding: numberOrNull(market.sharesOutstanding),
       totalRevenue: numberOrNull(market.totalRevenue),
+      ebitda: numberOrNull(market.ebitda),
+      ebit: numberOrNull(market.ebit),
       netIncome: numberOrNull(market.netIncome),
       operatingCashFlow: numberOrNull(market.operatingCashFlow),
       capitalExpenditures: numberOrNull(market.capitalExpenditures),
@@ -413,6 +427,9 @@ function applyMarketData(currentCompanies, marketCompanies) {
       bookEquity: numberOrNull(market.bookEquity),
       totalDebt: numberOrNull(market.totalDebt),
       cash: numberOrNull(market.cash),
+      netDebt: numberOrNull(market.netDebt),
+      enterpriseValue: numberOrNull(market.enterpriseValue),
+      evToEbitda: numberOrNull(market.evToEbitda),
       equityPerShare: numberOrNull(market.equityPerShare),
       liabilitiesPerShare: numberOrNull(market.liabilitiesPerShare),
       trailingPe: numberOrNull(market.trailingPe),
@@ -421,8 +438,10 @@ function applyMarketData(currentCompanies, marketCompanies) {
       recommendationMean: numberOrNull(market.recommendationMean),
       roe: numberOrNull(market.roe),
       normalizedFcfPerShare: numberOrNull(market.normalizedFcfPerShare),
+      normalizedEbitdaPerShare: numberOrNull(market.normalizedEbitdaPerShare),
       financialCurrency: market.financialCurrency ?? null,
       financialToQuoteFx: numberOrNull(market.financialToQuoteFx),
+      latestFiscalDate: market.latestFiscalDate ?? null,
       errors: market.errors ?? []
     };
 
@@ -434,17 +453,20 @@ function applyMarketData(currentCompanies, marketCompanies) {
       companyType: normalizeCompanyType(market.companyType ?? current.companyType, seedCompany.ticker),
       marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
       fcfPerShare: numberOrFallback(market.fcfPerShare, current.fcfPerShare ?? seedCompany.fcfPerShare),
+      ebitdaPerShare: numberOrFallback(market.ebitdaPerShare, current.ebitdaPerShare ?? seedCompany.ebitdaPerShare),
       eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
       netDebtPerShare: numberOrFallback(market.netDebtPerShare, current.netDebtPerShare ?? seedCompany.netDebtPerShare),
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
       normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
+      normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
       growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
       consensusGrowth: numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? seedCompany.consensusGrowth),
       targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
+      targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
       currency: market.currency ?? current.currency ?? "SEK",
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
-      source: market.source ? "Yahoo Finance + manual assumptions" : (current.source ?? seedCompany.source),
+      source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
       notes: current.notes ?? seedCompany.notes,
       wacc: current.wacc ?? seedCompany.wacc,
       terminalGrowth: current.terminalGrowth ?? seedCompany.terminalGrowth,
@@ -515,7 +537,10 @@ function getCompanyModelWarning(companyType) {
 function getCompanySourceLabel(company) {
   const parts = [];
   if (company.priceSource) parts.push(`${company.priceSource} prices`);
-  if (company.source && company.source !== "Sample input") parts.push(`${company.source} fundamentals`);
+  if (company.source && company.source !== "Sample input") {
+    const source = company.source.replace(" + manual assumptions", "");
+    parts.push(source.includes("fundamentals") ? source : `${source} fundamentals`);
+  }
   return parts.join(" | ") || "Sample input";
 }
 
@@ -666,9 +691,10 @@ function formatDate(value) {
 }
 
 function getDataStatusLabel(marketData = state.marketData) {
-  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return "EODHD prices + Yahoo fundamentals";
+  const fundamentalsLabel = marketData.fundamentalsProvider?.includes("EODHD") ? "EODHD fundamentals" : "Yahoo fundamentals";
+  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return `EODHD prices + ${fundamentalsLabel}`;
   if (marketData.pricesLoaded) return "EODHD prices";
-  if (marketData.fundamentalsLoaded) return "Yahoo fundamentals";
+  if (marketData.fundamentalsLoaded) return fundamentalsLabel;
   return "Sample or saved inputs";
 }
 
@@ -716,6 +742,18 @@ function calculatePeValue(company, scenario = "base") {
   const eps = asNumber(company.eps);
   const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
   return eps > 0 && targetPe > 0 ? eps * targetPe : NaN;
+}
+
+function calculateEbitdaValue(company, scenario = "base", useNormalized = false) {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const ebitdaPerShare = useNormalized
+    ? (numberOrNull(company.normalizedEbitdaPerShare) ?? numberOrNull(company.ebitdaPerShare))
+    : numberOrNull(company.ebitdaPerShare);
+  const targetMultiple = Math.max(0, asNumber(company.targetEvToEbitda) + adjustment.targetPe * 0.35);
+  const netDebt = asNumber(company.netDebtPerShare);
+  return ebitdaPerShare && ebitdaPerShare > 0 && targetMultiple > 0
+    ? ebitdaPerShare * targetMultiple - netDebt
+    : NaN;
 }
 
 function averageValid(values) {
@@ -767,7 +805,9 @@ function getNavPerShare(company) {
 function calculateOperatingModel(company, scenario) {
   const dcf = calculateDcf(company, scenario);
   const peValue = calculatePeValue(company, scenario);
+  const ebitdaValue = calculateEbitdaValue(company, scenario);
   const currentPe = asNumber(company.eps) > 0 ? asNumber(company.marketPrice) / asNumber(company.eps) : NaN;
+  const currentEvEbitda = numberOrNull(company.fundamentals?.evToEbitda);
   const reverse = calculateReverseDcf(company);
   const reverseBurdenScore = Number.isFinite(reverse.value)
     ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
@@ -776,23 +816,30 @@ function calculateOperatingModel(company, scenario) {
   return {
     dcf,
     peValue,
+    ebitdaValue,
     currentPe,
-    blendedValue: averageValid([dcf.value, peValue]),
+    blendedValue: weightedAverage([
+      { value: dcf.value, weight: 0.45 },
+      { value: peValue, weight: 0.25 },
+      { value: ebitdaValue, weight: 0.3 }
+    ]),
     primaryLabel: "DCF value",
     primaryValue: dcf.value,
     secondaryLabel: "P/E value",
     secondaryValue: peValue,
-    tertiaryLabel: "Current P/E",
-    tertiaryValue: Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-",
+    tertiaryLabel: "EV/EBITDA value",
+    tertiaryValue: formatCurrency(ebitdaValue, company.currency ?? "SEK"),
     reverseLabel: "Reverse DCF",
     reverseValue: reverse.label,
     reverseSub: `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`,
-    valueDescription: Number.isFinite(dcf.value) || Number.isFinite(peValue)
-      ? `${formatCurrency(dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(peValue, company.currency ?? "SEK")} P/E`
-      : "Needs FCF or EPS inputs",
+    valueDescription: Number.isFinite(dcf.value) || Number.isFinite(peValue) || Number.isFinite(ebitdaValue)
+      ? `${formatCurrency(dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(peValue, company.currency ?? "SEK")} P/E | ${formatCurrency(ebitdaValue, company.currency ?? "SEK")} EV/EBITDA`
+      : "Needs FCF, EPS or EBITDA inputs",
     modelSupportScore: reverseBurdenScore,
     modelWarning: "",
-    chartTitle: "Projected FCF / share"
+    chartTitle: Number.isFinite(currentEvEbitda)
+      ? `Projected FCF / share | Current EV/EBITDA ${formatDecimal(currentEvEbitda, 1)}x`
+      : "Projected FCF / share"
   };
 }
 
@@ -885,6 +932,7 @@ function calculateCyclicalModel(company, scenario) {
   const normalizedFcfValue = normalizedFcf && normalizedFcf > 0
     ? normalizedFcf * normalizedMultiple - netDebt
     : NaN;
+  const ebitdaValue = calculateEbitdaValue(company, scenario, true);
   const peValue = calculatePeValue(company, scenario);
   const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
   const normalizedFcfYield = price > 0 && normalizedFcf && normalizedFcf > 0 ? (normalizedFcf / price) * 100 : NaN;
@@ -892,25 +940,27 @@ function calculateCyclicalModel(company, scenario) {
   return {
     dcf: { value: NaN, flows: [], error: "" },
     peValue,
+    ebitdaValue,
     currentPe,
     blendedValue: weightedAverage([
-      { value: normalizedFcfValue, weight: 0.7 },
-      { value: peValue, weight: 0.3 }
+      { value: normalizedFcfValue, weight: 0.5 },
+      { value: ebitdaValue, weight: 0.3 },
+      { value: peValue, weight: 0.2 }
     ]),
     primaryLabel: "Norm. FCF value",
     primaryValue: normalizedFcfValue,
-    secondaryLabel: "P/E value",
-    secondaryValue: peValue,
+    secondaryLabel: "EV/EBITDA value",
+    secondaryValue: ebitdaValue,
     tertiaryLabel: "Norm. FCF yield",
     tertiaryValue: formatPercent(normalizedFcfYield, 1),
     reverseLabel: "Norm. FCF yield",
     reverseValue: formatPercent(normalizedFcfYield, 1),
     reverseSub: "Mid-cycle cash flow yield",
-    valueDescription: Number.isFinite(normalizedFcfValue)
-      ? `${formatDecimal(normalizedMultiple, 1)}x normalized FCF | ${formatCurrency(peValue, currency)} P/E`
-      : "Needs normalized FCF per share",
+    valueDescription: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue)
+      ? `${formatDecimal(normalizedMultiple, 1)}x normalized FCF | ${formatCurrency(ebitdaValue, currency)} EV/EBITDA | ${formatCurrency(peValue, currency)} P/E`
+      : "Needs normalized FCF or EBITDA per share",
     modelSupportScore: Number.isFinite(normalizedFcfYield) ? clamp(45 + normalizedFcfYield * 5, 0, 100) : 50,
-    modelWarning: Number.isFinite(normalizedFcfValue) ? "" : "Add normalized FCF per share for the cyclical model.",
+    modelWarning: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue) ? "" : "Add normalized FCF or EBITDA per share for the cyclical model.",
     chartTitle: "Normalized FCF model"
   };
 }
@@ -1151,7 +1201,7 @@ function renderHeader() {
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
   elements.inputBadge.textContent = category !== "operating"
     ? getCompanyModelLabel(category)
-    : (company.source.includes("Yahoo") ? "Yahoo data loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
+    : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
   elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(category)}`;
@@ -1426,16 +1476,22 @@ function renderFundamentals() {
   const updatedAt = company.dataUpdatedAt ? new Date(company.dataUpdatedAt) : null;
   const updatedText = updatedAt && !Number.isNaN(updatedAt.valueOf())
     ? updatedAt.toLocaleDateString("sv-SE")
-    : "No Yahoo data loaded";
+    : "No fundamentals loaded";
 
   elements.fundamentalsSubtitle.textContent = `${company.source} | ${updatedText}`;
   elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
+  elements.fundEbitda.textContent = formatCurrency(numberOrNull(fundamentals.ebitda), currency);
+  elements.fundFcf.textContent = formatCurrency(numberOrNull(fundamentals.freeCashFlow), currency);
+  elements.fundAssets.textContent = formatCurrency(numberOrNull(fundamentals.totalAssets), currency);
   elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
   elements.fundLiabilities.textContent = formatCurrency(numberOrNull(fundamentals.totalLiabilities), currency);
   elements.fundDebt.textContent = formatCurrency(numberOrNull(fundamentals.totalDebt), currency);
   elements.fundCash.textContent = formatCurrency(numberOrNull(fundamentals.cash), currency);
   elements.fundShares.textContent = formatShares(numberOrNull(fundamentals.sharesOutstanding));
+  elements.fundEvEbitda.textContent = Number.isFinite(numberOrNull(fundamentals.evToEbitda))
+    ? `${formatDecimal(numberOrNull(fundamentals.evToEbitda), 1)}x`
+    : "-";
   elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
   elements.fundFcfYield.className = fcfYield >= 0 ? "is-positive" : "is-negative";
 }

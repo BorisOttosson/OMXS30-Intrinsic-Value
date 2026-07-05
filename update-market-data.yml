@@ -33,7 +33,9 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Fetch Yahoo Finance fundamentals
+      - name: Fetch fundamentals
+        env:
+          EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
             if [ -f scripts/update_data.py ]; then

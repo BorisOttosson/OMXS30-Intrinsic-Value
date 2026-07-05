@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Intrinsic Value - OMXS30</title>
-    <link rel="stylesheet" href="styles.css?v=20260704-price-pipeline">
+    <link rel="stylesheet" href="styles.css?v=20260705-eodhd-fundamentals">
   </head>
   <body>
     <div class="app-shell">
@@ -22,7 +22,7 @@
             <div class="data-status" aria-label="Market data status">
               <span>Data</span>
               <strong id="dataStatus">Sample inputs</strong>
-              <small id="dataTimestamp">Run the updater to load Yahoo data</small>
+              <small id="dataTimestamp">Run the updaters to load market data</small>
             </div>
 
             <div class="side-actions" aria-label="Data actions">
@@ -142,7 +142,7 @@
 
           <footer class="ticker-card-foot">
             <span id="tickerSnapshot">Snapshot: sample data</span>
-            <span id="tickerSource">Source: Yahoo Finance + manual assumptions</span>
+            <span id="tickerSource">Source: fundamentals + price data</span>
             <span>Data snapshot only. Not investment advice.</span>
           </footer>
         </section>
@@ -165,6 +165,18 @@
               <strong id="fundRevenue">-</strong>
             </div>
             <div>
+              <span>EBITDA</span>
+              <strong id="fundEbitda">-</strong>
+            </div>
+            <div>
+              <span>Free cash flow</span>
+              <strong id="fundFcf">-</strong>
+            </div>
+            <div>
+              <span>Total assets</span>
+              <strong id="fundAssets">-</strong>
+            </div>
+            <div>
               <span>Book equity</span>
               <strong id="fundEquity">-</strong>
             </div>
@@ -183,6 +195,10 @@
             <div>
               <span>Shares</span>
               <strong id="fundShares">-</strong>
+            </div>
+            <div>
+              <span>EV / EBITDA</span>
+              <strong id="fundEvEbitda">-</strong>
             </div>
             <div>
               <span>FCF yield</span>
@@ -220,6 +236,13 @@
                 <span>EPS</span>
                 <div class="input-unit">
                   <input data-field="eps" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>EBITDA / share</span>
+                <div class="input-unit">
+                  <input data-field="ebitdaPerShare" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
               </label>
@@ -262,6 +285,13 @@
                 <span>Target P/E</span>
                 <div class="input-unit">
                   <input data-field="targetPe" type="number" min="0" step="0.1">
+                  <span>x</span>
+                </div>
+              </label>
+              <label>
+                <span>Target EV/EBITDA</span>
+                <div class="input-unit">
+                  <input data-field="targetEvToEbitda" type="number" min="0" step="0.1">
                   <span>x</span>
                 </div>
               </label>
@@ -402,6 +432,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="app.js?v=20260704-price-pipeline"></script>
+    <script src="app.js?v=20260705-eodhd-fundamentals"></script>
   </body>
 </html>

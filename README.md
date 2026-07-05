@@ -3,17 +3,17 @@
 A local personal finance research app for valuing the OMXS30 universe with:
 
 - Category-fit intrinsic value models
-- Operating company DCF, reverse DCF, and P/E
+- Operating company DCF, reverse DCF, P/E, and EV/EBITDA
 - Bank P/B, ROE spread, and P/E
 - Investment company NAV discount/premium and P/E where useful
-- Cyclical normalized FCF and P/E
+- Cyclical normalized FCF, P/E, and EV/EBITDA
 - Industry, company, and leadership scorecard
-- Yahoo Finance/yfinance refresh pipeline for prices and fundamentals
+- EODHD refresh pipeline for prices and fundamentals, with Yahoo/yfinance fallback
 - Top 12 synthetic portfolio ranking
 - Separate companies into model buckets: operating, banks, investment companies, and cyclicals
 - Local persistence, JSON export, and JSON import
 
-The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load a locally generated Yahoo Finance data file.
+The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load generated EODHD price and fundamentals files.
 
 ## Run
 
@@ -37,10 +37,10 @@ Install the Python dependency:
 python3 -m pip install -r requirements.txt
 ```
 
-Fetch the latest Yahoo Finance data:
+Fetch the latest fundamentals data:
 
 ```bash
-python3 scripts/update_data.py
+EODHD_API_TOKEN=your_token_here python3 scripts/update_data.py
 ```
 
 That writes:
@@ -49,9 +49,9 @@ That writes:
 data/omxs30-data.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, and qualitative scores editable, while market price, EPS, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, equity, liabilities, debt, cash, revenue, market cap, and shares come from the latest generated data file where Yahoo has coverage.
+Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, EV/EBITDA multiple, and qualitative scores editable, while EPS, EBITDA, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, assets, equity, liabilities, debt, cash, revenue, market cap, enterprise value, EV/EBITDA, and shares come from the latest generated fundamentals file where EODHD has coverage.
 
-Yahoo Finance access is handled through `yfinance`, which is an unofficial open-source wrapper around Yahoo's publicly available data. Treat it as a personal research feed, not as guaranteed production market data.
+If `EODHD_API_TOKEN` is not set, the fundamentals updater falls back to `yfinance`. Treat both feeds as personal research inputs, not guaranteed production market data.
 
 ## Company Logos
 
@@ -80,7 +80,7 @@ The repository includes two GitHub Actions workflows:
 .github/workflows/update-prices.yml
 ```
 
-The Yahoo Finance workflow updates fundamentals around 09:10 Europe/Stockholm on weekdays and can also be started manually from the GitHub Actions tab. It writes:
+The fundamentals workflow updates around 09:10 Europe/Stockholm on weekdays and can also be started manually from the GitHub Actions tab. It uses EODHD when the `EODHD_API_TOKEN` secret is available and writes:
 
 ```text
 data/omxs30-data.json
@@ -92,7 +92,7 @@ The EODHD workflow updates share prices every 5 minutes from 09:01 to 17:01 Euro
 data/prices.json
 ```
 
-Add an `EODHD_API_TOKEN` repository secret before enabling the price workflow. GitHub Pages then serves both data files with the website.
+Add an `EODHD_API_TOKEN` repository secret before enabling the workflows. GitHub Pages then serves both data files with the website.
 
 ## Model Formulas
 
@@ -113,7 +113,13 @@ P/E value uses:
 P/E value = EPS x target P/E
 ```
 
-The blended value is the average of valid DCF and P/E values.
+EV/EBITDA value uses:
+
+```text
+EV/EBITDA value = EBITDA/share x target EV/EBITDA - net debt/share
+```
+
+The blended value weights DCF at 45%, P/E at 25%, and EV/EBITDA at 30% when those values are available.
 
 ### Banks
 
@@ -138,21 +144,22 @@ The blended value weights NAV at 80% and P/E at 20% when P/E is useful.
 
 ### Asset-heavy Cyclicals
 
-Cyclicals use normalized FCF rather than one-year FCF:
+Cyclicals use normalized FCF and EV/EBITDA rather than one-year FCF alone:
 
 ```text
 Normalized FCF value = normalized FCF/share x normalized FCF multiple - net debt/share
+EV/EBITDA value = normalized EBITDA/share x target EV/EBITDA - net debt/share
 ```
 
-The cyclical blended value weights normalized FCF at 70% and P/E at 30%.
+The cyclical blended value weights normalized FCF at 50%, EV/EBITDA at 30%, and P/E at 20%.
 
 ## Company Categories
 
 The app separates the OMXS30 universe into:
 
-- Operating companies: DCF, reverse DCF, and P/E.
+- Operating companies: DCF, reverse DCF, P/E, and EV/EBITDA.
 - Banks: P/B, ROE versus cost of equity, and P/E.
 - Investment companies: NAV discount/premium, plus P/E where useful.
-- Asset-heavy cyclicals: normalized earnings or normalized FCF instead of one-year FCF.
+- Asset-heavy cyclicals: normalized FCF and EV/EBITDA instead of one-year FCF alone.
 
 The current bank bucket includes Handelsbanken, Nordea, SEB, and Swedbank. The investment company bucket includes Investor, Industrivarden, and EQT. The cyclical bucket includes Boliden, SCA, Skanska, SKF, Sandvik, and Volvo.

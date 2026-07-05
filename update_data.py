@@ -6,8 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import time
+import urllib.parse
+import urllib.request
 from datetime import datetime, time as day_time, timezone
 from pathlib import Path
 from statistics import median
@@ -18,6 +21,7 @@ SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
+EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -167,6 +171,18 @@ def fast_info_value(fast_info: Any, key: str) -> Any:
             return None
 
 
+def ensure_yfinance() -> bool:
+    global yf
+    if yf is not None:
+        return True
+    try:
+        import yfinance as yfinance_module
+    except ImportError:
+        return False
+    yf = yfinance_module
+    return True
+
+
 def get_exchange_rate(from_currency: str | None, to_currency: str | None, cache: dict[tuple[str, str], float]) -> float:
     if not from_currency or not to_currency or from_currency == to_currency:
         return 1.0
@@ -174,6 +190,10 @@ def get_exchange_rate(from_currency: str | None, to_currency: str | None, cache:
     pair = (from_currency.upper(), to_currency.upper())
     if pair in cache:
         return cache[pair]
+
+    if not ensure_yfinance():
+        cache[pair] = 1.0
+        return 1.0
 
     direct_symbol = f"{pair[0]}{pair[1]}=X"
     inverse_symbol = f"{pair[1]}{pair[0]}=X"
@@ -212,6 +232,236 @@ def median_per_share(values: list[float], shares: float | None, exchange_rate: f
     positives = [value for value in per_share_values if value > 0]
     sample = positives or per_share_values
     return median(sample) if sample else None
+
+
+def eodhd_symbol(ticker: str) -> str:
+    return ticker
+
+
+def fetch_eodhd_json(path: str, api_token: str, timeout: float) -> dict[str, Any]:
+    params = urllib.parse.urlencode({
+        "api_token": api_token,
+        "fmt": "json",
+    })
+    url = f"{EODHD_FUNDAMENTALS_URL}/{urllib.parse.quote(path)}?{params}"
+
+    with urllib.request.urlopen(url, timeout=timeout) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+
+    if not isinstance(payload, dict):
+        raise ValueError("Unexpected EODHD fundamentals response")
+    if payload.get("Error"):
+        raise ValueError(str(payload["Error"]))
+    return payload
+
+
+def mapping_get(mapping: dict[str, Any] | None, key: str) -> Any:
+    return mapping.get(key) if isinstance(mapping, dict) else None
+
+
+def parse_report_date(value: Any) -> datetime:
+    if not value:
+        return datetime.min
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")).replace(tzinfo=None)
+    except ValueError:
+        return datetime.min
+
+
+def eodhd_reports(payload: dict[str, Any], statement: str, period: str = "yearly") -> list[dict[str, Any]]:
+    statement_payload = mapping_get(payload.get("Financials"), statement)
+    rows = mapping_get(statement_payload, period)
+    if isinstance(rows, dict):
+        reports = [row for row in rows.values() if isinstance(row, dict)]
+    elif isinstance(rows, list):
+        reports = [row for row in rows if isinstance(row, dict)]
+    else:
+        reports = []
+    return sorted(reports, key=lambda row: parse_report_date(row.get("date") or row.get("filing_date")), reverse=True)
+
+
+def eodhd_latest_report(payload: dict[str, Any], statement: str, period: str = "yearly") -> dict[str, Any]:
+    reports = eodhd_reports(payload, statement, period)
+    return reports[0] if reports else {}
+
+
+def eodhd_statement_values(payload: dict[str, Any], statement: str, keys: list[str], period: str = "yearly") -> list[float]:
+    values = []
+    for report in eodhd_reports(payload, statement, period):
+        value = pick(report, keys)
+        number = finite(value)
+        if number is not None:
+            values.append(number)
+    return values
+
+
+def eodhd_outstanding_shares(payload: dict[str, Any]) -> float | None:
+    shares_stats = payload.get("SharesStats") if isinstance(payload.get("SharesStats"), dict) else {}
+    shares = finite(shares_stats.get("SharesOutstanding"))
+    if shares:
+        return shares
+
+    outstanding = payload.get("outstandingShares") if isinstance(payload.get("outstandingShares"), dict) else {}
+    for period in ("quarterly", "annual"):
+        rows = outstanding.get(period)
+        if not isinstance(rows, dict):
+            continue
+        reports = sorted(
+            [row for row in rows.values() if isinstance(row, dict)],
+            key=lambda row: parse_report_date(row.get("dateFormatted") or row.get("date")),
+            reverse=True
+        )
+        for report in reports:
+            shares = finite(report.get("shares"))
+            if shares:
+                return shares
+    return None
+
+
+def fetch_eodhd_company(
+    api_token: str,
+    ticker: str,
+    name: str,
+    sector: str,
+    fx_cache: dict[tuple[str, str], float],
+    timeout: float
+) -> dict[str, Any]:
+    errors: list[str] = []
+    payload = fetch_eodhd_json(eodhd_symbol(ticker), api_token, timeout)
+
+    general = payload.get("General") if isinstance(payload.get("General"), dict) else {}
+    highlights = payload.get("Highlights") if isinstance(payload.get("Highlights"), dict) else {}
+    valuation = payload.get("Valuation") if isinstance(payload.get("Valuation"), dict) else {}
+    latest_income = eodhd_latest_report(payload, "Income_Statement")
+    latest_balance = eodhd_latest_report(payload, "Balance_Sheet")
+    latest_cashflow = eodhd_latest_report(payload, "Cash_Flow")
+
+    quote_currency = pick(general, ["CurrencyCode"]) or pick(highlights, ["Currency"]) or "SEK"
+    financial_currency = (
+        pick(latest_income, ["currency_symbol"])
+        or pick(latest_balance, ["currency_symbol"])
+        or pick(latest_cashflow, ["currency_symbol"])
+        or quote_currency
+    )
+    exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
+
+    shares = eodhd_outstanding_shares(payload)
+    market_cap = finite(pick(highlights, ["MarketCapitalization"])) or finite(pick(highlights, ["MarketCapitalizationMln"]))
+    if market_cap and market_cap < 10_000_000:
+        market_cap *= 1_000_000
+
+    price = (market_cap / shares) if market_cap and shares else None
+
+    revenue = (
+        finite(pick(latest_income, ["totalRevenue"]))
+        or finite(pick(highlights, ["RevenueTTM"]))
+    )
+    ebitda = (
+        finite(pick(latest_income, ["ebitda"]))
+        or finite(pick(highlights, ["EBITDA"]))
+    )
+    ebit = finite(pick(latest_income, ["ebit", "operatingIncome"]))
+    net_income = finite(pick(latest_income, ["netIncome", "netIncomeApplicableToCommonShares"]))
+    operating_cashflow = finite(pick(latest_cashflow, ["totalCashFromOperatingActivities"]))
+    capital_expenditure = finite(pick(latest_cashflow, ["capitalExpenditures"]))
+    free_cashflow = finite(pick(latest_cashflow, ["freeCashFlow"]))
+    if free_cashflow is None and operating_cashflow is not None and capital_expenditure is not None:
+        free_cashflow = operating_cashflow + capital_expenditure
+
+    total_assets = finite(pick(latest_balance, ["totalAssets"]))
+    liabilities = finite(pick(latest_balance, ["totalLiab", "totalLiabilities"]))
+    equity = finite(pick(latest_balance, ["totalStockholderEquity", "totalEquity"]))
+    total_debt = finite(pick(latest_balance, ["shortLongTermDebtTotal", "totalDebt", "longTermDebtTotal"]))
+    cash = finite(pick(latest_balance, ["cashAndEquivalents", "cash", "cashAndShortTermInvestments"]))
+    net_debt = finite(pick(latest_balance, ["netDebt"]))
+    if net_debt is None and (total_debt is not None or cash is not None):
+        net_debt = (total_debt or 0) - (cash or 0)
+
+    fcf_values = eodhd_statement_values(payload, "Cash_Flow", ["freeCashFlow"])
+    ebitda_values = eodhd_statement_values(payload, "Income_Statement", ["ebitda"])
+    revenue_values = eodhd_statement_values(payload, "Income_Statement", ["totalRevenue"])
+
+    eps_per_share = (
+        per_share(net_income, shares, exchange_rate)
+        or finite(pick(highlights, ["DilutedEpsTTM", "EarningsShare"]))
+    )
+    book_value_per_share = (
+        per_share(equity, shares, exchange_rate)
+        or finite(pick(highlights, ["BookValue"]))
+    )
+    ebitda_per_share = per_share(ebitda, shares, exchange_rate)
+    fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
+    normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
+    normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
+    net_debt_per_share = per_share(net_debt, shares, exchange_rate)
+    roe = pct(pick(highlights, ["ReturnOnEquityTTM"]))
+    if roe is None and net_income is not None and equity and equity > 0:
+        roe = (net_income / equity) * 100
+
+    growth = (
+        pct(pick(highlights, ["QuarterlyRevenueGrowthYOY", "QuarterlyEarningsGrowthYOY"]))
+        or historical_cagr(revenue_values)
+        or historical_cagr(fcf_values)
+    )
+    target_pe = finite(pick(valuation, ["ForwardPE", "TrailingPE"])) or finite(pick(highlights, ["PERatio"]))
+    if target_pe is not None:
+        target_pe = min(max(target_pe, 5), 35)
+
+    ev_to_ebitda = finite(pick(valuation, ["EnterpriseValueEbitda"]))
+    target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
+
+    output = {
+        "id": company_id(ticker),
+        "ticker": ticker,
+        "name": pick(general, ["Name"]) or name,
+        "sector": pick(general, ["Sector"]) or sector,
+        "companyType": company_type(ticker),
+        "source": "EODHD",
+        "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "currency": quote_currency,
+        "financialCurrency": financial_currency,
+        "financialToQuoteFx": exchange_rate,
+        "marketPrice": price,
+        "marketCap": market_cap,
+        "sharesOutstanding": shares,
+        "totalRevenue": scaled(revenue, exchange_rate),
+        "ebitda": scaled(ebitda, exchange_rate),
+        "ebit": scaled(ebit, exchange_rate),
+        "netIncome": scaled(net_income, exchange_rate),
+        "operatingCashFlow": scaled(operating_cashflow, exchange_rate),
+        "capitalExpenditures": scaled(capital_expenditure, exchange_rate),
+        "freeCashFlow": scaled(free_cashflow, exchange_rate),
+        "totalAssets": scaled(total_assets, exchange_rate),
+        "totalLiabilities": scaled(liabilities, exchange_rate),
+        "bookEquity": scaled(equity, exchange_rate),
+        "totalDebt": scaled(total_debt, exchange_rate),
+        "cash": scaled(cash, exchange_rate),
+        "netDebt": scaled(net_debt, exchange_rate),
+        "enterpriseValue": finite(pick(valuation, ["EnterpriseValue"])),
+        "evToEbitda": ev_to_ebitda,
+        "targetEvToEbitda": target_ev_to_ebitda,
+        "fcfPerShare": fcf_per_share,
+        "ebitdaPerShare": ebitda_per_share,
+        "normalizedFcfPerShare": normalized_fcf_per_share,
+        "normalizedEbitdaPerShare": normalized_ebitda_per_share,
+        "eps": eps_per_share,
+        "netDebtPerShare": net_debt_per_share,
+        "bookValuePerShare": book_value_per_share,
+        "equityPerShare": book_value_per_share,
+        "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
+        "roe": roe,
+        "growth5y": growth,
+        "consensusGrowth": growth,
+        "targetPe": target_pe,
+        "trailingPe": finite(pick(valuation, ["TrailingPE"])) or finite(pick(highlights, ["PERatio"])),
+        "forwardPe": finite(pick(valuation, ["ForwardPE"])),
+        "analystTargetMeanPrice": finite(pick(highlights, ["WallStreetTargetPrice"])),
+        "recommendationMean": None,
+        "latestFiscalDate": pick(latest_income, ["date"]),
+        "errors": errors,
+    }
+
+    return {key: clean(value) for key, value in output.items()}
 
 
 def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str, str], float]) -> dict[str, Any]:
@@ -366,35 +616,54 @@ def main(argv: list[str]) -> int:
         print(f"Skipping fundamentals update outside Stockholm morning window: {local.isoformat()}")
         return 0
 
-    try:
-        import yfinance as yfinance_module
-    except ImportError as exc:  # pragma: no cover - user-facing dependency guard
-        raise SystemExit(
-            "Missing dependency: yfinance. Run `python3 -m pip install -r requirements.txt` first."
-        ) from exc
-
-    yf = yfinance_module
+    eodhd_api_token = os.environ.get("EODHD_API_TOKEN")
     fx_cache: dict[tuple[str, str], float] = {}
     companies = []
-    for ticker, name, sector in OMXS30:
-        print(f"Fetching {ticker}...", flush=True)
-        try:
-            companies.append(fetch_company(ticker, name, sector, fx_cache))
-        except Exception as exc:  # keep the run useful even if one ticker breaks
-            companies.append({
-                "id": company_id(ticker),
-                "ticker": ticker,
-                "name": name,
-                "sector": sector,
-                "source": "Yahoo Finance",
-                "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
-                "errors": [str(exc)],
-            })
-        time.sleep(args.delay)
+    provider = "EODHD fundamentals" if eodhd_api_token else "Yahoo Finance via yfinance"
+
+    if eodhd_api_token:
+        for ticker, name, sector in OMXS30:
+            print(f"Fetching EODHD fundamentals for {ticker}...", flush=True)
+            try:
+                companies.append(fetch_eodhd_company(eodhd_api_token, ticker, name, sector, fx_cache, timeout=30))
+            except Exception as exc:
+                companies.append({
+                    "id": company_id(ticker),
+                    "ticker": ticker,
+                    "name": name,
+                    "sector": sector,
+                    "companyType": company_type(ticker),
+                    "source": "EODHD",
+                    "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+                    "errors": [str(exc)],
+                })
+            time.sleep(args.delay)
+    else:
+        if not ensure_yfinance():
+            raise SystemExit(
+                "Missing dependency: yfinance. Run `python3 -m pip install -r requirements.txt` first."
+            )
+
+        for ticker, name, sector in OMXS30:
+            print(f"Fetching Yahoo Finance data for {ticker}...", flush=True)
+            try:
+                companies.append(fetch_company(ticker, name, sector, fx_cache))
+            except Exception as exc:  # keep the run useful even if one ticker breaks
+                companies.append({
+                    "id": company_id(ticker),
+                    "ticker": ticker,
+                    "name": name,
+                    "sector": sector,
+                    "companyType": company_type(ticker),
+                    "source": "Yahoo Finance",
+                    "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+                    "errors": [str(exc)],
+                })
+            time.sleep(args.delay)
 
     payload = {
         "version": 1,
-        "provider": "Yahoo Finance via yfinance",
+        "provider": provider,
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "universe": "OMXS30",
         "universeAsOf": "2025-07-01",
