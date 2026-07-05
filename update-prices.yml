@@ -3,15 +3,14 @@ name: Update prices
 on:
   workflow_dispatch:
   schedule:
-    # Every 5 minutes on weekdays across the possible UTC hours for 09:01-17:01 Europe/Stockholm.
-    # The Python updater checks Europe/Stockholm time, so daylight saving time is handled there.
+    # Every five minutes on weekdays. The Python script filters to 09:01-17:01 Stockholm time.
     - cron: "1-56/5 7-16 * * 1-5"
 
 permissions:
   contents: write
 
 concurrency:
-  group: update-prices
+  group: omxs30-data-writes
   cancel-in-progress: false
 
 jobs:
@@ -21,6 +20,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,12 +44,25 @@ jobs:
             echo "No price file written"
             exit 0
           fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/prices.json
+
           if git diff --cached --quiet; then
             echo "No price changes to commit"
-          else
-            git commit -m "Update prices"
-            git push
+            exit 0
           fi
+
+          git commit -m "Update prices"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push updated prices after 3 attempts"
+          exit 1
