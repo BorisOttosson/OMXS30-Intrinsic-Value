@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch OMXS30 market data from Yahoo Finance through yfinance."""
+"""Fetch OMXS30 fundamentals from EODHD, with Yahoo Finance as a fallback."""
 
 from __future__ import annotations
 
@@ -604,7 +604,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
 
 def main(argv: list[str]) -> int:
     global yf
-    parser = argparse.ArgumentParser(description="Update OMXS30 data from Yahoo Finance.")
+    parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals from EODHD, with Yahoo Finance as a fallback.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
@@ -679,4 +679,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-
