@@ -3,10 +3,16 @@ name: Update market data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 18 * * 1-5"
+    # GitHub uses UTC. These two slots cover Stockholm winter/summer time.
+    # The Python script only allows the real 09:10 Stockholm market-day window.
+    - cron: "10 7,8 * * 1-5"
 
 permissions:
   contents: write
+
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
 
 jobs:
   update-market-data:
@@ -15,6 +21,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,22 +33,86 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Fetch Yahoo Finance data
+      - name: Check EODHD secret
+        env:
+          EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
-          if [ -f scripts/update_data.py ]; then
-            python scripts/update_data.py --output data/omxs30-data.json
-          else
-            python update_data.py --output data/omxs30-data.json
+          if [ -z "$EODHD_API_TOKEN" ]; then
+            echo "Missing EODHD_API_TOKEN. Add it in Settings > Secrets and variables > Actions."
+            exit 1
           fi
 
-      - name: Commit updated data
+      - name: Fetch fundamentals
+        env:
+          EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ -f scripts/update_data.py ]; then
+              python scripts/update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
+            else
+              python update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
+            fi
+          else
+            if [ -f scripts/update_data.py ]; then
+              python scripts/update_data.py --output data/omxs30-data.json
+            else
+              python update_data.py --output data/omxs30-data.json
+            fi
+          fi
+
+      - name: Validate fundamentals file
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+
+          with open("data/omxs30-data.json", encoding="utf-8") as file:
+              payload = json.load(file)
+
+          companies = payload.get("companies", [])
+          eodhd_rows = [company for company in companies if company.get("source") == "EODHD"]
+          balance_sheet_rows = [
+              company
+              for company in companies
+              if company.get("totalAssets") is not None
+              or company.get("bookEquity") is not None
+              or company.get("totalLiabilities") is not None
+          ]
+
+          if not eodhd_rows:
+              sys.exit("Fundamentals were not fetched from EODHD. Check the EODHD_API_TOKEN secret.")
+
+          if not balance_sheet_rows:
+              sys.exit("EODHD ran, but no balance-sheet fields were written.")
+
+          print(f"Validated {len(balance_sheet_rows)} companies with balance-sheet data.")
+          PY
+
+      - name: Commit updated fundamentals
+        run: |
+          if [ ! -f data/omxs30-data.json ]; then
+            echo "No fundamentals file written"
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/omxs30-data.json
+
           if git diff --cached --quiet; then
-            echo "No market data changes to commit"
-          else
-            git commit -m "Update market data"
-            git push
+            echo "No fundamentals changes to commit"
+            exit 0
           fi
+
+          git commit -m "Update market data"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push updated fundamentals after 3 attempts"
+          exit 1
