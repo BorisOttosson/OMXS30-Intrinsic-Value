@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Intrinsic Value - OMXS30</title>
+    <link rel="stylesheet" href="styles.css?v=20260705-eodhd-fundamentals">
+  </head>
+  <body>
+    <div class="app-shell">
+      <main class="main-panel">
+        <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">IV</div>
+          <div>
+            <h1>Intrinsic Value</h1>
+            <p>OMXS30 research</p>
+          </div>
+        </div>
+
+          <div class="header-actions">
+            <div class="data-status" aria-label="Market data status">
+              <span>Data</span>
+              <strong id="dataStatus">Sample inputs</strong>
+              <small id="dataTimestamp">Run the updaters to load market data</small>
+            </div>
+
+            <div class="side-actions" aria-label="Data actions">
+              <button class="action-button" id="reloadDataBtn" type="button" title="Reload local market data">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"></path>
+                </svg>
+                <span>Reload</span>
+              </button>
+              <button class="action-button" id="exportBtn" type="button" title="Export data">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"></path>
+                </svg>
+                <span>Export</span>
+              </button>
+              <label class="action-button file-action" title="Import data">
+                <input id="importFile" type="file" accept="application/json">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 21V10m0 0 4 4m-4-4-4 4M5 7V4h14v3"></path>
+                </svg>
+                <span>Import</span>
+              </label>
+            </div>
+          </div>
+        </header>
+
+        <section class="discovery-section" aria-label="Company universe">
+          <div class="filters" aria-label="Filters">
+          <label>
+            <span>Search</span>
+            <input id="searchInput" type="search" autocomplete="off" placeholder="Ticker or company">
+          </label>
+          <label>
+            <span>Sector</span>
+            <select id="sectorFilter"></select>
+          </label>
+          <label>
+            <span>Category</span>
+            <select id="typeFilter">
+              <option value="all">All</option>
+              <option value="operating">Operating</option>
+              <option value="bank">Banks</option>
+              <option value="investment">Investment</option>
+              <option value="cyclical">Cyclicals</option>
+            </select>
+          </label>
+          <label>
+            <span>View</span>
+            <select id="stanceFilter">
+              <option value="all">All</option>
+              <option value="attractive">Attractive</option>
+              <option value="undervalued">Undervalued</option>
+              <option value="fair">Fair</option>
+              <option value="rich">Rich</option>
+              <option value="stretched">Stretched</option>
+              <option value="model-needed">Model needed</option>
+            </select>
+          </label>
+          </div>
+
+          <nav class="company-list" id="companyList" aria-label="OMXS30 companies"></nav>
+        </section>
+
+        <section class="ticker-card selected-ticker-card" aria-label="Selected company valuation ticker">
+          <header class="ticker-card-head">
+            <div class="selected-logo-lockup" aria-hidden="true">
+              <span class="selected-logo-image-wrap">
+                <img class="selected-logo-image" id="selectedLogoImage" alt="">
+                <span class="selected-logo-placeholder" id="selectedLogo">Logo PNG</span>
+              </span>
+            </div>
+            <div class="company-heading">
+              <span class="ticker-pill" id="selectedTicker">OMXS30</span>
+              <h2 id="selectedName">Intrinsic value workspace</h2>
+              <p id="selectedMeta">Seeded OMXS30 universe, editable research inputs</p>
+            </div>
+          <div class="topbar-actions">
+            <button class="ghost-button" id="resetSelectedBtn" type="button" title="Reset selected company">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+            <button class="primary-button" id="resetAllBtn" type="button" title="Reset all sample data">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
+              </svg>
+              <span>Reset all</span>
+            </button>
+          </div>
+          </header>
+
+          <div class="ticker-rule"></div>
+
+          <div class="ticker-value-grid">
+            <div class="ticker-value-block">
+              <span>Current Price</span>
+              <strong id="heroCurrentPrice">-</strong>
+              <small><span id="metricMos">-</span> <span id="metricMosSub">upside</span></small>
+            </div>
+            <div class="ticker-value-block">
+              <span>Intrinsic Value</span>
+              <strong id="metricValue">-</strong>
+              <small id="metricValueSub">DCF and P/E</small>
+            </div>
+            <div class="ticker-value-block">
+              <span id="metricReverseLabel">Reverse DCF</span>
+              <strong id="metricReverse">-</strong>
+              <small id="metricReverseSub">5 year FCF CAGR</small>
+            </div>
+            <div class="ticker-value-block">
+              <span>Research Score</span>
+              <strong id="metricScore">-</strong>
+              <small id="metricScoreSub">Quality plus valuation</small>
+            </div>
+          </div>
+
+          <footer class="ticker-card-foot">
+            <span id="tickerSnapshot">Snapshot: sample data</span>
+            <span id="tickerSource">Source: fundamentals + price data</span>
+            <span>Data snapshot only. Not investment advice.</span>
+          </footer>
+        </section>
+
+        <section class="tool-panel fundamentals-panel" aria-label="Fundamental metrics">
+          <div class="panel-title">
+            <div>
+              <h3>Fundamentals</h3>
+              <p id="fundamentalsSubtitle">Latest loaded metrics</p>
+            </div>
+          </div>
+
+          <div class="fundamental-grid">
+            <div>
+              <span>Market cap</span>
+              <strong id="fundMarketCap">-</strong>
+            </div>
+            <div>
+              <span>Revenue</span>
+              <strong id="fundRevenue">-</strong>
+            </div>
+            <div>
+              <span>EBITDA</span>
+              <strong id="fundEbitda">-</strong>
+            </div>
+            <div>
+              <span>Free cash flow</span>
+              <strong id="fundFcf">-</strong>
+            </div>
+            <div>
+              <span>Total assets</span>
+              <strong id="fundAssets">-</strong>
+            </div>
+            <div>
+              <span>Book equity</span>
+              <strong id="fundEquity">-</strong>
+            </div>
+            <div>
+              <span>Liabilities</span>
+              <strong id="fundLiabilities">-</strong>
+            </div>
+            <div>
+              <span>Total debt</span>
+              <strong id="fundDebt">-</strong>
+            </div>
+            <div>
+              <span>Cash</span>
+              <strong id="fundCash">-</strong>
+            </div>
+            <div>
+              <span>Shares</span>
+              <strong id="fundShares">-</strong>
+            </div>
+            <div>
+              <span>EV / EBITDA</span>
+              <strong id="fundEvEbitda">-</strong>
+            </div>
+            <div>
+              <span>FCF yield</span>
+              <strong id="fundFcfYield">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="workspace-grid">
+          <form class="tool-panel model-panel" id="valuationForm">
+            <div class="panel-title">
+              <div>
+                <h3>Model Inputs</h3>
+                <p id="inputBadge">Sample inputs</p>
+              </div>
+              <span class="status-badge" id="stanceBadge">Fair</span>
+            </div>
+
+            <div class="input-grid">
+              <label>
+                <span>Market price</span>
+                <div class="input-unit">
+                  <input data-field="marketPrice" type="number" min="0" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>FCF / share</span>
+                <div class="input-unit">
+                  <input data-field="fcfPerShare" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>EPS</span>
+                <div class="input-unit">
+                  <input data-field="eps" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>EBITDA / share</span>
+                <div class="input-unit">
+                  <input data-field="ebitdaPerShare" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>Net debt / share</span>
+                <div class="input-unit">
+                  <input data-field="netDebtPerShare" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>5 year FCF growth</span>
+                <div class="input-unit">
+                  <input data-field="growth5y" type="number" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Consensus growth</span>
+                <div class="input-unit">
+                  <input data-field="consensusGrowth" type="number" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>WACC</span>
+                <div class="input-unit">
+                  <input data-field="wacc" type="number" min="0" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Terminal growth</span>
+                <div class="input-unit">
+                  <input data-field="terminalGrowth" type="number" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Target P/E</span>
+                <div class="input-unit">
+                  <input data-field="targetPe" type="number" min="0" step="0.1">
+                  <span>x</span>
+                </div>
+              </label>
+              <label>
+                <span>Target EV/EBITDA</span>
+                <div class="input-unit">
+                  <input data-field="targetEvToEbitda" type="number" min="0" step="0.1">
+                  <span>x</span>
+                </div>
+              </label>
+              <label>
+                <span>Book / NAV per share</span>
+                <div class="input-unit">
+                  <input data-field="bookValuePerShare" type="number" min="0" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>ROE</span>
+                <div class="input-unit">
+                  <input data-field="roe" type="number" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+              <label>
+                <span>Normalized FCF / share</span>
+                <div class="input-unit">
+                  <input data-field="normalizedFcfPerShare" type="number" step="0.01">
+                  <span>SEK</span>
+                </div>
+              </label>
+              <label>
+                <span>Position weight</span>
+                <div class="input-unit">
+                  <input data-field="portfolioWeight" type="number" min="0" step="0.1">
+                  <span>%</span>
+                </div>
+              </label>
+            </div>
+          </form>
+
+          <section class="tool-panel valuation-panel" aria-label="Valuation outputs">
+            <div class="panel-title">
+              <div>
+                <h3>Valuation</h3>
+                <p id="valuationSubtitle">Base case</p>
+              </div>
+              <div class="segmented-control" aria-label="Scenario">
+                <button class="segment is-active" type="button" data-scenario="base">Base</button>
+                <button class="segment" type="button" data-scenario="bear">Bear</button>
+                <button class="segment" type="button" data-scenario="bull">Bull</button>
+              </div>
+            </div>
+
+            <div class="value-grid">
+              <div>
+                <span id="valuationPrimaryLabel">DCF value</span>
+                <strong id="dcfValue">-</strong>
+              </div>
+              <div>
+                <span id="valuationSecondaryLabel">P/E value</span>
+                <strong id="peValue">-</strong>
+              </div>
+              <div>
+                <span id="valuationTertiaryLabel">Current P/E</span>
+                <strong id="currentPe">-</strong>
+              </div>
+            </div>
+
+            <div class="chart-wrap">
+              <canvas id="dcfChart" width="640" height="260" aria-label="Five year free cash flow projection"></canvas>
+            </div>
+          </section>
+
+          <section class="tool-panel outlook-panel" aria-label="Outlook scorecard">
+            <div class="panel-title">
+              <div>
+                <h3>Outlook</h3>
+                <p id="qualitySummary">Industry, company, leadership</p>
+              </div>
+              <span class="score-ring" id="qualityRing">0</span>
+            </div>
+
+            <div class="slider-stack">
+              <label>
+                <span>Industry opportunity <strong data-score-value="industryScore">3</strong></span>
+                <input data-quality="industryScore" type="range" min="1" max="5" step="1">
+              </label>
+              <label>
+                <span>Company advantage <strong data-score-value="companyScore">3</strong></span>
+                <input data-quality="companyScore" type="range" min="1" max="5" step="1">
+              </label>
+              <label>
+                <span>Leadership quality <strong data-score-value="leadershipScore">3</strong></span>
+                <input data-quality="leadershipScore" type="range" min="1" max="5" step="1">
+              </label>
+            </div>
+
+            <div class="outlook-grid">
+              <div>
+                <span>Growth gap</span>
+                <strong id="growthGap">-</strong>
+              </div>
+              <div>
+                <span>Quality score</span>
+                <strong id="qualityScore">-</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="tool-panel portfolio-panel" aria-label="Portfolio and notes">
+            <div class="panel-title">
+              <div>
+                <h3>Portfolio</h3>
+                <p id="portfolioSummary">Watchlist stance</p>
+              </div>
+            </div>
+
+            <div class="bar-list" id="sectorBars" aria-label="Sector valuation"></div>
+
+            <label class="notes-field">
+              <span>Research notes</span>
+              <textarea data-field="notes" rows="7" placeholder="Catalysts, risks, source links"></textarea>
+            </label>
+          </section>
+        </section>
+
+        <section class="tool-panel synthetic-panel" aria-label="Synthetic portfolio">
+          <div class="panel-title">
+            <div>
+              <h3>Synthetic Portfolio</h3>
+              <p id="syntheticSummary">Operating companies ranked by valuation and quality</p>
+            </div>
+            <span class="ticker-pill" id="syntheticCount">12 operating</span>
+          </div>
+          <div class="synthetic-table" id="syntheticPortfolio"></div>
+        </section>
+
+        <footer class="footer-note">
+          <span>Research workspace only. Not financial advice.</span>
+          <span id="footerDataNote">OMXS30 seed composition: 2025-07-01.</span>
+        </footer>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js?v=20260705-eodhd-fundamentals"></script>
+  </body>
+</html>
