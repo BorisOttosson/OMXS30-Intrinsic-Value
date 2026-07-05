@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the EODHD price updater from the repository root."""
+"""Run the Yahoo/yfinance price updater from the repository root."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch OMXS30 fundamentals from EODHD, with Yahoo Finance as a fallback."""
+"""Fetch OMXS30 fundamentals from FMP/EODHD, with Yahoo Finance as a fallback."""
 
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
+FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
@@ -234,6 +235,47 @@ def median_per_share(values: list[float], shares: float | None, exchange_rate: f
     return median(sample) if sample else None
 
 
+def fmp_symbol(ticker: str) -> str:
+    return ticker
+
+
+def fetch_fmp_json(endpoint: str, api_key: str, timeout: float, **params: Any) -> Any:
+    query = {
+        **params,
+        "apikey": api_key,
+    }
+    url = f"{FMP_BASE_URL}/{endpoint}?{urllib.parse.urlencode(query)}"
+
+    with urllib.request.urlopen(url, timeout=timeout) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+
+    if isinstance(payload, dict) and payload.get("Error Message"):
+        raise ValueError(str(payload["Error Message"]))
+    if isinstance(payload, dict) and payload.get("error"):
+        raise ValueError(str(payload["error"]))
+    return payload
+
+
+def fmp_rows(endpoint: str, api_key: str, symbol: str, timeout: float, limit: int = 5) -> list[dict[str, Any]]:
+    payload = fetch_fmp_json(endpoint, api_key, timeout, symbol=symbol, period="annual", limit=limit)
+    if isinstance(payload, list):
+        rows = [row for row in payload if isinstance(row, dict)]
+    elif isinstance(payload, dict):
+        rows = [payload]
+    else:
+        rows = []
+    return sorted(rows, key=lambda row: parse_report_date(row.get("date") or row.get("calendarYear")), reverse=True)
+
+
+def fmp_profile(api_key: str, symbol: str, timeout: float) -> dict[str, Any]:
+    payload = fetch_fmp_json("profile", api_key, timeout, symbol=symbol)
+    if isinstance(payload, list):
+        return next((row for row in payload if isinstance(row, dict)), {})
+    if isinstance(payload, dict):
+        return payload
+    return {}
+
+
 def eodhd_symbol(ticker: str) -> str:
     return ticker
 
@@ -316,6 +358,153 @@ def eodhd_outstanding_shares(payload: dict[str, Any]) -> float | None:
             if shares:
                 return shares
     return None
+
+
+def fetch_fmp_company(
+    api_key: str,
+    ticker: str,
+    name: str,
+    sector: str,
+    fx_cache: dict[tuple[str, str], float],
+    timeout: float
+) -> dict[str, Any]:
+    symbol = fmp_symbol(ticker)
+    profile = fmp_profile(api_key, symbol, timeout)
+    income_rows = fmp_rows("income-statement", api_key, symbol, timeout)
+    balance_rows = fmp_rows("balance-sheet-statement", api_key, symbol, timeout)
+    cashflow_rows = fmp_rows("cash-flow-statement", api_key, symbol, timeout)
+    metrics_rows = fmp_rows("key-metrics", api_key, symbol, timeout)
+    ratios_rows = fmp_rows("ratios", api_key, symbol, timeout)
+
+    latest_income = income_rows[0] if income_rows else {}
+    latest_balance = balance_rows[0] if balance_rows else {}
+    latest_cashflow = cashflow_rows[0] if cashflow_rows else {}
+    latest_metrics = metrics_rows[0] if metrics_rows else {}
+    latest_ratios = ratios_rows[0] if ratios_rows else {}
+
+    quote_currency = pick(profile, ["currency"]) or "SEK"
+    financial_currency = (
+        pick(latest_income, ["reportedCurrency"])
+        or pick(latest_balance, ["reportedCurrency"])
+        or pick(latest_cashflow, ["reportedCurrency"])
+        or quote_currency
+    )
+    exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
+
+    price = finite(pick(profile, ["price"]))
+    market_cap = finite(pick(latest_metrics, ["marketCap"])) or finite(pick(profile, ["mktCap", "marketCap"]))
+    shares = (
+        finite(pick(latest_income, ["weightedAverageShsOutDil", "weightedAverageShsOut"]))
+        or (market_cap / price if market_cap and price else None)
+    )
+
+    revenue = finite(pick(latest_income, ["revenue", "totalRevenue"]))
+    ebitda = finite(pick(latest_income, ["ebitda"]))
+    ebit = finite(pick(latest_income, ["operatingIncome", "ebit"]))
+    net_income = finite(pick(latest_income, ["netIncome"]))
+    operating_cashflow = finite(pick(latest_cashflow, ["operatingCashFlow", "netCashProvidedByOperatingActivities"]))
+    capital_expenditure = finite(pick(latest_cashflow, ["capitalExpenditure", "capitalExpenditures"]))
+    free_cashflow = finite(pick(latest_cashflow, ["freeCashFlow"]))
+    if free_cashflow is None and operating_cashflow is not None and capital_expenditure is not None:
+        free_cashflow = operating_cashflow + capital_expenditure
+
+    total_assets = finite(pick(latest_balance, ["totalAssets"]))
+    liabilities = finite(pick(latest_balance, ["totalLiabilities"]))
+    equity = finite(pick(latest_balance, ["totalStockholdersEquity", "totalEquity"]))
+    total_debt = finite(pick(latest_balance, ["totalDebt"]))
+    cash = finite(pick(latest_balance, ["cashAndCashEquivalents", "cashAndShortTermInvestments"]))
+    net_debt = finite(pick(latest_balance, ["netDebt"]))
+    if net_debt is None and (total_debt is not None or cash is not None):
+        net_debt = (total_debt or 0) - (cash or 0)
+
+    fcf_values = [value for value in (finite(row.get("freeCashFlow")) for row in cashflow_rows) if value is not None]
+    ebitda_values = [value for value in (finite(row.get("ebitda")) for row in income_rows) if value is not None]
+    revenue_values = [value for value in (finite(row.get("revenue")) for row in income_rows) if value is not None]
+
+    eps_per_share = scaled(
+        finite(pick(latest_income, ["epsdiluted", "eps"])),
+        exchange_rate
+    ) or per_share(net_income, shares, exchange_rate)
+    book_value_per_share = (
+        scaled(finite(pick(latest_metrics, ["bookValuePerShare"])), exchange_rate)
+        or per_share(equity, shares, exchange_rate)
+    )
+    ebitda_per_share = (
+        scaled(finite(pick(latest_metrics, ["ebitdaPerShare"])), exchange_rate)
+        or per_share(ebitda, shares, exchange_rate)
+    )
+    fcf_per_share = (
+        scaled(finite(pick(latest_metrics, ["freeCashFlowPerShare"])), exchange_rate)
+        or per_share(free_cashflow, shares, exchange_rate)
+    )
+    normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
+    normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
+    net_debt_per_share = per_share(net_debt, shares, exchange_rate)
+    roe = pct(pick(latest_metrics, ["roe"])) or pct(pick(latest_ratios, ["returnOnEquity"]))
+    if roe is None and net_income is not None and equity and equity > 0:
+        roe = (net_income / equity) * 100
+
+    growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
+    target_pe = finite(pick(latest_metrics, ["peRatio"])) or finite(pick(latest_ratios, ["priceEarningsRatio"]))
+    if target_pe is not None:
+        target_pe = min(max(target_pe, 5), 35)
+
+    ev_to_ebitda = finite(pick(latest_metrics, ["enterpriseValueOverEBITDA", "evToEbitda"]))
+    target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
+
+    output = {
+        "id": company_id(ticker),
+        "ticker": ticker,
+        "fmpSymbol": symbol,
+        "name": pick(profile, ["companyName", "companyNameLong"]) or name,
+        "sector": pick(profile, ["sector"]) or sector,
+        "companyType": company_type(ticker),
+        "source": "Financial Modeling Prep",
+        "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "currency": quote_currency,
+        "financialCurrency": financial_currency,
+        "financialToQuoteFx": exchange_rate,
+        "marketPrice": price,
+        "marketCap": market_cap,
+        "sharesOutstanding": shares,
+        "totalRevenue": scaled(revenue, exchange_rate),
+        "ebitda": scaled(ebitda, exchange_rate),
+        "ebit": scaled(ebit, exchange_rate),
+        "netIncome": scaled(net_income, exchange_rate),
+        "operatingCashFlow": scaled(operating_cashflow, exchange_rate),
+        "capitalExpenditures": scaled(capital_expenditure, exchange_rate),
+        "freeCashFlow": scaled(free_cashflow, exchange_rate),
+        "totalAssets": scaled(total_assets, exchange_rate),
+        "totalLiabilities": scaled(liabilities, exchange_rate),
+        "bookEquity": scaled(equity, exchange_rate),
+        "totalDebt": scaled(total_debt, exchange_rate),
+        "cash": scaled(cash, exchange_rate),
+        "netDebt": scaled(net_debt, exchange_rate),
+        "enterpriseValue": finite(pick(latest_metrics, ["enterpriseValue"])),
+        "evToEbitda": ev_to_ebitda,
+        "targetEvToEbitda": target_ev_to_ebitda,
+        "fcfPerShare": fcf_per_share,
+        "ebitdaPerShare": ebitda_per_share,
+        "normalizedFcfPerShare": normalized_fcf_per_share,
+        "normalizedEbitdaPerShare": normalized_ebitda_per_share,
+        "eps": eps_per_share,
+        "netDebtPerShare": net_debt_per_share,
+        "bookValuePerShare": book_value_per_share,
+        "equityPerShare": book_value_per_share,
+        "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
+        "roe": roe,
+        "growth5y": growth,
+        "consensusGrowth": growth,
+        "targetPe": target_pe,
+        "trailingPe": finite(pick(latest_metrics, ["peRatio"])) or finite(pick(latest_ratios, ["priceEarningsRatio"])),
+        "forwardPe": None,
+        "analystTargetMeanPrice": None,
+        "recommendationMean": None,
+        "latestFiscalDate": pick(latest_income, ["date"]),
+        "errors": [],
+    }
+
+    return {key: clean(value) for key, value in output.items()}
 
 
 def fetch_eodhd_company(
@@ -604,7 +793,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
 
 def main(argv: list[str]) -> int:
     global yf
-    parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals from EODHD, with Yahoo Finance as a fallback.")
+    parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals from FMP/EODHD, with Yahoo Finance as a fallback.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
@@ -616,12 +805,36 @@ def main(argv: list[str]) -> int:
         print(f"Skipping fundamentals update outside Stockholm morning window: {local.isoformat()}")
         return 0
 
+    fmp_api_key = os.environ.get("FMP_API_KEY")
     eodhd_api_token = os.environ.get("EODHD_API_TOKEN")
     fx_cache: dict[tuple[str, str], float] = {}
     companies = []
-    provider = "EODHD fundamentals" if eodhd_api_token else "Yahoo Finance via yfinance"
+    provider = (
+        "Financial Modeling Prep fundamentals"
+        if fmp_api_key
+        else "EODHD fundamentals"
+        if eodhd_api_token
+        else "Yahoo Finance via yfinance"
+    )
 
-    if eodhd_api_token:
+    if fmp_api_key:
+        for ticker, name, sector in OMXS30:
+            print(f"Fetching FMP fundamentals for {ticker}...", flush=True)
+            try:
+                companies.append(fetch_fmp_company(fmp_api_key, ticker, name, sector, fx_cache, timeout=30))
+            except Exception as exc:
+                companies.append({
+                    "id": company_id(ticker),
+                    "ticker": ticker,
+                    "name": name,
+                    "sector": sector,
+                    "companyType": company_type(ticker),
+                    "source": "Financial Modeling Prep",
+                    "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+                    "errors": [str(exc)],
+                })
+            time.sleep(args.delay)
+    elif eodhd_api_token:
         for ticker, name, sector in OMXS30:
             print(f"Fetching EODHD fundamentals for {ticker}...", flush=True)
             try:
