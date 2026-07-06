@@ -1,6 +1,7 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
-const MARKET_DATA_URL = "data/omxs30-data.json";
-const PRICE_DATA_URL = "data/prices.json";
+const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS30-Intrinsic-Value/main/data";
+const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
+const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
 const LOGO_ASSET_PATH = "assets/logos";
 const companyCategoryDefinitions = {
   operating: {
