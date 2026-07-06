@@ -310,8 +310,8 @@ def normalize_fmp_rows(payload: Any) -> list[dict[str, Any]]:
 def fmp_rows(endpoint: str, api_key: str, symbol: str, timeout: float, limit: int = 5) -> tuple[list[dict[str, Any]], list[str]]:
     errors: list[str] = []
     attempts = (
-        ("stable", lambda: fetch_fmp_json(endpoint, api_key, timeout, symbol=symbol, limit=limit)),
         ("legacy", lambda: fetch_fmp_legacy_json(endpoint, api_key, symbol, timeout, period="annual", limit=limit)),
+        ("stable", lambda: fetch_fmp_json(endpoint, api_key, timeout, symbol=symbol, limit=limit)),
     )
 
     for label, request in attempts:
