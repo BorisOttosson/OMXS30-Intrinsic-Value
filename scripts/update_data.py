@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import urllib.parse
+import urllib.error
 import urllib.request
 from datetime import datetime, time as day_time, timezone
 from pathlib import Path
@@ -22,6 +23,7 @@ ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIP
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
 yf = None
 FMP_BASE_URL = "https://financialmodelingprep.com/stable"
+FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
@@ -94,11 +96,16 @@ def finite(value: Any) -> float | None:
 
 
 def clean(value: Any) -> Any:
-    number = finite(value)
-    if number is not None:
-        return number
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return finite(value)
     if value is None:
         return None
+    if isinstance(value, list):
+        return [clean(item) for item in value]
+    if isinstance(value, dict):
+        return {str(key): clean(item) for key, item in value.items()}
     if hasattr(value, "isoformat"):
         return value.isoformat()
     return str(value)
@@ -239,6 +246,24 @@ def fmp_symbol(ticker: str) -> str:
     return ticker
 
 
+def fmp_error_message(endpoint: str, exc: urllib.error.HTTPError) -> str:
+    try:
+        body = exc.read().decode("utf-8", "replace").strip()
+    except Exception:
+        body = ""
+    detail = body[:500] if body else exc.reason
+    return f"FMP {endpoint} HTTP {exc.code}: {detail}"
+
+
+def parse_fmp_payload(endpoint: str, payload: Any) -> Any:
+    if isinstance(payload, dict):
+        for key in ("Error Message", "error", "message"):
+            message = payload.get(key)
+            if isinstance(message, str) and message:
+                raise ValueError(f"FMP {endpoint}: {message}")
+    return payload
+
+
 def fetch_fmp_json(endpoint: str, api_key: str, timeout: float, **params: Any) -> Any:
     query = {
         **params,
@@ -246,34 +271,89 @@ def fetch_fmp_json(endpoint: str, api_key: str, timeout: float, **params: Any) -
     }
     url = f"{FMP_BASE_URL}/{endpoint}?{urllib.parse.urlencode(query)}"
 
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise ValueError(fmp_error_message(endpoint, exc)) from exc
 
-    if isinstance(payload, dict) and payload.get("Error Message"):
-        raise ValueError(str(payload["Error Message"]))
-    if isinstance(payload, dict) and payload.get("error"):
-        raise ValueError(str(payload["error"]))
-    return payload
+    return parse_fmp_payload(endpoint, payload)
 
 
-def fmp_rows(endpoint: str, api_key: str, symbol: str, timeout: float, limit: int = 5) -> list[dict[str, Any]]:
-    payload = fetch_fmp_json(endpoint, api_key, timeout, symbol=symbol, period="annual", limit=limit)
+def fetch_fmp_legacy_json(endpoint: str, api_key: str, symbol: str, timeout: float, **params: Any) -> Any:
+    query = {
+        **params,
+        "apikey": api_key,
+    }
+    quoted_symbol = urllib.parse.quote(symbol, safe="")
+    url = f"{FMP_LEGACY_BASE_URL}/{endpoint}/{quoted_symbol}?{urllib.parse.urlencode(query)}"
+
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise ValueError(fmp_error_message(f"api/v3/{endpoint}", exc)) from exc
+
+    return parse_fmp_payload(f"api/v3/{endpoint}", payload)
+
+
+def normalize_fmp_rows(payload: Any) -> list[dict[str, Any]]:
     if isinstance(payload, list):
         rows = [row for row in payload if isinstance(row, dict)]
     elif isinstance(payload, dict):
-        rows = [payload]
+        rows = [payload] if payload else []
     else:
         rows = []
     return sorted(rows, key=lambda row: parse_report_date(row.get("date") or row.get("calendarYear")), reverse=True)
 
 
-def fmp_profile(api_key: str, symbol: str, timeout: float) -> dict[str, Any]:
-    payload = fetch_fmp_json("profile", api_key, timeout, symbol=symbol)
+def fmp_rows(endpoint: str, api_key: str, symbol: str, timeout: float, limit: int = 5) -> tuple[list[dict[str, Any]], list[str]]:
+    errors: list[str] = []
+    attempts = (
+        ("stable", lambda: fetch_fmp_json(endpoint, api_key, timeout, symbol=symbol, limit=limit)),
+        ("legacy", lambda: fetch_fmp_legacy_json(endpoint, api_key, symbol, timeout, period="annual", limit=limit)),
+    )
+
+    for label, request in attempts:
+        try:
+            rows = normalize_fmp_rows(request())
+        except Exception as exc:
+            errors.append(f"{endpoint} {label}: {exc}")
+            continue
+        if rows:
+            return rows, errors
+
+        errors.append(f"{endpoint} {label}: no rows returned")
+
+    return [], errors
+
+
+def normalize_fmp_profile(payload: Any) -> dict[str, Any]:
     if isinstance(payload, list):
         return next((row for row in payload if isinstance(row, dict)), {})
     if isinstance(payload, dict):
         return payload
     return {}
+
+
+def fmp_profile(api_key: str, symbol: str, timeout: float) -> tuple[dict[str, Any], list[str]]:
+    errors: list[str] = []
+    attempts = (
+        ("stable", lambda: fetch_fmp_json("profile", api_key, timeout, symbol=symbol)),
+        ("legacy", lambda: fetch_fmp_legacy_json("profile", api_key, symbol, timeout)),
+    )
+
+    for label, request in attempts:
+        try:
+            profile = normalize_fmp_profile(request())
+        except Exception as exc:
+            errors.append(f"profile {label}: {exc}")
+            continue
+        if profile:
+            return profile, errors
+        errors.append(f"profile {label}: no rows returned")
+
+    return {}, errors
 
 
 def eodhd_symbol(ticker: str) -> str:
@@ -368,19 +448,20 @@ def fetch_fmp_company(
     fx_cache: dict[tuple[str, str], float],
     timeout: float
 ) -> dict[str, Any]:
+    errors: list[str] = []
     symbol = fmp_symbol(ticker)
-    profile = fmp_profile(api_key, symbol, timeout)
-    income_rows = fmp_rows("income-statement", api_key, symbol, timeout)
-    balance_rows = fmp_rows("balance-sheet-statement", api_key, symbol, timeout)
-    cashflow_rows = fmp_rows("cash-flow-statement", api_key, symbol, timeout)
-    metrics_rows = fmp_rows("key-metrics", api_key, symbol, timeout)
-    ratios_rows = fmp_rows("ratios", api_key, symbol, timeout)
+    profile, profile_errors = fmp_profile(api_key, symbol, timeout)
+    income_rows, income_errors = fmp_rows("income-statement", api_key, symbol, timeout)
+    balance_rows, balance_errors = fmp_rows("balance-sheet-statement", api_key, symbol, timeout)
+    cashflow_rows, cashflow_errors = fmp_rows("cash-flow-statement", api_key, symbol, timeout)
+    errors.extend(profile_errors)
+    errors.extend(income_errors)
+    errors.extend(balance_errors)
+    errors.extend(cashflow_errors)
 
     latest_income = income_rows[0] if income_rows else {}
     latest_balance = balance_rows[0] if balance_rows else {}
     latest_cashflow = cashflow_rows[0] if cashflow_rows else {}
-    latest_metrics = metrics_rows[0] if metrics_rows else {}
-    latest_ratios = ratios_rows[0] if ratios_rows else {}
 
     quote_currency = pick(profile, ["currency"]) or "SEK"
     financial_currency = (
@@ -392,7 +473,7 @@ def fetch_fmp_company(
     exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
 
     price = finite(pick(profile, ["price"]))
-    market_cap = finite(pick(latest_metrics, ["marketCap"])) or finite(pick(profile, ["mktCap", "marketCap"]))
+    market_cap = finite(pick(profile, ["mktCap", "marketCap"]))
     shares = (
         finite(pick(latest_income, ["weightedAverageShsOutDil", "weightedAverageShsOut"]))
         or (market_cap / price if market_cap and price else None)
@@ -425,31 +506,23 @@ def fetch_fmp_company(
         finite(pick(latest_income, ["epsdiluted", "eps"])),
         exchange_rate
     ) or per_share(net_income, shares, exchange_rate)
-    book_value_per_share = (
-        scaled(finite(pick(latest_metrics, ["bookValuePerShare"])), exchange_rate)
-        or per_share(equity, shares, exchange_rate)
-    )
-    ebitda_per_share = (
-        scaled(finite(pick(latest_metrics, ["ebitdaPerShare"])), exchange_rate)
-        or per_share(ebitda, shares, exchange_rate)
-    )
-    fcf_per_share = (
-        scaled(finite(pick(latest_metrics, ["freeCashFlowPerShare"])), exchange_rate)
-        or per_share(free_cashflow, shares, exchange_rate)
-    )
+    book_value_per_share = per_share(equity, shares, exchange_rate)
+    ebitda_per_share = per_share(ebitda, shares, exchange_rate)
+    fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
     normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
     normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
     net_debt_per_share = per_share(net_debt, shares, exchange_rate)
-    roe = pct(pick(latest_metrics, ["roe"])) or pct(pick(latest_ratios, ["returnOnEquity"]))
-    if roe is None and net_income is not None and equity and equity > 0:
-        roe = (net_income / equity) * 100
+    roe = (net_income / equity) * 100 if net_income is not None and equity and equity > 0 else None
 
     growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
-    target_pe = finite(pick(latest_metrics, ["peRatio"])) or finite(pick(latest_ratios, ["priceEarningsRatio"]))
+    trailing_pe = (price / eps_per_share) if price and eps_per_share and eps_per_share > 0 else None
+    target_pe = trailing_pe
     if target_pe is not None:
         target_pe = min(max(target_pe, 5), 35)
 
-    ev_to_ebitda = finite(pick(latest_metrics, ["enterpriseValueOverEBITDA", "evToEbitda"]))
+    enterprise_value = (market_cap + scaled(net_debt, exchange_rate)) if market_cap is not None and net_debt is not None else None
+    scaled_ebitda = scaled(ebitda, exchange_rate)
+    ev_to_ebitda = (enterprise_value / scaled_ebitda) if enterprise_value is not None and scaled_ebitda and scaled_ebitda > 0 else None
     target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
 
     output = {
@@ -480,7 +553,7 @@ def fetch_fmp_company(
         "totalDebt": scaled(total_debt, exchange_rate),
         "cash": scaled(cash, exchange_rate),
         "netDebt": scaled(net_debt, exchange_rate),
-        "enterpriseValue": finite(pick(latest_metrics, ["enterpriseValue"])),
+        "enterpriseValue": enterprise_value,
         "evToEbitda": ev_to_ebitda,
         "targetEvToEbitda": target_ev_to_ebitda,
         "fcfPerShare": fcf_per_share,
@@ -496,12 +569,12 @@ def fetch_fmp_company(
         "growth5y": growth,
         "consensusGrowth": growth,
         "targetPe": target_pe,
-        "trailingPe": finite(pick(latest_metrics, ["peRatio"])) or finite(pick(latest_ratios, ["priceEarningsRatio"])),
+        "trailingPe": trailing_pe,
         "forwardPe": None,
         "analystTargetMeanPrice": None,
         "recommendationMean": None,
         "latestFiscalDate": pick(latest_income, ["date"]),
-        "errors": [],
+        "errors": errors,
     }
 
     return {key: clean(value) for key, value in output.items()}
