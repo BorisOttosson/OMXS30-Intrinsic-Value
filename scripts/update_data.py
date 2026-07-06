@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch OMXS30 fundamentals from FMP/EODHD, with Yahoo Finance as a fallback."""
+"""Fetch OMXS30 fundamentals, using Yahoo Finance unless a paid provider is selected."""
 
 from __future__ import annotations
 
@@ -240,6 +240,10 @@ def median_per_share(values: list[float], shares: float | None, exchange_rate: f
     positives = [value for value in per_share_values if value > 0]
     sample = positives or per_share_values
     return median(sample) if sample else None
+
+
+def has_balance_sheet_data(company: dict[str, Any]) -> bool:
+    return any(company.get(key) is not None for key in ("totalAssets", "bookEquity", "totalLiabilities"))
 
 
 def fmp_symbol(ticker: str) -> str:
@@ -767,6 +771,8 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
     )
 
     revenue = latest_from_statement(income, ["Total Revenue", "Operating Revenue"])
+    ebitda = latest_from_statement(income, ["EBITDA", "Normalized EBITDA"]) or finite(pick(info, ["ebitda"]))
+    ebit = latest_from_statement(income, ["EBIT", "Operating Income"])
     net_income = latest_from_statement(income, ["Net Income", "Net Income Common Stockholders"])
     diluted_eps = latest_from_statement(income, ["Diluted EPS", "Basic EPS"])
     operating_cashflow = latest_from_statement(cashflow, ["Operating Cash Flow", "Total Cash From Operating Activities"])
@@ -780,12 +786,14 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
     equity = latest_from_statement(balance, ["Stockholders Equity", "Total Equity Gross Minority Interest", "Common Stock Equity"])
     total_debt = latest_from_statement(balance, ["Total Debt"])
     cash = latest_from_statement(balance, ["Cash And Cash Equivalents", "Cash Cash Equivalents And Short Term Investments"])
+    net_debt = (total_debt or 0) - (cash or 0) if total_debt is not None or cash is not None else None
 
     fcf_values = statement_series(cashflow, ["Free Cash Flow"])
     if not fcf_values:
         operating_values = statement_series(cashflow, ["Operating Cash Flow", "Total Cash From Operating Activities"])
         capex_values = statement_series(cashflow, ["Capital Expenditure", "Capital Expenditures"])
         fcf_values = [op + capex for op, capex in zip(operating_values, capex_values)]
+    ebitda_values = statement_series(income, ["EBITDA", "Normalized EBITDA"])
 
     growth = None
     try:
@@ -812,10 +820,25 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
     )
 
     fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
-    net_debt_per_share = per_share((total_debt or 0) - (cash or 0), shares, exchange_rate)
+    ebitda_per_share = per_share(ebitda, shares, exchange_rate)
+    net_debt_per_share = per_share(net_debt, shares, exchange_rate)
     book_value_per_share = per_share(equity, shares, exchange_rate)
     roe = (net_income / equity * 100) if net_income is not None and equity and equity > 0 else None
     normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
+    normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
+    scaled_net_debt = scaled(net_debt, exchange_rate)
+    scaled_ebitda = scaled(ebitda, exchange_rate)
+    enterprise_value = (
+        market_cap + scaled_net_debt
+        if market_cap is not None and scaled_net_debt is not None
+        else finite(pick(info, ["enterpriseValue"]))
+    )
+    ev_to_ebitda = (
+        enterprise_value / scaled_ebitda
+        if enterprise_value is not None and scaled_ebitda and scaled_ebitda > 0
+        else None
+    )
+    target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
 
     output = {
         "id": company_id(ticker),
@@ -833,6 +856,8 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
         "totalRevenue": scaled(revenue, exchange_rate),
+        "ebitda": scaled_ebitda,
+        "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
         "operatingCashFlow": scaled(operating_cashflow, exchange_rate),
         "capitalExpenditures": scaled(capital_expenditure, exchange_rate),
@@ -842,8 +867,13 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "bookEquity": scaled(equity, exchange_rate),
         "totalDebt": scaled(total_debt, exchange_rate),
         "cash": scaled(cash, exchange_rate),
+        "netDebt": scaled_net_debt,
+        "enterpriseValue": enterprise_value,
+        "evToEbitda": ev_to_ebitda,
+        "targetEvToEbitda": target_ev_to_ebitda,
         "marketPriceDate": clean(fast_info_value(fast_info, "lastTradeDate")),
         "fcfPerShare": fcf_per_share,
+        "ebitdaPerShare": ebitda_per_share,
         "eps": eps_per_share,
         "netDebtPerShare": net_debt_per_share,
         "bookValuePerShare": book_value_per_share,
@@ -851,6 +881,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
         "roe": roe,
         "normalizedFcfPerShare": normalized_fcf_per_share,
+        "normalizedEbitdaPerShare": normalized_ebitda_per_share,
         "growth5y": fallback_growth,
         "consensusGrowth": growth or pct(pick(info, ["earningsGrowth", "revenueGrowth"])),
         "targetPe": target_pe,
@@ -866,10 +897,16 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
 
 def main(argv: list[str]) -> int:
     global yf
-    parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals from FMP/EODHD, with Yahoo Finance as a fallback.")
+    parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
+    parser.add_argument(
+        "--provider",
+        choices=("auto", "yahoo", "fmp", "eodhd"),
+        default=os.environ.get("FUNDAMENTALS_PROVIDER", "yahoo").strip().lower() or "yahoo",
+        help="Fundamentals provider. Default: yahoo. Use fmp/eodhd only with a paid plan that includes statements.",
+    )
     args = parser.parse_args(argv)
 
     now = datetime.now(timezone.utc)
@@ -882,15 +919,22 @@ def main(argv: list[str]) -> int:
     eodhd_api_token = os.environ.get("EODHD_API_TOKEN")
     fx_cache: dict[tuple[str, str], float] = {}
     companies = []
-    provider = (
-        "Financial Modeling Prep fundamentals"
-        if fmp_api_key
-        else "EODHD fundamentals"
-        if eodhd_api_token
-        else "Yahoo Finance via yfinance"
-    )
+    provider_choice = args.provider
+    if provider_choice == "auto":
+        provider_choice = "fmp" if fmp_api_key else "eodhd" if eodhd_api_token else "yahoo"
 
-    if fmp_api_key:
+    if provider_choice == "fmp" and not fmp_api_key:
+        raise SystemExit("FUNDAMENTALS_PROVIDER is fmp, but FMP_API_KEY is missing.")
+    if provider_choice == "eodhd" and not eodhd_api_token:
+        raise SystemExit("FUNDAMENTALS_PROVIDER is eodhd, but EODHD_API_TOKEN is missing.")
+
+    provider = {
+        "fmp": "Financial Modeling Prep fundamentals",
+        "eodhd": "EODHD fundamentals",
+        "yahoo": "Yahoo Finance via yfinance statements",
+    }[provider_choice]
+
+    if provider_choice == "fmp":
         for ticker, name, sector in OMXS30:
             print(f"Fetching FMP fundamentals for {ticker}...", flush=True)
             try:
@@ -907,7 +951,7 @@ def main(argv: list[str]) -> int:
                     "errors": [str(exc)],
                 })
             time.sleep(args.delay)
-    elif eodhd_api_token:
+    elif provider_choice == "eodhd":
         for ticker, name, sector in OMXS30:
             print(f"Fetching EODHD fundamentals for {ticker}...", flush=True)
             try:
