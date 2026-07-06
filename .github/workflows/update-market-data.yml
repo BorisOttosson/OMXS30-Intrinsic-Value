@@ -65,6 +65,7 @@ jobs:
       - name: Validate fundamentals file
         run: |
           python - <<'PY'
+          from collections import Counter
           import json
           import sys
 
@@ -82,11 +83,27 @@ jobs:
               or company.get("totalLiabilities") is not None
           ]
 
+          print(f"Provider: {payload.get('provider')}")
+          print(f"Generated at: {payload.get('generatedAt')}")
+          print(f"Companies: {len(companies)}")
+          print(f"Sources: {dict(Counter(company.get('source', 'missing') for company in companies))}")
+          print(f"Companies with balance-sheet data: {len(balance_sheet_rows)}")
+
+          empty_rows = [company for company in companies if company not in balance_sheet_rows]
+          if empty_rows:
+              print("Rows without balance-sheet data:")
+              for company in empty_rows[:10]:
+                  errors = company.get("errors") or []
+                  if not isinstance(errors, list):
+                      errors = [errors]
+                  short_errors = " | ".join(str(error)[:240] for error in errors[:4])
+                  print(f"- {company.get('ticker')}: {company.get('source')} {short_errors}")
+
           if not provider_rows:
               sys.exit("Fundamentals were not fetched from FMP or EODHD. Check the FMP_API_KEY secret.")
 
           if not balance_sheet_rows:
-              sys.exit("The fundamentals provider ran, but no balance-sheet fields were written.")
+              sys.exit("The fundamentals provider ran, but no balance-sheet fields were written. Check the endpoint errors printed above.")
 
           print(f"Validated {len(balance_sheet_rows)} companies with balance-sheet data.")
           PY
