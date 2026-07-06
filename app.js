@@ -383,7 +383,7 @@ async function loadMarketData({ quiet = true } = {}) {
     state.companies = applyPriceData(state.companies, payload.companies);
     nextMarketData.pricesLoaded = true;
     nextMarketData.pricesGeneratedAt = payload.generatedAt ?? null;
-    nextMarketData.pricesProvider = payload.provider ?? "EODHD quotes";
+    nextMarketData.pricesProvider = payload.provider ?? "Yahoo Finance via yfinance prices";
     nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
     changed = true;
   } catch (error) {
@@ -491,7 +491,7 @@ function applyPriceData(currentCompanies, priceCompanies) {
       ...company,
       marketPrice,
       currency: price.currency ?? company.currency ?? "SEK",
-      priceSource: price.source ?? "EODHD",
+      priceSource: price.source ?? "Yahoo Finance",
       priceUpdatedAt: price.priceUpdatedAt ?? price.dataUpdatedAt ?? null,
       fundamentals: {
         ...(company.fundamentals ?? {}),
@@ -691,9 +691,20 @@ function formatDate(value) {
 }
 
 function getDataStatusLabel(marketData = state.marketData) {
-  const fundamentalsLabel = marketData.fundamentalsProvider?.includes("EODHD") ? "EODHD fundamentals" : "Yahoo fundamentals";
-  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return `EODHD prices + ${fundamentalsLabel}`;
-  if (marketData.pricesLoaded) return "EODHD prices";
+  const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
+  const priceProvider = marketData.pricesProvider ?? "";
+  const fundamentalsLabel = fundamentalsProvider.includes("Financial Modeling Prep")
+    ? "FMP fundamentals"
+    : fundamentalsProvider.includes("EODHD")
+      ? "EODHD fundamentals"
+      : "Yahoo fundamentals";
+  const priceLabel = priceProvider.includes("Yahoo")
+    ? "Yahoo prices"
+    : priceProvider.includes("EODHD")
+      ? "EODHD prices"
+      : "Prices";
+  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return `${priceLabel} + ${fundamentalsLabel}`;
+  if (marketData.pricesLoaded) return priceLabel;
   if (marketData.fundamentalsLoaded) return fundamentalsLabel;
   return "Sample or saved inputs";
 }

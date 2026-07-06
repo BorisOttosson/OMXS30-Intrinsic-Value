@@ -8,12 +8,12 @@ A local personal finance research app for valuing the OMXS30 universe with:
 - Investment company NAV discount/premium and P/E where useful
 - Cyclical normalized FCF, P/E, and EV/EBITDA
 - Industry, company, and leadership scorecard
-- EODHD refresh pipeline for prices and fundamentals, with Yahoo/yfinance fallback
+- FMP fundamentals pipeline and Yahoo/yfinance price pipeline
 - Top 12 synthetic portfolio ranking
 - Separate companies into model buckets: operating, banks, investment companies, and cyclicals
 - Local persistence, JSON export, and JSON import
 
-The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load generated EODHD price and fundamentals files.
+The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load generated FMP fundamentals and Yahoo/yfinance price files.
 
 ## Run
 
@@ -40,7 +40,7 @@ python3 -m pip install -r requirements.txt
 Fetch the latest fundamentals data:
 
 ```bash
-EODHD_API_TOKEN=your_token_here python3 scripts/update_data.py
+FMP_API_KEY=your_token_here python3 scripts/update_data.py
 ```
 
 That writes:
@@ -49,9 +49,21 @@ That writes:
 data/omxs30-data.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, EV/EBITDA multiple, and qualitative scores editable, while EPS, EBITDA, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, assets, equity, liabilities, debt, cash, revenue, market cap, enterprise value, EV/EBITDA, and shares come from the latest generated fundamentals file where EODHD has coverage.
+Fetch the latest share prices:
 
-If `EODHD_API_TOKEN` is not set, the fundamentals updater falls back to `yfinance`. Treat both feeds as personal research inputs, not guaranteed production market data.
+```bash
+python3 scripts/update_prices.py
+```
+
+That writes:
+
+```text
+data/prices.json
+```
+
+Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, EV/EBITDA multiple, and qualitative scores editable, while EPS, EBITDA, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, assets, equity, liabilities, debt, cash, revenue, market cap, enterprise value, EV/EBITDA, and shares come from the latest generated fundamentals file where FMP has coverage.
+
+The fundamentals updater prefers `FMP_API_KEY`, then uses `EODHD_API_TOKEN` if you have a paid EODHD fundamentals plan, then falls back to `yfinance`. Treat all feeds as personal research inputs, not guaranteed production market data.
 
 ## Company Logos
 
@@ -80,19 +92,19 @@ The repository includes two GitHub Actions workflows:
 .github/workflows/update-prices.yml
 ```
 
-The fundamentals workflow updates around 09:10 Europe/Stockholm on weekdays and can also be started manually from the GitHub Actions tab. It uses EODHD when the `EODHD_API_TOKEN` secret is available and writes:
+The fundamentals workflow updates around 09:10 Europe/Stockholm on weekdays and can also be started manually from the GitHub Actions tab. It uses FMP when the `FMP_API_KEY` secret is available and writes:
 
 ```text
 data/omxs30-data.json
 ```
 
-The EODHD workflow updates share prices every 5 minutes from 09:01 to 17:01 Europe/Stockholm on weekdays. It writes:
+The Yahoo/yfinance price workflow updates share prices 20 times during each Stockholm trading day, from 09:01 to 16:37 Europe/Stockholm on weekdays. It writes:
 
 ```text
 data/prices.json
 ```
 
-Add an `EODHD_API_TOKEN` repository secret before enabling the workflows. GitHub Pages then serves both data files with the website.
+Add an `FMP_API_KEY` repository secret for fundamentals. The Yahoo/yfinance price workflow does not need an API key. GitHub Pages then serves both data files with the website.
 
 ## Model Formulas
 

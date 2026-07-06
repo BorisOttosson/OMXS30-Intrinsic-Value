@@ -33,17 +33,19 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Check EODHD secret
+      - name: Check fundamentals secret
         env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
-          if [ -z "$EODHD_API_TOKEN" ]; then
-            echo "Missing EODHD_API_TOKEN. Add it in Settings > Secrets and variables > Actions."
+          if [ -z "$FMP_API_KEY" ] && [ -z "$EODHD_API_TOKEN" ]; then
+            echo "Missing FMP_API_KEY or EODHD_API_TOKEN. Add FMP_API_KEY in Settings > Secrets and variables > Actions."
             exit 1
           fi
 
       - name: Fetch fundamentals
         env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
@@ -70,7 +72,8 @@ jobs:
               payload = json.load(file)
 
           companies = payload.get("companies", [])
-          eodhd_rows = [company for company in companies if company.get("source") == "EODHD"]
+          provider_sources = {"Financial Modeling Prep", "EODHD"}
+          provider_rows = [company for company in companies if company.get("source") in provider_sources]
           balance_sheet_rows = [
               company
               for company in companies
@@ -79,11 +82,11 @@ jobs:
               or company.get("totalLiabilities") is not None
           ]
 
-          if not eodhd_rows:
-              sys.exit("Fundamentals were not fetched from EODHD. Check the EODHD_API_TOKEN secret.")
+          if not provider_rows:
+              sys.exit("Fundamentals were not fetched from FMP or EODHD. Check the FMP_API_KEY secret.")
 
           if not balance_sheet_rows:
-              sys.exit("EODHD ran, but no balance-sheet fields were written.")
+              sys.exit("The fundamentals provider ran, but no balance-sheet fields were written.")
 
           print(f"Validated {len(balance_sheet_rows)} companies with balance-sheet data.")
           PY
