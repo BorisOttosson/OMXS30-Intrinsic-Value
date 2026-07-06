@@ -1,4 +1,22 @@
- runs-on: ubuntu-latest
+name: Update market data
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub uses UTC. These two slots cover Stockholm winter/summer time.
+    # The Python script only allows the real 09:10 Stockholm market-day window.
+    - cron: "10 7,8 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
+
+jobs:
+  update-market-data:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
@@ -101,4 +119,3 @@
 
           echo "Could not push updated fundamentals after 3 attempts"
           exit 1
-
