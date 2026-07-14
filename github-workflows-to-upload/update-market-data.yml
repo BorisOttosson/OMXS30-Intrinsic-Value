@@ -1,0 +1,154 @@
+name: Update market data
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: "Optional: update one ticker first, e.g. ERIC-B.ST. Leave empty only when you want to spend requests on all 30."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
+
+jobs:
+  update-market-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Select fundamentals provider
+        env:
+          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER || 'borsapi' }}
+          BORSAPI_API_KEY: ${{ secrets.BORSAPI_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+        run: |
+          provider="${FUNDAMENTALS_PROVIDER:-borsapi}"
+          echo "Fundamentals provider: $provider"
+
+          if [ "$provider" = "borsapi" ] && [ -z "$BORSAPI_API_KEY" ]; then
+            echo "FUNDAMENTALS_PROVIDER is borsapi, but BORSAPI_API_KEY is missing."
+            exit 1
+          fi
+
+          if [ "$provider" = "fmp" ] && [ -z "$FMP_API_KEY" ]; then
+            echo "FUNDAMENTALS_PROVIDER is fmp, but FMP_API_KEY is missing."
+            exit 1
+          fi
+
+          if [ "$provider" = "eodhd" ] && [ -z "$EODHD_API_TOKEN" ]; then
+            echo "FUNDAMENTALS_PROVIDER is eodhd, but EODHD_API_TOKEN is missing."
+            exit 1
+          fi
+
+      - name: Fetch fundamentals
+        env:
+          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER || 'borsapi' }}
+          BORSAPI_API_KEY: ${{ secrets.BORSAPI_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+        run: |
+          extra_args=()
+          ticker_input="${{ github.event.inputs.ticker }}"
+          if [ -n "$ticker_input" ]; then
+            extra_args+=(--ticker "$ticker_input")
+          fi
+
+          if [ -f scripts/update_data.py ]; then
+            python scripts/update_data.py --output data/omxs30-data.json "${extra_args[@]}"
+          else
+            python update_data.py --output data/omxs30-data.json "${extra_args[@]}"
+          fi
+
+      - name: Validate fundamentals file
+        run: |
+          python - <<'PY'
+          from collections import Counter
+          import json
+          import sys
+
+          with open("data/omxs30-data.json", encoding="utf-8") as file:
+              payload = json.load(file)
+
+          companies = payload.get("companies", [])
+          provider_sources = {"BörsAPI", "Financial Modeling Prep", "EODHD", "Yahoo Finance"}
+          provider_rows = [company for company in companies if company.get("source") in provider_sources]
+          balance_sheet_rows = [
+              company
+              for company in companies
+              if company.get("totalAssets") is not None
+              or company.get("bookEquity") is not None
+              or company.get("totalLiabilities") is not None
+          ]
+
+          print(f"Provider: {payload.get('provider')}")
+          print(f"Generated at: {payload.get('generatedAt')}")
+          print(f"Companies: {len(companies)}")
+          print(f"Sources: {dict(Counter(company.get('source', 'missing') for company in companies))}")
+          print(f"Companies with balance-sheet data: {len(balance_sheet_rows)}")
+
+          empty_rows = [company for company in companies if company not in balance_sheet_rows]
+          if empty_rows:
+              print("Rows without balance-sheet data:")
+              for company in empty_rows[:10]:
+                  errors = company.get("errors") or []
+                  if not isinstance(errors, list):
+                      errors = [errors]
+                  short_errors = " | ".join(str(error)[:240] for error in errors[:4])
+                  print(f"- {company.get('ticker')}: {company.get('source')} {short_errors}")
+
+          if not provider_rows:
+              sys.exit("Fundamentals were not fetched from a provider. Check the workflow log above.")
+
+          if not balance_sheet_rows:
+              sys.exit("The fundamentals provider ran, but no balance-sheet fields were written. Check the endpoint errors printed above.")
+
+          print(f"Validated {len(balance_sheet_rows)} companies with balance-sheet data.")
+          PY
+
+      - name: Commit updated fundamentals
+        run: |
+          if [ ! -f data/omxs30-data.json ]; then
+            echo "No fundamentals file written"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/omxs30-data.json
+
+          if git diff --cached --quiet; then
+            echo "No fundamentals changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update market data"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push updated fundamentals after 3 attempts"
+          exit 1
