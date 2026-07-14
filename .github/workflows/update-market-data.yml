@@ -2,10 +2,11 @@ name: Update market data
 
 on:
   workflow_dispatch:
-  schedule:
-    # GitHub uses UTC. These two slots cover Stockholm winter/summer time.
-    # The Python script only allows the real 09:10 Stockholm market-day window.
-    - cron: "10 7,8 * * 1-5"
+    inputs:
+      ticker:
+        description: "Optional: update one ticker first, e.g. ERIC-B.ST. Leave empty only when you want to spend requests on all 30."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -35,12 +36,18 @@ jobs:
 
       - name: Select fundamentals provider
         env:
-          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER }}
+          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER || 'borsapi' }}
+          BORSAPI_API_KEY: ${{ secrets.BORSAPI_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
-          provider="${FUNDAMENTALS_PROVIDER:-yahoo}"
+          provider="${FUNDAMENTALS_PROVIDER:-borsapi}"
           echo "Fundamentals provider: $provider"
+
+          if [ "$provider" = "borsapi" ] && [ -z "$BORSAPI_API_KEY" ]; then
+            echo "FUNDAMENTALS_PROVIDER is borsapi, but BORSAPI_API_KEY is missing."
+            exit 1
+          fi
 
           if [ "$provider" = "fmp" ] && [ -z "$FMP_API_KEY" ]; then
             echo "FUNDAMENTALS_PROVIDER is fmp, but FMP_API_KEY is missing."
@@ -54,22 +61,21 @@ jobs:
 
       - name: Fetch fundamentals
         env:
-          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER || 'yahoo' }}
+          FUNDAMENTALS_PROVIDER: ${{ vars.FUNDAMENTALS_PROVIDER || 'borsapi' }}
+          BORSAPI_API_KEY: ${{ secrets.BORSAPI_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            if [ -f scripts/update_data.py ]; then
-              python scripts/update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
-            else
-              python update_data.py --output data/omxs30-data.json --enforce-fundamentals-window
-            fi
+          extra_args=()
+          ticker_input="${{ github.event.inputs.ticker }}"
+          if [ -n "$ticker_input" ]; then
+            extra_args+=(--ticker "$ticker_input")
+          fi
+
+          if [ -f scripts/update_data.py ]; then
+            python scripts/update_data.py --output data/omxs30-data.json "${extra_args[@]}"
           else
-            if [ -f scripts/update_data.py ]; then
-              python scripts/update_data.py --output data/omxs30-data.json
-            else
-              python update_data.py --output data/omxs30-data.json
-            fi
+            python update_data.py --output data/omxs30-data.json "${extra_args[@]}"
           fi
 
       - name: Validate fundamentals file
@@ -83,7 +89,7 @@ jobs:
               payload = json.load(file)
 
           companies = payload.get("companies", [])
-          provider_sources = {"Financial Modeling Prep", "EODHD", "Yahoo Finance"}
+          provider_sources = {"BörsAPI", "Financial Modeling Prep", "EODHD", "Yahoo Finance"}
           provider_rows = [company for company in companies if company.get("source") in provider_sources]
           balance_sheet_rows = [
               company
