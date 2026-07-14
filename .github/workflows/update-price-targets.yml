@@ -1,0 +1,34 @@
+# .github/workflows/update-price-targets.yml
+name: Update price targets
+
+on:
+  schedule:
+    - cron: "0 5 * * *"   # kl 05:00 UTC dagligen, innan börsöppning
+  workflow_dispatch:        # tillåter manuell körning från GitHub-UI:t
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scripts/scrape_riktkurser.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/price_targets.json
+          git diff --staged --quiet || git commit -m "Auto-update price targets"
+          git push
