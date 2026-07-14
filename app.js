@@ -729,7 +729,9 @@ function formatDate(value) {
 function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
-  const fundamentalsLabel = fundamentalsProvider.includes("Financial Modeling Prep")
+  const fundamentalsLabel = fundamentalsProvider.includes("BörsAPI")
+    ? "BörsAPI fundamentals"
+    : fundamentalsProvider.includes("Financial Modeling Prep")
     ? "FMP fundamentals"
     : fundamentalsProvider.includes("EODHD")
       ? "EODHD fundamentals"

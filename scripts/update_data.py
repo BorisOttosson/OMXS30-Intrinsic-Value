@@ -198,6 +198,46 @@ def ensure_yfinance() -> bool:
     return True
 
 
+def yahoo_reference_fields(ticker: str) -> tuple[dict[str, Any], list[str]]:
+    errors: list[str] = []
+    if not ensure_yfinance():
+        return {}, ["Yahoo reference fields: yfinance is not installed"]
+
+    ticker_obj = yf.Ticker(ticker)
+    try:
+        fast_info = ticker_obj.fast_info
+    except Exception as exc:
+        fast_info = {}
+        errors.append(f"Yahoo reference fast_info: {exc}")
+
+    try:
+        info = ticker_obj.info or {}
+    except Exception as exc:
+        info = {}
+        errors.append(f"Yahoo reference info: {exc}")
+
+    market_price = finite(fast_info_value(fast_info, "lastPrice")) or finite(pick(info, ["currentPrice", "regularMarketPrice"]))
+    market_cap = finite(fast_info_value(fast_info, "marketCap")) or finite(pick(info, ["marketCap"]))
+    shares = (
+        finite(fast_info_value(fast_info, "shares"))
+        or finite(pick(info, ["sharesOutstanding", "impliedSharesOutstanding"]))
+        or (market_cap / market_price if market_cap and market_price else None)
+    )
+
+    return {
+        "marketPrice": market_price,
+        "previousClose": finite(fast_info_value(fast_info, "regularMarketPreviousClose"))
+        or finite(pick(info, ["regularMarketPreviousClose", "previousClose"])),
+        "marketCap": market_cap,
+        "sharesOutstanding": shares,
+        "marketPriceDate": clean(fast_info_value(fast_info, "lastTradeDate")),
+        "trailingPe": finite(pick(info, ["trailingPE"])),
+        "forwardPe": finite(pick(info, ["forwardPE"])),
+        "analystTargetMeanPrice": finite(pick(info, ["targetMeanPrice"])),
+        "recommendationMean": finite(pick(info, ["recommendationMean"])),
+    }, errors
+
+
 def get_exchange_rate(from_currency: str | None, to_currency: str | None, cache: dict[tuple[str, str], float]) -> float:
     if not from_currency or not to_currency or from_currency == to_currency:
         return 1.0
@@ -467,6 +507,38 @@ def load_existing_companies(path: Path) -> dict[str, dict[str, Any]]:
         if isinstance(cid, str) and cid:
             by_id[cid] = company
     return by_id
+
+
+PRESERVE_IF_PROVIDER_BLANK_KEYS = {
+    "marketPrice",
+    "previousClose",
+    "marketPriceDate",
+    "marketCap",
+    "sharesOutstanding",
+    "enterpriseValue",
+    "evToEbitda",
+    "targetEvToEbitda",
+    "targetPe",
+    "trailingPe",
+    "forwardPe",
+    "analystTargetMeanPrice",
+    "recommendationMean",
+}
+
+
+def is_blank(value: Any) -> bool:
+    return value in (None, "", [], {})
+
+
+def fill_missing_from_existing(company: dict[str, Any], existing: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(existing, dict):
+        return company
+
+    merged = dict(company)
+    for key in PRESERVE_IF_PROVIDER_BLANK_KEYS:
+        if is_blank(merged.get(key)) and not is_blank(existing.get(key)):
+            merged[key] = existing[key]
+    return merged
 
 
 def borsapi_company_lookup(api_key: str, ticker: str, name: str, sector: str, timeout: float, cached_id: str | None) -> tuple[dict[str, Any], list[str]]:
@@ -1019,6 +1091,15 @@ def fetch_borsapi_company(
         total_debt = abs((short_debt or 0) + (long_debt or 0))
     net_debt = (total_debt or 0) - (cash or 0) if total_debt is not None or cash is not None else None
 
+    reference_fields, reference_errors = yahoo_reference_fields(ticker)
+    errors.extend(reference_errors)
+    market_price = finite(reference_fields.get("marketPrice"))
+    previous_close = finite(reference_fields.get("previousClose"))
+    market_cap = finite(reference_fields.get("marketCap"))
+    shares = shares or finite(reference_fields.get("sharesOutstanding"))
+    if market_cap is None and shares is not None and market_price is not None:
+        market_cap = shares * market_price
+
     fcf_values = borsapi_cashflow_values(reports)
     ebitda_values = [
         value
@@ -1036,9 +1117,20 @@ def fetch_borsapi_company(
     fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
     normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
     normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
+    scaled_net_debt = scaled(net_debt, exchange_rate)
+    scaled_ebitda = scaled(ebitda, exchange_rate)
     net_debt_per_share = per_share(net_debt, shares, exchange_rate)
     roe = (net_income / equity * 100) if net_income is not None and equity and equity > 0 else None
     growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
+    enterprise_value = market_cap + scaled_net_debt if market_cap is not None and scaled_net_debt is not None else None
+    ev_to_ebitda = (
+        enterprise_value / scaled_ebitda
+        if enterprise_value is not None and scaled_ebitda and scaled_ebitda > 0
+        else None
+    )
+    target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
+    reference_pe = finite(reference_fields.get("forwardPe")) or finite(reference_fields.get("trailingPe"))
+    target_pe = min(max(reference_pe, 5), 35) if reference_pe is not None else None
     latest_fiscal_date = (
         pick(latest_balance, ["report_date", "date"])
         or pick(latest_income_raw, ["report_date", "date"])
@@ -1058,11 +1150,12 @@ def fetch_borsapi_company(
         "currency": quote_currency,
         "financialCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
-        "marketPrice": None,
-        "marketCap": None,
+        "marketPrice": market_price,
+        "previousClose": previous_close,
+        "marketCap": market_cap,
         "sharesOutstanding": shares,
         "totalRevenue": scaled(revenue, exchange_rate),
-        "ebitda": scaled(ebitda, exchange_rate),
+        "ebitda": scaled_ebitda,
         "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
         "operatingCashFlow": scaled(operating_cashflow, exchange_rate),
@@ -1073,10 +1166,11 @@ def fetch_borsapi_company(
         "bookEquity": scaled(equity, exchange_rate),
         "totalDebt": scaled(total_debt, exchange_rate),
         "cash": scaled(cash, exchange_rate),
-        "netDebt": scaled(net_debt, exchange_rate),
-        "enterpriseValue": None,
-        "evToEbitda": None,
-        "targetEvToEbitda": None,
+        "netDebt": scaled_net_debt,
+        "enterpriseValue": enterprise_value,
+        "evToEbitda": ev_to_ebitda,
+        "targetEvToEbitda": target_ev_to_ebitda,
+        "marketPriceDate": reference_fields.get("marketPriceDate"),
         "fcfPerShare": fcf_per_share,
         "ebitdaPerShare": ebitda_per_share,
         "normalizedFcfPerShare": normalized_fcf_per_share,
@@ -1089,11 +1183,11 @@ def fetch_borsapi_company(
         "roe": roe,
         "growth5y": growth,
         "consensusGrowth": growth,
-        "targetPe": None,
-        "trailingPe": None,
-        "forwardPe": None,
-        "analystTargetMeanPrice": None,
-        "recommendationMean": None,
+        "targetPe": target_pe,
+        "trailingPe": finite(reference_fields.get("trailingPe")),
+        "forwardPe": finite(reference_fields.get("forwardPe")),
+        "analystTargetMeanPrice": finite(reference_fields.get("analystTargetMeanPrice")),
+        "recommendationMean": finite(reference_fields.get("recommendationMean")),
         "latestFiscalDate": latest_fiscal_date,
         "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income_raw, ["period"]),
         "errors": errors,
@@ -1322,13 +1416,14 @@ def main(argv: list[str]) -> int:
         "eodhd": "EODHD fundamentals",
         "yahoo": "Yahoo Finance via yfinance statements",
     }[provider_choice]
+    existing_companies = load_existing_companies(args.output)
 
     if provider_choice == "borsapi":
         borsapi_ids = load_existing_borsapi_ids(args.output)
         for ticker, name, sector in selected_universe:
             print(f"Fetching BörsAPI fundamentals for {ticker}...", flush=True)
             try:
-                companies.append(fetch_borsapi_company(
+                company = fetch_borsapi_company(
                     borsapi_api_key,
                     ticker,
                     name,
@@ -1336,9 +1431,11 @@ def main(argv: list[str]) -> int:
                     fx_cache,
                     timeout=30,
                     cached_id=borsapi_ids.get(ticker.upper()),
-                ))
+                )
+                companies.append(fill_missing_from_existing(company, existing_companies.get(company_id(ticker))))
             except Exception as exc:
-                companies.append({
+                existing = existing_companies.get(company_id(ticker))
+                fallback = dict(existing) if existing else {
                     "id": company_id(ticker),
                     "ticker": ticker,
                     "name": name,
@@ -1346,14 +1443,18 @@ def main(argv: list[str]) -> int:
                     "companyType": company_type(ticker),
                     "source": "BörsAPI",
                     "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
-                    "errors": [str(exc)],
-                })
+                }
+                errors = fallback.get("errors") if isinstance(fallback.get("errors"), list) else []
+                fallback["errors"] = [*errors, str(exc)]
+                fallback["dataUpdatedAt"] = datetime.now(timezone.utc).isoformat()
+                companies.append(fallback)
             time.sleep(args.delay)
     elif provider_choice == "fmp":
         for ticker, name, sector in selected_universe:
             print(f"Fetching FMP fundamentals for {ticker}...", flush=True)
             try:
-                companies.append(fetch_fmp_company(fmp_api_key, ticker, name, sector, fx_cache, timeout=30))
+                company = fetch_fmp_company(fmp_api_key, ticker, name, sector, fx_cache, timeout=30)
+                companies.append(fill_missing_from_existing(company, existing_companies.get(company_id(ticker))))
             except Exception as exc:
                 companies.append({
                     "id": company_id(ticker),
@@ -1370,7 +1471,8 @@ def main(argv: list[str]) -> int:
         for ticker, name, sector in selected_universe:
             print(f"Fetching EODHD fundamentals for {ticker}...", flush=True)
             try:
-                companies.append(fetch_eodhd_company(eodhd_api_token, ticker, name, sector, fx_cache, timeout=30))
+                company = fetch_eodhd_company(eodhd_api_token, ticker, name, sector, fx_cache, timeout=30)
+                companies.append(fill_missing_from_existing(company, existing_companies.get(company_id(ticker))))
             except Exception as exc:
                 companies.append({
                     "id": company_id(ticker),
@@ -1392,7 +1494,8 @@ def main(argv: list[str]) -> int:
         for ticker, name, sector in selected_universe:
             print(f"Fetching Yahoo Finance data for {ticker}...", flush=True)
             try:
-                companies.append(fetch_company(ticker, name, sector, fx_cache))
+                company = fetch_company(ticker, name, sector, fx_cache)
+                companies.append(fill_missing_from_existing(company, existing_companies.get(company_id(ticker))))
             except Exception as exc:  # keep the run useful even if one ticker breaks
                 companies.append({
                     "id": company_id(ticker),
@@ -1409,7 +1512,6 @@ def main(argv: list[str]) -> int:
     selected_ids = {company_id(ticker) for ticker, _, _ in selected_universe}
     full_universe_ids = {company_id(ticker) for ticker, _, _ in OMXS30}
     if selected_ids != full_universe_ids:
-        existing_companies = load_existing_companies(args.output)
         updated_companies = {company.get("id"): company for company in companies if isinstance(company.get("id"), str)}
         merged_companies = []
         for ticker, name, sector in OMXS30:
