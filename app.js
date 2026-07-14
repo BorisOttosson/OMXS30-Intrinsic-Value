@@ -1,5 +1,6 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
 const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS30-Intrinsic-Value/main/data";
+const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
 const LOGO_ASSET_PATH = "assets/logos";
@@ -360,9 +361,10 @@ async function loadMarketData({ quiet = true } = {}) {
   let changed = false;
 
   try {
-    const response = await fetch(`${MARKET_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
+    const payload = await fetchFirstJson([
+      FUNDAMENTALS_DATA_URL,
+      MARKET_DATA_URL
+    ]);
     if (!Array.isArray(payload?.companies)) throw new Error("Missing companies");
 
     state.companies = applyMarketData(state.companies, payload.companies);
@@ -403,6 +405,22 @@ async function loadMarketData({ quiet = true } = {}) {
 
   renderDataStatus();
   if (!quiet) showToast("No market data files found");
+}
+
+async function fetchFirstJson(urls) {
+  const errors = [];
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      errors.push(`${url.split("/").pop()}: ${String(error?.message ?? error)}`);
+    }
+  }
+
+  throw new Error(errors.join(" | "));
 }
 
 function applyMarketData(currentCompanies, marketCompanies) {
@@ -458,6 +476,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
       netDebtPerShare: numberOrFallback(market.netDebtPerShare, current.netDebtPerShare ?? seedCompany.netDebtPerShare),
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
+      navPerShare: numberOrFallback(market.navPerShare, current.navPerShare ?? seedCompany.navPerShare),
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
       normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
       normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
@@ -469,12 +488,12 @@ function applyMarketData(currentCompanies, marketCompanies) {
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
       source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
       notes: current.notes ?? seedCompany.notes,
-      wacc: current.wacc ?? seedCompany.wacc,
-      terminalGrowth: current.terminalGrowth ?? seedCompany.terminalGrowth,
+      wacc: numberOrFallback(market.wacc, current.wacc ?? seedCompany.wacc),
+      terminalGrowth: numberOrFallback(market.terminalGrowth, current.terminalGrowth ?? seedCompany.terminalGrowth),
       portfolioWeight: current.portfolioWeight ?? seedCompany.portfolioWeight,
-      industryScore: current.industryScore ?? seedCompany.industryScore,
-      companyScore: current.companyScore ?? seedCompany.companyScore,
-      leadershipScore: current.leadershipScore ?? seedCompany.leadershipScore,
+      industryScore: numberOrFallback(market.industryScore, current.industryScore ?? seedCompany.industryScore),
+      companyScore: numberOrFallback(market.companyScore, current.companyScore ?? seedCompany.companyScore),
+      leadershipScore: numberOrFallback(market.leadershipScore, current.leadershipScore ?? seedCompany.leadershipScore),
       fundamentals
     };
   });
@@ -487,6 +506,19 @@ function applyPriceData(currentCompanies, priceCompanies) {
     const price = priceById.get(company.id) ?? priceById.get(company.ticker);
     const marketPrice = numberOrNull(price?.marketPrice);
     if (marketPrice === null) return company;
+    const existingFundamentals = company.fundamentals ?? {};
+    const sharesOutstanding = numberOrNull(existingFundamentals.sharesOutstanding);
+    const marketCap = sharesOutstanding !== null
+      ? marketPrice * sharesOutstanding
+      : numberOrNull(existingFundamentals.marketCap);
+    const netDebt = numberOrNull(existingFundamentals.netDebt);
+    const enterpriseValue = marketCap !== null && netDebt !== null
+      ? marketCap + netDebt
+      : numberOrNull(existingFundamentals.enterpriseValue);
+    const ebitda = numberOrNull(existingFundamentals.ebitda);
+    const evToEbitda = enterpriseValue !== null && ebitda !== null && ebitda > 0
+      ? enterpriseValue / ebitda
+      : numberOrNull(existingFundamentals.evToEbitda);
 
     return {
       ...company,
@@ -495,8 +527,11 @@ function applyPriceData(currentCompanies, priceCompanies) {
       priceSource: price.source ?? "Yahoo Finance",
       priceUpdatedAt: price.priceUpdatedAt ?? price.dataUpdatedAt ?? null,
       fundamentals: {
-        ...(company.fundamentals ?? {}),
-        previousClose: numberOrNull(price.previousClose) ?? numberOrNull(company.fundamentals?.previousClose)
+        ...existingFundamentals,
+        marketCap,
+        enterpriseValue,
+        evToEbitda,
+        previousClose: numberOrNull(price.previousClose) ?? numberOrNull(existingFundamentals.previousClose)
       }
     };
   });

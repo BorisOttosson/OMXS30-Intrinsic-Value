@@ -7,6 +7,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 import time
 import urllib.parse
@@ -25,6 +26,7 @@ yf = None
 FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
+BORSAPI_BASE_URL = "https://borsapi.se/api/v1"
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -70,6 +72,11 @@ OMXS30 = [
 
 def company_id(ticker: str) -> str:
     return "".join(ch.lower() if ch.isalnum() else "-" for ch in ticker).strip("-")
+
+
+def normalize_ticker(value: str) -> str:
+    ticker = value.strip().upper()
+    return ticker if ticker.endswith(".ST") else f"{ticker}.ST"
 
 
 def should_run_fundamentals_update(now: datetime) -> bool:
@@ -381,6 +388,196 @@ def fetch_eodhd_json(path: str, api_token: str, timeout: float) -> dict[str, Any
     return payload
 
 
+def borsapi_symbol(ticker: str) -> str:
+    return ticker.upper().removesuffix(".ST")
+
+
+def borsapi_error_message(path: str, exc: urllib.error.HTTPError) -> str:
+    try:
+        body = exc.read().decode("utf-8", "replace").strip()
+    except Exception:
+        body = ""
+    detail = body[:500] if body else exc.reason
+    return f"BörsAPI {path} HTTP {exc.code}: {detail}"
+
+
+def fetch_borsapi_json(path: str, api_key: str, timeout: float, **params: Any) -> dict[str, Any]:
+    query = urllib.parse.urlencode({key: value for key, value in params.items() if value is not None})
+    url = f"{BORSAPI_BASE_URL}/{path.lstrip('/')}"
+    if query:
+        url = f"{url}?{query}"
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "application/json",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise ValueError(borsapi_error_message(path, exc)) from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError(f"BörsAPI {path}: unexpected response")
+    if payload.get("error"):
+        raise ValueError(f"BörsAPI {path}: {payload.get('error')}")
+    return payload
+
+
+def load_existing_borsapi_ids(path: Path) -> dict[str, str]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    companies = payload.get("companies")
+    if not isinstance(companies, list):
+        return {}
+
+    ids = {}
+    for company in companies:
+        if not isinstance(company, dict):
+            continue
+        ticker = company.get("ticker")
+        borsapi_id = company.get("borsapiCompanyId")
+        if isinstance(ticker, str) and isinstance(borsapi_id, str) and borsapi_id:
+            ids[ticker.upper()] = borsapi_id
+    return ids
+
+
+def load_existing_companies(path: Path) -> dict[str, dict[str, Any]]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    companies = payload.get("companies")
+    if not isinstance(companies, list):
+        return {}
+
+    by_id = {}
+    for company in companies:
+        if not isinstance(company, dict):
+            continue
+        cid = company.get("id")
+        if isinstance(cid, str) and cid:
+            by_id[cid] = company
+    return by_id
+
+
+def borsapi_company_lookup(api_key: str, ticker: str, name: str, sector: str, timeout: float, cached_id: str | None) -> tuple[dict[str, Any], list[str]]:
+    symbol = borsapi_symbol(ticker)
+    if cached_id:
+        return {
+            "id": cached_id,
+            "ticker": symbol,
+            "name": name,
+            "sector": sector,
+        }, []
+
+    payload = fetch_borsapi_json("companies", api_key, timeout, ticker=symbol, limit=5)
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        rows = []
+
+    exact = next(
+        (
+            row for row in rows
+            if isinstance(row, dict) and str(row.get("ticker", "")).upper() == symbol
+        ),
+        None,
+    )
+    company = exact or next((row for row in rows if isinstance(row, dict)), None)
+    if not company:
+        raise ValueError(f"BörsAPI companies: no match for {symbol}")
+
+    warnings = []
+    if str(company.get("ticker", "")).upper() != symbol:
+        warnings.append(f"BörsAPI ticker lookup used {company.get('ticker')} for {symbol}")
+    return company, warnings
+
+
+def borsapi_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        return []
+    return sorted(
+        [row for row in rows if isinstance(row, dict)],
+        key=report_sort_key,
+        reverse=True,
+    )
+
+
+def borsapi_latest_report(
+    reports: list[dict[str, Any]],
+    report_type: str,
+    *,
+    prefer_ttm: bool = False,
+    avoid_ttm: bool = False,
+) -> dict[str, Any]:
+    candidates = [
+        report for report in reports
+        if str(report.get("report_type", "")).upper() == report_type.upper()
+    ]
+    if prefer_ttm:
+        ttm_rows = [report for report in candidates if "TTM" in str(report.get("period", "")).upper()]
+        if ttm_rows:
+            return ttm_rows[0]
+    if avoid_ttm:
+        non_ttm_rows = [report for report in candidates if "TTM" not in str(report.get("period", "")).upper()]
+        if non_ttm_rows:
+            return non_ttm_rows[0]
+    return candidates[0] if candidates else {}
+
+
+def borsapi_statement_values(reports: list[dict[str, Any]], report_type: str, key: str) -> list[float]:
+    values = []
+    for report in reports:
+        if str(report.get("report_type", "")).upper() != report_type.upper():
+            continue
+        number = finite(report.get(key))
+        if number is not None:
+            values.append(number)
+    return values
+
+
+def borsapi_cashflow_values(reports: list[dict[str, Any]]) -> list[float]:
+    values = []
+    for report in reports:
+        if str(report.get("report_type", "")).upper() != "KA":
+            continue
+        free_cashflow = finite(report.get("free_cash_flow"))
+        if free_cashflow is None:
+            operating_cashflow = finite(report.get("operating_cash_flow"))
+            capex = finite(report.get("capex"))
+            if operating_cashflow is not None and capex is not None:
+                free_cashflow = operating_cashflow + capex
+        if free_cashflow is not None:
+            values.append(free_cashflow)
+    return values
+
+
+def borsapi_ebitda(report: dict[str, Any]) -> float | None:
+    ebitda = finite(report.get("ebitda"))
+    if ebitda is not None:
+        return ebitda
+
+    ebit = finite(report.get("operating_income")) or finite(report.get("adjusted_operating_income"))
+    depreciation = finite(report.get("depreciation_and_amortization"))
+    if ebit is not None and depreciation is not None:
+        return ebit - depreciation if depreciation < 0 else ebit + depreciation
+    return None
+
+
+def positive(value: Any) -> float | None:
+    number = finite(value)
+    return abs(number) if number is not None else None
+
+
 def mapping_get(mapping: dict[str, Any] | None, key: str) -> Any:
     return mapping.get(key) if isinstance(mapping, dict) else None
 
@@ -392,6 +589,28 @@ def parse_report_date(value: Any) -> datetime:
         return datetime.fromisoformat(str(value).replace("Z", "+00:00")).replace(tzinfo=None)
     except ValueError:
         return datetime.min
+
+
+def parse_period_sort_date(value: Any) -> datetime:
+    if not value:
+        return datetime.min
+
+    text = str(value).upper().replace(" TTM", "")
+    match = re.search(r"(?P<year>\d{4})(?:-Q(?P<quarter>[1-4]))?", text)
+    if not match:
+        return datetime.min
+
+    year = int(match.group("year"))
+    quarter = int(match.group("quarter") or 4)
+    month = quarter * 3
+    return datetime(year, month, 28)
+
+
+def report_sort_key(report: dict[str, Any]) -> datetime:
+    report_date = parse_report_date(report.get("report_date") or report.get("date"))
+    if report_date != datetime.min:
+        return report_date
+    return parse_period_sort_date(report.get("period"))
 
 
 def eodhd_reports(payload: dict[str, Any], statement: str, period: str = "yearly") -> list[dict[str, Any]]:
@@ -730,6 +949,159 @@ def fetch_eodhd_company(
     return {key: clean(value) for key, value in output.items()}
 
 
+def fetch_borsapi_company(
+    api_key: str,
+    ticker: str,
+    name: str,
+    sector: str,
+    fx_cache: dict[tuple[str, str], float],
+    timeout: float,
+    cached_id: str | None = None,
+) -> dict[str, Any]:
+    errors: list[str] = []
+    company, lookup_warnings = borsapi_company_lookup(api_key, ticker, name, sector, timeout, cached_id)
+    errors.extend(lookup_warnings)
+
+    company_key = company.get("id") or company.get("isin")
+    if not company_key:
+        raise ValueError(f"BörsAPI companies: missing id/isin for {ticker}")
+
+    reports_payload = fetch_borsapi_json(
+        f"companies/{company_key}/reports",
+        api_key,
+        timeout,
+        period_type="all",
+        limit=80,
+        sort="report_date",
+        order="desc",
+        entity_type="CONSOLIDATED",
+    )
+    reports = borsapi_reports(reports_payload)
+    if not reports:
+        raise ValueError(f"BörsAPI reports: no reports returned for {ticker}")
+
+    latest_income = borsapi_latest_report(reports, "RR", prefer_ttm=True)
+    latest_income_raw = borsapi_latest_report(reports, "RR", avoid_ttm=True)
+    latest_balance = borsapi_latest_report(reports, "BR", avoid_ttm=True)
+    latest_cashflow = borsapi_latest_report(reports, "KA", prefer_ttm=True)
+
+    quote_currency = pick(company, ["currency"]) or "SEK"
+    financial_currency = (
+        pick(latest_income, ["currency"])
+        or pick(latest_balance, ["currency"])
+        or pick(latest_cashflow, ["currency"])
+        or quote_currency
+    )
+    exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
+
+    shares = (
+        finite(pick(latest_income, ["shares_outstanding"]))
+        or finite(pick(latest_income_raw, ["shares_outstanding"]))
+    )
+    revenue = finite(pick(latest_income, ["revenue"]))
+    ebitda = borsapi_ebitda(latest_income)
+    ebit = finite(pick(latest_income, ["operating_income", "adjusted_operating_income"]))
+    net_income = finite(pick(latest_income, ["net_income"]))
+    operating_cashflow = finite(pick(latest_cashflow, ["operating_cash_flow"]))
+    capital_expenditure = finite(pick(latest_cashflow, ["capex"]))
+    free_cashflow = finite(pick(latest_cashflow, ["free_cash_flow"]))
+    if free_cashflow is None and operating_cashflow is not None and capital_expenditure is not None:
+        free_cashflow = operating_cashflow + capital_expenditure
+
+    total_assets = positive(pick(latest_balance, ["total_assets"]))
+    liabilities = positive(pick(latest_balance, ["total_liabilities"]))
+    equity = finite(pick(latest_balance, ["total_equity"]))
+    cash = positive(pick(latest_balance, ["cash_and_equivalents"]))
+    short_debt = finite(pick(latest_balance, ["short_term_debt"]))
+    long_debt = finite(pick(latest_balance, ["long_term_debt"]))
+    total_debt = None
+    if short_debt is not None or long_debt is not None:
+        total_debt = abs((short_debt or 0) + (long_debt or 0))
+    net_debt = (total_debt or 0) - (cash or 0) if total_debt is not None or cash is not None else None
+
+    fcf_values = borsapi_cashflow_values(reports)
+    ebitda_values = [
+        value
+        for value in (borsapi_ebitda(report) for report in reports if str(report.get("report_type", "")).upper() == "RR")
+        if value is not None
+    ]
+    revenue_values = borsapi_statement_values(reports, "RR", "revenue")
+
+    eps_per_share = (
+        scaled(finite(pick(latest_income, ["eps"])), exchange_rate)
+        or per_share(net_income, shares, exchange_rate)
+    )
+    book_value_per_share = per_share(equity, shares, exchange_rate)
+    ebitda_per_share = per_share(ebitda, shares, exchange_rate)
+    fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
+    normalized_fcf_per_share = median_per_share(fcf_values, shares, exchange_rate)
+    normalized_ebitda_per_share = median_per_share(ebitda_values, shares, exchange_rate)
+    net_debt_per_share = per_share(net_debt, shares, exchange_rate)
+    roe = (net_income / equity * 100) if net_income is not None and equity and equity > 0 else None
+    growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
+    latest_fiscal_date = (
+        pick(latest_balance, ["report_date", "date"])
+        or pick(latest_income_raw, ["report_date", "date"])
+        or pick(latest_cashflow, ["report_date", "date"])
+    )
+
+    output = {
+        "id": company_id(ticker),
+        "ticker": ticker,
+        "borsapiCompanyId": company.get("id"),
+        "borsapiIsin": company.get("isin"),
+        "name": pick(company, ["name"]) or name,
+        "sector": pick(company, ["sector"]) or sector,
+        "companyType": company_type(ticker),
+        "source": "BörsAPI",
+        "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "currency": quote_currency,
+        "financialCurrency": financial_currency,
+        "financialToQuoteFx": exchange_rate,
+        "marketPrice": None,
+        "marketCap": None,
+        "sharesOutstanding": shares,
+        "totalRevenue": scaled(revenue, exchange_rate),
+        "ebitda": scaled(ebitda, exchange_rate),
+        "ebit": scaled(ebit, exchange_rate),
+        "netIncome": scaled(net_income, exchange_rate),
+        "operatingCashFlow": scaled(operating_cashflow, exchange_rate),
+        "capitalExpenditures": scaled(capital_expenditure, exchange_rate),
+        "freeCashFlow": scaled(free_cashflow, exchange_rate),
+        "totalAssets": scaled(total_assets, exchange_rate),
+        "totalLiabilities": scaled(liabilities, exchange_rate),
+        "bookEquity": scaled(equity, exchange_rate),
+        "totalDebt": scaled(total_debt, exchange_rate),
+        "cash": scaled(cash, exchange_rate),
+        "netDebt": scaled(net_debt, exchange_rate),
+        "enterpriseValue": None,
+        "evToEbitda": None,
+        "targetEvToEbitda": None,
+        "fcfPerShare": fcf_per_share,
+        "ebitdaPerShare": ebitda_per_share,
+        "normalizedFcfPerShare": normalized_fcf_per_share,
+        "normalizedEbitdaPerShare": normalized_ebitda_per_share,
+        "eps": eps_per_share,
+        "netDebtPerShare": net_debt_per_share,
+        "bookValuePerShare": book_value_per_share,
+        "equityPerShare": book_value_per_share,
+        "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
+        "roe": roe,
+        "growth5y": growth,
+        "consensusGrowth": growth,
+        "targetPe": None,
+        "trailingPe": None,
+        "forwardPe": None,
+        "analystTargetMeanPrice": None,
+        "recommendationMean": None,
+        "latestFiscalDate": latest_fiscal_date,
+        "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income_raw, ["period"]),
+        "errors": errors,
+    }
+
+    return {key: clean(value) for key, value in output.items()}
+
+
 def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str, str], float]) -> dict[str, Any]:
     errors: list[str] = []
     ticker_obj = yf.Ticker(ticker)
@@ -900,12 +1272,14 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Update OMXS30 fundamentals.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
+    parser.add_argument("--ticker", action="append", help="Only update one ticker, for example ERIC-B.ST. Can be used more than once.")
+    parser.add_argument("--max-companies", type=int, default=None, help="Limit how many companies to update for testing.")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
     parser.add_argument(
         "--provider",
-        choices=("auto", "yahoo", "fmp", "eodhd"),
+        choices=("auto", "yahoo", "fmp", "eodhd", "borsapi"),
         default=os.environ.get("FUNDAMENTALS_PROVIDER", "yahoo").strip().lower() or "yahoo",
-        help="Fundamentals provider. Default: yahoo. Use fmp/eodhd only with a paid plan that includes statements.",
+        help="Fundamentals provider. Default: yahoo. Use borsapi/fmp/eodhd only with a plan that includes statements.",
     )
     args = parser.parse_args(argv)
 
@@ -917,25 +1291,66 @@ def main(argv: list[str]) -> int:
 
     fmp_api_key = os.environ.get("FMP_API_KEY")
     eodhd_api_token = os.environ.get("EODHD_API_TOKEN")
+    borsapi_api_key = os.environ.get("BORSAPI_API_KEY") or os.environ.get("BORSAPI_TOKEN")
     fx_cache: dict[tuple[str, str], float] = {}
     companies = []
+    selected_universe = OMXS30
+    if args.ticker:
+        requested = {normalize_ticker(ticker) for ticker in args.ticker}
+        selected_universe = [company for company in selected_universe if company[0].upper() in requested]
+        missing = sorted(requested - {company[0].upper() for company in selected_universe})
+        if missing:
+            raise SystemExit(f"Unknown OMXS30 ticker(s): {', '.join(missing)}")
+
+    if args.max_companies is not None:
+        selected_universe = selected_universe[:max(args.max_companies, 0)]
+
     provider_choice = args.provider
     if provider_choice == "auto":
-        provider_choice = "fmp" if fmp_api_key else "eodhd" if eodhd_api_token else "yahoo"
+        provider_choice = "borsapi" if borsapi_api_key else "fmp" if fmp_api_key else "eodhd" if eodhd_api_token else "yahoo"
 
+    if provider_choice == "borsapi" and not borsapi_api_key:
+        raise SystemExit("FUNDAMENTALS_PROVIDER is borsapi, but BORSAPI_API_KEY is missing.")
     if provider_choice == "fmp" and not fmp_api_key:
         raise SystemExit("FUNDAMENTALS_PROVIDER is fmp, but FMP_API_KEY is missing.")
     if provider_choice == "eodhd" and not eodhd_api_token:
         raise SystemExit("FUNDAMENTALS_PROVIDER is eodhd, but EODHD_API_TOKEN is missing.")
 
     provider = {
+        "borsapi": "BörsAPI fundamentals",
         "fmp": "Financial Modeling Prep fundamentals",
         "eodhd": "EODHD fundamentals",
         "yahoo": "Yahoo Finance via yfinance statements",
     }[provider_choice]
 
-    if provider_choice == "fmp":
-        for ticker, name, sector in OMXS30:
+    if provider_choice == "borsapi":
+        borsapi_ids = load_existing_borsapi_ids(args.output)
+        for ticker, name, sector in selected_universe:
+            print(f"Fetching BörsAPI fundamentals for {ticker}...", flush=True)
+            try:
+                companies.append(fetch_borsapi_company(
+                    borsapi_api_key,
+                    ticker,
+                    name,
+                    sector,
+                    fx_cache,
+                    timeout=30,
+                    cached_id=borsapi_ids.get(ticker.upper()),
+                ))
+            except Exception as exc:
+                companies.append({
+                    "id": company_id(ticker),
+                    "ticker": ticker,
+                    "name": name,
+                    "sector": sector,
+                    "companyType": company_type(ticker),
+                    "source": "BörsAPI",
+                    "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
+                    "errors": [str(exc)],
+                })
+            time.sleep(args.delay)
+    elif provider_choice == "fmp":
+        for ticker, name, sector in selected_universe:
             print(f"Fetching FMP fundamentals for {ticker}...", flush=True)
             try:
                 companies.append(fetch_fmp_company(fmp_api_key, ticker, name, sector, fx_cache, timeout=30))
@@ -952,7 +1367,7 @@ def main(argv: list[str]) -> int:
                 })
             time.sleep(args.delay)
     elif provider_choice == "eodhd":
-        for ticker, name, sector in OMXS30:
+        for ticker, name, sector in selected_universe:
             print(f"Fetching EODHD fundamentals for {ticker}...", flush=True)
             try:
                 companies.append(fetch_eodhd_company(eodhd_api_token, ticker, name, sector, fx_cache, timeout=30))
@@ -974,7 +1389,7 @@ def main(argv: list[str]) -> int:
                 "Missing dependency: yfinance. Run `python3 -m pip install -r requirements.txt` first."
             )
 
-        for ticker, name, sector in OMXS30:
+        for ticker, name, sector in selected_universe:
             print(f"Fetching Yahoo Finance data for {ticker}...", flush=True)
             try:
                 companies.append(fetch_company(ticker, name, sector, fx_cache))
@@ -990,6 +1405,31 @@ def main(argv: list[str]) -> int:
                     "errors": [str(exc)],
                 })
             time.sleep(args.delay)
+
+    selected_ids = {company_id(ticker) for ticker, _, _ in selected_universe}
+    full_universe_ids = {company_id(ticker) for ticker, _, _ in OMXS30}
+    if selected_ids != full_universe_ids:
+        existing_companies = load_existing_companies(args.output)
+        updated_companies = {company.get("id"): company for company in companies if isinstance(company.get("id"), str)}
+        merged_companies = []
+        for ticker, name, sector in OMXS30:
+            cid = company_id(ticker)
+            if cid in updated_companies:
+                merged_companies.append(updated_companies[cid])
+            elif cid in existing_companies:
+                merged_companies.append(existing_companies[cid])
+            else:
+                merged_companies.append({
+                    "id": cid,
+                    "ticker": ticker,
+                    "name": name,
+                    "sector": sector,
+                    "companyType": company_type(ticker),
+                    "source": "Manual placeholder",
+                    "dataUpdatedAt": None,
+                    "errors": ["No existing fundamentals row yet."],
+                })
+        companies = merged_companies
 
     payload = {
         "version": 1,

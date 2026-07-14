@@ -8,12 +8,12 @@ A local personal finance research app for valuing the OMXS30 universe with:
 - Investment company NAV discount/premium and P/E where useful
 - Cyclical normalized FCF, P/E, and EV/EBITDA
 - Industry, company, and leadership scorecard
-- FMP fundamentals pipeline and Yahoo/yfinance price pipeline
+- BörsAPI fundamentals pipeline and Yahoo/yfinance price pipeline
 - Top 12 synthetic portfolio ranking
 - Separate companies into model buckets: operating, banks, investment companies, and cyclicals
 - Local persistence, JSON export, and JSON import
 
-The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load generated FMP fundamentals and Yahoo/yfinance price files.
+The company universe is seeded from the OMXS30 composition listed as of 2025-07-01. The app starts with sample inputs, then can load generated BörsAPI fundamentals and Yahoo/yfinance price files.
 
 ## Run
 
@@ -37,10 +37,10 @@ Install the Python dependency:
 python3 -m pip install -r requirements.txt
 ```
 
-Fetch the latest fundamentals data:
+Fetch the latest fundamentals data with BörsAPI:
 
 ```bash
-FMP_API_KEY=your_token_here python3 scripts/update_data.py
+BORSAPI_API_KEY=your_token_here python3 scripts/update_data.py --provider borsapi --ticker ERIC-B.ST
 ```
 
 That writes:
@@ -48,6 +48,8 @@ That writes:
 ```text
 data/omxs30-data.json
 ```
+
+Because the free BörsAPI plan has a small total request budget, test one ticker first. Leave out `--ticker ERIC-B.ST` only when you intentionally want to refresh the whole OMXS30 universe.
 
 Fetch the latest share prices:
 
@@ -61,9 +63,9 @@ That writes:
 data/prices.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, EV/EBITDA multiple, and qualitative scores editable, while EPS, EBITDA, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, assets, equity, liabilities, debt, cash, revenue, market cap, enterprise value, EV/EBITDA, and shares come from the latest generated fundamentals file where FMP has coverage.
+Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, book/NAV per share, normalized FCF per share, EV/EBITDA multiple, and qualitative scores editable, while EPS, EBITDA, free cash flow per share, net debt per share, ROE, growth estimates, P/E inputs, assets, equity, liabilities, debt, cash, revenue, market cap, enterprise value, EV/EBITDA, and shares come from the latest generated fundamentals file where BörsAPI has coverage.
 
-The fundamentals updater prefers `FMP_API_KEY`, then uses `EODHD_API_TOKEN` if you have a paid EODHD fundamentals plan, then falls back to `yfinance`. Treat all feeds as personal research inputs, not guaranteed production market data.
+The fundamentals updater can use `BORSAPI_API_KEY`, `FMP_API_KEY`, `EODHD_API_TOKEN`, or `yfinance`, but the GitHub workflow now defaults to BörsAPI. Treat all feeds as personal research inputs, not guaranteed production market data.
 
 ## Company Logos
 
@@ -92,7 +94,7 @@ The repository includes two GitHub Actions workflows:
 .github/workflows/update-prices.yml
 ```
 
-The fundamentals workflow updates around 09:10 Europe/Stockholm on weekdays and can also be started manually from the GitHub Actions tab. It uses FMP when the `FMP_API_KEY` secret is available and writes:
+The fundamentals workflow is manual, so it does not quietly spend BörsAPI requests. It writes:
 
 ```text
 data/omxs30-data.json
@@ -104,7 +106,7 @@ The Yahoo/yfinance price workflow updates share prices 20 times during each Stoc
 data/prices.json
 ```
 
-Add an `FMP_API_KEY` repository secret for fundamentals. The Yahoo/yfinance price workflow does not need an API key. GitHub Pages then serves both data files with the website.
+Add a `BORSAPI_API_KEY` repository secret for fundamentals. Start with one ticker in the workflow input, for example `ERIC-B.ST`; leave the ticker field empty only for a full OMXS30 refresh. The Yahoo/yfinance price workflow does not need an API key. GitHub Pages then serves both data files with the website.
 
 ## Model Formulas
 
