@@ -3,7 +3,10 @@ const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS3
 const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
+const RIKTKURS_DATA_URL = `${RAW_DATA_BASE_URL}/riktkurser.json`;
 const LOGO_ASSET_PATH = "assets/logos";
+const TARGET_PRICE_ROW_LIMIT = 20;
+const CHART_FONT_STACK = 'Futura, "Futura PT", "Avenir Next", Avenir, "Trebuchet MS", sans-serif';
 const companyCategoryDefinitions = {
   operating: {
     label: "Operating company",
@@ -173,11 +176,14 @@ let state = {
   marketData: {
     fundamentalsLoaded: false,
     pricesLoaded: false,
+    targetPricesLoaded: false,
     status: "Sample inputs",
     fundamentalsGeneratedAt: null,
     pricesGeneratedAt: null,
+    targetPricesGeneratedAt: null,
     fundamentalsProvider: null,
     pricesProvider: null,
+    targetPricesProvider: null,
     errors: []
   },
   filters: {
@@ -225,8 +231,13 @@ const elements = {
   qualitySummary: document.querySelector("#qualitySummary"),
   growthGap: document.querySelector("#growthGap"),
   qualityScore: document.querySelector("#qualityScore"),
-  portfolioSummary: document.querySelector("#portfolioSummary"),
-  sectorBars: document.querySelector("#sectorBars"),
+  riktkursSummary: document.querySelector("#riktkursSummary"),
+  riktkursTarget: document.querySelector("#riktkursTarget"),
+  riktkursUpside: document.querySelector("#riktkursUpside"),
+  riktkursConsensus: document.querySelector("#riktkursConsensus"),
+  riktkursCount: document.querySelector("#riktkursCount"),
+  riktkursLatest: document.querySelector("#riktkursLatest"),
+  riktkursSource: document.querySelector("#riktkursSource"),
   dcfChart: document.querySelector("#dcfChart"),
   dataStatus: document.querySelector("#dataStatus"),
   dataTimestamp: document.querySelector("#dataTimestamp"),
@@ -309,7 +320,8 @@ function createDefaultCompanies() {
       source: "Sample input",
       currency: "SEK",
       dataUpdatedAt: null,
-      fundamentals: {}
+      fundamentals: {},
+      targetPriceData: null
     };
   });
 }
@@ -351,11 +363,14 @@ async function loadMarketData({ quiet = true } = {}) {
   const nextMarketData = {
     fundamentalsLoaded: false,
     pricesLoaded: false,
+    targetPricesLoaded: false,
     status: "Sample or saved inputs",
     fundamentalsGeneratedAt: null,
     pricesGeneratedAt: null,
+    targetPricesGeneratedAt: null,
     fundamentalsProvider: null,
     pricesProvider: null,
+    targetPricesProvider: null,
     errors: []
   };
   let changed = false;
@@ -391,6 +406,22 @@ async function loadMarketData({ quiet = true } = {}) {
     changed = true;
   } catch (error) {
     nextMarketData.errors.push(`prices: ${String(error?.message ?? error)}`);
+  }
+
+  try {
+    const response = await fetch(`${RIKTKURS_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!Array.isArray(payload?.companies)) throw new Error("Missing target prices");
+
+    state.companies = applyTargetPriceData(state.companies, payload.companies);
+    nextMarketData.targetPricesLoaded = true;
+    nextMarketData.targetPricesGeneratedAt = payload.generatedAt ?? null;
+    nextMarketData.targetPricesProvider = payload.provider ?? "Börskollen target prices";
+    nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
+    changed = true;
+  } catch (error) {
+    nextMarketData.errors.push(`target prices: ${String(error?.message ?? error)}`);
   }
 
   nextMarketData.status = getDataStatusLabel(nextMarketData);
@@ -489,6 +520,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
       source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
       notes: current.notes ?? seedCompany.notes,
+      targetPriceData: current.targetPriceData ?? seedCompany.targetPriceData,
       wacc: numberOrFallback(market.wacc, current.wacc ?? seedCompany.wacc),
       terminalGrowth: numberOrFallback(market.terminalGrowth, current.terminalGrowth ?? seedCompany.terminalGrowth),
       portfolioWeight: current.portfolioWeight ?? seedCompany.portfolioWeight,
@@ -496,6 +528,30 @@ function applyMarketData(currentCompanies, marketCompanies) {
       companyScore: numberOrFallback(market.companyScore, current.companyScore ?? seedCompany.companyScore),
       leadershipScore: numberOrFallback(market.leadershipScore, current.leadershipScore ?? seedCompany.leadershipScore),
       fundamentals
+    };
+  });
+}
+
+function applyTargetPriceData(currentCompanies, targetCompanies) {
+  const targetById = new Map(targetCompanies.map((company) => [company.id, company]));
+  const targetByTicker = new Map(targetCompanies.map((company) => [company.ticker, company]));
+
+  return currentCompanies.map((company) => {
+    const target = targetById.get(company.id) ?? targetByTicker.get(company.ticker);
+    if (!target) return company;
+
+    return {
+      ...company,
+      targetPriceData: {
+        targetPrice: numberOrNull(target.targetPrice),
+        upsidePercent: numberOrNull(target.upsidePercent),
+        consensus: target.consensus ?? null,
+        targetCount: Number.isFinite(Number(target.targetCount)) ? Number(target.targetCount) : null,
+        latest: Array.isArray(target.latest) ? target.latest.slice(0, TARGET_PRICE_ROW_LIMIT) : [],
+        sourceUrl: target.sourceUrl ?? null,
+        dataUpdatedAt: target.dataUpdatedAt ?? null,
+        errors: Array.isArray(target.errors) ? target.errors : []
+      }
     };
   });
 }
@@ -735,6 +791,7 @@ function formatDate(value) {
 function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
+  const targetProvider = marketData.targetPricesProvider ?? "";
   const fundamentalsLabel = fundamentalsProvider.includes("BörsAPI")
     ? "BörsAPI fundamentals"
     : fundamentalsProvider.includes("Financial Modeling Prep")
@@ -747,10 +804,15 @@ function getDataStatusLabel(marketData = state.marketData) {
     : priceProvider.includes("EODHD")
       ? "EODHD prices"
       : "Prices";
-  if (marketData.pricesLoaded && marketData.fundamentalsLoaded) return `${priceLabel} + ${fundamentalsLabel}`;
-  if (marketData.pricesLoaded) return priceLabel;
-  if (marketData.fundamentalsLoaded) return fundamentalsLabel;
-  return "Sample or saved inputs";
+  const targetLabel = targetProvider.includes("Börskollen")
+    ? "Börskollen target prices"
+    : "Target prices";
+  const labels = [
+    marketData.pricesLoaded ? priceLabel : null,
+    marketData.fundamentalsLoaded ? fundamentalsLabel : null,
+    marketData.targetPricesLoaded ? targetLabel : null
+  ].filter(Boolean);
+  return labels.length ? labels.join(" + ") : "Sample or saved inputs";
 }
 
 function calculateDcf(company, scenario = "base", growthOverride = null) {
@@ -1226,7 +1288,7 @@ function renderDependentViews() {
   renderHeader();
   renderMetrics();
   renderOutlook();
-  renderSectorBars();
+  renderRiktkurser();
   renderSyntheticPortfolio();
   renderFundamentals();
   renderCompanyList();
@@ -1265,19 +1327,22 @@ function renderHeader() {
 function renderDataStatus() {
   const priceTimestamp = formatDateTime(state.marketData.pricesGeneratedAt);
   const fundamentalsTimestamp = formatDateTime(state.marketData.fundamentalsGeneratedAt);
+  const targetTimestamp = formatDateTime(state.marketData.targetPricesGeneratedAt);
   const timestamp = [
     priceTimestamp ? `Prices ${priceTimestamp}` : null,
-    fundamentalsTimestamp ? `Fundamentals ${fundamentalsTimestamp}` : null
+    fundamentalsTimestamp ? `Fundamentals ${fundamentalsTimestamp}` : null,
+    targetTimestamp ? `Target prices ${targetTimestamp}` : null
   ].filter(Boolean).join(" | ") || "Run the updaters to load market data";
 
   const source = [
     state.marketData.pricesProvider,
-    state.marketData.fundamentalsProvider
+    state.marketData.fundamentalsProvider,
+    state.marketData.targetPricesProvider
   ].filter(Boolean).join(" + ") || "Sample inputs";
 
   elements.dataStatus.textContent = state.marketData.status;
   elements.dataTimestamp.textContent = timestamp;
-  elements.footerDataNote.textContent = state.marketData.pricesLoaded || state.marketData.fundamentalsLoaded
+  elements.footerDataNote.textContent = state.marketData.pricesLoaded || state.marketData.fundamentalsLoaded || state.marketData.targetPricesLoaded
     ? `Market data: ${source}. ${timestamp}.`
     : "OMXS30 seed composition: 2025-07-01.";
   elements.tickerSnapshot.textContent = `Snapshot: ${timestamp}`;
@@ -1386,7 +1451,6 @@ function renderOutlook() {
   elements.growthGap.textContent = formatPercent(calc.growthGap, 1);
   elements.growthGap.className = calc.growthGap >= 0 ? "is-positive" : "is-negative";
   elements.qualityScore.textContent = `${calc.qualityScore}/100`;
-  elements.portfolioSummary.textContent = `${calc.stance.label} | ${formatDecimal(asNumber(company.portfolioWeight), 1)}% position`;
 
   document.querySelectorAll("[data-score-value]").forEach((label) => {
     const field = label.dataset.scoreValue;
@@ -1394,38 +1458,49 @@ function renderOutlook() {
   });
 }
 
-function renderSectorBars() {
-  const sectors = new Map();
-  state.companies.forEach((company) => {
-    const calc = calculateCompany(company, "base");
-    if (!sectors.has(company.sector)) sectors.set(company.sector, []);
-    sectors.get(company.sector).push(calc.marginOfSafety);
-  });
+function renderRiktkurser() {
+  const company = getSelectedCompany();
+  if (!company || !elements.riktkursSummary) return;
 
-  const sectorRows = [...sectors.entries()]
-    .map(([sector, values]) => {
-      const valid = values.filter(Number.isFinite);
-      const average = valid.length ? valid.reduce((sum, value) => sum + value, 0) / valid.length : 0;
-      return { sector, average };
-    })
-    .sort((left, right) => right.average - left.average)
-    .slice(0, 6);
+  const data = company.targetPriceData ?? {};
+  const targetPrice = numberOrNull(data.targetPrice);
+  const upsidePercent = numberOrNull(data.upsidePercent);
+  const targetCount = numberOrNull(data.targetCount);
+  const latest = Array.isArray(data.latest) ? data.latest : [];
+  const hasSource = Boolean(data.sourceUrl);
 
-  elements.sectorBars.innerHTML = sectorRows.map(({ sector, average }) => {
-    const width = clamp(Math.abs(average), 2, 55);
-    const cls = average >= 0 ? "positive" : "negative";
-    return `
-      <div class="bar-row">
-        <header>
-          <span>${escapeHtml(sector)}</span>
-          <strong class="${average >= 0 ? "is-positive" : "is-negative"}">${formatPercent(average, 0)}</strong>
-        </header>
-        <div class="bar-track">
-          <div class="bar-fill ${cls}" style="width: ${width}%"></div>
-        </div>
-      </div>
-    `;
-  }).join("");
+  elements.riktkursSummary.textContent = data.dataUpdatedAt
+    ? `Börskollen | ${formatDateTime(data.dataUpdatedAt) ?? formatDate(data.dataUpdatedAt)}`
+    : "Börskollen target prices";
+  elements.riktkursTarget.textContent = formatCurrency(targetPrice, company.currency ?? "SEK");
+  elements.riktkursUpside.textContent = formatPercent(upsidePercent, 1);
+  elements.riktkursUpside.className = upsidePercent === null ? "" : (upsidePercent >= 0 ? "is-positive" : "is-negative");
+  elements.riktkursConsensus.textContent = data.consensus ?? "-";
+  elements.riktkursCount.textContent = targetCount === null ? "-" : `${targetCount} targets`;
+  elements.riktkursLatest.innerHTML = latest.length
+    ? latest.map((item) => renderRiktkursRow(item, company)).join("")
+    : `<div class="empty-row">No target prices loaded yet</div>`;
+
+  elements.riktkursSource.hidden = !hasSource;
+  if (hasSource) {
+    elements.riktkursSource.href = data.sourceUrl;
+  }
+}
+
+function renderRiktkursRow(item, company) {
+  const target = numberOrNull(item.targetPrice);
+  const upside = numberOrNull(item.upsidePercent);
+  const analyst = item.analyst || "Unknown analyst";
+  const actionRating = [item.action, item.rating].filter(Boolean).join(" | ") || item.raw || "Target price";
+  return `
+    <div class="riktkurs-row">
+      <span>${escapeHtml(item.date ?? "-")}</span>
+      <strong>${escapeHtml(analyst)}</strong>
+      <span>${escapeHtml(actionRating)}</span>
+      <span>${formatCurrency(target, company.currency ?? "SEK")}</span>
+      <span class="${upside === null ? "" : (upside >= 0 ? "is-positive" : "is-negative")}">${formatPercent(upside, 1)}</span>
+    </div>
+  `;
 }
 
 function renderSyntheticPortfolio() {
@@ -1573,7 +1648,7 @@ function drawDcfChart() {
 
   if (category !== "operating") {
     context.fillStyle = "#f8fbff";
-    context.font = "14px Inter, sans-serif";
+    context.font = `14px ${CHART_FONT_STACK}`;
     context.fillText(calc.model.chartTitle, 22, 34);
     context.fillStyle = "#b8c0ca";
     context.fillText(calc.model.valueDescription, 22, 62);
@@ -1584,7 +1659,7 @@ function drawDcfChart() {
 
   if (!flows.length) {
     context.fillStyle = "#b8c0ca";
-    context.font = "14px Inter, sans-serif";
+    context.font = `14px ${CHART_FONT_STACK}`;
     context.fillText("DCF input conflict", 22, 34);
     return;
   }
@@ -1616,13 +1691,13 @@ function drawDcfChart() {
     context.fill();
 
     context.fillStyle = "#b8c0ca";
-    context.font = "12px Inter, sans-serif";
+    context.font = `12px ${CHART_FONT_STACK}`;
     context.textAlign = "center";
     context.fillText(`Y${flow.year}`, x + barWidth / 2, height - 18);
   });
 
   context.fillStyle = "#f8fbff";
-  context.font = "13px Inter, sans-serif";
+  context.font = `13px ${CHART_FONT_STACK}`;
   context.textAlign = "left";
   context.fillText(calc.model.chartTitle, padding.left, 18);
 }

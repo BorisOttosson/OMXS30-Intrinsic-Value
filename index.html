@@ -395,20 +395,46 @@
             </div>
           </section>
 
-          <section class="tool-panel portfolio-panel" aria-label="Portfolio and notes">
+          <section class="tool-panel target-price-panel" aria-label="Target prices">
             <div class="panel-title">
               <div>
-                <h3>Portfolio</h3>
-                <p id="portfolioSummary">Watchlist stance</p>
+                <h3>Target prices</h3>
+                <p id="riktkursSummary">Börskollen target prices</p>
               </div>
             </div>
 
-            <div class="bar-list" id="sectorBars" aria-label="Sector valuation"></div>
+            <div class="riktkurs-grid">
+              <div>
+                <span>4 month average</span>
+                <strong id="riktkursTarget">-</strong>
+              </div>
+              <div>
+                <span>Potential</span>
+                <strong id="riktkursUpside">-</strong>
+              </div>
+              <div>
+                <span>Consensus</span>
+                <strong id="riktkursConsensus">-</strong>
+              </div>
+              <div>
+                <span>Count</span>
+                <strong id="riktkursCount">-</strong>
+              </div>
+            </div>
 
-            <label class="notes-field">
-              <span>Research notes</span>
-              <textarea data-field="notes" rows="7" placeholder="Catalysts, risks, source links"></textarea>
-            </label>
+            <div class="riktkurs-list-title">
+              <h4>Individual target prices</h4>
+              <span>Latest analyst targets from Börskollen</span>
+            </div>
+            <div class="riktkurs-list-header" aria-hidden="true">
+              <span>Date</span>
+              <span>Analyst</span>
+              <span>Action / rating</span>
+              <span>Target price</span>
+              <span>Upside</span>
+            </div>
+            <div class="riktkurs-latest" id="riktkursLatest" aria-label="Individual target prices"></div>
+            <a class="riktkurs-source" id="riktkursSource" href="#" target="_blank" rel="noreferrer" hidden>Open Börskollen source</a>
           </section>
         </section>
 

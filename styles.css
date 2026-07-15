@@ -39,7 +39,7 @@ body {
     radial-gradient(circle at 15% 0%, rgba(56, 102, 133, 0.24), transparent 34rem),
     linear-gradient(180deg, #0c2438 0%, #071827 100%);
   color: var(--ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Futura, "Futura PT", "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
   font-size: 15px;
   line-height: 1.45;
 }
@@ -230,6 +230,7 @@ label > span,
 .metric span,
 .value-grid span,
 .outlook-grid span,
+.riktkurs-grid span,
 .bar-row span {
   color: var(--muted);
   font-size: 0.78rem;
@@ -710,7 +711,7 @@ button:focus-visible,
   grid-template-columns: minmax(340px, 0.95fr) minmax(420px, 1.25fr);
   grid-auto-rows: min-content;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .synthetic-panel {
@@ -825,6 +826,7 @@ button:focus-visible,
 
 .value-grid,
 .outlook-grid,
+.riktkurs-grid,
 .fundamental-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -838,6 +840,42 @@ button:focus-visible,
   margin-bottom: 0;
 }
 
+.riktkurs-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.valuation-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.valuation-panel .chart-wrap {
+  flex: 1 1 auto;
+}
+
+.outlook-panel {
+  display: none;
+}
+
+.target-price-panel {
+  grid-column: 1 / -1;
+  min-height: 520px;
+}
+
+.target-price-panel .panel-title {
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.target-price-panel .panel-title h3 {
+  font-size: 1.65rem;
+}
+
+.target-price-panel .riktkurs-grid {
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
 .fundamental-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-bottom: 0;
@@ -845,6 +883,7 @@ button:focus-visible,
 
 .value-grid > div,
 .outlook-grid > div,
+.riktkurs-grid > div,
 .fundamental-grid > div {
   min-height: 86px;
   border: 1px solid var(--line);
@@ -853,13 +892,24 @@ button:focus-visible,
   background: rgba(255, 255, 255, 0.035);
 }
 
+.target-price-panel .riktkurs-grid > div {
+  min-height: 138px;
+  padding: 20px;
+}
+
 .value-grid strong,
 .outlook-grid strong,
+.riktkurs-grid strong,
 .fundamental-grid strong {
   display: block;
   margin-top: 9px;
   font-size: 1.15rem;
   overflow-wrap: anywhere;
+}
+
+.target-price-panel .riktkurs-grid strong {
+  margin-top: 16px;
+  font-size: clamp(2rem, 3vw, 3rem);
 }
 
 .fundamental-grid span,
@@ -868,6 +918,107 @@ button:focus-visible,
   font-size: 0.76rem;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.riktkurs-latest {
+  display: grid;
+  gap: 8px;
+}
+
+.target-price-panel .riktkurs-latest {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.riktkurs-list-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.riktkurs-list-title h4,
+.riktkurs-list-title span {
+  margin: 0;
+}
+
+.riktkurs-list-title h4 {
+  font-size: 1.18rem;
+}
+
+.riktkurs-list-title span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.riktkurs-list-header {
+  display: grid;
+  grid-template-columns: 116px minmax(190px, 1.05fr) minmax(260px, 1.55fr) 160px 120px;
+  gap: 16px;
+  padding: 0 16px 9px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.riktkurs-list-header span:nth-child(4),
+.riktkurs-list-header span:nth-child(5) {
+  text-align: right;
+}
+
+.riktkurs-row {
+  display: grid;
+  grid-template-columns: 116px minmax(190px, 1.05fr) minmax(260px, 1.55fr) 160px 120px;
+  gap: 16px;
+  align-items: center;
+  min-height: 56px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.target-price-panel .riktkurs-row {
+  min-height: 72px;
+  padding: 15px 16px;
+}
+
+.riktkurs-row span,
+.riktkurs-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.riktkurs-row span:first-child {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.riktkurs-row strong {
+  font-size: 1rem;
+}
+
+.riktkurs-row span:nth-child(4),
+.riktkurs-row span:nth-child(5) {
+  text-align: right;
+  font-weight: 850;
+}
+
+.riktkurs-source {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #d9e9ff;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.riktkurs-source:hover {
+  text-decoration: underline;
 }
 
 .synthetic-table {
@@ -964,7 +1115,8 @@ button:focus-visible,
 #dcfChart {
   display: block;
   width: 100%;
-  height: 260px;
+  height: 100%;
+  min-height: 260px;
 }
 
 .score-ring {
@@ -1133,6 +1285,50 @@ input[type="range"] {
   .fundamental-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .riktkurs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .target-price-panel .riktkurs-latest {
+    grid-template-columns: 1fr;
+  }
+
+  .riktkurs-list-header {
+    display: none;
+  }
+
+  .riktkurs-row,
+  .target-price-panel .riktkurs-row {
+    grid-template-columns: 64px minmax(0, 1fr) 108px;
+  }
+
+  .riktkurs-row span:first-child {
+    grid-column: 1 / 2;
+    grid-row: 1 / span 2;
+  }
+
+  .riktkurs-row strong {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
+  .riktkurs-row span:nth-child(3) {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+  }
+
+  .riktkurs-row span:nth-child(4) {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+    text-align: right;
+  }
+
+  .riktkurs-row span:nth-child(5) {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+    text-align: right;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1166,8 +1362,31 @@ input[type="range"] {
   .input-grid,
   .value-grid,
   .outlook-grid,
+  .riktkurs-grid,
   .fundamental-grid {
     grid-template-columns: 1fr;
+  }
+
+  .target-price-panel {
+    min-height: 0;
+  }
+
+  .riktkurs-list-title {
+    display: grid;
+  }
+
+  .riktkurs-row,
+  .target-price-panel .riktkurs-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .riktkurs-row span:first-child,
+  .riktkurs-row strong,
+  .riktkurs-row span:nth-child(3),
+  .riktkurs-row span:nth-child(4),
+  .riktkurs-row span:nth-child(5) {
+    grid-column: auto;
+    text-align: left;
   }
 
   .synthetic-table {
