@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "omxs30-data.json"
+BORSAPI_ID_CACHE_FILENAME = "borsapi-company-ids.json"
 yf = None
 FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
@@ -460,13 +461,18 @@ def fetch_borsapi_json(path: str, api_key: str, timeout: float, **params: Any) -
     return payload
 
 
-def load_existing_borsapi_ids(path: Path) -> dict[str, str]:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def normalize_borsapi_company_id(value: Any) -> str | None:
+    if isinstance(value, str):
+        cleaned = value.strip()
+        return cleaned or None
 
-    companies = payload.get("companies")
+    number = finite(value)
+    if number is None:
+        return None
+    return str(int(number)) if number.is_integer() else str(number)
+
+
+def extract_borsapi_ids(companies: Any) -> dict[str, str]:
     if not isinstance(companies, list):
         return {}
 
@@ -475,10 +481,51 @@ def load_existing_borsapi_ids(path: Path) -> dict[str, str]:
         if not isinstance(company, dict):
             continue
         ticker = company.get("ticker")
-        borsapi_id = company.get("borsapiCompanyId")
-        if isinstance(ticker, str) and isinstance(borsapi_id, str) and borsapi_id:
+        borsapi_id = normalize_borsapi_company_id(company.get("borsapiCompanyId"))
+        if isinstance(ticker, str) and borsapi_id:
             ids[ticker.upper()] = borsapi_id
     return ids
+
+
+def load_existing_borsapi_ids(path: Path) -> dict[str, str]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    return extract_borsapi_ids(payload.get("companies"))
+
+
+def load_borsapi_id_cache(path: Path) -> dict[str, str]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    mapping = payload.get("ids") if isinstance(payload, dict) else None
+    if not isinstance(mapping, dict):
+        mapping = payload if isinstance(payload, dict) else {}
+
+    ids = {}
+    for ticker, borsapi_id in mapping.items():
+        normalized_id = normalize_borsapi_company_id(borsapi_id)
+        if isinstance(ticker, str) and normalized_id:
+            ids[ticker.upper()] = normalized_id
+    return ids
+
+
+def write_borsapi_id_cache(path: Path, companies: list[dict[str, Any]]) -> None:
+    ids = extract_borsapi_ids(companies)
+    if not ids:
+        return
+
+    payload = {
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "ids": dict(sorted(ids.items())),
+        "provider": "BörsAPI",
+        "version": 1,
+    }
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
 def load_existing_companies(path: Path) -> dict[str, dict[str, Any]]:
@@ -1514,6 +1561,9 @@ def main(argv: list[str]) -> int:
     if args.max_companies is not None:
         selected_universe = selected_universe[:max(args.max_companies, 0)]
 
+    selected_tickers = ", ".join(ticker for ticker, _, _ in selected_universe)
+    print(f"Selected fundamentals tickers: {selected_tickers}", flush=True)
+
     provider_choice = args.provider
     if provider_choice == "auto":
         provider_choice = "borsapi" if borsapi_api_key else "fmp" if fmp_api_key else "eodhd" if eodhd_api_token else "yahoo"
@@ -1532,9 +1582,11 @@ def main(argv: list[str]) -> int:
         "yahoo": "Yahoo Finance via yfinance statements",
     }[provider_choice]
     existing_companies = load_existing_companies(args.output)
+    borsapi_id_cache_path = args.output.parent / BORSAPI_ID_CACHE_FILENAME
 
     if provider_choice == "borsapi":
-        borsapi_ids = load_existing_borsapi_ids(args.output)
+        borsapi_ids = load_borsapi_id_cache(borsapi_id_cache_path)
+        borsapi_ids.update(load_existing_borsapi_ids(args.output))
         for ticker, name, sector in selected_universe:
             print(f"Fetching BörsAPI fundamentals for {ticker}...", flush=True)
             try:
@@ -1658,6 +1710,9 @@ def main(argv: list[str]) -> int:
     }
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    if provider_choice == "borsapi":
+        write_borsapi_id_cache(borsapi_id_cache_path, companies)
+        print(f"Wrote {borsapi_id_cache_path}")
     args.output.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
     print(f"Wrote {args.output}")
