@@ -10,6 +10,51 @@ const TARGET_PRICE_DATA_URLS = [
 const LOGO_ASSET_PATH = "assets/logos";
 const TARGET_PRICE_ROW_LIMIT = 20;
 const CHART_FONT_STACK = 'Futura, "Futura PT", "Avenir Next", Avenir, "Trebuchet MS", sans-serif';
+const TARGET_ACTION_TRANSLATIONS = {
+  "hojer": "Increasing",
+  "sanker": "Decreasing",
+  "upprepar": "Reiterates",
+  "inleder": "Initiates",
+  "aterupptar": "Resumes",
+  "justerar": "Adjusts",
+  "uppgraderar": "Upgrades",
+  "nedgraderar": "Downgrades",
+  "satter": "Sets",
+  "behaller": "Maintains"
+};
+const TARGET_RATING_TRANSLATIONS = {
+  "kop": "Buy",
+  "starkt kop": "Strong Buy",
+  "strong buy": "Strong Buy",
+  "behall": "Hold",
+  "behalla": "Hold",
+  "hold": "Hold",
+  "neutral": "Neutral",
+  "neutralt": "Neutral",
+  "salj": "Sell",
+  "stark salj": "Strong Sell",
+  "strong sell": "Strong Sell",
+  "oka": "Accumulate",
+  "minska": "Reduce",
+  "overvikt": "Overweight",
+  "undervikt": "Underweight",
+  "outperform": "Outperform",
+  "underperform": "Underperform",
+  "market perform": "Market Perform",
+  "sector perform": "Sector Perform",
+  "equal weight": "Equal Weight",
+  "jamvikt": "Equal Weight",
+  "outperformer": "Outperform",
+  "underperformer": "Underperform"
+};
+const FINANCIAL_TITLE_WORDS = {
+  "ev": "EV",
+  "ebitda": "EBITDA",
+  "fcf": "FCF",
+  "pe": "P/E",
+  "pb": "P/B",
+  "nav": "NAV"
+};
 const companyCategoryDefinitions = {
   operating: {
     label: "Operating company",
@@ -806,6 +851,54 @@ function formatDate(value) {
   return date.toLocaleDateString("sv-SE");
 }
 
+function normalizeTargetLabel(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[–—]/g, "-")
+    .replace(/[|]/g, " ")
+    .replace(/[^a-z0-9+/\- ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function titleCaseFinancial(value) {
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
+  if (!text) return "-";
+  return text
+    .split(" ")
+    .map((word) => {
+      const normalized = normalizeTargetLabel(word);
+      if (FINANCIAL_TITLE_WORDS[normalized]) return FINANCIAL_TITLE_WORDS[normalized];
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function translateTargetLabel(value, dictionary, fallback = "-") {
+  const raw = String(value ?? "").replace(/\s+/g, " ").trim();
+  if (!raw) return fallback;
+
+  const normalized = normalizeTargetLabel(raw);
+  if (dictionary[normalized]) return dictionary[normalized];
+
+  const match = Object.entries(dictionary)
+    .sort((left, right) => right[0].length - left[0].length)
+    .find(([key]) => normalized === key || normalized.startsWith(`${key} `) || normalized.endsWith(` ${key}`) || normalized.includes(` ${key} `));
+
+  return match ? match[1] : titleCaseFinancial(raw);
+}
+
+function translateTargetAction(value) {
+  return translateTargetLabel(value, TARGET_ACTION_TRANSLATIONS);
+}
+
+function translateTargetRating(value) {
+  return translateTargetLabel(value, TARGET_RATING_TRANSLATIONS);
+}
+
 function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
@@ -1493,7 +1586,7 @@ function renderRiktkurser() {
   elements.riktkursTarget.textContent = formatCurrency(targetPrice, company.currency ?? "SEK");
   elements.riktkursUpside.textContent = formatPercent(upsidePercent, 1);
   elements.riktkursUpside.className = upsidePercent === null ? "" : (upsidePercent >= 0 ? "is-positive" : "is-negative");
-  elements.riktkursConsensus.textContent = data.consensus ?? "-";
+  elements.riktkursConsensus.textContent = translateTargetRating(data.consensus);
   elements.riktkursCount.textContent = targetCount === null ? "-" : `${targetCount} targets`;
   elements.riktkursLatest.innerHTML = latest.length
     ? latest.map((item) => renderRiktkursRow(item, company)).join("")
@@ -1509,12 +1602,14 @@ function renderRiktkursRow(item, company) {
   const target = numberOrNull(item.targetPrice);
   const upside = numberOrNull(item.upsidePercent);
   const analyst = item.analyst || "Unknown analyst";
-  const actionRating = [item.action, item.rating].filter(Boolean).join(" | ") || item.raw || "Target price";
+  const action = translateTargetAction(item.action);
+  const rating = translateTargetRating(item.rating);
   return `
     <div class="riktkurs-row">
       <span>${escapeHtml(item.date ?? "-")}</span>
       <strong>${escapeHtml(analyst)}</strong>
-      <span>${escapeHtml(actionRating)}</span>
+      <span>${escapeHtml(action)}</span>
+      <span>${escapeHtml(rating)}</span>
       <span>${formatCurrency(target, company.currency ?? "SEK")}</span>
       <span class="${upside === null ? "" : (upside >= 0 ? "is-positive" : "is-negative")}">${formatPercent(upside, 1)}</span>
     </div>

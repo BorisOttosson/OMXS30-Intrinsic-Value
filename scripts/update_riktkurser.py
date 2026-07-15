@@ -28,6 +28,51 @@ ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIP
 OUTPUT_PATH = ROOT / "data" / "riktkurser.json"
 BORSKOLLEN_BASE_URL = "https://www.borskollen.se/aktie"
 MAX_TARGET_PRICE_ROWS = 20
+ACTION_TRANSLATIONS = {
+    "hojer": "Increasing",
+    "sanker": "Decreasing",
+    "upprepar": "Reiterates",
+    "inleder": "Initiates",
+    "aterupptar": "Resumes",
+    "justerar": "Adjusts",
+    "uppgraderar": "Upgrades",
+    "nedgraderar": "Downgrades",
+    "satter": "Sets",
+    "behaller": "Maintains",
+}
+RATING_TRANSLATIONS = {
+    "kop": "Buy",
+    "starkt kop": "Strong Buy",
+    "strong buy": "Strong Buy",
+    "behall": "Hold",
+    "behalla": "Hold",
+    "hold": "Hold",
+    "neutral": "Neutral",
+    "neutralt": "Neutral",
+    "salj": "Sell",
+    "stark salj": "Strong Sell",
+    "strong sell": "Strong Sell",
+    "oka": "Accumulate",
+    "minska": "Reduce",
+    "overvikt": "Overweight",
+    "undervikt": "Underweight",
+    "outperform": "Outperform",
+    "underperform": "Underperform",
+    "market perform": "Market Perform",
+    "sector perform": "Sector Perform",
+    "equal weight": "Equal Weight",
+    "jamvikt": "Equal Weight",
+    "outperformer": "Outperform",
+    "underperformer": "Underperform",
+}
+FINANCIAL_TITLE_WORDS = {
+    "ev": "EV",
+    "ebitda": "EBITDA",
+    "fcf": "FCF",
+    "pe": "P/E",
+    "pb": "P/B",
+    "nav": "NAV",
+}
 
 SLUG_CANDIDATES = {
     "ABB.ST": ["abb"],
@@ -115,6 +160,55 @@ def parse_number(value: Any) -> float | None:
     return number
 
 
+def normalize_target_label(value: Any) -> str:
+    if value is None:
+        return ""
+    normalized = unicodedata.normalize("NFKD", str(value))
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+    key = ascii_text.lower().replace("|", " ")
+    key = re.sub(r"[^a-z0-9+/\- ]+", " ", key)
+    return re.sub(r"\s+", " ", key).strip()
+
+
+def title_case_financial(value: Any) -> str | None:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if not text:
+        return None
+
+    words: list[str] = []
+    for word in text.split(" "):
+        normalized = normalize_target_label(word)
+        if normalized in FINANCIAL_TITLE_WORDS:
+            words.append(FINANCIAL_TITLE_WORDS[normalized])
+        else:
+            words.append(word[:1].upper() + word[1:].lower())
+    return " ".join(words)
+
+
+def translate_target_label(value: Any, translations: dict[str, str]) -> str | None:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if not text:
+        return None
+
+    normalized = normalize_target_label(text)
+    if normalized in translations:
+        return translations[normalized]
+
+    for key, translation in sorted(translations.items(), key=lambda item: len(item[0]), reverse=True):
+        if normalized == key or normalized.startswith(f"{key} ") or normalized.endswith(f" {key}") or f" {key} " in normalized:
+            return translation
+
+    return title_case_financial(text)
+
+
+def translate_action(value: Any) -> str | None:
+    return translate_target_label(value, ACTION_TRANSLATIONS)
+
+
+def translate_rating(value: Any) -> str | None:
+    return translate_target_label(value, RATING_TRANSLATIONS)
+
+
 def slugify(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value)
     ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
@@ -165,13 +259,17 @@ def looks_like_riktkurs_page(lines: list[str]) -> bool:
 
 def parse_body(body: str) -> tuple[str | None, str | None, str | None]:
     normalized = re.sub(r"\s+", " ", body).strip()
-    action_match = re.search(r"\b(höjer|sänker|upprepar|inleder|återupptar|justerar)\b", normalized, re.IGNORECASE)
+    action_match = re.search(
+        r"\b(höjer|sänker|upprepar|inleder|återupptar|justerar|uppgraderar|nedgraderar|sätter|behåller)\b",
+        normalized,
+        re.IGNORECASE,
+    )
     if not action_match:
         return normalized or None, None, None
 
     analyst = normalized[:action_match.start()].strip(" -|") or None
-    action = action_match.group(1).lower()
-    rating = normalized[action_match.end():].strip(" -|") or None
+    action = translate_action(action_match.group(1))
+    rating = translate_rating(normalized[action_match.end():].strip(" -|"))
     return analyst, action, rating
 
 
@@ -227,8 +325,8 @@ def parse_latest_rows_from_lines(lines: list[str]) -> list[dict[str, Any]]:
         rows.append({
             "date": date,
             "analyst": analyst or None,
-            "action": action.lower() if action else None,
-            "rating": f"{company} {rating}".strip() if company or rating else None,
+            "action": translate_action(action),
+            "rating": translate_rating(rating),
             "previousTargetPrice": previous_target,
             "targetPrice": target_price,
             "upsidePercent": parse_number(upside_text),
@@ -281,6 +379,7 @@ def parse_target_page(html: str, ticker: str, name: str, slug: str) -> dict[str,
             if normalized == "analytiker konsensus" and index + 2 < len(lines):
                 consensus = lines[index + 2].strip()
                 break
+    consensus = translate_rating(consensus)
 
     count_match = re.search(r"(\d+)\s+st\s+riktkurser", compact_text, re.IGNORECASE)
     target_count = int(count_match.group(1)) if count_match else None
