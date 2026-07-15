@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ticker:
-        description: "Optional: update one ticker first, e.g. ERIC-B.ST. Leave empty only when you want to spend requests on all 30."
+        description: "Type one ticker, e.g. ERIC-B.ST. Type ALL only when you want to spend requests on all 30."
         required: false
         default: ""
 
@@ -68,7 +68,15 @@ jobs:
         run: |
           extra_args=()
           ticker_input="${{ github.event.inputs.ticker }}"
-          if [ -n "$ticker_input" ]; then
+          ticker_input="$(echo "$ticker_input" | xargs)"
+          ticker_upper="$(echo "$ticker_input" | tr '[:lower:]' '[:upper:]')"
+
+          if [ -z "$ticker_input" ]; then
+            echo "Ticker input is empty. Type one ticker like SEB-A.ST, or type ALL to update every OMXS30 company."
+            exit 1
+          fi
+
+          if [ "$ticker_upper" != "ALL" ]; then
             extra_args+=(--ticker "$ticker_input")
           fi
 
@@ -134,6 +142,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/omxs30-data.json
+          if [ -f data/borsapi-company-ids.json ]; then
+            git add data/borsapi-company-ids.json
+          fi
 
           if git diff --cached --quiet; then
             echo "No fundamentals changes to commit"
