@@ -427,7 +427,19 @@ def main(argv: list[str] | None = None) -> int:
         "universe": "OMXS30",
         "companies": companies,
     }
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    output_text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    output_path.write_text(output_text, encoding="utf-8")
+
+    mirror_name = None
+    if output_path.name == "riktkurser.json":
+        mirror_name = "price_targets.json"
+    elif output_path.name == "price_targets.json":
+        mirror_name = "riktkurser.json"
+
+    if mirror_name:
+        mirror_path = output_path.with_name(mirror_name)
+        mirror_path.write_text(output_text, encoding="utf-8")
+        print(f"Wrote {mirror_path}")
 
     loaded = sum(1 for company in companies if company.get("targetPrice") is not None)
     print(f"Wrote {output_path}")
