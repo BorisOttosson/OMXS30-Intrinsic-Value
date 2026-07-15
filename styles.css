@@ -93,6 +93,14 @@ svg {
   gap: 13px;
 }
 
+.brand-logo {
+  display: block;
+  width: clamp(280px, 32vw, 520px);
+  max-height: 124px;
+  object-fit: contain;
+  object-position: left center;
+}
+
 .brand-mark {
   display: grid;
   width: 46px;
@@ -134,14 +142,12 @@ svg {
   flex-wrap: wrap;
 }
 
-.side-actions,
 .topbar-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.action-button,
 .ghost-button,
 .primary-button {
   display: inline-flex;
@@ -153,35 +159,6 @@ svg {
   border: 1px solid transparent;
   padding: 9px 12px;
   white-space: nowrap;
-}
-
-.action-button {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
-  border-color: var(--line);
-}
-
-.action-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--line-strong);
-}
-
-.file-action {
-  position: relative;
-}
-
-.file-action input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.file-action > span {
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  text-transform: none;
 }
 
 .discovery-section {
@@ -264,8 +241,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus,
-button:focus-visible,
-.action-button:focus-within {
+button:focus-visible {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(50, 103, 200, 0.16);
 }
@@ -1347,17 +1323,12 @@ input[type="range"] {
     display: grid;
   }
 
-  .header-actions,
-  .side-actions {
+  .header-actions {
     justify-content: stretch;
   }
 
   .data-status {
     min-width: 0;
-  }
-
-  .action-button {
-    flex: 1 1 0;
   }
 
   .filters,

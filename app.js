@@ -289,7 +289,6 @@ const elements = {
   dcfChart: document.querySelector("#dcfChart"),
   dataStatus: document.querySelector("#dataStatus"),
   dataTimestamp: document.querySelector("#dataTimestamp"),
-  reloadDataBtn: document.querySelector("#reloadDataBtn"),
   syntheticPortfolio: document.querySelector("#syntheticPortfolio"),
   syntheticSummary: document.querySelector("#syntheticSummary"),
   syntheticCount: document.querySelector("#syntheticCount"),
@@ -309,8 +308,6 @@ const elements = {
   footerDataNote: document.querySelector("#footerDataNote"),
   tickerSnapshot: document.querySelector("#tickerSnapshot"),
   tickerSource: document.querySelector("#tickerSource"),
-  exportBtn: document.querySelector("#exportBtn"),
-  importFile: document.querySelector("#importFile"),
   resetSelectedBtn: document.querySelector("#resetSelectedBtn"),
   resetAllBtn: document.querySelector("#resetAllBtn"),
   toast: document.querySelector("#toast")
@@ -1360,10 +1357,6 @@ function bindEvents() {
       renderDependentViews();
     });
   });
-
-  elements.reloadDataBtn.addEventListener("click", () => loadMarketData({ quiet: false }));
-  elements.exportBtn.addEventListener("click", exportData);
-  elements.importFile.addEventListener("change", importData);
 
   elements.resetSelectedBtn.addEventListener("click", () => {
     const selected = getSelectedCompany();
