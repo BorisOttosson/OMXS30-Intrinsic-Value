@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-07-15T23:43:22.085950+00:00",
+  "ids": {
+    "ABB.ST": "3706b802-f3d8-4cc7-8759-91f63a88cd3c",
+    "ADDT-B.ST": "0f7db54d-fbb4-4d30-b4c7-1c66184866c7",
+    "ALFA.ST": "934f72bd-caa7-4cae-ab48-9ad9c5d22a49",
+    "ERIC-B.ST": "42749979-f022-40a0-9249-c708602646f0",
+    "NIBE-B.ST": "3d0c2c30-0697-4dd2-a936-65a30975ddba",
+    "SEB-A.ST": "d8c5b67f-fa22-48e7-af63-cd42e8e92fd4",
+    "SKF-B.ST": "1ba7146f-d9ff-45a1-9d6a-d1475331287c"
+  },
+  "provider": "B\u00f6rsAPI",
+  "version": 1
+}
