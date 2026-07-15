@@ -3,7 +3,10 @@ const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS3
 const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
-const RIKTKURS_DATA_URL = `${RAW_DATA_BASE_URL}/riktkurser.json`;
+const TARGET_PRICE_DATA_URLS = [
+  `${RAW_DATA_BASE_URL}/riktkurser.json`,
+  `${RAW_DATA_BASE_URL}/price_targets.json`
+];
 const LOGO_ASSET_PATH = "assets/logos";
 const TARGET_PRICE_ROW_LIMIT = 20;
 const CHART_FONT_STACK = 'Futura, "Futura PT", "Avenir Next", Avenir, "Trebuchet MS", sans-serif';
@@ -409,10 +412,25 @@ async function loadMarketData({ quiet = true } = {}) {
   }
 
   try {
-    const response = await fetch(`${RIKTKURS_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    if (!Array.isArray(payload?.companies)) throw new Error("Missing target prices");
+    const targetPricePayloads = [];
+    const targetPriceErrors = [];
+    for (const url of TARGET_PRICE_DATA_URLS) {
+      try {
+        const response = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (!Array.isArray(payload?.companies)) throw new Error("Missing target prices");
+        targetPricePayloads.push(payload);
+      } catch (error) {
+        targetPriceErrors.push(`${url.split("/").pop()}: ${String(error?.message ?? error)}`);
+      }
+    }
+    if (!targetPricePayloads.length) throw new Error(targetPriceErrors.join("; "));
+    const payload = targetPricePayloads.sort((first, second) => {
+      const firstTime = Date.parse(first.generatedAt ?? "") || 0;
+      const secondTime = Date.parse(second.generatedAt ?? "") || 0;
+      return secondTime - firstTime;
+    })[0];
 
     state.companies = applyTargetPriceData(state.companies, payload.companies);
     nextMarketData.targetPricesLoaded = true;
