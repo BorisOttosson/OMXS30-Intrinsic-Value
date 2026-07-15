@@ -225,16 +225,8 @@ def yahoo_reference_fields(ticker: str) -> tuple[dict[str, Any], list[str]]:
     )
 
     return {
-        "marketPrice": market_price,
-        "previousClose": finite(fast_info_value(fast_info, "regularMarketPreviousClose"))
-        or finite(pick(info, ["regularMarketPreviousClose", "previousClose"])),
         "marketCap": market_cap,
         "sharesOutstanding": shares,
-        "marketPriceDate": clean(fast_info_value(fast_info, "lastTradeDate")),
-        "trailingPe": finite(pick(info, ["trailingPE"])),
-        "forwardPe": finite(pick(info, ["forwardPE"])),
-        "analystTargetMeanPrice": finite(pick(info, ["targetMeanPrice"])),
-        "recommendationMean": finite(pick(info, ["recommendationMean"])),
     }, errors
 
 
@@ -510,19 +502,8 @@ def load_existing_companies(path: Path) -> dict[str, dict[str, Any]]:
 
 
 PRESERVE_IF_PROVIDER_BLANK_KEYS = {
-    "marketPrice",
-    "previousClose",
-    "marketPriceDate",
     "marketCap",
     "sharesOutstanding",
-    "enterpriseValue",
-    "evToEbitda",
-    "targetEvToEbitda",
-    "targetPe",
-    "trailingPe",
-    "forwardPe",
-    "analystTargetMeanPrice",
-    "recommendationMean",
 }
 
 
@@ -606,12 +587,117 @@ def borsapi_latest_report(
     return candidates[0] if candidates else {}
 
 
-def borsapi_statement_values(reports: list[dict[str, Any]], report_type: str, key: str) -> list[float]:
+BORSAPI_INCOME_CONTAINERS = ("income_statement", "incomeStatement", "income")
+BORSAPI_BALANCE_CONTAINERS = ("balance_sheet", "balanceSheet", "balance")
+BORSAPI_CASHFLOW_CONTAINERS = ("cash_flow_statement", "cashFlowStatement", "cash_flow", "cashflow")
+
+BORSAPI_REVENUE_KEYS = ("revenue", "total_revenue", "net_sales", "sales", "omsattning", "omsättning")
+BORSAPI_EBITDA_KEYS = ("ebitda",)
+BORSAPI_DEPRECIATION_KEYS = ("depreciation_and_amortization", "depreciation", "depreciation_amortization")
+BORSAPI_EBIT_KEYS = ("operating_income", "adjusted_operating_income", "ebit")
+BORSAPI_NET_INCOME_KEYS = ("net_income", "profit_for_period", "net_profit")
+BORSAPI_EPS_KEYS = ("eps", "earnings_per_share")
+BORSAPI_SHARES_KEYS = ("shares_outstanding", "number_of_shares", "shares")
+BORSAPI_OPERATING_CASHFLOW_KEYS = (
+    "operating_cash_flow",
+    "cash_flow_from_operating_activities",
+    "cashflow_from_operations",
+)
+BORSAPI_CAPEX_KEYS = ("capex", "capital_expenditure", "capital_expenditures")
+BORSAPI_FCF_KEYS = ("free_cash_flow", "free_cashflow", "fcf")
+BORSAPI_ASSETS_KEYS = ("total_assets", "assets")
+BORSAPI_LIABILITIES_KEYS = ("total_liabilities", "liabilities")
+BORSAPI_EQUITY_KEYS = ("total_equity", "book_equity", "equity", "shareholders_equity", "stockholders_equity")
+BORSAPI_CASH_KEYS = ("cash_and_equivalents", "cash_and_cash_equivalents", "cash")
+BORSAPI_SHORT_DEBT_KEYS = ("short_term_debt", "current_debt", "short_term_borrowings")
+BORSAPI_LONG_DEBT_KEYS = ("long_term_debt", "non_current_debt", "long_term_borrowings")
+BORSAPI_TOTAL_DEBT_KEYS = ("total_debt", "interest_bearing_liabilities", "borrowings", "debt")
+
+
+def normalize_borsapi_key(key: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(key).lower())
+
+
+def borsapi_statement_sources(report: dict[str, Any], containers: tuple[str, ...]) -> list[dict[str, Any]]:
+    sources = [report]
+    for container in containers:
+        nested = report.get(container)
+        if isinstance(nested, dict):
+            sources.append(nested)
+    return sources
+
+
+def borsapi_pick(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> Any:
+    for source in borsapi_statement_sources(report, containers):
+        value = pick(source, list(keys))
+        if value not in (None, "", [], {}):
+            return value
+
+        normalized = {
+            normalize_borsapi_key(key): value
+            for key, value in source.items()
+        }
+        for key in keys:
+            value = normalized.get(normalize_borsapi_key(key))
+            if value not in (None, "", [], {}):
+                return value
+    return None
+
+
+def borsapi_number(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> float | None:
+    return finite(borsapi_pick(report, containers, keys))
+
+
+def borsapi_positive(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> float | None:
+    number = borsapi_number(report, containers, keys)
+    return abs(number) if number is not None else None
+
+
+def borsapi_report_has_any(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> bool:
+    return any(borsapi_number(report, containers, (key,)) is not None for key in keys)
+
+
+def borsapi_latest_report_with_any(
+    reports: list[dict[str, Any]],
+    report_type: str,
+    containers: tuple[str, ...],
+    keys: tuple[str, ...],
+    *,
+    prefer_ttm: bool = False,
+    avoid_ttm: bool = False,
+) -> dict[str, Any]:
+    candidates = [
+        report for report in reports
+        if str(report.get("report_type", "")).upper() == report_type.upper()
+    ]
+    if prefer_ttm:
+        ttm_rows = [report for report in candidates if "TTM" in str(report.get("period", "")).upper()]
+        non_ttm_rows = [report for report in candidates if "TTM" not in str(report.get("period", "")).upper()]
+        ordered = [*ttm_rows, *non_ttm_rows]
+    elif avoid_ttm:
+        non_ttm_rows = [report for report in candidates if "TTM" not in str(report.get("period", "")).upper()]
+        ttm_rows = [report for report in candidates if "TTM" in str(report.get("period", "")).upper()]
+        ordered = [*non_ttm_rows, *ttm_rows]
+    else:
+        ordered = candidates
+
+    for report in ordered:
+        if borsapi_report_has_any(report, containers, keys):
+            return report
+    return borsapi_latest_report(reports, report_type, prefer_ttm=prefer_ttm, avoid_ttm=avoid_ttm)
+
+
+def borsapi_statement_values(
+    reports: list[dict[str, Any]],
+    report_type: str,
+    containers: tuple[str, ...],
+    keys: tuple[str, ...],
+) -> list[float]:
     values = []
     for report in reports:
         if str(report.get("report_type", "")).upper() != report_type.upper():
             continue
-        number = finite(report.get(key))
+        number = borsapi_number(report, containers, keys)
         if number is not None:
             values.append(number)
     return values
@@ -622,10 +708,10 @@ def borsapi_cashflow_values(reports: list[dict[str, Any]]) -> list[float]:
     for report in reports:
         if str(report.get("report_type", "")).upper() != "KA":
             continue
-        free_cashflow = finite(report.get("free_cash_flow"))
+        free_cashflow = borsapi_number(report, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_FCF_KEYS)
         if free_cashflow is None:
-            operating_cashflow = finite(report.get("operating_cash_flow"))
-            capex = finite(report.get("capex"))
+            operating_cashflow = borsapi_number(report, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_OPERATING_CASHFLOW_KEYS)
+            capex = borsapi_number(report, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_CAPEX_KEYS)
             if operating_cashflow is not None and capex is not None:
                 free_cashflow = operating_cashflow + capex
         if free_cashflow is not None:
@@ -634,12 +720,12 @@ def borsapi_cashflow_values(reports: list[dict[str, Any]]) -> list[float]:
 
 
 def borsapi_ebitda(report: dict[str, Any]) -> float | None:
-    ebitda = finite(report.get("ebitda"))
+    ebitda = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBITDA_KEYS)
     if ebitda is not None:
         return ebitda
 
-    ebit = finite(report.get("operating_income")) or finite(report.get("adjusted_operating_income"))
-    depreciation = finite(report.get("depreciation_and_amortization"))
+    ebit = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBIT_KEYS)
+    depreciation = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_DEPRECIATION_KEYS)
     if ebit is not None and depreciation is not None:
         return ebit - depreciation if depreciation < 0 else ebit + depreciation
     return None
@@ -1052,10 +1138,40 @@ def fetch_borsapi_company(
     if not reports:
         raise ValueError(f"BörsAPI reports: no reports returned for {ticker}")
 
-    latest_income = borsapi_latest_report(reports, "RR", prefer_ttm=True)
-    latest_income_raw = borsapi_latest_report(reports, "RR", avoid_ttm=True)
-    latest_balance = borsapi_latest_report(reports, "BR", avoid_ttm=True)
-    latest_cashflow = borsapi_latest_report(reports, "KA", prefer_ttm=True)
+    latest_income = borsapi_latest_report_with_any(
+        reports,
+        "RR",
+        BORSAPI_INCOME_CONTAINERS,
+        (*BORSAPI_REVENUE_KEYS, *BORSAPI_EBITDA_KEYS, *BORSAPI_NET_INCOME_KEYS),
+        prefer_ttm=True,
+    )
+    latest_income_raw = borsapi_latest_report_with_any(
+        reports,
+        "RR",
+        BORSAPI_INCOME_CONTAINERS,
+        (*BORSAPI_REVENUE_KEYS, *BORSAPI_EBITDA_KEYS, *BORSAPI_NET_INCOME_KEYS),
+        avoid_ttm=True,
+    )
+    latest_balance = borsapi_latest_report_with_any(
+        reports,
+        "BR",
+        BORSAPI_BALANCE_CONTAINERS,
+        (
+            *BORSAPI_ASSETS_KEYS,
+            *BORSAPI_LIABILITIES_KEYS,
+            *BORSAPI_EQUITY_KEYS,
+            *BORSAPI_CASH_KEYS,
+            *BORSAPI_TOTAL_DEBT_KEYS,
+        ),
+        avoid_ttm=True,
+    )
+    latest_cashflow = borsapi_latest_report_with_any(
+        reports,
+        "KA",
+        BORSAPI_CASHFLOW_CONTAINERS,
+        (*BORSAPI_FCF_KEYS, *BORSAPI_OPERATING_CASHFLOW_KEYS, *BORSAPI_CAPEX_KEYS),
+        prefer_ttm=True,
+    )
 
     quote_currency = pick(company, ["currency"]) or "SEK"
     financial_currency = (
@@ -1066,39 +1182,32 @@ def fetch_borsapi_company(
     )
     exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
 
-    shares = (
-        finite(pick(latest_income, ["shares_outstanding"]))
-        or finite(pick(latest_income_raw, ["shares_outstanding"]))
-    )
-    revenue = finite(pick(latest_income, ["revenue"]))
+    revenue = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_REVENUE_KEYS)
     ebitda = borsapi_ebitda(latest_income)
-    ebit = finite(pick(latest_income, ["operating_income", "adjusted_operating_income"]))
-    net_income = finite(pick(latest_income, ["net_income"]))
-    operating_cashflow = finite(pick(latest_cashflow, ["operating_cash_flow"]))
-    capital_expenditure = finite(pick(latest_cashflow, ["capex"]))
-    free_cashflow = finite(pick(latest_cashflow, ["free_cash_flow"]))
+    ebit = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBIT_KEYS)
+    net_income = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_NET_INCOME_KEYS)
+    operating_cashflow = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_OPERATING_CASHFLOW_KEYS)
+    capital_expenditure = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_CAPEX_KEYS)
+    free_cashflow = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_FCF_KEYS)
     if free_cashflow is None and operating_cashflow is not None and capital_expenditure is not None:
         free_cashflow = operating_cashflow + capital_expenditure
 
-    total_assets = positive(pick(latest_balance, ["total_assets"]))
-    liabilities = positive(pick(latest_balance, ["total_liabilities"]))
-    equity = finite(pick(latest_balance, ["total_equity"]))
-    cash = positive(pick(latest_balance, ["cash_and_equivalents"]))
-    short_debt = finite(pick(latest_balance, ["short_term_debt"]))
-    long_debt = finite(pick(latest_balance, ["long_term_debt"]))
-    total_debt = None
-    if short_debt is not None or long_debt is not None:
-        total_debt = abs((short_debt or 0) + (long_debt or 0))
+    total_assets = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_ASSETS_KEYS)
+    liabilities = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LIABILITIES_KEYS)
+    equity = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_EQUITY_KEYS)
+    cash = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_CASH_KEYS)
+    total_debt = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_TOTAL_DEBT_KEYS)
+    if total_debt is None:
+        short_debt = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_SHORT_DEBT_KEYS)
+        long_debt = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LONG_DEBT_KEYS)
+        if short_debt is not None or long_debt is not None:
+            total_debt = abs((short_debt or 0) + (long_debt or 0))
     net_debt = (total_debt or 0) - (cash or 0) if total_debt is not None or cash is not None else None
 
     reference_fields, reference_errors = yahoo_reference_fields(ticker)
     errors.extend(reference_errors)
-    market_price = finite(reference_fields.get("marketPrice"))
-    previous_close = finite(reference_fields.get("previousClose"))
     market_cap = finite(reference_fields.get("marketCap"))
-    shares = shares or finite(reference_fields.get("sharesOutstanding"))
-    if market_cap is None and shares is not None and market_price is not None:
-        market_cap = shares * market_price
+    shares = finite(reference_fields.get("sharesOutstanding"))
 
     fcf_values = borsapi_cashflow_values(reports)
     ebitda_values = [
@@ -1106,10 +1215,10 @@ def fetch_borsapi_company(
         for value in (borsapi_ebitda(report) for report in reports if str(report.get("report_type", "")).upper() == "RR")
         if value is not None
     ]
-    revenue_values = borsapi_statement_values(reports, "RR", "revenue")
+    revenue_values = borsapi_statement_values(reports, "RR", BORSAPI_INCOME_CONTAINERS, BORSAPI_REVENUE_KEYS)
 
     eps_per_share = (
-        scaled(finite(pick(latest_income, ["eps"])), exchange_rate)
+        scaled(borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EPS_KEYS), exchange_rate)
         or per_share(net_income, shares, exchange_rate)
     )
     book_value_per_share = per_share(equity, shares, exchange_rate)
@@ -1129,8 +1238,13 @@ def fetch_borsapi_company(
         else None
     )
     target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
-    reference_pe = finite(reference_fields.get("forwardPe")) or finite(reference_fields.get("trailingPe"))
-    target_pe = min(max(reference_pe, 5), 35) if reference_pe is not None else None
+    scaled_free_cashflow = scaled(free_cashflow, exchange_rate)
+    fcf_yield = (
+        (scaled_free_cashflow / market_cap) * 100
+        if scaled_free_cashflow is not None and market_cap and market_cap > 0
+        else None
+    )
+    target_pe = None
     latest_fiscal_date = (
         pick(latest_balance, ["report_date", "date"])
         or pick(latest_income_raw, ["report_date", "date"])
@@ -1150,8 +1264,8 @@ def fetch_borsapi_company(
         "currency": quote_currency,
         "financialCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
-        "marketPrice": market_price,
-        "previousClose": previous_close,
+        "marketPrice": None,
+        "previousClose": None,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
         "totalRevenue": scaled(revenue, exchange_rate),
@@ -1170,7 +1284,8 @@ def fetch_borsapi_company(
         "enterpriseValue": enterprise_value,
         "evToEbitda": ev_to_ebitda,
         "targetEvToEbitda": target_ev_to_ebitda,
-        "marketPriceDate": reference_fields.get("marketPriceDate"),
+        "fcfYield": fcf_yield,
+        "marketPriceDate": None,
         "fcfPerShare": fcf_per_share,
         "ebitdaPerShare": ebitda_per_share,
         "normalizedFcfPerShare": normalized_fcf_per_share,
@@ -1184,10 +1299,10 @@ def fetch_borsapi_company(
         "growth5y": growth,
         "consensusGrowth": growth,
         "targetPe": target_pe,
-        "trailingPe": finite(reference_fields.get("trailingPe")),
-        "forwardPe": finite(reference_fields.get("forwardPe")),
-        "analystTargetMeanPrice": finite(reference_fields.get("analystTargetMeanPrice")),
-        "recommendationMean": finite(reference_fields.get("recommendationMean")),
+        "trailingPe": None,
+        "forwardPe": None,
+        "analystTargetMeanPrice": None,
+        "recommendationMean": None,
         "latestFiscalDate": latest_fiscal_date,
         "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income_raw, ["period"]),
         "errors": errors,

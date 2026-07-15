@@ -449,6 +449,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       netDebt: numberOrNull(market.netDebt),
       enterpriseValue: numberOrNull(market.enterpriseValue),
       evToEbitda: numberOrNull(market.evToEbitda),
+      fcfYield: numberOrNull(market.fcfYield),
       equityPerShare: numberOrNull(market.equityPerShare),
       liabilitiesPerShare: numberOrNull(market.liabilitiesPerShare),
       trailingPe: numberOrNull(market.trailingPe),
@@ -519,6 +520,10 @@ function applyPriceData(currentCompanies, priceCompanies) {
     const evToEbitda = enterpriseValue !== null && ebitda !== null && ebitda > 0
       ? enterpriseValue / ebitda
       : numberOrNull(existingFundamentals.evToEbitda);
+    const freeCashFlow = numberOrNull(existingFundamentals.freeCashFlow);
+    const fcfYield = marketCap !== null && freeCashFlow !== null && marketCap > 0
+      ? (freeCashFlow / marketCap) * 100
+      : numberOrNull(existingFundamentals.fcfYield);
 
     return {
       ...company,
@@ -531,6 +536,7 @@ function applyPriceData(currentCompanies, priceCompanies) {
         marketCap,
         enterpriseValue,
         evToEbitda,
+        fcfYield,
         previousClose: numberOrNull(price.previousClose) ?? numberOrNull(existingFundamentals.previousClose)
       }
     };
@@ -1519,9 +1525,7 @@ function renderFundamentals() {
 
   const currency = company.currency ?? "SEK";
   const fundamentals = company.fundamentals ?? {};
-  const fcfYield = asNumber(company.marketPrice) > 0 && asNumber(company.fcfPerShare) > 0
-    ? (asNumber(company.fcfPerShare) / asNumber(company.marketPrice)) * 100
-    : NaN;
+  const fcfYield = numberOrNull(fundamentals.fcfYield);
   const updatedAt = company.dataUpdatedAt ? new Date(company.dataUpdatedAt) : null;
   const updatedText = updatedAt && !Number.isNaN(updatedAt.valueOf())
     ? updatedAt.toLocaleDateString("sv-SE")
@@ -1542,7 +1546,7 @@ function renderFundamentals() {
     ? `${formatDecimal(numberOrNull(fundamentals.evToEbitda), 1)}x`
     : "-";
   elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
-  elements.fundFcfYield.className = fcfYield >= 0 ? "is-positive" : "is-negative";
+  elements.fundFcfYield.className = fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative");
 }
 
 function drawDcfChart() {
