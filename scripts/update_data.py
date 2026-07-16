@@ -28,6 +28,9 @@ FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 BORSAPI_BASE_URL = "https://borsapi.se/api/v1"
+# BörsAPI charges quota per returned report. Six gives the updater a safer
+# window to find the latest income, balance sheet, and cash-flow statements.
+BORSAPI_REPORT_LIMIT = 6
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -1176,7 +1179,7 @@ def fetch_borsapi_company(
         api_key,
         timeout,
         period_type="all",
-        limit=80,
+        limit=BORSAPI_REPORT_LIMIT,
         sort="report_date",
         order="desc",
         entity_type="CONSOLIDATED",
