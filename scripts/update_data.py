@@ -28,9 +28,9 @@ FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 BORSAPI_BASE_URL = "https://borsapi.se/api/v1"
-# BörsAPI charges quota per returned report. Six gives the updater a safer
-# window to find the latest income, balance sheet, and cash-flow statements.
-BORSAPI_REPORT_LIMIT = 6
+# BörsAPI charges quota per returned report. Three keeps the updater cheaper
+# while still giving us a small window to cross-check recent statements.
+BORSAPI_REPORT_LIMIT = 3
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -1005,6 +1005,12 @@ def fetch_fmp_company(
         "analystTargetMeanPrice": None,
         "recommendationMean": None,
         "latestFiscalDate": pick(latest_income, ["date"]),
+        "incomeStatementDate": pick(latest_income, ["date"]),
+        "incomeStatementPeriod": pick(latest_income, ["period", "calendarYear"]),
+        "balanceSheetDate": pick(latest_balance, ["date"]),
+        "balanceSheetPeriod": pick(latest_balance, ["period", "calendarYear"]),
+        "cashFlowStatementDate": pick(latest_cashflow, ["date"]),
+        "cashFlowStatementPeriod": pick(latest_cashflow, ["period", "calendarYear"]),
         "errors": errors,
     }
 
@@ -1151,6 +1157,12 @@ def fetch_eodhd_company(
         "analystTargetMeanPrice": finite(pick(highlights, ["WallStreetTargetPrice"])),
         "recommendationMean": None,
         "latestFiscalDate": pick(latest_income, ["date"]),
+        "incomeStatementDate": pick(latest_income, ["date", "filing_date"]),
+        "incomeStatementPeriod": pick(latest_income, ["period", "quarter", "date"]),
+        "balanceSheetDate": pick(latest_balance, ["date", "filing_date"]),
+        "balanceSheetPeriod": pick(latest_balance, ["period", "quarter", "date"]),
+        "cashFlowStatementDate": pick(latest_cashflow, ["date", "filing_date"]),
+        "cashFlowStatementPeriod": pick(latest_cashflow, ["period", "quarter", "date"]),
         "errors": errors,
     }
 
@@ -1221,6 +1233,13 @@ def fetch_borsapi_company(
         BORSAPI_CASHFLOW_CONTAINERS,
         (*BORSAPI_FCF_KEYS, *BORSAPI_OPERATING_CASHFLOW_KEYS, *BORSAPI_CAPEX_KEYS),
         prefer_ttm=True,
+    )
+    latest_cashflow_raw = borsapi_latest_report_with_any(
+        reports,
+        "KA",
+        BORSAPI_CASHFLOW_CONTAINERS,
+        (*BORSAPI_FCF_KEYS, *BORSAPI_OPERATING_CASHFLOW_KEYS, *BORSAPI_CAPEX_KEYS),
+        avoid_ttm=True,
     )
 
     quote_currency = pick(company, ["currency"]) or "SEK"
@@ -1298,7 +1317,7 @@ def fetch_borsapi_company(
     latest_fiscal_date = (
         pick(latest_balance, ["report_date", "date"])
         or pick(latest_income_raw, ["report_date", "date"])
-        or pick(latest_cashflow, ["report_date", "date"])
+        or pick(latest_cashflow_raw, ["report_date", "date"])
     )
 
     output = {
@@ -1355,6 +1374,12 @@ def fetch_borsapi_company(
         "recommendationMean": None,
         "latestFiscalDate": latest_fiscal_date,
         "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income_raw, ["period"]),
+        "incomeStatementDate": pick(latest_income_raw, ["report_date", "date"]),
+        "incomeStatementPeriod": pick(latest_income_raw, ["period"]),
+        "balanceSheetDate": pick(latest_balance, ["report_date", "date"]),
+        "balanceSheetPeriod": pick(latest_balance, ["period"]),
+        "cashFlowStatementDate": pick(latest_cashflow_raw, ["report_date", "date"]),
+        "cashFlowStatementPeriod": pick(latest_cashflow_raw, ["period"]),
         "errors": errors,
     }
 
