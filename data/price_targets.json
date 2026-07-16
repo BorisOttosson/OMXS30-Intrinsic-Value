@@ -1,7 +1,7 @@
 {
   "provider": "Börskollen riktkurser",
   "source": "https://www.borskollen.se",
-  "generatedAt": "2026-07-16T11:21:30.324830+00:00",
+  "generatedAt": "2026-07-16T19:04:50.616871+00:00",
   "universe": "OMXS30",
   "companies": [
     {
@@ -58,7 +58,7 @@
           "raw": "25 jun Deutsche Bank höjer ABB behåll 68 → 70 schweizerfranc 27 apr Kepler Cheuvreux sänker ABB köp → behåll 75 → 80 schweizerfranc 24 apr Handelsbanken höjer ABB behåll 93 → 103 dollar 13 apr Barclays höjer ABB undervikt → jämvikt 67 schweizerfranc 13 apr Citigroup sänker ABB köp → neutral 76 schweizerfranc 07 jan Bernstein höjer ABB underperform → market perform 15 dec 2025 Evercore ISI inleder ABB in-line 65 schweizerfranc 13 nov 2025 Scotiabank inleder ABB sector outperform 280 dollar 17 okt 2025 SEB höjer ABB behåll 690 → 700 kronor -29.2%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:20:56.865772+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:21.837087+00:00",
       "errors": []
     },
     {
@@ -95,7 +95,7 @@
           "raw": "Igår DNB Carnegie höjer Addtech köp 405 → 410 kronor 20.3%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:20:58.172369+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:22.906305+00:00",
       "errors": []
     },
     {
@@ -272,7 +272,7 @@
           "raw": "14 jan RBC höjer Alfa Laval outperform 540 → 550 kronor -1.8%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:20:59.207630+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:23.983139+00:00",
       "errors": []
     },
     {
@@ -389,7 +389,7 @@
           "raw": "09 jun DNB Carnegie sänker Assa Abloy köp 410 → 400 kronor 21.2%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:00.538016+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:25.064677+00:00",
       "errors": []
     },
     {
@@ -436,7 +436,7 @@
           "raw": "26 feb UBS höjer AstraZeneca köp 163 → 176 pund 13 feb Shore Capital sänker AstraZeneca köp → behåll 27 jan Citigroup inleder AstraZeneca köp 170 pund 16 jan Deutsche Bank höjer AstraZeneca sälj 105 → 110 pund 09 dec 2025 TD Cowen höjer AstraZeneca köp 148.6 → 158.15 pund 15 sep 2025 Handelsbanken sänker AstraZeneca köp → behåll 1800 → 1625 kronor -0.3%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:01.605819+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:26.148334+00:00",
       "errors": []
     },
     {
@@ -653,7 +653,7 @@
           "raw": "15 jan Kepler Cheuvreux höjer Atlas Copco köp 200 → 220 kronor 17.7%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:02.668692+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:27.219217+00:00",
       "errors": []
     },
     {
@@ -870,7 +870,7 @@
           "raw": "15 jan ABG Sundal Collier sänker Boliden köp → behåll 450 → 550 kronor 6.1%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:04.030016+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:28.290412+00:00",
       "errors": []
     },
     {
@@ -1077,7 +1077,7 @@
           "raw": "23 jul 2025 Bernstein sänker Epiroc underperform 196 → 194 kronor -9.8%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:05.082150+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:29.377904+00:00",
       "errors": []
     },
     {
@@ -1214,7 +1214,7 @@
           "raw": "23 jan BNP Paribas Exane höjer EQT outperform 430 → 480 kronor 66.0%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:06.119187+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:30.296144+00:00",
       "errors": []
     },
     {
@@ -1401,7 +1401,7 @@
           "raw": "05 jan Bernstein höjer Ericsson underperform 69 → 73 kronor -25.0%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:07.158538+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:31.230934+00:00",
       "errors": []
     },
     {
@@ -1548,7 +1548,7 @@
           "raw": "23 jan BNP Paribas Exane sänker Essity neutral 290 → 275 kronor -1.4%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:08.249557+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:32.144210+00:00",
       "errors": []
     },
     {
@@ -1563,7 +1563,7 @@
       "consensus": null,
       "targetCount": null,
       "latest": [],
-      "dataUpdatedAt": "2026-07-16T11:21:09.822012+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:33.194552+00:00",
       "errors": [
         "evolution: HTTP 404",
         "evo: HTTP 404"
@@ -1783,7 +1783,7 @@
           "raw": "16 jan Kepler Cheuvreux höjer Handelsbanken minska 121 → 137 kronor -1.3%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:10.868497+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:34.124906+00:00",
       "errors": []
     },
     {
@@ -2000,7 +2000,7 @@
           "raw": "30 jan Bernstein höjer Hennes & Mauritz underperform 110 → 130 kronor -19.7%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:12.255296+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:35.248851+00:00",
       "errors": [
         "hm: HTTP 404"
       ]
@@ -2149,7 +2149,7 @@
           "raw": "05 jan DNB sänker Hexagon köp 135 → 130 kronor 62.1%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:13.741242+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:36.340724+00:00",
       "errors": []
     },
     {
@@ -2216,7 +2216,7 @@
           "raw": "08 jul SEB höjer Industrivärden sälj 484 → 496 kronor -5.9%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:14.790926+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:37.253313+00:00",
       "errors": []
     },
     {
@@ -2227,93 +2227,23 @@
       "source": "Börskollen",
       "sourceUrl": "https://www.borskollen.se/aktie/investor/riktkurs",
       "slug": "investor",
-      "targetPrice": 387.57,
+      "targetPrice": 388.71,
       "upsidePercent": -1.0,
       "consensus": "Neutral",
       "targetCount": 9,
       "latest": [
         {
-          "date": "26 jun",
+          "date": "Idag",
           "analyst": "SEB",
           "action": "Increasing",
           "rating": "Hold",
-          "previousTargetPrice": 396.0,
-          "targetPrice": 409.0,
-          "upsidePercent": 4.0,
-          "raw": "26 jun SEB höjer Investor behåll 396 → 409 kronor 4.0%"
-        },
-        {
-          "date": "11 jun",
-          "analyst": "Kepler Cheuvreux",
-          "action": "Decreasing",
-          "rating": "Hold",
-          "previousTargetPrice": 385.0,
-          "targetPrice": 403.0,
-          "upsidePercent": 2.5,
-          "raw": "11 jun Kepler Cheuvreux sänker Investor köp → behåll 385 → 403 kronor 2.5%"
-        },
-        {
-          "date": "22 apr",
-          "analyst": "Danske Bank",
-          "action": "Decreasing",
-          "rating": "Hold",
-          "previousTargetPrice": null,
-          "targetPrice": 413.0,
-          "upsidePercent": 5.0,
-          "raw": "22 apr Danske Bank sänker Investor köp → behåll 413 kronor 5.0%"
-        },
-        {
-          "date": "22 apr",
-          "analyst": "Handelsbanken",
-          "action": "Increasing",
-          "rating": "Hold",
-          "previousTargetPrice": 365.0,
-          "targetPrice": 400.0,
-          "upsidePercent": 1.7,
-          "raw": "22 apr Handelsbanken höjer Investor behåll 365 → 400 kronor 1.7%"
-        },
-        {
-          "date": "22 apr",
-          "analyst": "Pareto Securities",
-          "action": "Increasing",
-          "rating": "Hold",
-          "previousTargetPrice": 350.0,
-          "targetPrice": 355.0,
-          "upsidePercent": -9.7,
-          "raw": "22 apr Pareto Securities höjer Investor behåll 350 → 355 kronor -9.7%"
-        },
-        {
-          "date": "22 apr",
-          "analyst": "DNB Carnegie",
-          "action": "Increasing",
-          "rating": "Buy",
-          "previousTargetPrice": 375.0,
-          "targetPrice": 415.0,
-          "upsidePercent": 5.5,
-          "raw": "22 apr DNB Carnegie höjer Investor köp 375 → 415 kronor 5.5%"
-        },
-        {
-          "date": "23 jan",
-          "analyst": "ABG Sundal Collier",
-          "action": "Increasing",
-          "rating": "Buy",
-          "previousTargetPrice": 355.0,
-          "targetPrice": 380.0,
-          "upsidePercent": -3.4,
-          "raw": "23 jan ABG Sundal Collier höjer Investor köp 355 → 380 kronor -3.4%"
-        },
-        {
-          "date": "10 okt",
-          "analyst": "2025 Nordea",
-          "action": "Increasing",
-          "rating": "Hold",
-          "previousTargetPrice": 297.0,
-          "targetPrice": 315.0,
-          "upsidePercent": -19.9,
-          "raw": "10 okt 2025 Nordea höjer Investor behåll 297 → 315 kronor -19.9%"
+          "previousTargetPrice": 409.0,
+          "targetPrice": 417.0,
+          "upsidePercent": 6.0,
+          "raw": "Idag SEB höjer Investor behåll 409 → 417 kronor 6.0%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:15.831935+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:38.157297+00:00",
       "errors": []
     },
     {
@@ -2350,7 +2280,7 @@
           "raw": "Igår Kepler Cheuvreux höjer Lifco behåll 315 → 340 kronor 3.7%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:16.886322+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:39.089178+00:00",
       "errors": []
     },
     {
@@ -2507,7 +2437,7 @@
           "raw": "25 aug 2025 Citigroup höjer NIBE Industrier neutral 42 → 44 kronor 20.8%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:18.248245+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:40.378693+00:00",
       "errors": [
         "nibe: HTTP 404"
       ]
@@ -2546,7 +2476,7 @@
           "raw": "01 apr UBS sänker Nordea Bank köp 189 → 187 kronor 0.5%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:19.295813+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:41.307135+00:00",
       "errors": []
     },
     {
@@ -2703,7 +2633,7 @@
           "raw": "14 jan ABG Sundal Collier höjer Saab sälj 300 → 310 kronor -40.4%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:20.369423+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:42.226176+00:00",
       "errors": []
     },
     {
@@ -2730,7 +2660,7 @@
           "raw": "Igår Kepler Cheuvreux sänker Sandvik köp → behåll 370 → 400 kronor 4.1%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:21.529583+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:43.168412+00:00",
       "errors": []
     },
     {
@@ -2907,7 +2837,7 @@
           "raw": "02 feb BNP Paribas Exane sänker SCA underperform 101 → 92 kronor -7.9%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:22.570490+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:44.082460+00:00",
       "errors": []
     },
     {
@@ -3114,7 +3044,7 @@
           "raw": "15 jan Kepler Cheuvreux höjer SEB behåll 192 → 208 kronor -1.8%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:23.639828+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:45.005578+00:00",
       "errors": []
     },
     {
@@ -3201,7 +3131,7 @@
           "raw": "13 jan DNB Carnegie höjer Skanska behåll 250 → 260 kronor 2.4%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:24.662953+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:45.910484+00:00",
       "errors": []
     },
     {
@@ -3398,7 +3328,7 @@
           "raw": "21 jan Rothschild & Co Redburn sänker SKF köp → neutral 270 kronor 3.7%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:25.727440+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:46.830553+00:00",
       "errors": []
     },
     {
@@ -3585,7 +3515,7 @@
           "raw": "23 jan KBW höjer Swedbank underperform 290 → 315 kronor -14.0%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:26.795523+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:47.757701+00:00",
       "errors": []
     },
     {
@@ -3596,11 +3526,21 @@
       "source": "Börskollen",
       "sourceUrl": "https://www.borskollen.se/aktie/tele2/riktkurs",
       "slug": "tele2",
-      "targetPrice": 186.15,
-      "upsidePercent": 11.0,
+      "targetPrice": 188.21,
+      "upsidePercent": 12.0,
       "consensus": "Neutral",
       "targetCount": 20,
       "latest": [
+        {
+          "date": "Idag",
+          "analyst": "Goldman Sachs",
+          "action": "Decreasing",
+          "rating": "Buy",
+          "previousTargetPrice": 225.0,
+          "targetPrice": 215.0,
+          "upsidePercent": 27.6,
+          "raw": "Idag Goldman Sachs sänker Tele2 köp 225 → 215 kronor 27.6%"
+        },
         {
           "date": "08 jul",
           "analyst": "Kepler Cheuvreux",
@@ -3722,7 +3662,7 @@
           "raw": "15 apr BNP Paribas höjer Tele2 outperform 181 → 215 kronor 27.6%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:27.826804+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:48.664151+00:00",
       "errors": []
     },
     {
@@ -3879,7 +3819,7 @@
           "raw": "20 apr Danske Bank höjer Telia Company behåll 39 → 48 kronor 4.3%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:29.189706+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:49.699347+00:00",
       "errors": [
         "telia: HTTP 404"
       ]
@@ -4098,7 +4038,7 @@
           "raw": "29 jan Oddo höjer Volvo neutral 245 → 300 kronor -11.4%"
         }
       ],
-      "dataUpdatedAt": "2026-07-16T11:21:30.324795+00:00",
+      "dataUpdatedAt": "2026-07-16T19:04:50.616828+00:00",
       "errors": []
     }
   ]
