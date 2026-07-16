@@ -553,6 +553,12 @@ function applyMarketData(currentCompanies, marketCompanies) {
       financialCurrency: market.financialCurrency ?? null,
       financialToQuoteFx: numberOrNull(market.financialToQuoteFx),
       latestFiscalDate: market.latestFiscalDate ?? null,
+      incomeStatementDate: market.incomeStatementDate ?? null,
+      incomeStatementPeriod: market.incomeStatementPeriod ?? null,
+      balanceSheetDate: market.balanceSheetDate ?? null,
+      balanceSheetPeriod: market.balanceSheetPeriod ?? null,
+      cashFlowStatementDate: market.cashFlowStatementDate ?? null,
+      cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
       errors: market.errors ?? []
     };
 
@@ -846,6 +852,37 @@ function formatDate(value) {
   const date = value ? new Date(value) : null;
   if (!date || Number.isNaN(date.valueOf())) return null;
   return date.toLocaleDateString("sv-SE");
+}
+
+function formatReportPeriod(value) {
+  if (value === null || value === undefined) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  const normalized = text.replace(/[_-]/g, " ").replace(/\s+/g, " ");
+  const yearQuarter = normalized.match(/\b(\d{4})\s*Q([1-4])\b/i);
+  if (yearQuarter) return `Q${yearQuarter[2]} ${yearQuarter[1]}`;
+  const quarterYear = normalized.match(/\bQ([1-4])\s*(\d{4})\b/i);
+  if (quarterYear) return `Q${quarterYear[1]} ${quarterYear[2]}`;
+  if (/^\d{4}$/.test(normalized)) return normalized;
+  return normalized;
+}
+
+function formatStatementReference(label, period, date) {
+  let periodText = formatReportPeriod(period);
+  const dateText = formatDate(date);
+  const reportDate = date ? new Date(date) : null;
+
+  if (periodText && !/\d{4}/.test(periodText) && reportDate && !Number.isNaN(reportDate.valueOf())) {
+    periodText = `${periodText} ${reportDate.getFullYear()}`;
+  }
+
+  if (periodText && dateText && !periodText.includes(dateText)) {
+    return `${label}: ${periodText} (${dateText})`;
+  }
+
+  if (periodText) return `${label}: ${periodText}`;
+  if (dateText) return `${label}: ${dateText}`;
+  return null;
 }
 
 function normalizeTargetLabel(value) {
@@ -1707,12 +1744,19 @@ function renderFundamentals() {
   const currency = company.currency ?? "SEK";
   const fundamentals = company.fundamentals ?? {};
   const fcfYield = numberOrNull(fundamentals.fcfYield);
-  const updatedAt = company.dataUpdatedAt ? new Date(company.dataUpdatedAt) : null;
-  const updatedText = updatedAt && !Number.isNaN(updatedAt.valueOf())
-    ? updatedAt.toLocaleDateString("sv-SE")
-    : "No fundamentals loaded";
+  const updatedDate = formatDate(company.dataUpdatedAt);
+  const updatedText = updatedDate ? `Updated: ${updatedDate}` : "No fundamentals loaded";
+  const statementReferences = [
+    formatStatementReference("Income statement", fundamentals.incomeStatementPeriod, fundamentals.incomeStatementDate),
+    formatStatementReference("Balance sheet", fundamentals.balanceSheetPeriod, fundamentals.balanceSheetDate),
+    formatStatementReference("Cash flow statement", fundamentals.cashFlowStatementPeriod, fundamentals.cashFlowStatementDate)
+  ].filter(Boolean);
 
-  elements.fundamentalsSubtitle.textContent = `${company.source} | ${updatedText}`;
+  elements.fundamentalsSubtitle.textContent = [
+    company.source,
+    updatedText,
+    ...statementReferences
+  ].filter(Boolean).join(" | ");
   elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
   elements.fundEbitda.textContent = formatCurrency(numberOrNull(fundamentals.ebitda), currency);
