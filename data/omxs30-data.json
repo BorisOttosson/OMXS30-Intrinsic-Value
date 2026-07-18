@@ -15,7 +15,7 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
-      "dataUpdatedAt": "2026-07-18T21:58:11.565203+00:00",
+      "dataUpdatedAt": "2026-07-18T22:00:13.386048+00:00",
       "ebit": 17152614154.815674,
       "ebitda": 17152614154.815674,
       "ebitdaPerShare": 9.451691960054783,
@@ -1861,7 +1861,7 @@
       "trailingPe": null
     }
   ],
-  "generatedAt": "2026-07-18T21:59:04.202644+00:00",
+  "generatedAt": "2026-07-18T22:00:13.636404+00:00",
   "provider": "B\u00f6rsAPI fundamentals",
   "universe": "OMXS30",
   "universeAsOf": "2025-07-01",
