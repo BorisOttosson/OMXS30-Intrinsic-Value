@@ -7,6 +7,10 @@ on:
         description: "Type one ticker, e.g. ERIC-B.ST. Type ALL only when you want to spend requests on all 30."
         required: false
         default: ""
+      debug_raw_ticker:
+        description: "Optional: print raw BörsAPI reports for one ticker, e.g. ABB.ST."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -65,6 +69,7 @@ jobs:
           BORSAPI_API_KEY: ${{ secrets.BORSAPI_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+          BORSAPI_DEBUG_RAW_TICKER: ${{ github.event.inputs.debug_raw_ticker }}
         run: |
           extra_args=()
           ticker_input="${{ github.event.inputs.ticker }}"
