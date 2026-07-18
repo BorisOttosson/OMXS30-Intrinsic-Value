@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T16:35:30.733793+00:00",
+  "generatedAt": "2026-07-18T21:59:04.202778+00:00",
   "ids": {
     "ABB.ST": "3706b802-f3d8-4cc7-8759-91f63a88cd3c",
     "ADDT-B.ST": "0f7db54d-fbb4-4d30-b4c7-1c66184866c7",
@@ -26,7 +26,11 @@
     "SEB-A.ST": "d8c5b67f-fa22-48e7-af63-cd42e8e92fd4",
     "SHB-A.ST": "702ed1d6-c275-4be7-b085-1058ad24f8e2",
     "SKA-B.ST": "b5b294e4-a434-4206-8f98-bcf9fda17285",
-    "SKF-B.ST": "1ba7146f-d9ff-45a1-9d6a-d1475331287c"
+    "SKF-B.ST": "1ba7146f-d9ff-45a1-9d6a-d1475331287c",
+    "SWED-A.ST": "4a3ebfc7-3042-42fe-887e-fc18355234b1",
+    "TEL2-B.ST": "5ed810a3-7a2e-436f-a0ea-a45850020400",
+    "TELIA.ST": "f9815ff2-501c-465a-9d9f-0109c7c0e06f",
+    "VOLV-B.ST": "4ab76fca-5a61-4de0-a5fe-0c1505374888"
   },
   "provider": "B\u00f6rsAPI",
   "version": 1
