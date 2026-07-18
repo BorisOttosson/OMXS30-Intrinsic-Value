@@ -28,9 +28,9 @@ FMP_BASE_URL = "https://financialmodelingprep.com/stable"
 FMP_LEGACY_BASE_URL = "https://financialmodelingprep.com/api/v3"
 EODHD_FUNDAMENTALS_URL = "https://eodhd.com/api/fundamentals"
 BORSAPI_BASE_URL = "https://borsapi.se/api/v1"
-# BörsAPI charges quota per returned report. Three keeps the updater cheaper
-# while still giving us a small window to cross-check recent statements.
-BORSAPI_REPORT_LIMIT = 3
+# BörsAPI charges quota per returned report. The updater requests one exact
+# record for each statement type instead of downloading mixed report history.
+BORSAPI_REPORT_LIMIT = 1
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -641,27 +641,97 @@ BORSAPI_INCOME_CONTAINERS = ("income_statement", "incomeStatement", "income")
 BORSAPI_BALANCE_CONTAINERS = ("balance_sheet", "balanceSheet", "balance")
 BORSAPI_CASHFLOW_CONTAINERS = ("cash_flow_statement", "cashFlowStatement", "cash_flow", "cashflow")
 
-BORSAPI_REVENUE_KEYS = ("revenue", "total_revenue", "net_sales", "sales", "omsattning", "omsättning")
-BORSAPI_EBITDA_KEYS = ("ebitda",)
-BORSAPI_DEPRECIATION_KEYS = ("depreciation_and_amortization", "depreciation", "depreciation_amortization")
-BORSAPI_EBIT_KEYS = ("operating_income", "adjusted_operating_income", "ebit")
-BORSAPI_NET_INCOME_KEYS = ("net_income", "profit_for_period", "net_profit")
+BORSAPI_REVENUE_KEYS = (
+    "revenue",
+    "total_revenue",
+    "net_revenue",
+    "net_sales",
+    "sales",
+    "omsattning",
+    "omsättning",
+    "nettoomsattning",
+    "nettoomsättning",
+    "rorelseintakter",
+    "rörelseintäkter",
+)
+BORSAPI_EBITDA_KEYS = (
+    "ebitda",
+    "operating_profit_before_depreciation",
+    "rorelseresultat_fore_avskrivningar",
+    "rörelseresultat_före_avskrivningar",
+)
+BORSAPI_DEPRECIATION_KEYS = (
+    "depreciation_and_amortization",
+    "depreciation_amortization_and_impairment",
+    "depreciation",
+    "amortization",
+    "depreciation_amortization",
+)
+BORSAPI_EBIT_KEYS = (
+    "operating_income",
+    "operating_profit",
+    "adjusted_operating_income",
+    "rorelseresultat",
+    "rörelseresultat",
+    "ebit",
+)
+BORSAPI_NET_INCOME_KEYS = (
+    "net_income",
+    "profit_for_period",
+    "profit_after_tax",
+    "periodens_resultat",
+    "net_profit",
+)
 BORSAPI_EPS_KEYS = ("eps", "earnings_per_share")
 BORSAPI_SHARES_KEYS = ("shares_outstanding", "number_of_shares", "shares")
 BORSAPI_OPERATING_CASHFLOW_KEYS = (
     "operating_cash_flow",
     "cash_flow_from_operating_activities",
     "cashflow_from_operations",
+    "kassaflode_fran_lopande_verksamheten",
+    "kassaflöde_från_löpande_verksamheten",
 )
-BORSAPI_CAPEX_KEYS = ("capex", "capital_expenditure", "capital_expenditures")
-BORSAPI_FCF_KEYS = ("free_cash_flow", "free_cashflow", "fcf")
-BORSAPI_ASSETS_KEYS = ("total_assets", "assets")
-BORSAPI_LIABILITIES_KEYS = ("total_liabilities", "liabilities")
-BORSAPI_EQUITY_KEYS = ("total_equity", "book_equity", "equity", "shareholders_equity", "stockholders_equity")
-BORSAPI_CASH_KEYS = ("cash_and_equivalents", "cash_and_cash_equivalents", "cash")
+BORSAPI_CAPEX_KEYS = (
+    "capex",
+    "capital_expenditure",
+    "capital_expenditures",
+    "investments_in_property_plant_and_equipment",
+    "investeringar_i_materiella_anlaggningstillgangar",
+    "investeringar_i_materiella_anläggningstillgångar",
+)
+BORSAPI_FCF_KEYS = ("free_cash_flow", "free_cashflow", "free_cash_flow_to_firm", "fcf")
+BORSAPI_ASSETS_KEYS = ("total_assets", "assets", "summa_tillgangar", "summa_tillgångar")
+BORSAPI_LIABILITIES_KEYS = (
+    "total_liabilities",
+    "liabilities",
+    "summa_skulder",
+)
+BORSAPI_EQUITY_KEYS = (
+    "total_equity",
+    "book_equity",
+    "equity",
+    "shareholders_equity",
+    "stockholders_equity",
+    "eget_kapital",
+)
+BORSAPI_CASH_KEYS = (
+    "cash_and_equivalents",
+    "cash_and_cash_equivalents",
+    "cash",
+    "likvida_medel",
+)
 BORSAPI_SHORT_DEBT_KEYS = ("short_term_debt", "current_debt", "short_term_borrowings")
 BORSAPI_LONG_DEBT_KEYS = ("long_term_debt", "non_current_debt", "long_term_borrowings")
-BORSAPI_TOTAL_DEBT_KEYS = ("total_debt", "interest_bearing_liabilities", "borrowings", "debt")
+BORSAPI_TOTAL_DEBT_KEYS = (
+    "total_debt",
+    "interest_bearing_liabilities",
+    "interest_bearing_debt",
+    "borrowings",
+    "debt",
+    "rantebarande_skulder",
+    "räntebärande_skulder",
+)
+BORSAPI_NET_DEBT_KEYS = ("net_debt", "net_interest_bearing_debt", "nettoskuld")
 
 
 def normalize_borsapi_key(key: Any) -> str:
@@ -701,6 +771,22 @@ def borsapi_number(report: dict[str, Any], containers: tuple[str, ...], keys: tu
 def borsapi_positive(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> float | None:
     number = borsapi_number(report, containers, keys)
     return abs(number) if number is not None else None
+
+
+def borsapi_debt_values(report: dict[str, Any], cash: float | None) -> tuple[float | None, float | None]:
+    total_debt = borsapi_positive(report, BORSAPI_BALANCE_CONTAINERS, BORSAPI_TOTAL_DEBT_KEYS)
+    if total_debt is None:
+        short_debt = borsapi_number(report, BORSAPI_BALANCE_CONTAINERS, BORSAPI_SHORT_DEBT_KEYS)
+        long_debt = borsapi_number(report, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LONG_DEBT_KEYS)
+        if short_debt is not None or long_debt is not None:
+            total_debt = abs((short_debt or 0) + (long_debt or 0))
+
+    net_debt = borsapi_number(report, BORSAPI_BALANCE_CONTAINERS, BORSAPI_NET_DEBT_KEYS)
+    if total_debt is None and net_debt is not None and cash is not None:
+        total_debt = max(net_debt + cash, 0)
+    if net_debt is None and total_debt is not None and cash is not None:
+        net_debt = total_debt - cash
+    return total_debt, net_debt
 
 
 def borsapi_report_has_any(report: dict[str, Any], containers: tuple[str, ...], keys: tuple[str, ...]) -> bool:
@@ -1186,61 +1272,73 @@ def fetch_borsapi_company(
     if not company_key:
         raise ValueError(f"BörsAPI companies: missing id/isin for {ticker}")
 
-    reports_payload = fetch_borsapi_json(
-        f"companies/{company_key}/reports",
+    report_path = f"companies/{company_key}/reports"
+    common_report_params = {
+        "limit": BORSAPI_REPORT_LIMIT,
+        "sort": "report_date",
+        "order": "desc",
+        "entity_type": "CONSOLIDATED",
+    }
+    income_payload = fetch_borsapi_json(
+        report_path,
         api_key,
         timeout,
-        period_type="all",
-        limit=BORSAPI_REPORT_LIMIT,
-        sort="report_date",
-        order="desc",
-        entity_type="CONSOLIDATED",
+        report_type="RR",
+        period_type="ttm",
+        **common_report_params,
     )
-    reports = borsapi_reports(reports_payload)
+    balance_payload = fetch_borsapi_json(
+        report_path,
+        api_key,
+        timeout,
+        report_type="BR",
+        period_type="quarter",
+        **common_report_params,
+    )
+    cashflow_payload = fetch_borsapi_json(
+        report_path,
+        api_key,
+        timeout,
+        report_type="KA",
+        period_type="ttm",
+        **common_report_params,
+    )
+
+    income_reports = borsapi_reports(income_payload)
+    balance_reports = borsapi_reports(balance_payload)
+    cashflow_reports = borsapi_reports(cashflow_payload)
+    reports = [*income_reports, *balance_reports, *cashflow_reports]
     if not reports:
         raise ValueError(f"BörsAPI reports: no reports returned for {ticker}")
 
-    latest_income = borsapi_latest_report_with_any(
-        reports,
-        "RR",
-        BORSAPI_INCOME_CONTAINERS,
-        (*BORSAPI_REVENUE_KEYS, *BORSAPI_EBITDA_KEYS, *BORSAPI_NET_INCOME_KEYS),
-        prefer_ttm=True,
-    )
-    latest_income_raw = borsapi_latest_report_with_any(
-        reports,
-        "RR",
-        BORSAPI_INCOME_CONTAINERS,
-        (*BORSAPI_REVENUE_KEYS, *BORSAPI_EBITDA_KEYS, *BORSAPI_NET_INCOME_KEYS),
-        avoid_ttm=True,
-    )
-    latest_balance = borsapi_latest_report_with_any(
-        reports,
-        "BR",
-        BORSAPI_BALANCE_CONTAINERS,
-        (
-            *BORSAPI_ASSETS_KEYS,
-            *BORSAPI_LIABILITIES_KEYS,
-            *BORSAPI_EQUITY_KEYS,
-            *BORSAPI_CASH_KEYS,
-            *BORSAPI_TOTAL_DEBT_KEYS,
-        ),
-        avoid_ttm=True,
-    )
-    latest_cashflow = borsapi_latest_report_with_any(
-        reports,
-        "KA",
-        BORSAPI_CASHFLOW_CONTAINERS,
-        (*BORSAPI_FCF_KEYS, *BORSAPI_OPERATING_CASHFLOW_KEYS, *BORSAPI_CAPEX_KEYS),
-        prefer_ttm=True,
-    )
-    latest_cashflow_raw = borsapi_latest_report_with_any(
-        reports,
-        "KA",
-        BORSAPI_CASHFLOW_CONTAINERS,
-        (*BORSAPI_FCF_KEYS, *BORSAPI_OPERATING_CASHFLOW_KEYS, *BORSAPI_CAPEX_KEYS),
-        avoid_ttm=True,
-    )
+    latest_income = income_reports[0] if income_reports else {}
+    latest_balance = balance_reports[0] if balance_reports else {}
+    latest_cashflow = cashflow_reports[0] if cashflow_reports else {}
+
+    if not latest_income:
+        errors.append("BörsAPI: TTM income statement is missing")
+    if not latest_balance:
+        errors.append("BörsAPI: latest quarterly balance sheet is missing")
+    if not latest_cashflow:
+        errors.append("BörsAPI: TTM cash-flow statement is missing")
+
+    debug_ticker = os.environ.get("BORSAPI_DEBUG_RAW_TICKER", "").strip().upper()
+    if debug_ticker and debug_ticker in {
+        ticker.upper(),
+        str(company.get("ticker", "")).upper(),
+        company_id(ticker).upper(),
+    }:
+        diagnostic = {
+            "ticker": ticker,
+            "income_ttm": income_payload,
+            "balance_quarter": balance_payload,
+            "cashflow_ttm": cashflow_payload,
+        }
+        print(
+            f"BORSAPI RAW DIAGNOSTIC {ticker}: "
+            f"{json.dumps(diagnostic, ensure_ascii=False, default=str)}",
+            file=sys.stderr,
+        )
 
     quote_currency = pick(company, ["currency"]) or "SEK"
     financial_currency = (
@@ -1265,13 +1363,16 @@ def fetch_borsapi_company(
     liabilities = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LIABILITIES_KEYS)
     equity = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_EQUITY_KEYS)
     cash = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_CASH_KEYS)
-    total_debt = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_TOTAL_DEBT_KEYS)
+    total_debt, net_debt = borsapi_debt_values(latest_balance, cash)
+
+    if revenue is None:
+        errors.append("BörsAPI: revenue is missing from the TTM income statement")
+    if ebitda is None:
+        errors.append("BörsAPI: EBITDA is missing from the TTM income statement")
+    if free_cashflow is None:
+        errors.append("BörsAPI: free cash flow cannot be derived from the TTM cash-flow statement")
     if total_debt is None:
-        short_debt = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_SHORT_DEBT_KEYS)
-        long_debt = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LONG_DEBT_KEYS)
-        if short_debt is not None or long_debt is not None:
-            total_debt = abs((short_debt or 0) + (long_debt or 0))
-    net_debt = (total_debt or 0) - (cash or 0) if total_debt is not None or cash is not None else None
+        errors.append("BörsAPI: total debt is missing from the latest quarterly balance sheet")
 
     reference_fields, reference_errors = yahoo_reference_fields(ticker)
     errors.extend(reference_errors)
@@ -1307,6 +1408,10 @@ def fetch_borsapi_company(
         else None
     )
     target_ev_to_ebitda = min(max(ev_to_ebitda, 4), 25) if ev_to_ebitda is not None else None
+    if ev_to_ebitda is not None and ev_to_ebitda > 50:
+        errors.append(
+            f"Sanity check: EV/EBITDA is {ev_to_ebitda:.1f}x; verify TTM EBITDA and quarterly debt"
+        )
     scaled_free_cashflow = scaled(free_cashflow, exchange_rate)
     fcf_yield = (
         (scaled_free_cashflow / market_cap) * 100
@@ -1316,8 +1421,8 @@ def fetch_borsapi_company(
     target_pe = None
     latest_fiscal_date = (
         pick(latest_balance, ["report_date", "date"])
-        or pick(latest_income_raw, ["report_date", "date"])
-        or pick(latest_cashflow_raw, ["report_date", "date"])
+        or pick(latest_income, ["report_date", "date"])
+        or pick(latest_cashflow, ["report_date", "date"])
     )
 
     output = {
@@ -1373,13 +1478,13 @@ def fetch_borsapi_company(
         "analystTargetMeanPrice": None,
         "recommendationMean": None,
         "latestFiscalDate": latest_fiscal_date,
-        "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income_raw, ["period"]),
-        "incomeStatementDate": pick(latest_income_raw, ["report_date", "date"]),
-        "incomeStatementPeriod": pick(latest_income_raw, ["period"]),
+        "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income, ["period"]),
+        "incomeStatementDate": pick(latest_income, ["report_date", "date"]),
+        "incomeStatementPeriod": pick(latest_income, ["period"]) or "TTM",
         "balanceSheetDate": pick(latest_balance, ["report_date", "date"]),
         "balanceSheetPeriod": pick(latest_balance, ["period"]),
-        "cashFlowStatementDate": pick(latest_cashflow_raw, ["report_date", "date"]),
-        "cashFlowStatementPeriod": pick(latest_cashflow_raw, ["period"]),
+        "cashFlowStatementDate": pick(latest_cashflow, ["report_date", "date"]),
+        "cashFlowStatementPeriod": pick(latest_cashflow, ["period"]) or "TTM",
         "errors": errors,
     }
 
