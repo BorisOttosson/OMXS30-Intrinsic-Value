@@ -1,0 +1,92 @@
+name: Update riktkurser
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: "Optional: update one ticker first, e.g. SEB-A.ST. Leave empty for all OMXS30 companies."
+        required: false
+        default: ""
+  schedule:
+    - cron: "20 5 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
+
+jobs:
+  update-riktkurser:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch Borskollen riktkurser
+        run: |
+          extra_args=()
+          ticker_input="${{ github.event.inputs.ticker }}"
+          if [ -n "$ticker_input" ]; then
+            extra_args+=(--ticker "$ticker_input")
+          fi
+
+          python scripts/update_riktkurser.py --output data/riktkurser.json "${extra_args[@]}"
+
+      - name: Validate riktkurser file
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+
+          with open("data/riktkurser.json", encoding="utf-8") as file:
+              payload = json.load(file)
+
+          companies = payload.get("companies", [])
+          loaded = [company for company in companies if company.get("targetPrice") is not None]
+          print(f"Provider: {payload.get('provider')}")
+          print(f"Generated at: {payload.get('generatedAt')}")
+          print(f"Companies: {len(companies)}")
+          print(f"Companies with target price: {len(loaded)}")
+
+          if not loaded:
+              sys.exit("No riktkurser were fetched. Open the previous step to see which page slugs failed.")
+          PY
+
+      - name: Commit updated riktkurser
+        run: |
+          if [ ! -f data/riktkurser.json ]; then
+            echo "No riktkurser file written"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/riktkurser.json
+
+          if git diff --cached --quiet; then
+            echo "No riktkurser changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update riktkurser"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push updated riktkurser after 3 attempts"
+          exit 1
