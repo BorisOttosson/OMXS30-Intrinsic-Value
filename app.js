@@ -859,11 +859,20 @@ function formatReportPeriod(value) {
   const text = String(value).trim();
   if (!text) return "";
   const normalized = text.replace(/[_-]/g, " ").replace(/\s+/g, " ");
+  const isTtm = /\b(?:TTM|TRAILING|ROLLING\s*12)\b/i.test(normalized);
   const yearQuarter = normalized.match(/\b(\d{4})\s*Q([1-4])\b/i);
-  if (yearQuarter) return `Q${yearQuarter[2]} ${yearQuarter[1]}`;
+  if (yearQuarter) {
+    const quarter = `Q${yearQuarter[2]} ${yearQuarter[1]}`;
+    return isTtm ? `TTM through ${quarter}` : quarter;
+  }
   const quarterYear = normalized.match(/\bQ([1-4])\s*(\d{4})\b/i);
-  if (quarterYear) return `Q${quarterYear[1]} ${quarterYear[2]}`;
-  if (/^\d{4}$/.test(normalized)) return normalized;
+  if (quarterYear) {
+    const quarter = `Q${quarterYear[1]} ${quarterYear[2]}`;
+    return isTtm ? `TTM through ${quarter}` : quarter;
+  }
+  if (/^\d{4}$/.test(normalized)) {
+    return isTtm ? `TTM through ${normalized}` : normalized;
+  }
   return normalized;
 }
 
