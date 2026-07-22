@@ -615,6 +615,73 @@ def borsapi_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     )
 
 
+def borsapi_report_basis(report: dict[str, Any]) -> str | None:
+    explicit = str(
+        report.get("period_type")
+        or report.get("periodType")
+        or ""
+    ).strip().lower()
+    if any(token in explicit for token in ("ttm", "trailing", "rolling")):
+        return "ttm"
+    if any(token in explicit for token in ("quarter", "quarterly", "kvartal")):
+        return "quarter"
+
+    period = str(report.get("period") or "").strip().upper()
+    if "TTM" in period or "TRAILING" in period or "ROLLING 12" in period:
+        return "ttm"
+    return None
+
+
+def borsapi_select_report(
+    reports: list[dict[str, Any]],
+    report_type: str,
+    expected_basis: str,
+) -> dict[str, Any]:
+    expected_type = report_type.upper()
+    candidates = []
+    for report in reports:
+        actual_type = str(
+            report.get("report_type")
+            or report.get("reportType")
+            or ""
+        ).upper()
+        if actual_type and actual_type != expected_type:
+            continue
+        candidates.append(report)
+
+    matching = [
+        report for report in candidates
+        if borsapi_report_basis(report) == expected_basis
+    ]
+    if matching:
+        return matching[0]
+
+    # The reports endpoint is already filtered by period_type. Some responses
+    # omit that field, so an unlabelled row is still valid for this request.
+    unlabelled = [
+        report for report in candidates
+        if borsapi_report_basis(report) is None
+    ]
+    return unlabelled[0] if unlabelled else {}
+
+
+def borsapi_statement_period(report: dict[str, Any], basis: str) -> str:
+    raw_period = str(pick(report, ["period"]) or "").strip()
+    if basis == "ttm":
+        if re.search(r"\b(TTM|TRAILING|ROLLING\s*12)\b", raw_period, re.IGNORECASE):
+            return raw_period or "TTM"
+        return f"TTM through {raw_period}" if raw_period else "TTM"
+
+    if raw_period:
+        return raw_period
+
+    report_date = parse_report_date(pick(report, ["report_date", "date"]))
+    if report_date != datetime.min:
+        quarter = ((report_date.month - 1) // 3) + 1
+        return f"Q{quarter} {report_date.year}"
+    return "Latest quarter"
+
+
 def borsapi_latest_report(
     reports: list[dict[str, Any]],
     report_type: str,
@@ -1311,16 +1378,16 @@ def fetch_borsapi_company(
     if not reports:
         raise ValueError(f"BörsAPI reports: no reports returned for {ticker}")
 
-    latest_income = income_reports[0] if income_reports else {}
-    latest_balance = balance_reports[0] if balance_reports else {}
-    latest_cashflow = cashflow_reports[0] if cashflow_reports else {}
+    latest_income = borsapi_select_report(income_reports, "RR", "ttm")
+    latest_balance = borsapi_select_report(balance_reports, "BR", "quarter")
+    latest_cashflow = borsapi_select_report(cashflow_reports, "KA", "ttm")
 
     if not latest_income:
-        errors.append("BörsAPI: TTM income statement is missing")
+        errors.append("BörsAPI: TTM income statement is missing or has the wrong period type")
     if not latest_balance:
-        errors.append("BörsAPI: latest quarterly balance sheet is missing")
+        errors.append("BörsAPI: latest quarterly balance sheet is missing or has the wrong period type")
     if not latest_cashflow:
-        errors.append("BörsAPI: TTM cash-flow statement is missing")
+        errors.append("BörsAPI: TTM cash-flow statement is missing or has the wrong period type")
 
     debug_ticker = os.environ.get("BORSAPI_DEBUG_RAW_TICKER", "").strip().upper()
     if debug_ticker and debug_ticker in {
@@ -1480,11 +1547,11 @@ def fetch_borsapi_company(
         "latestFiscalDate": latest_fiscal_date,
         "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income, ["period"]),
         "incomeStatementDate": pick(latest_income, ["report_date", "date"]),
-        "incomeStatementPeriod": pick(latest_income, ["period"]) or "TTM",
+        "incomeStatementPeriod": borsapi_statement_period(latest_income, "ttm"),
         "balanceSheetDate": pick(latest_balance, ["report_date", "date"]),
-        "balanceSheetPeriod": pick(latest_balance, ["period"]),
+        "balanceSheetPeriod": borsapi_statement_period(latest_balance, "quarter"),
         "cashFlowStatementDate": pick(latest_cashflow, ["report_date", "date"]),
-        "cashFlowStatementPeriod": pick(latest_cashflow, ["period"]) or "TTM",
+        "cashFlowStatementPeriod": borsapi_statement_period(latest_cashflow, "ttm"),
         "errors": errors,
     }
 
