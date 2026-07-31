@@ -231,19 +231,31 @@
                   <span>SEK</span>
                 </div>
               </label>
-              <label>
-                <span>5 year FCF growth</span>
+              <label class="field-wide">
+                <span>Historical 5yr FCF CAGR</span>
                 <div class="input-unit">
                   <input data-field="growth5y" type="number" step="0.1">
                   <span>%</span>
                 </div>
+                <small class="field-meta" id="growth5yMeta">Source: BorsAPI | Updated: -</small>
               </label>
-              <label>
-                <span>Consensus growth</span>
+              <label class="field-wide">
+                <span>Consensus growth <em class="field-hint">manual</em><span class="stale-badge" id="consensusGrowthStale" hidden>stale</span></span>
                 <div class="input-unit">
                   <input data-field="consensusGrowth" type="number" step="0.1">
                   <span>%</span>
                 </div>
+                <div class="meta-inputs">
+                  <select data-meta="consensusGrowthSource" aria-label="Consensus source">
+                    <option value="">Choose source</option>
+                    <option value="TIKR">TIKR</option>
+                    <option value="MarketScreener">MarketScreener</option>
+                    <option value="Koyfin">Koyfin</option>
+                    <option value="Annat">Annat</option>
+                  </select>
+                  <input type="date" data-meta="consensusGrowthAsOf" aria-label="Consensus as of date">
+                </div>
+                <small class="field-meta" id="consensusGrowthMeta">Source: not set | As of: not set</small>
               </label>
               <label>
                 <span>WACC</span>
