@@ -8,32 +8,56 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
+
 jobs:
-  fetch:
+  update-growth:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
-          node-version: "20"
+          fetch-depth: 0
 
-      - name: Fetch 5y growth data for OMXS30
-        env:
-          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
-          # Yahoo rate-limits GitHub-hosted runners (HTTP 429), so skip it in CI
-          # and rely on Finnhub. Run the script locally to use Yahoo consensus.
-          SKIP_YAHOO: "1"
-        run: node scripts/fetch-growth.mjs
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Fetch Yahoo Finance growth estimates
+        run: python scripts/update_growth.py
 
       - name: Commit updated data
         run: |
+          if [ ! -f data/growth.json ]; then
+            echo "No growth file written"
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/growth.json
-          if git diff --staged --quiet; then
-            echo "No changes"
-          else
-            git commit -m "chore: update OMXS30 growth data"
-            git push
+
+          if git diff --cached --quiet; then
+            echo "No growth changes to commit"
+            exit 0
           fi
+
+          git commit -m "Update consensus growth data"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push updated growth data after 3 attempts"
+          exit 1
