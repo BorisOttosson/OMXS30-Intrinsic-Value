@@ -1,0 +1,128 @@
+{
+  "updatedAt": "2026-07-30T13:52:56.486Z",
+  "source": "Yahoo Finance quoteSummary/earningsTrend",
+  "count": 0,
+  "failures": [
+    {
+      "symbol": "ABB.ST",
+      "error": "HTTP 429 for ABB.ST"
+    },
+    {
+      "symbol": "ALFA.ST",
+      "error": "HTTP 429 for ALFA.ST"
+    },
+    {
+      "symbol": "ASSA-B.ST",
+      "error": "HTTP 429 for ASSA-B.ST"
+    },
+    {
+      "symbol": "AZN.ST",
+      "error": "HTTP 429 for AZN.ST"
+    },
+    {
+      "symbol": "ATCO-A.ST",
+      "error": "HTTP 429 for ATCO-A.ST"
+    },
+    {
+      "symbol": "ATCO-B.ST",
+      "error": "HTTP 429 for ATCO-B.ST"
+    },
+    {
+      "symbol": "BOL.ST",
+      "error": "HTTP 429 for BOL.ST"
+    },
+    {
+      "symbol": "ELUX-B.ST",
+      "error": "HTTP 429 for ELUX-B.ST"
+    },
+    {
+      "symbol": "ERIC-B.ST",
+      "error": "HTTP 429 for ERIC-B.ST"
+    },
+    {
+      "symbol": "ESSITY-B.ST",
+      "error": "HTTP 429 for ESSITY-B.ST"
+    },
+    {
+      "symbol": "EVO.ST",
+      "error": "HTTP 429 for EVO.ST"
+    },
+    {
+      "symbol": "GETI-B.ST",
+      "error": "HTTP 429 for GETI-B.ST"
+    },
+    {
+      "symbol": "HM-B.ST",
+      "error": "HTTP 429 for HM-B.ST"
+    },
+    {
+      "symbol": "HEXA-B.ST",
+      "error": "HTTP 429 for HEXA-B.ST"
+    },
+    {
+      "symbol": "INVE-B.ST",
+      "error": "HTTP 429 for INVE-B.ST"
+    },
+    {
+      "symbol": "KINV-B.ST",
+      "error": "HTTP 429 for KINV-B.ST"
+    },
+    {
+      "symbol": "NDA-SE.ST",
+      "error": "HTTP 429 for NDA-SE.ST"
+    },
+    {
+      "symbol": "NIBE-B.ST",
+      "error": "HTTP 429 for NIBE-B.ST"
+    },
+    {
+      "symbol": "SAAB-B.ST",
+      "error": "HTTP 429 for SAAB-B.ST"
+    },
+    {
+      "symbol": "SAND.ST",
+      "error": "HTTP 429 for SAND.ST"
+    },
+    {
+      "symbol": "SCA-B.ST",
+      "error": "HTTP 429 for SCA-B.ST"
+    },
+    {
+      "symbol": "SEB-A.ST",
+      "error": "HTTP 429 for SEB-A.ST"
+    },
+    {
+      "symbol": "SHB-A.ST",
+      "error": "HTTP 429 for SHB-A.ST"
+    },
+    {
+      "symbol": "SINCH.ST",
+      "error": "HTTP 429 for SINCH.ST"
+    },
+    {
+      "symbol": "SKF-B.ST",
+      "error": "HTTP 429 for SKF-B.ST"
+    },
+    {
+      "symbol": "SWED-A.ST",
+      "error": "HTTP 429 for SWED-A.ST"
+    },
+    {
+      "symbol": "TEL2-B.ST",
+      "error": "HTTP 429 for TEL2-B.ST"
+    },
+    {
+      "symbol": "TELIA.ST",
+      "error": "HTTP 429 for TELIA.ST"
+    },
+    {
+      "symbol": "VOLV-B.ST",
+      "error": "HTTP 429 for VOLV-B.ST"
+    },
+    {
+      "symbol": "SBB-B.ST",
+      "error": "HTTP 429 for SBB-B.ST"
+    }
+  ],
+  "tickers": []
+}
