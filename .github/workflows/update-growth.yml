@@ -18,7 +18,12 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Fetch Yahoo earningsTrend for OMXS30
+      - name: Fetch 5y growth data for OMXS30
+        env:
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          # Yahoo rate-limits GitHub-hosted runners (HTTP 429), so skip it in CI
+          # and rely on Finnhub. Run the script locally to use Yahoo consensus.
+          SKIP_YAHOO: "1"
         run: node scripts/fetch-growth.mjs
 
       - name: Commit updated data
@@ -29,6 +34,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes"
           else
-            git commit -m "chore: update OMXS30 consensus growth data"
+            git commit -m "chore: update OMXS30 growth data"
             git push
           fi
