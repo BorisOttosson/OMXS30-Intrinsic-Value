@@ -180,6 +180,38 @@ def historical_cagr(values: list[float]) -> float | None:
     return ((newest / oldest) ** (1 / years) - 1) * 100
 
 
+FCF_CAGR_MAX_YEARS = 5
+
+
+def fcf_cagr(values: list[float]) -> tuple[float | None, int | None]:
+    """Historical free-cash-flow CAGR in percent from a newest-first series.
+
+    Uses at most 5 years. If the oldest point in the window is <= 0 (or the
+    history is shorter), the window is shortened until a valid positive
+    start/end pair is found. Returns (None, None) instead of raising when no
+    meaningful CAGR can be computed.
+    """
+    try:
+        series = [value for value in (finite(v) for v in values) if value is not None]
+    except Exception:
+        return None, None
+    if len(series) < 2:
+        return None, None
+
+    window = series[: FCF_CAGR_MAX_YEARS + 1]
+    newest = window[0]
+    while len(window) >= 2:
+        oldest = window[-1]
+        years = len(window) - 1
+        if newest > 0 and oldest > 0 and years > 0:
+            try:
+                return ((newest / oldest) ** (1 / years) - 1) * 100, years
+            except Exception:
+                return None, None
+        window = window[:-1]
+    return None, None
+
+
 def fast_info_value(fast_info: Any, key: str) -> Any:
     try:
         return fast_info.get(key)
@@ -1099,6 +1131,7 @@ def fetch_fmp_company(
     roe = (net_income / equity) * 100 if net_income is not None and equity and equity > 0 else None
 
     growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
+    fcf_growth, fcf_growth_years = fcf_cagr(fcf_values)
     trailing_pe = (price / eps_per_share) if price and eps_per_share and eps_per_share > 0 else None
     target_pe = trailing_pe
     if target_pe is not None:
@@ -1150,8 +1183,13 @@ def fetch_fmp_company(
         "equityPerShare": book_value_per_share,
         "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
         "roe": roe,
-        "growth5y": growth,
-        "consensusGrowth": growth,
+        "growth5y": fcf_growth,
+        "growth5yYears": fcf_growth_years,
+        "growth5ySource": "FMP (historical FCF CAGR)" if fcf_growth is not None else None,
+        "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "consensusGrowth": None,
+        "consensusGrowthSource": None,
+        "consensusGrowthAsOf": None,
         "targetPe": target_pe,
         "trailingPe": trailing_pe,
         "forwardPe": None,
@@ -1255,6 +1293,7 @@ def fetch_eodhd_company(
         or historical_cagr(revenue_values)
         or historical_cagr(fcf_values)
     )
+    fcf_growth, fcf_growth_years = fcf_cagr(fcf_values)
     target_pe = finite(pick(valuation, ["ForwardPE", "TrailingPE"])) or finite(pick(highlights, ["PERatio"]))
     if target_pe is not None:
         target_pe = min(max(target_pe, 5), 35)
@@ -1302,8 +1341,13 @@ def fetch_eodhd_company(
         "equityPerShare": book_value_per_share,
         "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
         "roe": roe,
-        "growth5y": growth,
-        "consensusGrowth": growth,
+        "growth5y": fcf_growth,
+        "growth5yYears": fcf_growth_years,
+        "growth5ySource": "EODHD (historical FCF CAGR)" if fcf_growth is not None else None,
+        "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "consensusGrowth": None,
+        "consensusGrowthSource": None,
+        "consensusGrowthAsOf": None,
         "targetPe": target_pe,
         "trailingPe": finite(pick(valuation, ["TrailingPE"])) or finite(pick(highlights, ["PERatio"])),
         "forwardPe": finite(pick(valuation, ["ForwardPE"])),
@@ -1468,6 +1512,7 @@ def fetch_borsapi_company(
     net_debt_per_share = per_share(net_debt, shares, exchange_rate)
     roe = (net_income / equity * 100) if net_income is not None and equity and equity > 0 else None
     growth = historical_cagr(revenue_values) or historical_cagr(fcf_values)
+    fcf_growth, fcf_growth_years = fcf_cagr(fcf_values)
     enterprise_value = market_cap + scaled_net_debt if market_cap is not None and scaled_net_debt is not None else None
     ev_to_ebitda = (
         enterprise_value / scaled_ebitda
@@ -1537,8 +1582,13 @@ def fetch_borsapi_company(
         "equityPerShare": book_value_per_share,
         "liabilitiesPerShare": per_share(liabilities, shares, exchange_rate),
         "roe": roe,
-        "growth5y": growth,
-        "consensusGrowth": growth,
+        "growth5y": fcf_growth,
+        "growth5yYears": fcf_growth_years,
+        "growth5ySource": "BorsAPI (historical FCF CAGR)" if fcf_growth is not None else None,
+        "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "consensusGrowth": None,
+        "consensusGrowthSource": None,
+        "consensusGrowthAsOf": None,
         "targetPe": target_pe,
         "trailingPe": None,
         "forwardPe": None,
@@ -1631,6 +1681,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
     except Exception as exc:
         errors.append(f"growth_estimates: {exc}")
 
+    fcf_growth, fcf_growth_years = fcf_cagr(fcf_values)
     fallback_growth = (
         growth
         or pct(pick(info, ["earningsGrowth", "revenueGrowth"]))
@@ -1710,8 +1761,13 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "roe": roe,
         "normalizedFcfPerShare": normalized_fcf_per_share,
         "normalizedEbitdaPerShare": normalized_ebitda_per_share,
-        "growth5y": fallback_growth,
-        "consensusGrowth": growth or pct(pick(info, ["earningsGrowth", "revenueGrowth"])),
+        "growth5y": fcf_growth,
+        "growth5yYears": fcf_growth_years,
+        "growth5ySource": "Yahoo Finance (historical FCF CAGR)" if fcf_growth is not None else None,
+        "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "consensusGrowth": growth,
+        "consensusGrowthSource": "Yahoo analyst consensus (+5y)" if growth is not None else None,
+        "consensusGrowthAsOf": datetime.now(timezone.utc).date().isoformat() if growth is not None else None,
         "targetPe": target_pe,
         "trailingPe": finite(pick(info, ["trailingPE"])),
         "forwardPe": finite(pick(info, ["forwardPE"])),
