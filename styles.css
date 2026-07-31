@@ -1394,3 +1394,57 @@ input[type="range"]::-moz-range-thumb {
     height: 70px;
   }
 }
+
+
+/* Growth inputs: historical CAGR (auto) vs consensus (manual) */
+.field-wide {
+  grid-column: span 2;
+}
+
+.field-meta {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--muted, #7c8aa5);
+}
+
+.field-hint {
+  margin-left: 6px;
+  font-style: normal;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #7c8aa5);
+}
+
+.stale-badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: color-mix(in srgb, var(--amber, #d29a2b) 22%, transparent);
+  color: var(--amber, #d29a2b);
+  border: 1px solid color-mix(in srgb, var(--amber, #d29a2b) 45%, transparent);
+}
+
+.meta-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.meta-inputs select,
+.meta-inputs input[type="date"] {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: inherit;
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+}
