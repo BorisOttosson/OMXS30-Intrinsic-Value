@@ -353,6 +353,11 @@ function createDefaultCompanies() {
       normalizedEbitdaPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
       consensusGrowth: round(defaults.consensusGrowth + ((index % 4) - 1) * 0.25, 1),
+      consensusGrowthSource: "Annat",
+      consensusGrowthAsOf: "",
+      growth5yYears: null,
+      growth5ySource: null,
+      growth5yUpdatedAt: null,
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
       terminalGrowth: defaults.terminalGrowth,
       targetPe: round(defaults.targetPe + ((index % 3) - 1) * 0.6, 1),
@@ -578,8 +583,18 @@ function applyMarketData(currentCompanies, marketCompanies) {
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
       normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
       normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
+      // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
       growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
-      consensusGrowth: numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? seedCompany.consensusGrowth),
+      growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
+      growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
+      growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
+      // Consensus growth is a manual, externally sourced input. It is never
+      // derived from, nor overwritten by, the historical CAGR above.
+      consensusGrowth: market.consensusGrowthSource
+        ? numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? null)
+        : (current.consensusGrowth ?? seedCompany.consensusGrowth),
+      consensusGrowthSource: current.consensusGrowthSource ?? market.consensusGrowthSource ?? seedCompany.consensusGrowthSource ?? "",
+      consensusGrowthAsOf: current.consensusGrowthAsOf ?? market.consensusGrowthAsOf ?? "",
       targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
       currency: market.currency ?? current.currency ?? "SEK",
@@ -1380,7 +1395,15 @@ function bindEvents() {
     const company = getSelectedCompany();
     const field = event.target.dataset.field;
     const quality = event.target.dataset.quality;
-    if (!field && !quality) return;
+    const meta = event.target.dataset.meta;
+    if (!field && !quality && !meta) return;
+    if (meta && company) {
+      company[meta] = event.target.value;
+      saveCompanies();
+      renderForm();
+      renderDependentViews();
+      return;
+    }
 
     if (field) {
       company[field] = field === "notes" ? event.target.value : asNumber(event.target.value);
@@ -1563,6 +1586,52 @@ function renderForm() {
   document.querySelectorAll("[data-quality]").forEach((input) => {
     input.value = company[input.dataset.quality] ?? 3;
   });
+
+  document.querySelectorAll("[data-meta]").forEach((input) => {
+    input.value = company[input.dataset.meta] ?? "";
+  });
+
+  renderGrowthMeta(company);
+}
+
+function formatShortDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString().slice(0, 10);
+}
+
+function daysSince(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+  return Math.floor((Date.now() - date.getTime()) / 86400000);
+}
+
+function renderGrowthMeta(company) {
+  const cagrMeta = document.querySelector("#growth5yMeta");
+  if (cagrMeta) {
+    const years = Number(company.growth5yYears);
+    const label = Number.isFinite(years) && years > 0 && years < 5 ? `${years}yr CAGR` : "5yr CAGR";
+    if (!Number.isFinite(asNumber(company.growth5y)) || company.growth5y === null || company.growth5y === "") {
+      cagrMeta.textContent = "N/A - not enough positive FCF history";
+    } else {
+      cagrMeta.textContent = `${label} | Source: ${company.growth5ySource ?? "BorsAPI"} | Updated: ${formatShortDate(company.growth5yUpdatedAt) ?? "n/a"}`;
+    }
+  }
+
+  const consensusMeta = document.querySelector("#consensusGrowthMeta");
+  if (consensusMeta) {
+    const asOf = formatShortDate(company.consensusGrowthAsOf);
+    consensusMeta.textContent = `Source: ${company.consensusGrowthSource || "not set"} | As of: ${asOf ?? "not set"}`;
+  }
+
+  const staleBadge = document.querySelector("#consensusGrowthStale");
+  if (staleBadge) {
+    const age = daysSince(company.consensusGrowthAsOf);
+    const stale = age === null || age > 90;
+    staleBadge.hidden = !stale;
+    staleBadge.textContent = age === null ? "no date" : `stale (${age} d)`;
+  }
 }
 
 function renderMetrics() {
