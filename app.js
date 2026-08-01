@@ -1421,19 +1421,8 @@ function bindEvents() {
     renderDependentViews();
   });
 
-  document.querySelectorAll("[data-subtab]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = button.dataset.subtab;
-      document.querySelectorAll("[data-subtab]").forEach((item) => {
-        const active = item === button;
-        item.classList.toggle("is-active", active);
-        item.setAttribute("aria-selected", active ? "true" : "false");
-      });
-      document.querySelectorAll("[data-subtab-panel]").forEach((panel) => {
-        panel.hidden = panel.dataset.subtabPanel !== target;
-      });
-    });
-  });
+
+
 
   document.querySelectorAll("[data-scenario]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1697,7 +1686,10 @@ function renderCagrBreakdown(company) {
       const label = index === 0 ? "Latest FY" : `FY -${index}`;
       const inWindow = index < window.length;
       const prev = series[index + 1];
-      const yoy = Number.isFinite(prev) && prev > 0 && value > 0 ? ((value / prev - 1) * 100).toFixed(1) + " %" : "n/a";
+      const yoyValue = Number.isFinite(prev) && prev > 0 && value > 0 ? (value / prev - 1) * 100 : null;
+      const yoy = yoyValue === null
+        ? '<span class="cagr-na">n/a</span>'
+        : `<span class="${yoyValue >= 0 ? "cagr-up" : "cagr-down"}">${yoyValue >= 0 ? "+" : ""}${yoyValue.toFixed(1)} %</span>`;
       return `<tr class="${inWindow ? "" : "is-muted"}">
         <td>${label}</td>
         <td>${formatFcfAmount(value, currency)}</td>
@@ -1715,17 +1707,18 @@ function renderCagrBreakdown(company) {
       </div>
       <p class="cagr-note">Source: ${source} | Updated: ${updated}</p>
     </div>
+    <table class="cagr-table">
+      <thead><tr><th>Period</th><th>Free cash flow</th><th>Growth</th><th>Window</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
     <p class="cagr-formula">CAGR = (FCF<sub>latest</sub> / FCF<sub>oldest</sub>)<sup>1/${years ?? "n"}</sup> - 1</p>
     ${usable
       ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
       : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
-    <table class="cagr-table">
-      <thead><tr><th>Period</th><th>Free cash flow</th><th>YoY</th><th>Window</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
     <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus growth is a separate manual input and never feeds this calculation.</p>
   `;
 }
+
 
 function renderMetrics() {
   const company = getSelectedCompany();
