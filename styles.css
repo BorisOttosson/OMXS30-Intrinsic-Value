@@ -1448,3 +1448,85 @@ input[type="range"]::-moz-range-thumb {
   background: var(--surface-2, rgba(255, 255, 255, 0.04));
   border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
 }
+
+/* ---- 5yr CAGR subtab ---- */
+.subtabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(15, 27, 61, 0.55);
+  border: 1px solid rgba(59, 111, 160, 0.28);
+  width: fit-content;
+}
+
+.subtab {
+  border: none;
+  background: transparent;
+  color: var(--muted, #9fb2cc);
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  padding: 7px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.subtab:hover { color: #e8edf3; }
+
+.subtab.is-active {
+  background: rgba(59, 111, 160, 0.35);
+  color: #e8edf3;
+}
+
+.cagr-breakdown { display: grid; gap: 14px; }
+
+.cagr-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cagr-label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted, #9fb2cc);
+}
+
+.cagr-value { font-size: 1.8rem; }
+
+.cagr-formula {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cddaeb;
+  background: rgba(15, 27, 61, 0.45);
+  border: 1px solid rgba(59, 111, 160, 0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.cagr-note { margin: 0; font-size: 0.8rem; color: var(--muted, #9fb2cc); }
+
+.cagr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+.cagr-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted, #9fb2cc);
+  padding: 6px 8px;
+}
+
+.cagr-table td {
+  padding: 8px;
+  border-top: 1px solid rgba(59, 111, 160, 0.18);
+}
+
+.cagr-table tr.is-muted td { opacity: 0.45; }
