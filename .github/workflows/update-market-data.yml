@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ticker:
-        description: "Type one ticker, e.g. ERIC-B.ST. Type ALL only when you want to spend requests on all 30."
+        description: "Type one ticker, e.g. ERIC-B.ST. Type ALL to update all 30 (companies with missing data are fetched first)."
         required: false
         default: ""
       debug_raw_ticker:
