@@ -356,6 +356,7 @@ function createDefaultCompanies() {
       consensusGrowthSource: "Annat",
       consensusGrowthAsOf: "",
       growth5yYears: null,
+      fcfSeries: null,
       growth5ySource: null,
       growth5yUpdatedAt: null,
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
@@ -586,6 +587,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
       growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
+      fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
       growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
       // Consensus growth is a manual, externally sourced input. It is never
@@ -1419,6 +1421,20 @@ function bindEvents() {
     renderDependentViews();
   });
 
+  document.querySelectorAll("[data-subtab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.subtab;
+      document.querySelectorAll("[data-subtab]").forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("is-active", active);
+        item.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      document.querySelectorAll("[data-subtab-panel]").forEach((panel) => {
+        panel.hidden = panel.dataset.subtabPanel !== target;
+      });
+    });
+  });
+
   document.querySelectorAll("[data-scenario]").forEach((button) => {
     button.addEventListener("click", () => {
       state.scenario = button.dataset.scenario;
@@ -1592,6 +1608,7 @@ function renderForm() {
   });
 
   renderGrowthMeta(company);
+  renderCagrBreakdown(company);
 }
 
 function formatShortDate(value) {
@@ -1632,6 +1649,82 @@ function renderGrowthMeta(company) {
     staleBadge.hidden = !stale;
     staleBadge.textContent = age === null ? "no date" : `stale (${age} d)`;
   }
+}
+
+function formatFcfAmount(value, currency = "SEK") {
+  if (!Number.isFinite(value)) return "n/a";
+  const abs = Math.abs(value);
+  const units = [[1e9, "bn"], [1e6, "m"], [1e3, "k"]];
+  for (const [size, suffix] of units) {
+    if (abs >= size) return `${(value / size).toFixed(2)} ${suffix} ${currency}`;
+  }
+  return `${value.toFixed(0)} ${currency}`;
+}
+
+function renderCagrBreakdown(company) {
+  const host = document.querySelector("#cagrBreakdown");
+  if (!host) return;
+
+  const currency = company.currency ?? "SEK";
+  const series = Array.isArray(company.fcfSeries)
+    ? company.fcfSeries.map(Number).filter((value) => Number.isFinite(value))
+    : [];
+  const cagr = asNumber(company.growth5y);
+  const source = company.growth5ySource ?? "not set";
+  const updated = formatShortDate(company.growth5yUpdatedAt) ?? "n/a";
+
+  if (!series.length) {
+    host.innerHTML = `
+      <p class="cagr-note">No free-cash-flow history stored for ${company.ticker} yet.</p>
+      <p class="cagr-note">The pipeline saves the FCF series next time the data workflow runs. Current stored CAGR: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong> (source: ${source}, updated ${updated}).</p>
+    `;
+    return;
+  }
+
+  // Mirror the pipeline: newest-first window, shrink until both ends are positive.
+  let window = series.slice(0, 6);
+  while (window.length >= 2 && !(window[0] > 0 && window[window.length - 1] > 0)) {
+    window = window.slice(0, -1);
+  }
+  const usable = window.length >= 2 && window[0] > 0 && window[window.length - 1] > 0;
+  const years = usable ? window.length - 1 : null;
+  const newest = usable ? window[0] : null;
+  const oldest = usable ? window[window.length - 1] : null;
+  const computed = usable ? ((newest / oldest) ** (1 / years) - 1) * 100 : null;
+
+  const rows = series
+    .map((value, index) => {
+      const label = index === 0 ? "Latest FY" : `FY -${index}`;
+      const inWindow = index < window.length;
+      const prev = series[index + 1];
+      const yoy = Number.isFinite(prev) && prev > 0 && value > 0 ? ((value / prev - 1) * 100).toFixed(1) + " %" : "n/a";
+      return `<tr class="${inWindow ? "" : "is-muted"}">
+        <td>${label}</td>
+        <td>${formatFcfAmount(value, currency)}</td>
+        <td>${yoy}</td>
+        <td>${inWindow ? "used" : "outside window"}</td>
+      </tr>`;
+    })
+    .join("");
+
+  host.innerHTML = `
+    <div class="cagr-head">
+      <div>
+        <span class="cagr-label">${usable ? `${years}yr FCF CAGR` : "FCF CAGR"}</span>
+        <strong class="cagr-value">${computed === null ? "N/A" : `${computed.toFixed(2)} %`}</strong>
+      </div>
+      <p class="cagr-note">Source: ${source} | Updated: ${updated}</p>
+    </div>
+    <p class="cagr-formula">CAGR = (FCF<sub>latest</sub> / FCF<sub>oldest</sub>)<sup>1/${years ?? "n"}</sup> - 1</p>
+    ${usable
+      ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
+      : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
+    <table class="cagr-table">
+      <thead><tr><th>Period</th><th>Free cash flow</th><th>YoY</th><th>Window</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus growth is a separate manual input and never feeds this calculation.</p>
+  `;
 }
 
 function renderMetrics() {
