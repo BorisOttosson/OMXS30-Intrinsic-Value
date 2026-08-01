@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260801-target-en">
+  <link rel="stylesheet" href="styles.css?v=20260802-ui">
   </head>
   <body>
     <div class="app-shell">
@@ -196,6 +196,7 @@
             </div>
 
             <div class="input-grid">
+              <p class="group-head">Per-share fundamentals</p>
 
               <label>
                 <span>Market price</span>
@@ -232,6 +233,7 @@
                   <span>SEK</span>
                 </div>
               </label>
+              <p class="group-head">Growth assumptions</p>
               <label class="field-wide">
                 <span>Historical 5yr FCF CAGR</span>
                 <div class="input-unit">
@@ -263,6 +265,7 @@
                 </div>
                 <small class="field-meta" id="consensusGrowthMeta">Source: not set | As of: not set</small>
               </label>
+              <p class="group-head">Discounting &amp; multiples</p>
               <label>
                 <span>WACC</span>
                 <div class="input-unit">
@@ -291,6 +294,7 @@
                   <span>x</span>
                 </div>
               </label>
+              <p class="group-head">Balance sheet &amp; position</p>
               <label>
                 <span>Book / NAV per share</span>
                 <div class="input-unit">
@@ -423,6 +427,7 @@
               <h4>Individual target prices</h4>
               <span>Latest analyst targets from Börskollen</span>
             </div>
+            <div class="table-scroll">
             <div class="riktkurs-list-header" aria-hidden="true">
               <span>Date</span>
               <span>Analyst</span>
@@ -432,6 +437,7 @@
               <span>Upside</span>
             </div>
             <div class="riktkurs-latest" id="riktkursLatest" aria-label="Individual target prices"></div>
+            </div>
             <a class="riktkurs-source" id="riktkursSource" href="#" target="_blank" rel="noreferrer" hidden>Open Börskollen source</a>
           </section>
         </section>
@@ -456,6 +462,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260801-target-en"></script>
+  <script src="app.js?v=20260802-ui"></script>
   </body>
 </html>
