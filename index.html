@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260801-cagr-tab">
+  <link rel="stylesheet" href="styles.css?v=20260801-cagr-inline">
   </head>
   <body>
     <div class="app-shell">
@@ -195,12 +195,8 @@
               <span class="status-badge" id="stanceBadge">Fair</span>
             </div>
 
-            <div class="subtabs" role="tablist" aria-label="Model input views">
-              <button type="button" class="subtab is-active" data-subtab="inputs" role="tab" aria-selected="true">Inputs</button>
-              <button type="button" class="subtab" data-subtab="cagr" role="tab" aria-selected="false">5yr CAGR</button>
-            </div>
+            <div class="input-grid">
 
-            <div class="input-grid subtab-panel" data-subtab-panel="inputs">
               <label>
                 <span>Market price</span>
                 <div class="input-unit">
@@ -244,6 +240,11 @@
                 </div>
                 <small class="field-meta" id="growth5yMeta">Source: BorsAPI | Updated: -</small>
               </label>
+              <details class="field-wide cagr-details" id="cagrDetails" open>
+                <summary>Yearly FCF growth &amp; CAGR calculation</summary>
+                <div id="cagrBreakdown" class="cagr-breakdown"></div>
+              </details>
+
               <label class="field-wide">
                 <span>Consensus growth <em class="field-hint">manual</em><span class="stale-badge" id="consensusGrowthStale" hidden>stale</span></span>
                 <div class="input-unit">
@@ -319,11 +320,8 @@
                 </div>
               </label>
             </div>
-
-            <div class="subtab-panel cagr-panel" data-subtab-panel="cagr" hidden>
-              <div id="cagrBreakdown" class="cagr-breakdown"></div>
-            </div>
           </form>
+
 
           <section class="tool-panel valuation-panel" aria-label="Valuation outputs">
             <div class="panel-title">
@@ -458,6 +456,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260801-cagr-tab"></script>
+  <script src="app.js?v=20260801-cagr-inline"></script>
   </body>
 </html>
