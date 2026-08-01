@@ -31,6 +31,9 @@ BORSAPI_BASE_URL = "https://borsapi.se/api/v1"
 # BörsAPI charges quota per returned report. The updater requests one exact
 # record for each statement type instead of downloading mixed report history.
 BORSAPI_REPORT_LIMIT = 1
+# Balance sheets are fetched with a small buffer so a mislabelled or restated
+# row cannot hide the genuinely latest quarter.
+BORSAPI_BALANCE_REPORT_LIMIT = 2
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
 FUNDAMENTALS_WINDOW_START = day_time(9, 10)
 FUNDAMENTALS_WINDOW_END = day_time(9, 45)
@@ -270,15 +273,23 @@ def yahoo_reference_fields(ticker: str) -> tuple[dict[str, Any], list[str]]:
 
     market_price = finite(fast_info_value(fast_info, "lastPrice")) or finite(pick(info, ["currentPrice", "regularMarketPrice"]))
     market_cap = finite(fast_info_value(fast_info, "marketCap")) or finite(pick(info, ["marketCap"]))
-    shares = (
-        finite(fast_info_value(fast_info, "shares"))
-        or finite(pick(info, ["sharesOutstanding", "impliedSharesOutstanding"]))
-        or (market_cap / market_price if market_cap and market_price else None)
-    )
+    shares = finite(pick(info, ["sharesOutstanding"]))
+    shares_source = "Yahoo Finance sharesOutstanding" if shares is not None else None
+    if shares is None:
+        shares = finite(fast_info_value(fast_info, "shares"))
+        shares_source = "Yahoo Finance fast_info shares" if shares is not None else None
+    if shares is None:
+        shares = finite(pick(info, ["impliedSharesOutstanding"]))
+        shares_source = "Yahoo Finance impliedSharesOutstanding" if shares is not None else None
+    if shares is None and market_cap and market_price:
+        shares = market_cap / market_price
+        shares_source = "Derived from Yahoo market cap / price"
+        errors.append("Outstanding shares: Yahoo did not report sharesOutstanding; derived from market cap / price")
 
     return {
         "marketCap": market_cap,
         "sharesOutstanding": shares,
+        "sharesOutstandingSource": shares_source,
     }, errors
 
 
@@ -673,10 +684,16 @@ def borsapi_report_basis(report: dict[str, Any]) -> str | None:
         return "ttm"
     if any(token in explicit for token in ("quarter", "quarterly", "kvartal")):
         return "quarter"
+    if any(token in explicit for token in ("year", "annual", "helar", "helår", "fy")):
+        return "year"
 
     period = str(report.get("period") or "").strip().upper()
     if "TTM" in period or "TRAILING" in period or "ROLLING 12" in period:
         return "ttm"
+    if re.search(r"\b(FY|FULL\s*YEAR|ANNUAL|HEL[AÅ]R)\b", period):
+        return "year"
+    if re.fullmatch(r"(19|20)\d{2}", period):
+        return "year"
     return None
 
 
@@ -697,19 +714,21 @@ def borsapi_select_report(
             continue
         candidates.append(report)
 
-    matching = [
-        report for report in candidates
-        if borsapi_report_basis(report) == expected_basis
-    ]
+    matching = sorted(
+        [report for report in candidates if borsapi_report_basis(report) == expected_basis],
+        key=report_sort_key,
+        reverse=True,
+    )
     if matching:
         return matching[0]
 
     # The reports endpoint is already filtered by period_type. Some responses
     # omit that field, so an unlabelled row is still valid for this request.
-    unlabelled = [
-        report for report in candidates
-        if borsapi_report_basis(report) is None
-    ]
+    unlabelled = sorted(
+        [report for report in candidates if borsapi_report_basis(report) is None],
+        key=report_sort_key,
+        reverse=True,
+    )
     return unlabelled[0] if unlabelled else {}
 
 
@@ -1173,7 +1192,9 @@ def fetch_fmp_company(
         "marketPrice": price,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
+        "sharesOutstandingSource": shares_source,
         "totalRevenue": scaled(revenue, exchange_rate),
+        "totalRevenueBasis": "TTM",
         "ebitda": scaled(ebitda, exchange_rate),
         "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
@@ -1332,7 +1353,9 @@ def fetch_eodhd_company(
         "marketPrice": price,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
+        "sharesOutstandingSource": shares_source,
         "totalRevenue": scaled(revenue, exchange_rate),
+        "totalRevenueBasis": "TTM",
         "ebitda": scaled(ebitda, exchange_rate),
         "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
@@ -1416,13 +1439,14 @@ def fetch_borsapi_company(
         period_type="ttm",
         **common_report_params,
     )
+    balance_params = {**common_report_params, "limit": BORSAPI_BALANCE_REPORT_LIMIT}
     balance_payload = fetch_borsapi_json(
         report_path,
         api_key,
         timeout,
         report_type="BR",
         period_type="quarter",
-        **common_report_params,
+        **balance_params,
     )
     cashflow_payload = fetch_borsapi_json(
         report_path,
@@ -1450,6 +1474,22 @@ def fetch_borsapi_company(
         errors.append("BörsAPI: latest quarterly balance sheet is missing or has the wrong period type")
     if not latest_cashflow:
         errors.append("BörsAPI: TTM cash-flow statement is missing or has the wrong period type")
+
+    income_basis = borsapi_report_basis(latest_income) if latest_income else None
+    balance_basis = borsapi_report_basis(latest_balance) if latest_balance else None
+    cashflow_basis = borsapi_report_basis(latest_cashflow) if latest_cashflow else None
+    if latest_income and income_basis not in (None, "ttm"):
+        errors.append(f"BörsAPI: income statement is {income_basis}, not TTM; revenue may be wrong")
+    if latest_balance and balance_basis not in (None, "quarter"):
+        errors.append(f"BörsAPI: balance sheet is {balance_basis}, not the latest quarter")
+
+    balance_report_date = parse_report_date(pick(latest_balance, ["report_date", "date"]))
+    if latest_balance and balance_report_date != datetime.min:
+        age_days = (datetime.now(timezone.utc).replace(tzinfo=None) - balance_report_date).days
+        if age_days > 200:
+            errors.append(
+                f"BörsAPI: latest quarterly balance sheet is {age_days} days old ({balance_report_date.date()})"
+            )
 
     debug_ticker = os.environ.get("BORSAPI_DEBUG_RAW_TICKER", "").strip().upper()
     if debug_ticker and debug_ticker in {
@@ -1507,6 +1547,9 @@ def fetch_borsapi_company(
     errors.extend(reference_errors)
     market_cap = finite(reference_fields.get("marketCap"))
     shares = finite(reference_fields.get("sharesOutstanding"))
+    shares_source = reference_fields.get("sharesOutstandingSource")
+    if shares is None:
+        errors.append("Outstanding shares: Yahoo returned no share count; per-share values are unavailable")
 
     fcf_values = borsapi_cashflow_values(reports)
     ebitda_values = [
@@ -1572,7 +1615,9 @@ def fetch_borsapi_company(
         "previousClose": None,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
+        "sharesOutstandingSource": shares_source,
         "totalRevenue": scaled(revenue, exchange_rate),
+        "totalRevenueBasis": "TTM",
         "ebitda": scaled_ebitda,
         "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
@@ -1617,10 +1662,13 @@ def fetch_borsapi_company(
         "latestFiscalPeriod": pick(latest_balance, ["period"]) or pick(latest_income, ["period"]),
         "incomeStatementDate": pick(latest_income, ["report_date", "date"]),
         "incomeStatementPeriod": borsapi_statement_period(latest_income, "ttm"),
+        "incomeStatementBasis": income_basis or "ttm",
         "balanceSheetDate": pick(latest_balance, ["report_date", "date"]),
         "balanceSheetPeriod": borsapi_statement_period(latest_balance, "quarter"),
+        "balanceSheetBasis": balance_basis or "quarter",
         "cashFlowStatementDate": pick(latest_cashflow, ["report_date", "date"]),
         "cashFlowStatementPeriod": borsapi_statement_period(latest_cashflow, "ttm"),
+        "cashFlowStatementBasis": cashflow_basis or "ttm",
         "errors": errors,
     }
 
@@ -1753,7 +1801,9 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "previousClose": previous_close,
         "marketCap": market_cap,
         "sharesOutstanding": shares,
+        "sharesOutstandingSource": shares_source,
         "totalRevenue": scaled(revenue, exchange_rate),
+        "totalRevenueBasis": "TTM",
         "ebitda": scaled_ebitda,
         "ebit": scaled(ebit, exchange_rate),
         "netIncome": scaled(net_income, exchange_rate),
