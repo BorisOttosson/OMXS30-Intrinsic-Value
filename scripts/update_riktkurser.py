@@ -28,6 +28,28 @@ ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIP
 OUTPUT_PATH = ROOT / "data" / "riktkurser.json"
 BORSKOLLEN_BASE_URL = "https://www.borskollen.se/aktie"
 MAX_TARGET_PRICE_ROWS = 20
+DATE_TRANSLATIONS = {
+    "idag": "Today",
+    "i dag": "Today",
+    "igar": "Yesterday",
+    "i gar": "Yesterday",
+    "forrgar": "2 days ago",
+    "i forrgar": "2 days ago",
+}
+MONTH_TRANSLATIONS = {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "maj": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "okt": "Oct",
+    "nov": "Nov",
+    "dec": "Dec",
+}
 ACTION_TRANSLATIONS = {
     "hojer": "Increasing",
     "sanker": "Decreasing",
@@ -201,6 +223,31 @@ def translate_target_label(value: Any, translations: dict[str, str]) -> str | No
     return title_case_financial(text)
 
 
+def translate_date(value: Any) -> str | None:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if not text:
+        return None
+
+    normalized = normalize_target_label(text)
+    if normalized in DATE_TRANSLATIONS:
+        return DATE_TRANSLATIONS[normalized]
+
+    relative = re.match(r"^(\d+)\s*(?:dagar|dag|d)\s* sedan$".replace(" ", ""), normalized)
+    if relative:
+        days = int(relative.group(1))
+        return "1 day ago" if days == 1 else f"{days} days ago"
+
+    day_month = re.match(r"^(\d{1,2})\s+([a-z]{3,})\.?(?:\s+(\d{4}))?$", normalized)
+    if day_month:
+        month = MONTH_TRANSLATIONS.get(day_month.group(2)[:3])
+        if month:
+            day = int(day_month.group(1))
+            year = day_month.group(3)
+            return f"{month} {day}, {year}" if year else f"{month} {day}"
+
+    return text
+
+
 def translate_action(value: Any) -> str | None:
     return translate_target_label(value, ACTION_TRANSLATIONS)
 
@@ -278,7 +325,7 @@ def parse_latest_rows(text: str) -> list[dict[str, Any]]:
     for match in ROW_PATTERN.finditer(text):
         analyst, action, rating = parse_body(match.group("body"))
         rows.append({
-            "date": match.group("date"),
+            "date": translate_date(match.group("date")),
             "analyst": analyst,
             "action": action,
             "rating": rating,
@@ -323,7 +370,7 @@ def parse_latest_rows_from_lines(lines: list[str]) -> list[dict[str, Any]]:
             target_price = parse_number(target_text)
 
         rows.append({
-            "date": date,
+            "date": translate_date(date),
             "analyst": analyst or None,
             "action": translate_action(action),
             "rating": translate_rating(rating),
