@@ -619,6 +619,51 @@ PRESERVE_IF_PROVIDER_BLANK_KEYS = {
 def is_blank(value: Any) -> bool:
     return value in (None, "", [], {})
 
+CORE_DATA_KEYS = (
+    "price",
+    "sharesOutstanding",
+    "totalRevenue",
+    "ebitda",
+    "freeCashFlow",
+    "netDebt",
+    "totalAssets",
+    "bookEquity",
+    "totalLiabilities",
+    "growth5y",
+)
+
+
+def missing_core_field_count(existing: dict[str, Any] | None) -> int:
+    """How many core fundamentals are missing for a company row."""
+    if not isinstance(existing, dict):
+        return len(CORE_DATA_KEYS) + 1
+    missing = sum(1 for key in CORE_DATA_KEYS if is_blank(existing.get(key)))
+    if existing.get("dataUpdatedAt") in (None, ""):
+        missing += 1
+    if existing.get("source") in (None, "", "Manual placeholder"):
+        missing += 1
+    errors = existing.get("errors")
+    if isinstance(errors, list) and errors:
+        missing += 1
+    return missing
+
+
+def prioritize_incomplete(
+    universe: list[tuple[str, str, str]],
+    existing_companies: dict[str, dict[str, Any]],
+) -> list[tuple[str, str, str]]:
+    """Fetch companies with missing data first, e.g. Epiroc, then the rest."""
+    order = {ticker: index for index, (ticker, _, _) in enumerate(universe)}
+    return sorted(
+        universe,
+        key=lambda item: (
+            -missing_core_field_count(existing_companies.get(company_id(item[0]))),
+            order[item[0]],
+        ),
+    )
+
+
+
 
 def fill_missing_from_existing(company: dict[str, Any], existing: dict[str, Any] | None) -> dict[str, Any]:
     if not isinstance(existing, dict):
@@ -1908,6 +1953,14 @@ def main(argv: list[str]) -> int:
         "yahoo": "Yahoo Finance via yfinance statements",
     }[provider_choice]
     existing_companies = load_existing_companies(args.output)
+    selected_universe = prioritize_incomplete(selected_universe, existing_companies)
+    incomplete_first = [
+        ticker
+        for ticker, _, _ in selected_universe
+        if missing_core_field_count(existing_companies.get(company_id(ticker))) > 0
+    ]
+    if incomplete_first:
+        print(f"Prioritizing companies with missing data: {', '.join(incomplete_first)}", flush=True)
     borsapi_id_cache_path = args.output.parent / BORSAPI_ID_CACHE_FILENAME
 
     if provider_choice == "borsapi":
@@ -2001,6 +2054,9 @@ def main(argv: list[str]) -> int:
                     "errors": [str(exc)],
                 })
             time.sleep(args.delay)
+
+    canonical_order = {company_id(ticker): index for index, (ticker, _, _) in enumerate(OMXS30)}
+    companies.sort(key=lambda company: canonical_order.get(company.get("id"), len(canonical_order)))
 
     selected_ids = {company_id(ticker) for ticker, _, _ in selected_universe}
     full_universe_ids = {company_id(ticker) for ticker, _, _ in OMXS30}
