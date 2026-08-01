@@ -212,6 +212,22 @@ def fcf_cagr(values: list[float]) -> tuple[float | None, int | None]:
     return None, None
 
 
+def fcf_series_payload(values: list[float], exchange_rate: float | None = None) -> list[float] | None:
+    """Newest-first FCF series (max 6 points) used to show the CAGR maths in the UI."""
+    try:
+        series = [value for value in (finite(v) for v in values) if value is not None]
+    except Exception:
+        return None
+    if not series:
+        return None
+    window = series[: FCF_CAGR_MAX_YEARS + 1]
+    out = []
+    for value in window:
+        converted = scaled(value, exchange_rate) if exchange_rate is not None else value
+        out.append(converted if converted is not None else value)
+    return out
+
+
 def fast_info_value(fast_info: Any, key: str) -> Any:
     try:
         return fast_info.get(key)
@@ -1185,6 +1201,7 @@ def fetch_fmp_company(
         "roe": roe,
         "growth5y": fcf_growth,
         "growth5yYears": fcf_growth_years,
+        "fcfSeries": fcf_series_payload(fcf_values, exchange_rate),
         "growth5ySource": "FMP (historical FCF CAGR)" if fcf_growth is not None else None,
         "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "consensusGrowth": None,
@@ -1343,6 +1360,7 @@ def fetch_eodhd_company(
         "roe": roe,
         "growth5y": fcf_growth,
         "growth5yYears": fcf_growth_years,
+        "fcfSeries": fcf_series_payload(fcf_values, exchange_rate),
         "growth5ySource": "EODHD (historical FCF CAGR)" if fcf_growth is not None else None,
         "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "consensusGrowth": None,
@@ -1584,6 +1602,7 @@ def fetch_borsapi_company(
         "roe": roe,
         "growth5y": fcf_growth,
         "growth5yYears": fcf_growth_years,
+        "fcfSeries": fcf_series_payload(fcf_values, exchange_rate),
         "growth5ySource": "BorsAPI (historical FCF CAGR)" if fcf_growth is not None else None,
         "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "consensusGrowth": None,
@@ -1763,6 +1782,7 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "normalizedEbitdaPerShare": normalized_ebitda_per_share,
         "growth5y": fcf_growth,
         "growth5yYears": fcf_growth_years,
+        "fcfSeries": fcf_series_payload(fcf_values, exchange_rate),
         "growth5ySource": "Yahoo Finance (historical FCF CAGR)" if fcf_growth is not None else None,
         "growth5yUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "consensusGrowth": growth,
