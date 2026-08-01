@@ -1628,13 +1628,24 @@ function updateActiveCompanyRow() {
   });
 }
 
+function roundFieldValue(raw) {
+  if (raw === null || raw === undefined || raw === "") return "";
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return raw;
+  // Keep the stored precision, but never show float noise in the form.
+  const rounded = Math.round(value * 100) / 100;
+  return `${rounded}`;
+}
+
 function renderForm() {
+
   const company = getSelectedCompany();
   if (!company) return;
 
   document.querySelectorAll("[data-field]").forEach((input) => {
-    input.value = company[input.dataset.field] ?? "";
+    input.value = roundFieldValue(company[input.dataset.field]);
   });
+
 
   document.querySelectorAll("[data-quality]").forEach((input) => {
     input.value = company[input.dataset.quality] ?? 3;
