@@ -531,6 +531,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       previousClose: numberOrNull(market.previousClose),
       marketCap: numberOrNull(market.marketCap),
       sharesOutstanding: numberOrNull(market.sharesOutstanding),
+      sharesOutstandingSource: market.sharesOutstandingSource ?? null,
       totalRevenue: numberOrNull(market.totalRevenue),
       ebitda: numberOrNull(market.ebitda),
       ebit: numberOrNull(market.ebit),
@@ -1931,6 +1932,9 @@ function renderFundamentals() {
   elements.fundDebt.textContent = formatCurrency(numberOrNull(fundamentals.totalDebt), currency);
   elements.fundCash.textContent = formatCurrency(numberOrNull(fundamentals.cash), currency);
   elements.fundShares.textContent = formatShares(numberOrNull(fundamentals.sharesOutstanding));
+  elements.fundShares.title = fundamentals.sharesOutstandingSource
+    ? `Outstanding shares - ${fundamentals.sharesOutstandingSource}`
+    : "Outstanding shares from Yahoo Finance";
   elements.fundEvEbitda.textContent = Number.isFinite(numberOrNull(fundamentals.evToEbitda))
     ? `${formatDecimal(numberOrNull(fundamentals.evToEbitda), 1)}x`
     : "-";
