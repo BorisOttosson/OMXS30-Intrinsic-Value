@@ -47,6 +47,29 @@ const TARGET_RATING_TRANSLATIONS = {
   "outperformer": "Outperform",
   "underperformer": "Underperform"
 };
+const TARGET_DATE_TRANSLATIONS = {
+  "idag": "Today",
+  "i dag": "Today",
+  "igar": "Yesterday",
+  "i gar": "Yesterday",
+  "forrgar": "2 days ago",
+  "i forrgar": "2 days ago",
+  "imorgon": "Tomorrow"
+};
+const SWEDISH_MONTHS = {
+  "jan": "Jan",
+  "feb": "Feb",
+  "mar": "Mar",
+  "apr": "Apr",
+  "maj": "May",
+  "jun": "Jun",
+  "jul": "Jul",
+  "aug": "Aug",
+  "sep": "Sep",
+  "okt": "Oct",
+  "nov": "Nov",
+  "dec": "Dec"
+};
 const FINANCIAL_TITLE_WORDS = {
   "ev": "EV",
   "ebitda": "EBITDA",
@@ -952,6 +975,30 @@ function translateTargetLabel(value, dictionary, fallback = "-") {
   return match ? match[1] : titleCaseFinancial(raw);
 }
 
+function translateTargetDate(value) {
+  const raw = String(value ?? "").replace(/\s+/g, " ").trim();
+  if (!raw) return "-";
+
+  const normalized = normalizeTargetLabel(raw);
+  if (TARGET_DATE_TRANSLATIONS[normalized]) return TARGET_DATE_TRANSLATIONS[normalized];
+
+  const relative = normalized.match(/^(\d+)\s*(?:dagar|dag|d)\s*sedan$/);
+  if (relative) {
+    const days = Number(relative[1]);
+    return days === 1 ? "1 day ago" : `${days} days ago`;
+  }
+
+  const dayMonth = normalized.match(/^(\d{1,2})\s+([a-z]{3,})\.?(?:\s+(\d{4}))?$/);
+  if (dayMonth) {
+    const month = SWEDISH_MONTHS[dayMonth[2].slice(0, 3)];
+    if (month) {
+      return dayMonth[3] ? `${month} ${Number(dayMonth[1])}, ${dayMonth[3]}` : `${month} ${Number(dayMonth[1])}`;
+    }
+  }
+
+  return raw;
+}
+
 function translateTargetAction(value) {
   return translateTargetLabel(value, TARGET_ACTION_TRANSLATIONS);
 }
@@ -1801,7 +1848,7 @@ function renderRiktkursRow(item, company) {
   const rating = translateTargetRating(item.rating);
   return `
     <div class="riktkurs-row">
-      <span>${escapeHtml(item.date ?? "-")}</span>
+      <span>${escapeHtml(translateTargetDate(item.date))}</span>
       <strong>${escapeHtml(analyst)}</strong>
       <span>${escapeHtml(action)}</span>
       <span>${escapeHtml(rating)}</span>
