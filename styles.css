@@ -1449,39 +1449,44 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
 }
 
-/* ---- 5yr CAGR subtab ---- */
-.subtabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 18px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(15, 27, 61, 0.55);
+/* ---- inline 5yr CAGR breakdown ---- */
+.cagr-details {
+  margin-top: -6px;
   border: 1px solid rgba(59, 111, 160, 0.28);
-  width: fit-content;
+  border-radius: 12px;
+  background: rgba(15, 27, 61, 0.35);
+  padding: 10px 14px 14px;
 }
 
-.subtab {
-  border: none;
-  background: transparent;
-  color: var(--muted, #9fb2cc);
-  font-family: inherit;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  padding: 7px 16px;
-  border-radius: 999px;
+.cagr-details > summary {
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
+  list-style: none;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted, #9fb2cc);
+  padding: 2px 0;
 }
 
-.subtab:hover { color: #e8edf3; }
+.cagr-details > summary::-webkit-details-marker { display: none; }
 
-.subtab.is-active {
-  background: rgba(59, 111, 160, 0.35);
-  color: #e8edf3;
+.cagr-details > summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 8px;
+  transition: transform 0.18s ease;
 }
 
-.cagr-breakdown { display: grid; gap: 14px; }
+.cagr-details[open] > summary::before { transform: rotate(90deg); }
+
+.cagr-details > summary:hover { color: #e8edf3; }
+
+.cagr-breakdown { display: grid; gap: 12px; margin-top: 12px; }
+
+.cagr-up { color: #6fd3a6; }
+.cagr-down { color: #f08a8a; }
+.cagr-na { color: var(--muted, #9fb2cc); }
+
 
 .cagr-head {
   display: flex;
