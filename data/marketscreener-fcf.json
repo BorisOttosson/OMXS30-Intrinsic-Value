@@ -1,0 +1,2277 @@
+{
+  "updatedAt": "2026-08-02T21:21:44.294198+00:00",
+  "source": "MarketScreener (financials page) via Firecrawl",
+  "count": 25,
+  "failures": [
+    {
+      "ticker": "SHB-A.ST",
+      "error": "no free cash flow values published for this company"
+    },
+    {
+      "ticker": "INDU-C.ST",
+      "error": "free cash flow row not found"
+    },
+    {
+      "ticker": "NDA-SE.ST",
+      "error": "no free cash flow values published for this company"
+    },
+    {
+      "ticker": "SEB-A.ST",
+      "error": "no free cash flow values published for this company"
+    },
+    {
+      "ticker": "SWED-A.ST",
+      "error": "no free cash flow values published for this company"
+    }
+  ],
+  "companies": {
+    "abb-st": {
+      "ticker": "ABB.ST",
+      "id": "abb-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
+      "retrievedAt": "2026-08-02T21:17:07.310207+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 2510.0
+        },
+        {
+          "year": 2022,
+          "fcf": 525.0
+        },
+        {
+          "year": 2023,
+          "fcf": 3520.0
+        },
+        {
+          "year": 2024,
+          "fcf": 3830.0
+        },
+        {
+          "year": 2025,
+          "fcf": 4566.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 4760.0
+        },
+        {
+          "year": 2027,
+          "fcf": 5702.0
+        },
+        {
+          "year": 2028,
+          "fcf": 6563.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 525.0,
+          "growth": -0.790837
+        },
+        {
+          "year": 2023,
+          "fcf": 3520.0,
+          "growth": 5.704762
+        },
+        {
+          "year": 2024,
+          "fcf": 3830.0,
+          "growth": 0.088068
+        },
+        {
+          "year": 2025,
+          "fcf": 4566.0,
+          "growth": 0.192167
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 4760.0,
+          "growth": 0.042488
+        },
+        {
+          "year": 2027,
+          "fcf": 5702.0,
+          "growth": 0.197899
+        },
+        {
+          "year": 2028,
+          "fcf": 6563.0,
+          "growth": 0.151
+        }
+      ],
+      "historicalFcfCagr": 0.161356,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.128554,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "addt-b-st": {
+      "ticker": "ADDT-B.ST",
+      "id": "addt-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
+      "retrievedAt": "2026-08-02T21:17:11.770106+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2022,
+          "fcf": 1005.0
+        },
+        {
+          "year": 2023,
+          "fcf": 1728.0
+        },
+        {
+          "year": 2024,
+          "fcf": 2396.0
+        },
+        {
+          "year": 2025,
+          "fcf": 2513.0
+        },
+        {
+          "year": 2026,
+          "fcf": 2821.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2027,
+          "fcf": 2820.0
+        },
+        {
+          "year": 2028,
+          "fcf": 3314.0
+        },
+        {
+          "year": 2029,
+          "fcf": 3599.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2023,
+          "fcf": 1728.0,
+          "growth": 0.719403
+        },
+        {
+          "year": 2024,
+          "fcf": 2396.0,
+          "growth": 0.386574
+        },
+        {
+          "year": 2025,
+          "fcf": 2513.0,
+          "growth": 0.048831
+        },
+        {
+          "year": 2026,
+          "fcf": 2821.0,
+          "growth": 0.122563
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2027,
+          "fcf": 2820.0,
+          "growth": -0.000354
+        },
+        {
+          "year": 2028,
+          "fcf": 3314.0,
+          "growth": 0.175177
+        },
+        {
+          "year": 2029,
+          "fcf": 3599.0,
+          "growth": 0.085999
+        }
+      ],
+      "historicalFcfCagr": 0.294372,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.084575,
+      "consensusYears": [
+        2027,
+        2028,
+        2029
+      ]
+    },
+    "alfa-st": {
+      "ticker": "ALFA.ST",
+      "id": "alfa-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
+      "retrievedAt": "2026-08-02T21:17:16.828666+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 4035.0
+        },
+        {
+          "year": 2022,
+          "fcf": 1438.0
+        },
+        {
+          "year": 2023,
+          "fcf": 6729.0
+        },
+        {
+          "year": 2024,
+          "fcf": 8823.0
+        },
+        {
+          "year": 2025,
+          "fcf": 6506.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 6935.0
+        },
+        {
+          "year": 2027,
+          "fcf": 8523.0
+        },
+        {
+          "year": 2028,
+          "fcf": 9760.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 1438.0,
+          "growth": -0.643618
+        },
+        {
+          "year": 2023,
+          "fcf": 6729.0,
+          "growth": 3.679416
+        },
+        {
+          "year": 2024,
+          "fcf": 8823.0,
+          "growth": 0.31119
+        },
+        {
+          "year": 2025,
+          "fcf": 6506.0,
+          "growth": -0.262609
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 6935.0,
+          "growth": 0.065939
+        },
+        {
+          "year": 2027,
+          "fcf": 8523.0,
+          "growth": 0.228983
+        },
+        {
+          "year": 2028,
+          "fcf": 9760.0,
+          "growth": 0.145137
+        }
+      ],
+      "historicalFcfCagr": 0.126854,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.144753,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "assa-b-st": {
+      "ticker": "ASSA-B.ST",
+      "id": "assa-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
+      "retrievedAt": "2026-08-02T21:17:20.252024+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 10827.0
+        },
+        {
+          "year": 2022,
+          "fcf": 12367.0
+        },
+        {
+          "year": 2023,
+          "fcf": 18875.0
+        },
+        {
+          "year": 2024,
+          "fcf": 19328.0
+        },
+        {
+          "year": 2025,
+          "fcf": 18814.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 19147.0
+        },
+        {
+          "year": 2027,
+          "fcf": 20555.0
+        },
+        {
+          "year": 2028,
+          "fcf": 22820.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 12367.0,
+          "growth": 0.142237
+        },
+        {
+          "year": 2023,
+          "fcf": 18875.0,
+          "growth": 0.526239
+        },
+        {
+          "year": 2024,
+          "fcf": 19328.0,
+          "growth": 0.024
+        },
+        {
+          "year": 2025,
+          "fcf": 18814.0,
+          "growth": -0.026594
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 19147.0,
+          "growth": 0.0177
+        },
+        {
+          "year": 2027,
+          "fcf": 20555.0,
+          "growth": 0.073536
+        },
+        {
+          "year": 2028,
+          "fcf": 22820.0,
+          "growth": 0.110192
+        }
+      ],
+      "historicalFcfCagr": 0.148136,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.066461,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "azn-st": {
+      "ticker": "AZN.ST",
+      "id": "azn-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
+      "retrievedAt": "2026-08-02T21:17:23.460707+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 4872.0
+        },
+        {
+          "year": 2022,
+          "fcf": 8717.0
+        },
+        {
+          "year": 2023,
+          "fcf": 8984.0
+        },
+        {
+          "year": 2024,
+          "fcf": 9937.0
+        },
+        {
+          "year": 2025,
+          "fcf": 11765.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 9604.0
+        },
+        {
+          "year": 2027,
+          "fcf": 12959.0
+        },
+        {
+          "year": 2028,
+          "fcf": 14376.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 8717.0,
+          "growth": 0.789204
+        },
+        {
+          "year": 2023,
+          "fcf": 8984.0,
+          "growth": 0.03063
+        },
+        {
+          "year": 2024,
+          "fcf": 9937.0,
+          "growth": 0.106077
+        },
+        {
+          "year": 2025,
+          "fcf": 11765.0,
+          "growth": 0.183959
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 9604.0,
+          "growth": -0.18368
+        },
+        {
+          "year": 2027,
+          "fcf": 12959.0,
+          "growth": 0.349334
+        },
+        {
+          "year": 2028,
+          "fcf": 14376.0,
+          "growth": 0.109345
+        }
+      ],
+      "historicalFcfCagr": 0.246583,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.069093,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "atco-a-st": {
+      "ticker": "ATCO-A.ST",
+      "id": "atco-a-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
+      "retrievedAt": "2026-08-02T21:17:25.043486+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 19793.0
+        },
+        {
+          "year": 2022,
+          "fcf": 16346.0
+        },
+        {
+          "year": 2023,
+          "fcf": 22633.0
+        },
+        {
+          "year": 2024,
+          "fcf": 30863.0
+        },
+        {
+          "year": 2025,
+          "fcf": 26379.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 27003.0
+        },
+        {
+          "year": 2027,
+          "fcf": 33212.0
+        },
+        {
+          "year": 2028,
+          "fcf": 37185.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 16346.0,
+          "growth": -0.174152
+        },
+        {
+          "year": 2023,
+          "fcf": 22633.0,
+          "growth": 0.38462
+        },
+        {
+          "year": 2024,
+          "fcf": 30863.0,
+          "growth": 0.363628
+        },
+        {
+          "year": 2025,
+          "fcf": 26379.0,
+          "growth": -0.145287
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 27003.0,
+          "growth": 0.023655
+        },
+        {
+          "year": 2027,
+          "fcf": 33212.0,
+          "growth": 0.229937
+        },
+        {
+          "year": 2028,
+          "fcf": 37185.0,
+          "growth": 0.119625
+        }
+      ],
+      "historicalFcfCagr": 0.074451,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.121252,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "bol-st": {
+      "ticker": "BOL.ST",
+      "id": "bol-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
+      "retrievedAt": "2026-08-02T21:18:53.908962+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 7148.0
+        },
+        {
+          "year": 2022,
+          "fcf": 6329.0
+        },
+        {
+          "year": 2023,
+          "fcf": -3354.0
+        },
+        {
+          "year": 2024,
+          "fcf": 2663.0
+        },
+        {
+          "year": 2025,
+          "fcf": -9250.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 4300.0
+        },
+        {
+          "year": 2027,
+          "fcf": 8840.0
+        },
+        {
+          "year": 2028,
+          "fcf": 12110.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 6329.0,
+          "growth": -0.114578
+        },
+        {
+          "year": 2023,
+          "fcf": -3354.0,
+          "growth": -1.529942
+        },
+        {
+          "year": 2024,
+          "fcf": 2663.0,
+          "growth": null
+        },
+        {
+          "year": 2025,
+          "fcf": -9250.0,
+          "growth": -4.473526
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 4300.0,
+          "growth": null
+        },
+        {
+          "year": 2027,
+          "fcf": 8840.0,
+          "growth": 1.055814
+        },
+        {
+          "year": 2028,
+          "fcf": 12110.0,
+          "growth": 0.36991
+        }
+      ],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": null,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "ska-b-st": {
+      "ticker": "SKA-B.ST",
+      "id": "ska-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
+      "retrievedAt": "2026-08-02T21:17:54.540756+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 5602.0
+        },
+        {
+          "year": 2022,
+          "fcf": 632.0
+        },
+        {
+          "year": 2023,
+          "fcf": 6447.0
+        },
+        {
+          "year": 2024,
+          "fcf": 4232.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2025,
+          "fcf": 10681.0
+        },
+        {
+          "year": 2026,
+          "fcf": 8426.0
+        },
+        {
+          "year": 2027,
+          "fcf": 8522.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 632.0,
+          "growth": -0.887183
+        },
+        {
+          "year": 2023,
+          "fcf": 6447.0,
+          "growth": 9.200949
+        },
+        {
+          "year": 2024,
+          "fcf": 4232.0,
+          "growth": -0.343571
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2025,
+          "fcf": 10681.0,
+          "growth": 1.523866
+        },
+        {
+          "year": 2026,
+          "fcf": 8426.0,
+          "growth": -0.211123
+        },
+        {
+          "year": 2027,
+          "fcf": 8522.0,
+          "growth": 0.011393
+        }
+      ],
+      "historicalFcfCagr": -0.089246,
+      "historicalFcfCagrYears": 3,
+      "consensusFcfCagr": 0.262792,
+      "consensusYears": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    "skf-b-st": {
+      "ticker": "SKF-B.ST",
+      "id": "skf-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
+      "retrievedAt": "2026-08-02T21:17:57.920912+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 2100.0
+        },
+        {
+          "year": 2022,
+          "fcf": 295.0
+        },
+        {
+          "year": 2023,
+          "fcf": 7916.0
+        },
+        {
+          "year": 2024,
+          "fcf": 5110.0
+        },
+        {
+          "year": 2025,
+          "fcf": 4558.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 4391.0
+        },
+        {
+          "year": 2027,
+          "fcf": 7268.0
+        },
+        {
+          "year": 2028,
+          "fcf": 8443.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 295.0,
+          "growth": -0.859524
+        },
+        {
+          "year": 2023,
+          "fcf": 7916.0,
+          "growth": 25.833898
+        },
+        {
+          "year": 2024,
+          "fcf": 5110.0,
+          "growth": -0.354472
+        },
+        {
+          "year": 2025,
+          "fcf": 4558.0,
+          "growth": -0.108023
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 4391.0,
+          "growth": -0.036639
+        },
+        {
+          "year": 2027,
+          "fcf": 7268.0,
+          "growth": 0.655204
+        },
+        {
+          "year": 2028,
+          "fcf": 8443.0,
+          "growth": 0.161668
+        }
+      ],
+      "historicalFcfCagr": 0.213777,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.22812,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "tel2-b-st": {
+      "ticker": "TEL2-B.ST",
+      "id": "tel2-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
+      "retrievedAt": "2026-08-02T21:18:04.937622+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 6970.0
+        },
+        {
+          "year": 2022,
+          "fcf": 4689.0
+        },
+        {
+          "year": 2023,
+          "fcf": 5960.0
+        },
+        {
+          "year": 2024,
+          "fcf": 5806.0
+        },
+        {
+          "year": 2025,
+          "fcf": 7650.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 9734.0
+        },
+        {
+          "year": 2027,
+          "fcf": 8861.0
+        },
+        {
+          "year": 2028,
+          "fcf": 9104.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 4689.0,
+          "growth": -0.32726
+        },
+        {
+          "year": 2023,
+          "fcf": 5960.0,
+          "growth": 0.27106
+        },
+        {
+          "year": 2024,
+          "fcf": 5806.0,
+          "growth": -0.025839
+        },
+        {
+          "year": 2025,
+          "fcf": 7650.0,
+          "growth": 0.317602
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 9734.0,
+          "growth": 0.272418
+        },
+        {
+          "year": 2027,
+          "fcf": 8861.0,
+          "growth": -0.089686
+        },
+        {
+          "year": 2028,
+          "fcf": 9104.0,
+          "growth": 0.027424
+        }
+      ],
+      "historicalFcfCagr": 0.023546,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.059718,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "telia-st": {
+      "ticker": "TELIA.ST",
+      "id": "telia-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
+      "retrievedAt": "2026-08-02T21:18:07.936377+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 11729.0
+        },
+        {
+          "year": 2022,
+          "fcf": 8094.0
+        },
+        {
+          "year": 2023,
+          "fcf": 9204.0
+        },
+        {
+          "year": 2024,
+          "fcf": 4023.0
+        },
+        {
+          "year": 2025,
+          "fcf": 9282.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 9311.0
+        },
+        {
+          "year": 2027,
+          "fcf": 10630.0
+        },
+        {
+          "year": 2028,
+          "fcf": 11256.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 8094.0,
+          "growth": -0.309916
+        },
+        {
+          "year": 2023,
+          "fcf": 9204.0,
+          "growth": 0.137139
+        },
+        {
+          "year": 2024,
+          "fcf": 4023.0,
+          "growth": -0.562907
+        },
+        {
+          "year": 2025,
+          "fcf": 9282.0,
+          "growth": 1.307233
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 9311.0,
+          "growth": 0.003124
+        },
+        {
+          "year": 2027,
+          "fcf": 10630.0,
+          "growth": 0.14166
+        },
+        {
+          "year": 2028,
+          "fcf": 11256.0,
+          "growth": 0.05889
+        }
+      ],
+      "historicalFcfCagr": -0.056819,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.066385,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "volv-b-st": {
+      "ticker": "VOLV-B.ST",
+      "id": "volv-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
+      "retrievedAt": "2026-08-02T21:18:09.466322+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 15530.0
+        },
+        {
+          "year": 2022,
+          "fcf": 12788.0
+        },
+        {
+          "year": 2023,
+          "fcf": 11130.0
+        },
+        {
+          "year": 2024,
+          "fcf": 28540.0
+        },
+        {
+          "year": 2025,
+          "fcf": 20135.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 34256.0
+        },
+        {
+          "year": 2027,
+          "fcf": 41045.0
+        },
+        {
+          "year": 2028,
+          "fcf": 44071.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 12788.0,
+          "growth": -0.176561
+        },
+        {
+          "year": 2023,
+          "fcf": 11130.0,
+          "growth": -0.129653
+        },
+        {
+          "year": 2024,
+          "fcf": 28540.0,
+          "growth": 1.564241
+        },
+        {
+          "year": 2025,
+          "fcf": 20135.0,
+          "growth": -0.294499
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 34256.0,
+          "growth": 0.701316
+        },
+        {
+          "year": 2027,
+          "fcf": 41045.0,
+          "growth": 0.198184
+        },
+        {
+          "year": 2028,
+          "fcf": 44071.0,
+          "growth": 0.073724
+        }
+      ],
+      "historicalFcfCagr": 0.067075,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.298376,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "epi-a-st": {
+      "ticker": "EPI-A.ST",
+      "id": "epi-a-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
+      "retrievedAt": "2026-08-02T21:19:01.391825+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 6681.0
+        },
+        {
+          "year": 2022,
+          "fcf": 4544.0
+        },
+        {
+          "year": 2023,
+          "fcf": 5456.0
+        },
+        {
+          "year": 2024,
+          "fcf": 8604.0
+        },
+        {
+          "year": 2025,
+          "fcf": 8680.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 8704.0
+        },
+        {
+          "year": 2027,
+          "fcf": 10757.0
+        },
+        {
+          "year": 2028,
+          "fcf": 12716.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 4544.0,
+          "growth": -0.319862
+        },
+        {
+          "year": 2023,
+          "fcf": 5456.0,
+          "growth": 0.200704
+        },
+        {
+          "year": 2024,
+          "fcf": 8604.0,
+          "growth": 0.576979
+        },
+        {
+          "year": 2025,
+          "fcf": 8680.0,
+          "growth": 0.008833
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 8704.0,
+          "growth": 0.002765
+        },
+        {
+          "year": 2027,
+          "fcf": 10757.0,
+          "growth": 0.235869
+        },
+        {
+          "year": 2028,
+          "fcf": 12716.0,
+          "growth": 0.182114
+        }
+      ],
+      "historicalFcfCagr": 0.067627,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.135735,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "eqt-st": {
+      "ticker": "EQT.ST",
+      "id": "eqt-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
+      "retrievedAt": "2026-08-02T21:19:10.344970+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 597.0
+        },
+        {
+          "year": 2022,
+          "fcf": 518.0
+        },
+        {
+          "year": 2023,
+          "fcf": 922.0
+        },
+        {
+          "year": 2024,
+          "fcf": 447.0
+        },
+        {
+          "year": 2025,
+          "fcf": 395.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 1992.0
+        },
+        {
+          "year": 2027,
+          "fcf": 2620.0
+        },
+        {
+          "year": 2028,
+          "fcf": 3095.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 518.0,
+          "growth": -0.132328
+        },
+        {
+          "year": 2023,
+          "fcf": 922.0,
+          "growth": 0.779923
+        },
+        {
+          "year": 2024,
+          "fcf": 447.0,
+          "growth": -0.515184
+        },
+        {
+          "year": 2025,
+          "fcf": 395.0,
+          "growth": -0.116331
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 1992.0,
+          "growth": 4.043038
+        },
+        {
+          "year": 2027,
+          "fcf": 2620.0,
+          "growth": 0.315261
+        },
+        {
+          "year": 2028,
+          "fcf": 3095.0,
+          "growth": 0.181298
+        }
+      ],
+      "historicalFcfCagr": -0.098106,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.986192,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "eric-b-st": {
+      "ticker": "ERIC-B.ST",
+      "id": "eric-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
+      "retrievedAt": "2026-08-02T21:19:19.329951+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 35517.0
+        },
+        {
+          "year": 2022,
+          "fcf": 26635.0
+        },
+        {
+          "year": 2023,
+          "fcf": 3880.0
+        },
+        {
+          "year": 2024,
+          "fcf": 43921.0
+        },
+        {
+          "year": 2025,
+          "fcf": 26769.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 22862.0
+        },
+        {
+          "year": 2027,
+          "fcf": 26082.0
+        },
+        {
+          "year": 2028,
+          "fcf": 26529.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 26635.0,
+          "growth": -0.250077
+        },
+        {
+          "year": 2023,
+          "fcf": 3880.0,
+          "growth": -0.854327
+        },
+        {
+          "year": 2024,
+          "fcf": 43921.0,
+          "growth": 10.319845
+        },
+        {
+          "year": 2025,
+          "fcf": 26769.0,
+          "growth": -0.390519
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 22862.0,
+          "growth": -0.145952
+        },
+        {
+          "year": 2027,
+          "fcf": 26082.0,
+          "growth": 0.140845
+        },
+        {
+          "year": 2028,
+          "fcf": 26529.0,
+          "growth": 0.017138
+        }
+      ],
+      "historicalFcfCagr": -0.068251,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": -0.002998,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "essity-b-st": {
+      "ticker": "ESSITY-B.ST",
+      "id": "essity-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
+      "retrievedAt": "2026-08-02T21:19:28.324153+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 7309.0
+        },
+        {
+          "year": 2022,
+          "fcf": 5925.0
+        },
+        {
+          "year": 2023,
+          "fcf": 12227.0
+        },
+        {
+          "year": 2024,
+          "fcf": 9773.0
+        },
+        {
+          "year": 2025,
+          "fcf": 8369.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 10434.0
+        },
+        {
+          "year": 2027,
+          "fcf": 12299.0
+        },
+        {
+          "year": 2028,
+          "fcf": 13338.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 5925.0,
+          "growth": -0.189356
+        },
+        {
+          "year": 2023,
+          "fcf": 12227.0,
+          "growth": 1.063629
+        },
+        {
+          "year": 2024,
+          "fcf": 9773.0,
+          "growth": -0.200703
+        },
+        {
+          "year": 2025,
+          "fcf": 8369.0,
+          "growth": -0.143661
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 10434.0,
+          "growth": 0.246744
+        },
+        {
+          "year": 2027,
+          "fcf": 12299.0,
+          "growth": 0.178743
+        },
+        {
+          "year": 2028,
+          "fcf": 13338.0,
+          "growth": 0.084478
+        }
+      ],
+      "historicalFcfCagr": 0.034437,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.168079,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "evo-st": {
+      "ticker": "EVO.ST",
+      "id": "evo-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
+      "retrievedAt": "2026-08-02T21:19:37.446889+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 565.6
+        },
+        {
+          "year": 2022,
+          "fcf": 780.5
+        },
+        {
+          "year": 2023,
+          "fcf": 1074.0
+        },
+        {
+          "year": 2024,
+          "fcf": 1164.0
+        },
+        {
+          "year": 2025,
+          "fcf": 1120.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 1066.0
+        },
+        {
+          "year": 2027,
+          "fcf": 1105.0
+        },
+        {
+          "year": 2028,
+          "fcf": 1176.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 780.5,
+          "growth": 0.37995
+        },
+        {
+          "year": 2023,
+          "fcf": 1074.0,
+          "growth": 0.376041
+        },
+        {
+          "year": 2024,
+          "fcf": 1164.0,
+          "growth": 0.083799
+        },
+        {
+          "year": 2025,
+          "fcf": 1120.0,
+          "growth": -0.037801
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 1066.0,
+          "growth": -0.048214
+        },
+        {
+          "year": 2027,
+          "fcf": 1105.0,
+          "growth": 0.036585
+        },
+        {
+          "year": 2028,
+          "fcf": 1176.0,
+          "growth": 0.064253
+        }
+      ],
+      "historicalFcfCagr": 0.186253,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.016396,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "hm-b-st": {
+      "ticker": "HM-B.ST",
+      "id": "hm-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
+      "retrievedAt": "2026-08-02T21:19:57.474354+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 41155.0
+        },
+        {
+          "year": 2022,
+          "fcf": 18465.0
+        },
+        {
+          "year": 2023,
+          "fcf": 24985.0
+        },
+        {
+          "year": 2024,
+          "fcf": 20308.0
+        },
+        {
+          "year": 2025,
+          "fcf": 20441.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 23116.0
+        },
+        {
+          "year": 2027,
+          "fcf": 25632.0
+        },
+        {
+          "year": 2028,
+          "fcf": 26014.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 18465.0,
+          "growth": -0.55133
+        },
+        {
+          "year": 2023,
+          "fcf": 24985.0,
+          "growth": 0.3531
+        },
+        {
+          "year": 2024,
+          "fcf": 20308.0,
+          "growth": -0.187192
+        },
+        {
+          "year": 2025,
+          "fcf": 20441.0,
+          "growth": 0.006549
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 23116.0,
+          "growth": 0.130864
+        },
+        {
+          "year": 2027,
+          "fcf": 25632.0,
+          "growth": 0.108842
+        },
+        {
+          "year": 2028,
+          "fcf": 26014.0,
+          "growth": 0.014903
+        }
+      ],
+      "historicalFcfCagr": -0.160502,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.083682,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "hexa-b-st": {
+      "ticker": "HEXA-B.ST",
+      "id": "hexa-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
+      "retrievedAt": "2026-08-02T21:20:06.511206+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 932.0
+        },
+        {
+          "year": 2022,
+          "fcf": 820.0
+        },
+        {
+          "year": 2023,
+          "fcf": 853.6
+        },
+        {
+          "year": 2024,
+          "fcf": 1055.0
+        },
+        {
+          "year": 2025,
+          "fcf": 1030.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 736.6
+        },
+        {
+          "year": 2027,
+          "fcf": 822.0
+        },
+        {
+          "year": 2028,
+          "fcf": 952.3
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 820.0,
+          "growth": -0.120172
+        },
+        {
+          "year": 2023,
+          "fcf": 853.6,
+          "growth": 0.040976
+        },
+        {
+          "year": 2024,
+          "fcf": 1055.0,
+          "growth": 0.235942
+        },
+        {
+          "year": 2025,
+          "fcf": 1030.0,
+          "growth": -0.023697
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 736.6,
+          "growth": -0.284854
+        },
+        {
+          "year": 2027,
+          "fcf": 822.0,
+          "growth": 0.115938
+        },
+        {
+          "year": 2028,
+          "fcf": 952.3,
+          "growth": 0.158516
+        }
+      ],
+      "historicalFcfCagr": 0.02531,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": -0.025806,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "inve-b-st": {
+      "ticker": "INVE-B.ST",
+      "id": "inve-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
+      "retrievedAt": "2026-08-02T21:20:25.043352+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 31624.0
+        },
+        {
+          "year": 2022,
+          "fcf": 140257.0
+        },
+        {
+          "year": 2023,
+          "fcf": -44446.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2024,
+          "fcf": 79768.0
+        },
+        {
+          "year": 2025,
+          "fcf": 78539.0
+        },
+        {
+          "year": 2026,
+          "fcf": 102550.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 140257.0,
+          "growth": 3.435144
+        },
+        {
+          "year": 2023,
+          "fcf": -44446.0,
+          "growth": -1.31689
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2024,
+          "fcf": 79768.0,
+          "growth": null
+        },
+        {
+          "year": 2025,
+          "fcf": 78539.0,
+          "growth": -0.015407
+        },
+        {
+          "year": 2026,
+          "fcf": 102550.0,
+          "growth": 0.305721
+        }
+      ],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 2,
+      "consensusFcfCagr": null,
+      "consensusYears": [
+        2024,
+        2025,
+        2026
+      ]
+    },
+    "lifco-b-st": {
+      "ticker": "LIFCO-B.ST",
+      "id": "lifco-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
+      "retrievedAt": "2026-08-02T21:20:34.107136+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 2672.0
+        },
+        {
+          "year": 2022,
+          "fcf": 2820.0
+        },
+        {
+          "year": 2023,
+          "fcf": 4071.0
+        },
+        {
+          "year": 2024,
+          "fcf": 4038.0
+        },
+        {
+          "year": 2025,
+          "fcf": 4652.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 4880.0
+        },
+        {
+          "year": 2027,
+          "fcf": 5526.0
+        },
+        {
+          "year": 2028,
+          "fcf": 6080.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 2820.0,
+          "growth": 0.055389
+        },
+        {
+          "year": 2023,
+          "fcf": 4071.0,
+          "growth": 0.443617
+        },
+        {
+          "year": 2024,
+          "fcf": 4038.0,
+          "growth": -0.008106
+        },
+        {
+          "year": 2025,
+          "fcf": 4652.0,
+          "growth": 0.152055
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 4880.0,
+          "growth": 0.049011
+        },
+        {
+          "year": 2027,
+          "fcf": 5526.0,
+          "growth": 0.132377
+        },
+        {
+          "year": 2028,
+          "fcf": 6080.0,
+          "growth": 0.100253
+        }
+      ],
+      "historicalFcfCagr": 0.148685,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.093338,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "nibe-b-st": {
+      "ticker": "NIBE-B.ST",
+      "id": "nibe-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
+      "retrievedAt": "2026-08-02T21:20:43.081164+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 2021.0
+        },
+        {
+          "year": 2022,
+          "fcf": 549.0
+        },
+        {
+          "year": 2023,
+          "fcf": -22.0
+        },
+        {
+          "year": 2024,
+          "fcf": 1782.0
+        },
+        {
+          "year": 2025,
+          "fcf": 2030.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 3953.0
+        },
+        {
+          "year": 2027,
+          "fcf": 4211.0
+        },
+        {
+          "year": 2028,
+          "fcf": 4693.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 549.0,
+          "growth": -0.728352
+        },
+        {
+          "year": 2023,
+          "fcf": -22.0,
+          "growth": -1.040073
+        },
+        {
+          "year": 2024,
+          "fcf": 1782.0,
+          "growth": null
+        },
+        {
+          "year": 2025,
+          "fcf": 2030.0,
+          "growth": 0.139169
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 3953.0,
+          "growth": 0.947291
+        },
+        {
+          "year": 2027,
+          "fcf": 4211.0,
+          "growth": 0.065267
+        },
+        {
+          "year": 2028,
+          "fcf": 4693.0,
+          "growth": 0.114462
+        }
+      ],
+      "historicalFcfCagr": 0.001111,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.322264,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "saab-b-st": {
+      "ticker": "SAAB-B.ST",
+      "id": "saab-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
+      "retrievedAt": "2026-08-02T21:21:02.581900+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 3193.0
+        },
+        {
+          "year": 2022,
+          "fcf": 2344.0
+        },
+        {
+          "year": 2023,
+          "fcf": 2924.0
+        },
+        {
+          "year": 2024,
+          "fcf": 1893.0
+        },
+        {
+          "year": 2025,
+          "fcf": 462.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 2855.0
+        },
+        {
+          "year": 2027,
+          "fcf": 3144.0
+        },
+        {
+          "year": 2028,
+          "fcf": 4776.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 2344.0,
+          "growth": -0.265894
+        },
+        {
+          "year": 2023,
+          "fcf": 2924.0,
+          "growth": 0.24744
+        },
+        {
+          "year": 2024,
+          "fcf": 1893.0,
+          "growth": -0.352599
+        },
+        {
+          "year": 2025,
+          "fcf": 462.0,
+          "growth": -0.755943
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 2855.0,
+          "growth": 5.179654
+        },
+        {
+          "year": 2027,
+          "fcf": 3144.0,
+          "growth": 0.101226
+        },
+        {
+          "year": 2028,
+          "fcf": 4776.0,
+          "growth": 0.519084
+        }
+      ],
+      "historicalFcfCagr": -0.383248,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 1.178416,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "sand-st": {
+      "ticker": "SAND.ST",
+      "id": "sand-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
+      "retrievedAt": "2026-08-02T21:21:12.688736+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 9639.0
+        },
+        {
+          "year": 2022,
+          "fcf": 6858.0
+        },
+        {
+          "year": 2023,
+          "fcf": 13443.0
+        },
+        {
+          "year": 2024,
+          "fcf": 15766.0
+        },
+        {
+          "year": 2025,
+          "fcf": 15382.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 18242.0
+        },
+        {
+          "year": 2027,
+          "fcf": 23524.0
+        },
+        {
+          "year": 2028,
+          "fcf": 26598.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 6858.0,
+          "growth": -0.288515
+        },
+        {
+          "year": 2023,
+          "fcf": 13443.0,
+          "growth": 0.960192
+        },
+        {
+          "year": 2024,
+          "fcf": 15766.0,
+          "growth": 0.172804
+        },
+        {
+          "year": 2025,
+          "fcf": 15382.0,
+          "growth": -0.024356
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 18242.0,
+          "growth": 0.185932
+        },
+        {
+          "year": 2027,
+          "fcf": 23524.0,
+          "growth": 0.289552
+        },
+        {
+          "year": 2028,
+          "fcf": 26598.0,
+          "growth": 0.130675
+        }
+      ],
+      "historicalFcfCagr": 0.123945,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.200269,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "sca-b-st": {
+      "ticker": "SCA-B.ST",
+      "id": "sca-b-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
+      "retrievedAt": "2026-08-02T21:21:22.170161+00:00",
+      "currency": "SEK",
+      "unit": "million",
+      "fcfHistory": [
+        {
+          "year": 2021,
+          "fcf": 1056.0
+        },
+        {
+          "year": 2022,
+          "fcf": 623.0
+        },
+        {
+          "year": 2023,
+          "fcf": 959.0
+        },
+        {
+          "year": 2024,
+          "fcf": 1875.0
+        },
+        {
+          "year": 2025,
+          "fcf": 1202.0
+        }
+      ],
+      "fcfForecast": [
+        {
+          "year": 2026,
+          "fcf": 2829.0
+        },
+        {
+          "year": 2027,
+          "fcf": 1827.0
+        },
+        {
+          "year": 2028,
+          "fcf": 2177.0
+        }
+      ],
+      "historyYoy": [
+        {
+          "year": 2022,
+          "fcf": 623.0,
+          "growth": -0.410038
+        },
+        {
+          "year": 2023,
+          "fcf": 959.0,
+          "growth": 0.539326
+        },
+        {
+          "year": 2024,
+          "fcf": 1875.0,
+          "growth": 0.955162
+        },
+        {
+          "year": 2025,
+          "fcf": 1202.0,
+          "growth": -0.358933
+        }
+      ],
+      "forecastYoy": [
+        {
+          "year": 2026,
+          "fcf": 2829.0,
+          "growth": 1.353577
+        },
+        {
+          "year": 2027,
+          "fcf": 1827.0,
+          "growth": -0.354189
+        },
+        {
+          "year": 2028,
+          "fcf": 2177.0,
+          "growth": 0.191571
+        }
+      ],
+      "historicalFcfCagr": 0.032904,
+      "historicalFcfCagrYears": 4,
+      "consensusFcfCagr": 0.218947,
+      "consensusYears": [
+        2026,
+        2027,
+        2028
+      ]
+    }
+  }
+}
