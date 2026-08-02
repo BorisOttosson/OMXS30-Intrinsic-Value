@@ -3,6 +3,7 @@ const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS3
 const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
+const MARKETSCREENER_DATA_URL = `${RAW_DATA_BASE_URL}/marketscreener-fcf.json`;
 const TARGET_PRICE_DATA_URLS = [
   `${RAW_DATA_BASE_URL}/riktkurser.json`,
   `${RAW_DATA_BASE_URL}/price_targets.json`
@@ -1391,11 +1392,26 @@ function getStance(marginOfSafety, qualityScore) {
   return { key: "stretched", label: "Stretched" };
 }
 
+let marketScreenerFcf = null;
+
+async function loadMarketScreenerFcf() {
+  try {
+    const response = await fetch(`${MARKETSCREENER_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    marketScreenerFcf = payload?.companies ?? null;
+    renderAll();
+  } catch (error) {
+    marketScreenerFcf = null;
+  }
+}
+
 function initialize() {
   populateSectorFilter();
   bindEvents();
   renderAll();
   loadMarketData({ quiet: true });
+  loadMarketScreenerFcf();
 }
 
 function populateSectorFilter() {
@@ -1686,18 +1702,13 @@ function renderGrowthMeta(company) {
 
   const consensusMeta = document.querySelector("#consensusGrowthMeta");
   if (consensusMeta) {
-    consensusMeta.innerHTML = `Source: <a href="${escapeHtml(tradingViewUrl(company))}" target="_blank" rel="noopener">TradingView</a>`;
+    const row = marketScreenerFcf?.[company?.id] ?? null;
+    const url = row?.sourceUrl ?? "https://www.marketscreener.com/";
+    const asOf = formatShortDate(row?.retrievedAt ?? company?.consensusGrowthAsOf);
+    consensusMeta.innerHTML =
+      `Source: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">MarketScreener</a>` +
+      (asOf ? ` (${escapeHtml(asOf)})` : "");
   }
-}
-
-function tradingViewUrl(company) {
-  const symbol = String(company?.ticker ?? "")
-    .replace(/\.ST$/i, "")
-    .replace(/-/g, "_")
-    .toUpperCase();
-  return symbol
-    ? `https://www.tradingview.com/symbols/OMXSTO-${symbol}/forecast/`
-    : "https://www.tradingview.com/markets/stocks-sweden/";
 }
 
 function formatFcfAmount(value, currency = "SEK") {
