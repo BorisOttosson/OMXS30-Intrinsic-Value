@@ -1686,17 +1686,18 @@ function renderGrowthMeta(company) {
 
   const consensusMeta = document.querySelector("#consensusGrowthMeta");
   if (consensusMeta) {
-    const asOf = formatShortDate(company.consensusGrowthAsOf);
-    consensusMeta.textContent = `Source: ${company.consensusGrowthSource || "not set"} | As of: ${asOf ?? "not set"}`;
+    consensusMeta.innerHTML = `Source: <a href="${escapeHtml(tradingViewUrl(company))}" target="_blank" rel="noopener">TradingView</a>`;
   }
+}
 
-  const staleBadge = document.querySelector("#consensusGrowthStale");
-  if (staleBadge) {
-    const age = daysSince(company.consensusGrowthAsOf);
-    const stale = age === null || age > 90;
-    staleBadge.hidden = !stale;
-    staleBadge.textContent = age === null ? "no date" : `stale (${age} d)`;
-  }
+function tradingViewUrl(company) {
+  const symbol = String(company?.ticker ?? "")
+    .replace(/\.ST$/i, "")
+    .replace(/-/g, "_")
+    .toUpperCase();
+  return symbol
+    ? `https://www.tradingview.com/symbols/OMXSTO-${symbol}/forecast/`
+    : "https://www.tradingview.com/markets/stocks-sweden/";
 }
 
 function formatFcfAmount(value, currency = "SEK") {
