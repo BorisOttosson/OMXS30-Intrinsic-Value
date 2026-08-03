@@ -1221,16 +1221,43 @@ def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> d
     }
 
 
-def borsapi_ebitda(report: dict[str, Any]) -> float | None:
+BORSAPI_CASHFLOW_DEPRECIATION_KEYS = (
+    "ka_depreciation_amortization",
+    "depreciation_and_amortization",
+    "depreciation_amortization",
+    "depreciation",
+)
+
+
+def borsapi_ebitda(
+    report: dict[str, Any],
+    cashflow_report: dict[str, Any] | None = None,
+) -> float | None:
+    """EBITDA from the income statement, or EBIT + D&A as a fallback.
+
+    Several BörsAPI issuers (Telia, SKF, Lifco, Industrivarden) never publish an
+    explicit EBITDA line, and some report depreciation only in the cash-flow
+    statement (KA) rather than the income statement (RR). Look in both.
+    """
     ebitda = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBITDA_KEYS)
     if ebitda is not None:
         return ebitda
 
     ebit = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBIT_KEYS)
+    if ebit is None:
+        return None
+
     depreciation = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_DEPRECIATION_KEYS)
-    if ebit is not None and depreciation is not None:
-        return ebit - depreciation if depreciation < 0 else ebit + depreciation
-    return None
+    if depreciation is None and cashflow_report:
+        depreciation = borsapi_number(
+            cashflow_report, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_CASHFLOW_DEPRECIATION_KEYS
+        )
+    if depreciation is None:
+        return None
+
+    # D&A is stored as a negative charge in RR and a positive add-back in KA.
+    return ebit - depreciation if depreciation < 0 else ebit + depreciation
+
 
 
 def positive(value: Any) -> float | None:
@@ -1818,7 +1845,8 @@ def fetch_borsapi_company(
     exchange_rate = get_exchange_rate(str(financial_currency), str(quote_currency), fx_cache)
 
     revenue = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_REVENUE_KEYS)
-    ebitda = borsapi_ebitda(latest_income)
+    ebitda = borsapi_ebitda(latest_income, latest_cashflow)
+
     ebit = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBIT_KEYS)
     net_income = borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_NET_INCOME_KEYS)
     operating_cashflow = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_OPERATING_CASHFLOW_KEYS)
