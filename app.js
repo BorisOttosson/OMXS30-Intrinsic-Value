@@ -1994,7 +1994,22 @@ function renderFundamentals() {
   ].filter(Boolean).join(" | ");
   elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
-  elements.fundEbitda.textContent = formatCurrency(numberOrNull(fundamentals.ebitda), currency);
+  const isBank = normalizeCompanyType(company.companyType, company.ticker) === "bank";
+  const naText = "N/A (not applicable)";
+  const naTitle = "EBITDA is not a meaningful metric for banks.";
+  if (isBank) {
+    elements.fundEbitda.textContent = naText;
+    elements.fundEbitda.className = "is-na";
+    elements.fundEbitda.style.color = "var(--muted)";
+    elements.fundEbitda.style.fontSize = "0.85em";
+    elements.fundEbitda.title = naTitle;
+  } else {
+    elements.fundEbitda.textContent = formatCurrency(numberOrNull(fundamentals.ebitda), currency);
+    elements.fundEbitda.className = "";
+    elements.fundEbitda.style.color = "";
+    elements.fundEbitda.style.fontSize = "";
+    elements.fundEbitda.title = "";
+  }
   elements.fundFcf.textContent = formatCurrency(numberOrNull(fundamentals.freeCashFlow), currency);
   elements.fundAssets.textContent = formatCurrency(numberOrNull(fundamentals.totalAssets), currency);
   elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
@@ -2005,9 +2020,21 @@ function renderFundamentals() {
   elements.fundShares.title = fundamentals.sharesOutstandingSource
     ? `Outstanding shares - ${fundamentals.sharesOutstandingSource}`
     : "Outstanding shares from Yahoo Finance";
-  elements.fundEvEbitda.textContent = Number.isFinite(numberOrNull(fundamentals.evToEbitda))
-    ? `${formatDecimal(numberOrNull(fundamentals.evToEbitda), 1)}x`
-    : "-";
+  if (isBank) {
+    elements.fundEvEbitda.textContent = naText;
+    elements.fundEvEbitda.className = "is-na";
+    elements.fundEvEbitda.style.color = "var(--muted)";
+    elements.fundEvEbitda.style.fontSize = "0.85em";
+    elements.fundEvEbitda.title = naTitle;
+  } else {
+    elements.fundEvEbitda.textContent = Number.isFinite(numberOrNull(fundamentals.evToEbitda))
+      ? `${formatDecimal(numberOrNull(fundamentals.evToEbitda), 1)}x`
+      : "-";
+    elements.fundEvEbitda.className = "";
+    elements.fundEvEbitda.style.color = "";
+    elements.fundEvEbitda.style.fontSize = "";
+    elements.fundEvEbitda.title = "";
+  }
   elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
   elements.fundFcfYield.className = fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative");
 }
