@@ -1097,7 +1097,56 @@ def borsapi_is_single_quarter(report: dict[str, Any]) -> bool:
     months = finite(report.get("period_months"))
     if months is not None and int(months) != 3:
         return False
-    return borsapi_report_basis(report) in (None, "quarter")
+    basis = borsapi_report_basis(report)
+    if basis == "quarter":
+        return True
+    if basis is None:
+        # An unlabelled row is only a quarter if its period looks like one.
+        period = str(report.get("period") or "").upper()
+        if re.search(r"Q[1-4]\s*(19|20)\d{2}|(19|20)\d{2}\s*-?\s*Q[1-4]", period):
+            return True
+    return False
+
+
+def borsapi_report_age_days(report: dict[str, Any] | None) -> int | None:
+    """Days since the report_date of a BörsAPI report."""
+    if not report:
+        return None
+    report_date = parse_report_date(report.get("report_date") or report.get("date"))
+    if report_date == datetime.min:
+        return None
+    return (datetime.now(timezone.utc).replace(tzinfo=None) - report_date).days
+
+
+def borsapi_newest_report(reports: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return the newest report by report_date/period sort key."""
+    if not reports:
+        return None
+    return sorted(reports, key=report_sort_key, reverse=True)[0]
+
+
+def borsapi_normalize_quarter_key(report: dict[str, Any]) -> str:
+    """Return a stable period key for a single-quarter report.
+
+    BörsAPI sometimes labels the same quarter as '2025-Q4', 'Q4 2025',
+    '2025-12-31', etc. Normalizing to 'YYYY-QN' lets us merge the RR/BR/KA
+    rows for the same quarter without double-counting.
+    """
+    period = str(report.get("period") or "").strip().upper()
+    # Prefer an explicit quarter label.
+    match = re.search(r"(?P<year>(19|20)\d{2})\s*-?\s*Q(?P<q>[1-4])", period)
+    if match:
+        return f"{match.group('year')}-Q{match.group('q')}"
+    match = re.search(r"Q(?P<q>[1-4])\s*(?P<year>(19|20)\d{2})", period)
+    if match:
+        return f"{match.group('year')}-Q{match.group('q')}"
+    # Fall back to the calendar quarter of the report_date.
+    report_date = parse_report_date(report.get("report_date") or report.get("date"))
+    if report_date != datetime.min:
+        quarter = ((report_date.month - 1) // 3) + 1
+        return f"{report_date.year}-Q{quarter}"
+    # Last resort: raw period string.
+    return period
 
 
 def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> dict[str, Any]:
@@ -1115,13 +1164,21 @@ def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> d
             continue
         # BörsAPI returns one row per report_type (RR/BR/KA) for the same
         # period; merge them so a quarter is counted once with all its fields.
-        period_key = str(report.get("period") or report.get("report_date") or "").strip()
+        period_key = borsapi_normalize_quarter_key(report)
         if not period_key:
             continue
         target = merged_by_period.setdefault(period_key, {})
         for key, value in report.items():
             if value not in (None, "", [], {}) and target.get(key) in (None, "", [], {}):
                 target[key] = value
+        # Make sure the merged row carries the normalized period and the best
+        # report_date we have, so downstream sorting and labels are consistent.
+        target.setdefault("period", period_key)
+        report_date = parse_report_date(report.get("report_date") or report.get("date"))
+        if report_date != datetime.min:
+            existing_date = parse_report_date(target.get("report_date") or target.get("date"))
+            if existing_date == datetime.min or report_date > existing_date:
+                target["report_date"] = report_date.isoformat()
 
     quarters = sorted(merged_by_period.values(), key=report_sort_key, reverse=True)[:4]
     if len(quarters) < 4:
@@ -1145,13 +1202,21 @@ def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> d
 
     latest = quarters[0]
     periods = [str(row.get("period") or "").strip() for row in quarters if row.get("period")]
+    # Deduplicate while preserving order.
+    seen: set[str] = set()
+    unique_periods: list[str] = []
+    for period in periods:
+        if period and period not in seen:
+            seen.add(period)
+            unique_periods.append(period)
+
     return {
         "report_type": report_type.upper(),
-        "period": f"TTM through {periods[0]}" if periods else "TTM",
+        "period": f"TTM through {unique_periods[0]}" if unique_periods else "TTM",
         "period_type": "ttm",
         "report_date": latest.get("report_date") or latest.get("date"),
         "currency": latest.get("currency"),
-        "synthesized_from_quarters": periods,
+        "synthesized_from_quarters": unique_periods,
         **totals,
     }
 
@@ -1637,7 +1702,21 @@ def fetch_borsapi_company(
 
     # BörsAPI does not store a pre-computed TTM row for every company; rebuild it
     # from the four most recent single quarters when the ttm request is empty.
-    if not latest_income or not latest_cashflow:
+    # Also rebuild when the stored TTM is stale (older than ~one quarter) and
+    # newer quarterly reports are available.
+    BORSAPI_TTM_STALENESS_DAYS = 95
+    income_stale = (
+        latest_income is not None
+        and borsapi_report_age_days(latest_income) is not None
+        and borsapi_report_age_days(latest_income) > BORSAPI_TTM_STALENESS_DAYS
+    )
+    cashflow_stale = (
+        latest_cashflow is not None
+        and borsapi_report_age_days(latest_cashflow) is not None
+        and borsapi_report_age_days(latest_cashflow) > BORSAPI_TTM_STALENESS_DAYS
+    )
+
+    if not latest_income or not latest_cashflow or income_stale or cashflow_stale:
         quarter_payload = fetch_borsapi_json(
             report_path,
             api_key,
@@ -1646,24 +1725,46 @@ def fetch_borsapi_company(
             **{**common_report_params, "limit": 24},
         )
         quarter_reports = borsapi_reports(quarter_payload)
-        if not latest_income:
+        newest_quarter = borsapi_newest_report(quarter_reports)
+
+        if not latest_income or income_stale:
             synthetic = borsapi_synthesize_ttm(quarter_reports, "RR")
             if synthetic:
-                latest_income = synthetic
-                income_reports = [synthetic, *income_reports]
-                errors.append(
-                    "BörsAPI: no stored TTM income statement; summed the last four quarters "
-                    f"({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                synthetic_newer = (
+                    newest_quarter
+                    and report_sort_key(synthetic) > report_sort_key(latest_income)
+                    if latest_income
+                    else True
                 )
-        if not latest_cashflow:
+                if synthetic_newer:
+                    latest_income = synthetic
+                    income_reports = [synthetic, *income_reports]
+                    errors.append(
+                        "BörsAPI: replaced stale stored TTM income statement with the sum of "
+                        f"the last four quarters ({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                        if income_stale
+                        else "BörsAPI: no stored TTM income statement; summed the last four quarters "
+                        f"({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                    )
+        if not latest_cashflow or cashflow_stale:
             synthetic = borsapi_synthesize_ttm(quarter_reports, "KA")
             if synthetic:
-                latest_cashflow = synthetic
-                cashflow_reports = [synthetic, *cashflow_reports]
-                errors.append(
-                    "BörsAPI: no stored TTM cash-flow statement; summed the last four quarters "
-                    f"({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                synthetic_newer = (
+                    newest_quarter
+                    and report_sort_key(synthetic) > report_sort_key(latest_cashflow)
+                    if latest_cashflow
+                    else True
                 )
+                if synthetic_newer:
+                    latest_cashflow = synthetic
+                    cashflow_reports = [synthetic, *cashflow_reports]
+                    errors.append(
+                        "BörsAPI: replaced stale stored TTM cash-flow statement with the sum of "
+                        f"the last four quarters ({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                        if cashflow_stale
+                        else "BörsAPI: no stored TTM cash-flow statement; summed the last four quarters "
+                        f"({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+                    )
     reports = [*income_reports, *balance_reports, *cashflow_reports]
 
     if not latest_income:
@@ -2161,7 +2262,13 @@ def main(argv: list[str]) -> int:
                 }
                 errors = fallback.get("errors") if isinstance(fallback.get("errors"), list) else []
                 fallback["errors"] = [*errors, str(exc)]
-                fallback["dataUpdatedAt"] = datetime.now(timezone.utc).isoformat()
+                # Do not pretend stale existing data was just refreshed. Keep the
+                # original timestamp so the UI can show how old the numbers are.
+                if existing and existing.get("dataUpdatedAt"):
+                    fallback["dataUpdatedAt"] = existing["dataUpdatedAt"]
+                    fallback["fetchAttemptedAt"] = datetime.now(timezone.utc).isoformat()
+                else:
+                    fallback["dataUpdatedAt"] = datetime.now(timezone.utc).isoformat()
                 companies.append(fallback)
             time.sleep(args.delay)
     elif provider_choice == "fmp":
