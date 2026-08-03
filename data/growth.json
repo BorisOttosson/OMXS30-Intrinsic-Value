@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-31T16:49:40.717552+00:00",
+  "updatedAt": "2026-08-03T14:02:46.592460+00:00",
   "source": "Yahoo Finance via yfinance (growth estimates + cash-flow statement)",
   "count": 29,
   "failures": [
@@ -13,10 +13,10 @@
       "symbol": "ABB.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.3977,
-      "growthNextYear": 0.097200006,
+      "growthCurrentYear": 0.36080003,
+      "growthNextYear": 0.127,
       "historicalFcfCagr": 1.0416656419608379,
-      "growth5yUsed": 0.238368,
+      "growth5yUsed": 0.238395,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -83,10 +83,10 @@
       "symbol": "ELUX-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": -0.24370001,
-      "growthNextYear": 0.9408,
+      "growthCurrentYear": -0.2609,
+      "growthNextYear": 1.0107,
       "historicalFcfCagr": null,
-      "growth5yUsed": 0.211539,
+      "growth5yUsed": 0.21906,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -143,10 +143,10 @@
       "symbol": "HEXA-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": -0.2465,
-      "growthNextYear": 0.08270001,
+      "growthCurrentYear": -0.24129999,
+      "growthNextYear": 0.0863,
       "historicalFcfCagr": 0.03720307333031525,
-      "growth5yUsed": -0.096776,
+      "growth5yUsed": -0.092159,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
