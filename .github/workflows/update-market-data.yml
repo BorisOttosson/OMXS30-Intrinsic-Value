@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ticker:
-        description: "Type one ticker, e.g. ERIC-B.ST. Type ALL to update all 30 (companies with missing data are fetched first)."
+        description: "One ticker (e.g. ERIC-B.ST), BATCH 1 / BATCH 2 / BATCH 3 for 10 companies each, or ALL for every company."
         required: false
         default: ""
       debug_raw_ticker:
@@ -81,7 +81,12 @@ jobs:
             exit 1
           fi
 
-          if [ "$ticker_upper" != "ALL" ]; then
+          batch_number="$(echo "$ticker_upper" | sed -n 's/^BATCH[ _-]*\([0-9]\+\)$/\1/p')"
+
+          if [ -n "$batch_number" ]; then
+            echo "Running batch $batch_number (10 companies)"
+            extra_args+=(--batch "$batch_number" --batch-size 10)
+          elif [ "$ticker_upper" != "ALL" ]; then
             extra_args+=(--ticker "$ticker_input")
           fi
 

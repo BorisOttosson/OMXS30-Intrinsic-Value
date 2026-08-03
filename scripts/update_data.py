@@ -2053,6 +2053,13 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.25, help="Delay between tickers in seconds")
     parser.add_argument("--ticker", action="append", help="Only update one ticker, for example ERIC-B.ST. Can be used more than once.")
+    parser.add_argument(
+        "--batch",
+        type=int,
+        default=None,
+        help="Run one batch of the OMXS30 universe: 1 = companies 1-10, 2 = 11-20, 3 = 21-30.",
+    )
+    parser.add_argument("--batch-size", type=int, default=10, help="Companies per batch (default 10).")
     parser.add_argument("--max-companies", type=int, default=None, help="Limit how many companies to update for testing.")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
     parser.add_argument(
@@ -2081,6 +2088,15 @@ def main(argv: list[str]) -> int:
         missing = sorted(requested - {company[0].upper() for company in selected_universe})
         if missing:
             raise SystemExit(f"Unknown OMXS30 ticker(s): {', '.join(missing)}")
+
+    if args.batch is not None:
+        size = max(args.batch_size, 1)
+        total_batches = max(1, -(-len(selected_universe) // size))
+        if args.batch < 1 or args.batch > total_batches:
+            raise SystemExit(f"--batch must be between 1 and {total_batches} for {len(selected_universe)} companies")
+        start = (args.batch - 1) * size
+        selected_universe = selected_universe[start:start + size]
+        print(f"Batch {args.batch} of {total_batches} ({len(selected_universe)} companies)", flush=True)
 
     if args.max_companies is not None:
         selected_universe = selected_universe[:max(args.max_companies, 0)]
