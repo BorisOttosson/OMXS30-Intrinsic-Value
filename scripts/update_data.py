@@ -1109,11 +1109,21 @@ def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> d
     rows). So the sum reads flat fields plus any nested statement containers,
     and ignores balance-sheet stocks.
     """
-    quarters = sorted(
-        [report for report in reports if borsapi_is_single_quarter(report)],
-        key=report_sort_key,
-        reverse=True,
-    )[:4]
+    merged_by_period: dict[str, dict[str, Any]] = {}
+    for report in reports:
+        if not borsapi_is_single_quarter(report):
+            continue
+        # BörsAPI returns one row per report_type (RR/BR/KA) for the same
+        # period; merge them so a quarter is counted once with all its fields.
+        period_key = str(report.get("period") or report.get("report_date") or "").strip()
+        if not period_key:
+            continue
+        target = merged_by_period.setdefault(period_key, {})
+        for key, value in report.items():
+            if value not in (None, "", [], {}) and target.get(key) in (None, "", [], {}):
+                target[key] = value
+
+    quarters = sorted(merged_by_period.values(), key=report_sort_key, reverse=True)[:4]
     if len(quarters) < 4:
         return {}
 
@@ -1633,7 +1643,7 @@ def fetch_borsapi_company(
             api_key,
             timeout,
             period_type="quarter",
-            **{**common_report_params, "limit": 4},
+            **{**common_report_params, "limit": 24},
         )
         quarter_reports = borsapi_reports(quarter_payload)
         if not latest_income:
