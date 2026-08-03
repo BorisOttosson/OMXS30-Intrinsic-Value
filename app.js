@@ -235,6 +235,14 @@ const omxs30Seed = [
   ["VOLV-B.ST", "Volvo B", "Industrials"]
 ];
 
+const BATCH_SIZE = 10;
+const companyBatch = new Map(
+  omxs30Seed.map(([ticker], index) => [ticker, Math.floor(index / BATCH_SIZE) + 1])
+);
+function getCompanyBatch(ticker) {
+  return companyBatch.get(ticker) ?? Infinity;
+}
+
 const scenarioAdjustments = {
   base: { label: "Base case", growth: 0, wacc: 0, targetPe: 0 },
   bear: { label: "Bear case", growth: -2.0, wacc: 1.0, targetPe: -2.0 },
@@ -1610,7 +1618,11 @@ function renderCompanyList(updateHtml = true) {
       const matchesStance = state.filters.stance === "all" || calc.stance.key === state.filters.stance;
       return matchesQuery && matchesSector && matchesType && matchesStance;
     })
-    .sort((left, right) => right.calc.researchScore - left.calc.researchScore);
+    .sort((left, right) => {
+      const batchDiff = getCompanyBatch(left.company.ticker) - getCompanyBatch(right.company.ticker);
+      if (batchDiff !== 0) return batchDiff;
+      return right.calc.researchScore - left.calc.researchScore;
+    });
 
   elements.companyList.innerHTML = filtered.map(({ company, calc }) => {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
