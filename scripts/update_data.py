@@ -329,6 +329,20 @@ def scaled(value: float | None, exchange_rate: float) -> float | None:
     return value * exchange_rate
 
 
+def consistent_eps(reported_eps: float | None, net_income: float | None, shares: float | None, exchange_rate: float) -> float | None:
+    """EPS in quote currency; reject reported EPS that is off by >3x vs net income / shares."""
+    computed = per_share(net_income, shares, exchange_rate)
+    reported = scaled(finite(reported_eps), exchange_rate)
+    if reported is None:
+        return computed
+    if computed is None or computed == 0:
+        return reported
+    ratio = abs(reported) / abs(computed)
+    if ratio > 3 or ratio < (1 / 3):
+        return computed
+    return reported
+
+
 def per_share(value: float | None, shares: float | None, exchange_rate: float) -> float | None:
     if value is None or not shares or shares <= 0:
         return None
@@ -1511,7 +1525,8 @@ def fetch_fmp_company(
         "source": "Financial Modeling Prep",
         "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "currency": quote_currency,
-        "financialCurrency": financial_currency,
+        "financialCurrency": quote_currency,
+        "reportedCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
         "marketPrice": price,
         "marketCap": market_cap,
@@ -1672,7 +1687,8 @@ def fetch_eodhd_company(
         "source": "EODHD",
         "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "currency": quote_currency,
-        "financialCurrency": financial_currency,
+        "financialCurrency": quote_currency,
+        "reportedCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
         "marketPrice": price,
         "marketCap": market_cap,
@@ -1951,9 +1967,11 @@ def fetch_borsapi_company(
     ]
     revenue_values = borsapi_statement_values(reports, "RR", BORSAPI_INCOME_CONTAINERS, BORSAPI_REVENUE_KEYS)
 
-    eps_per_share = (
-        scaled(borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EPS_KEYS), exchange_rate)
-        or per_share(net_income, shares, exchange_rate)
+    eps_per_share = consistent_eps(
+        borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EPS_KEYS),
+        net_income,
+        shares,
+        exchange_rate,
     )
     book_value_per_share = per_share(equity, shares, exchange_rate)
     ebitda_per_share = per_share(ebitda, shares, exchange_rate)
@@ -2001,7 +2019,8 @@ def fetch_borsapi_company(
         "source": "BörsAPI",
         "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "currency": quote_currency,
-        "financialCurrency": financial_currency,
+        "financialCurrency": quote_currency,
+        "reportedCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
         "marketPrice": None,
         "previousClose": None,
@@ -2151,10 +2170,8 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
     if target_pe is not None:
         target_pe = min(max(target_pe, 5), 35)
 
-    eps_per_share = (
-        scaled(diluted_eps, exchange_rate)
-        or per_share(net_income, shares, exchange_rate)
-        or finite(pick(info, ["trailingEps", "forwardEps"]))
+    eps_per_share = consistent_eps(diluted_eps, net_income, shares, exchange_rate) or finite(
+        pick(info, ["trailingEps", "forwardEps"])
     )
 
     fcf_per_share = per_share(free_cashflow, shares, exchange_rate)
@@ -2187,7 +2204,8 @@ def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str,
         "source": "Yahoo Finance",
         "dataUpdatedAt": datetime.now(timezone.utc).isoformat(),
         "currency": quote_currency,
-        "financialCurrency": financial_currency,
+        "financialCurrency": quote_currency,
+        "reportedCurrency": financial_currency,
         "financialToQuoteFx": exchange_rate,
         "marketPrice": price,
         "previousClose": previous_close,
