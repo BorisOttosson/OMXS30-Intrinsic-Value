@@ -1034,6 +1034,64 @@ def borsapi_cashflow_values(reports: list[dict[str, Any]]) -> list[float]:
     return values
 
 
+BORSAPI_TTM_SUM_CONTAINERS = {
+    "RR": BORSAPI_INCOME_CONTAINERS,
+    "KA": BORSAPI_CASHFLOW_CONTAINERS,
+}
+
+
+def borsapi_synthesize_ttm(reports: list[dict[str, Any]], report_type: str) -> dict[str, Any]:
+    """Build a trailing-twelve-month statement by summing the last four quarters.
+
+    BörsAPI only stores pre-computed TTM rows for part of its coverage, so for the
+    rest (ABB, Alfa Laval, Boliden, ...) the ttm request comes back empty. Summing
+    the four most recent single-quarter reports reproduces the same figure.
+    """
+    containers = BORSAPI_TTM_SUM_CONTAINERS.get(report_type.upper())
+    if not containers:
+        return {}
+
+    quarters = sorted(
+        [
+            report
+            for report in reports
+            if borsapi_report_basis(report) in (None, "quarter")
+            and str(report.get("report_type", "")).upper() in ("", report_type.upper())
+        ],
+        key=report_sort_key,
+        reverse=True,
+    )[:4]
+    if len(quarters) < 4:
+        return {}
+
+    totals: dict[str, float] = {}
+    for report in quarters:
+        for container in containers:
+            values = report.get(container)
+            if not isinstance(values, dict):
+                continue
+            for key, value in values.items():
+                number = finite(value)
+                if number is not None:
+                    totals[key] = totals.get(key, 0.0) + number
+            break
+
+    if not totals:
+        return {}
+
+    latest = quarters[0]
+    periods = [str(r.get("period") or "").strip() for r in quarters if r.get("period")]
+    return {
+        "report_type": report_type.upper(),
+        "period": f"TTM through {periods[0]}" if periods else "TTM",
+        "period_type": "ttm",
+        "report_date": latest.get("report_date") or latest.get("date"),
+        "currency": latest.get("currency"),
+        "synthesized_from_quarters": periods,
+        containers[0]: totals,
+    }
+
+
 def borsapi_ebitda(report: dict[str, Any]) -> float | None:
     ebitda = borsapi_number(report, BORSAPI_INCOME_CONTAINERS, BORSAPI_EBITDA_KEYS)
     if ebitda is not None:
@@ -1512,6 +1570,35 @@ def fetch_borsapi_company(
     latest_income = borsapi_select_report(income_reports, "RR", "ttm")
     latest_balance = borsapi_select_report(balance_reports, "BR", "quarter")
     latest_cashflow = borsapi_select_report(cashflow_reports, "KA", "ttm")
+
+    # BörsAPI does not store a pre-computed TTM row for every company; rebuild it
+    # from the four most recent single quarters when the ttm request is empty.
+    for report_type, current in (("RR", latest_income), ("KA", latest_cashflow)):
+        if current:
+            continue
+        quarter_payload = fetch_borsapi_json(
+            report_path,
+            api_key,
+            timeout,
+            report_type=report_type,
+            period_type="quarter",
+            **{**common_report_params, "limit": 4},
+        )
+        quarter_reports = borsapi_reports(quarter_payload)
+        synthetic = borsapi_synthesize_ttm(quarter_reports, report_type)
+        if not synthetic:
+            continue
+        if report_type == "RR":
+            latest_income = synthetic
+            income_reports = [synthetic, *income_reports]
+        else:
+            latest_cashflow = synthetic
+            cashflow_reports = [synthetic, *cashflow_reports]
+        errors.append(
+            f"BörsAPI: no stored TTM {report_type}; summed the last four quarters "
+            f"({', '.join(synthetic.get('synthesized_from_quarters', []))})"
+        )
+    reports = [*income_reports, *balance_reports, *cashflow_reports]
 
     if not latest_income:
         errors.append("BörsAPI: TTM income statement is missing or has the wrong period type")
