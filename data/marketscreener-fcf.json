@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T21:31:39.977633+00:00",
+  "updatedAt": "2026-08-03T07:57:53.692612+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
   "count": 25,
   "failures": [
@@ -29,7 +29,7 @@
       "ticker": "ABB.ST",
       "id": "abb-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
-      "retrievedAt": "2026-08-02T21:27:11.414126+00:00",
+      "retrievedAt": "2026-08-03T07:54:10.497833+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -120,7 +120,7 @@
       "ticker": "ADDT-B.ST",
       "id": "addt-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
-      "retrievedAt": "2026-08-02T21:27:18.930258+00:00",
+      "retrievedAt": "2026-08-03T07:54:18.017229+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -211,7 +211,7 @@
       "ticker": "ALFA.ST",
       "id": "alfa-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
-      "retrievedAt": "2026-08-02T21:27:26.531301+00:00",
+      "retrievedAt": "2026-08-03T07:54:25.626863+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -302,7 +302,7 @@
       "ticker": "ASSA-B.ST",
       "id": "assa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
-      "retrievedAt": "2026-08-02T21:27:34.110662+00:00",
+      "retrievedAt": "2026-08-03T07:54:33.075991+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -393,7 +393,7 @@
       "ticker": "AZN.ST",
       "id": "azn-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
-      "retrievedAt": "2026-08-02T21:27:41.569977+00:00",
+      "retrievedAt": "2026-08-03T07:54:40.506967+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -484,7 +484,7 @@
       "ticker": "ATCO-A.ST",
       "id": "atco-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
-      "retrievedAt": "2026-08-02T21:27:49.008794+00:00",
+      "retrievedAt": "2026-08-03T07:54:47.976095+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -575,7 +575,7 @@
       "ticker": "BOL.ST",
       "id": "bol-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
-      "retrievedAt": "2026-08-02T21:27:56.570883+00:00",
+      "retrievedAt": "2026-08-03T07:54:55.381531+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -666,7 +666,7 @@
       "ticker": "EPI-A.ST",
       "id": "epi-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
-      "retrievedAt": "2026-08-02T21:28:04.098431+00:00",
+      "retrievedAt": "2026-08-03T07:55:02.753524+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -757,7 +757,7 @@
       "ticker": "EQT.ST",
       "id": "eqt-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
-      "retrievedAt": "2026-08-02T21:28:11.490452+00:00",
+      "retrievedAt": "2026-08-03T07:55:10.134217+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -848,7 +848,7 @@
       "ticker": "ERIC-B.ST",
       "id": "eric-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
-      "retrievedAt": "2026-08-02T21:28:18.865779+00:00",
+      "retrievedAt": "2026-08-03T07:55:17.621780+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -939,7 +939,7 @@
       "ticker": "ESSITY-B.ST",
       "id": "essity-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
-      "retrievedAt": "2026-08-02T21:29:02.443592+00:00",
+      "retrievedAt": "2026-08-03T07:55:25.064445+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1030,7 +1030,7 @@
       "ticker": "EVO.ST",
       "id": "evo-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
-      "retrievedAt": "2026-08-02T21:29:09.861504+00:00",
+      "retrievedAt": "2026-08-03T07:55:32.440715+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1121,7 +1121,7 @@
       "ticker": "HM-B.ST",
       "id": "hm-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
-      "retrievedAt": "2026-08-02T21:29:24.735825+00:00",
+      "retrievedAt": "2026-08-03T07:55:47.280821+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1212,7 +1212,7 @@
       "ticker": "HEXA-B.ST",
       "id": "hexa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
-      "retrievedAt": "2026-08-02T21:29:32.137256+00:00",
+      "retrievedAt": "2026-08-03T07:55:54.870997+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1303,7 +1303,7 @@
       "ticker": "INVE-B.ST",
       "id": "inve-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
-      "retrievedAt": "2026-08-02T21:29:47.035737+00:00",
+      "retrievedAt": "2026-08-03T07:56:09.847788+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1376,7 +1376,7 @@
       "ticker": "LIFCO-B.ST",
       "id": "lifco-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
-      "retrievedAt": "2026-08-02T21:29:54.553215+00:00",
+      "retrievedAt": "2026-08-03T07:56:17.328367+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1467,7 +1467,7 @@
       "ticker": "NIBE-B.ST",
       "id": "nibe-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
-      "retrievedAt": "2026-08-02T21:30:02.030954+00:00",
+      "retrievedAt": "2026-08-03T07:56:24.763020+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1558,7 +1558,7 @@
       "ticker": "SAAB-B.ST",
       "id": "saab-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
-      "retrievedAt": "2026-08-02T21:30:25.962616+00:00",
+      "retrievedAt": "2026-08-03T07:56:39.510936+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1649,7 +1649,7 @@
       "ticker": "SAND.ST",
       "id": "sand-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
-      "retrievedAt": "2026-08-02T21:30:33.558638+00:00",
+      "retrievedAt": "2026-08-03T07:56:46.857384+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1740,7 +1740,7 @@
       "ticker": "SCA-B.ST",
       "id": "sca-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
-      "retrievedAt": "2026-08-02T21:30:40.987204+00:00",
+      "retrievedAt": "2026-08-03T07:56:54.416605+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1831,7 +1831,7 @@
       "ticker": "SKA-B.ST",
       "id": "ska-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
-      "retrievedAt": "2026-08-02T21:30:55.779485+00:00",
+      "retrievedAt": "2026-08-03T07:57:09.373081+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1913,7 +1913,7 @@
       "ticker": "SKF-B.ST",
       "id": "skf-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
-      "retrievedAt": "2026-08-02T21:31:03.243217+00:00",
+      "retrievedAt": "2026-08-03T07:57:16.777444+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2004,7 +2004,7 @@
       "ticker": "TEL2-B.ST",
       "id": "tel2-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
-      "retrievedAt": "2026-08-02T21:31:18.083089+00:00",
+      "retrievedAt": "2026-08-03T07:57:31.608268+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2095,7 +2095,7 @@
       "ticker": "TELIA.ST",
       "id": "telia-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
-      "retrievedAt": "2026-08-02T21:31:25.581676+00:00",
+      "retrievedAt": "2026-08-03T07:57:39.109274+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2186,7 +2186,7 @@
       "ticker": "VOLV-B.ST",
       "id": "volv-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
-      "retrievedAt": "2026-08-02T21:31:32.977467+00:00",
+      "retrievedAt": "2026-08-03T07:57:46.692451+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
