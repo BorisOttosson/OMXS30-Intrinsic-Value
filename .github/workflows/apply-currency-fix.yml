@@ -1,0 +1,65 @@
+name: Apply currency label fix
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch update_data.py
+        run: |
+          python - <<'PYEOF'
+          p = "scripts/update_data.py"
+          src = open(p, encoding="utf-8").read()
+          helper = '''
+def consistent_eps(reported_eps: float | None, net_income: float | None, shares: float | None, exchange_rate: float) -> float | None:
+    """Return EPS in quote currency, rejecting reported EPS that is off by >3x vs net income / shares."""
+    computed = per_share(net_income, shares, exchange_rate)
+    reported = scaled(finite(reported_eps), exchange_rate)
+    if reported is None:
+        return computed
+    if computed is None or computed == 0:
+        return reported
+    ratio = abs(reported) / abs(computed)
+    if ratio > 3 or ratio < (1 / 3):
+        return computed
+    return reported
+
+
+def per_share(value'''
+          assert src.count("\ndef per_share(value") == 1
+          src = src.replace("\ndef per_share(value", helper, 1)
+          src = src.replace('''    eps_per_share = (
+        scaled(borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EPS_KEYS), exchange_rate)
+        or per_share(net_income, shares, exchange_rate)
+    )''', '''    eps_per_share = consistent_eps(
+        borsapi_number(latest_income, BORSAPI_INCOME_CONTAINERS, BORSAPI_EPS_KEYS),
+        net_income,
+        shares,
+        exchange_rate,
+    )''', 1)
+          src = src.replace('''    eps_per_share = (
+        scaled(diluted_eps, exchange_rate)
+        or per_share(net_income, shares, exchange_rate)
+        or finite(pick(info, ["trailingEps", "forwardEps"]))
+    )''', '''    eps_per_share = consistent_eps(diluted_eps, net_income, shares, exchange_rate) or finite(
+        pick(info, ["trailingEps", "forwardEps"])
+    )''', 1)
+          assert src.count('        "financialCurrency": financial_currency,') == 4
+          src = src.replace('        "financialCurrency": financial_currency,',
+                            '        "financialCurrency": quote_currency,\n        "reportedCurrency": financial_currency,')
+          compile(src, p, "exec")
+          open(p, "w", encoding="utf-8").write(src)
+          print("patched")
+          PYEOF
+      - name: Remove one-shot workflow
+        run: rm -f .github/workflows/apply-currency-fix.yml
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Label converted values as quote currency and sanity-check EPS"
+          git push
