@@ -3,6 +3,7 @@ import unittest
 from scripts.update_official_reports import (
     Link,
     collect_evidence,
+    embedded_document_links,
     evidence_summary,
     ranked_links,
     selected_tickers,
@@ -23,6 +24,11 @@ class ReportDiscoveryTests(unittest.TestCase):
         companies = {"C.ST": {}, "A.ST": {}, "B.ST": {}}
         self.assertEqual(selected_tickers(companies, None, 2, 2), ["C.ST"])
         self.assertEqual(selected_tickers(companies, "b.st", None, 10), ["B.ST"])
+
+    def test_discovers_report_urls_embedded_in_script_state(self):
+        content = br'{"report":"https:\/\/cdn.example.com\/Q2-2026-report.pdf"}'
+        links = embedded_document_links(content, "https://example.com/investors")
+        self.assertEqual(links[0].url, "https://cdn.example.com/Q2-2026-report.pdf")
 
 
 class EvidenceTests(unittest.TestCase):
@@ -54,6 +60,15 @@ class EvidenceTests(unittest.TestCase):
         summary = evidence_summary(evidence)
         self.assertNotIn("revenue", summary["ttmCandidates"])
         self.assertEqual(evidence["revenue"]["matches"][0]["basisDetected"], "ytd")
+
+    def test_balance_field_from_period_matched_report_is_only_a_candidate(self):
+        evidence = collect_evidence(
+            "Consolidated statement of financial position\nTotal assets 200,000 190,000",
+            "2026-06-30",
+            document_period_confirmed=True,
+        )
+        match = evidence["totalAssets"]["matches"][0]
+        self.assertEqual(match["basisDetected"], "latest-quarter-candidate")
 
 
 if __name__ == "__main__":
