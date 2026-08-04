@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T23:24:02.409618+00:00",
+  "generatedAt": "2026-08-04T23:44:18.129984+00:00",
   "method": "Direct retrieval from official company investor-relations pages; no financial-data API",
   "verificationPolicy": "Extracted snippets are candidates for human or independent-source verification. This file never makes a company valuation-ready by itself.",
   "companies": [
@@ -1511,8 +1511,8 @@
     },
     {
       "ticker": "AZN.ST",
-      "sourceName": "AstraZeneca results and presentations",
-      "sourceUrl": "https://www.astrazeneca.com/investor-relations/results-and-presentations.html",
+      "sourceName": "AstraZeneca Sverige ekonomiska rapporter",
+      "sourceUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
       "directReportUrl": null,
@@ -1528,7 +1528,7 @@
       "errors": [
         "Official source page: HTTPError: HTTP Error 403: Forbidden"
       ],
-      "checkedAt": "2026-08-04T23:24:02.409618+00:00"
+      "checkedAt": "2026-08-04T23:44:18.129984+00:00"
     },
     {
       "ticker": "BOL.ST",
