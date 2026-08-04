@@ -20,7 +20,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters"
         ],
@@ -105,10 +105,12 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T21:01:53.562622+00:00",
       "ebit": 2757000000.0,
@@ -185,7 +187,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -272,7 +274,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Absolute FCF yield is 0.002%"
         ],
@@ -353,7 +355,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -445,7 +447,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Net debt per share is unavailable"
         ],
@@ -535,7 +537,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -627,7 +629,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -716,7 +718,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "EPS differs from net income / shares by 995x"
         ],
@@ -799,7 +801,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -891,7 +893,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -981,7 +983,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1072,10 +1074,12 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:16.335269+00:00",
       "ebit": null,
@@ -1158,7 +1162,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available",
           "Fundamentals are aging (400 days)"
@@ -1250,7 +1254,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Total debt is 173.5x total assets",
           "No category-relevant valuation fundamentals are available"
@@ -1338,7 +1342,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [],
         "status": "ok",
         "valuationReady": true
@@ -1371,6 +1375,17 @@
       "id": "indu-c-st",
       "incomeStatementDate": "2025-12-31",
       "incomeStatementPeriod": "2025",
+      "independentVerification": {
+        "checkedAt": "2026-08-04T13:30:00+00:00",
+        "fields": [
+          "bookEquity",
+          "bookValuePerShare"
+        ],
+        "period": "2025-12-31",
+        "sourceName": "Industrivarden Year-end Report 2025",
+        "sourceUrl": "https://www.industrivarden.se/en-gb/media/press-releases/2026/year-end-report-january-1--december-31-2025/",
+        "status": "verified"
+      },
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
       "liabilitiesPerShare": 18.249632504450553,
@@ -1419,10 +1434,12 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:12.196339+00:00",
       "ebit": null,
@@ -1502,10 +1519,12 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:12.559799+00:00",
       "ebit": 5170000000.0,
@@ -1579,7 +1598,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Total debt is missing; net debt cannot be derived from cash alone"
         ],
@@ -1659,7 +1678,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Fundamentals are stale (581 days)"
         ],
@@ -1743,7 +1762,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1834,7 +1853,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1920,7 +1939,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [],
         "status": "ok",
         "valuationReady": true
@@ -1929,7 +1948,7 @@
       "ebit": 4432000000.0,
       "ebitda": 6564000000.0,
       "ebitdaPerShare": 9.345867725226004,
-      "enterpriseValue": 86388276367.0,
+      "enterpriseValue": 83280276367.0,
       "eps": 4.5633007403030685,
       "equityPerShare": 144.54628844190572,
       "errors": [
@@ -1940,7 +1959,7 @@
         "B\u00f6rsAPI companies/402fc2bd-bed9-4ae6-ac34-6a6cc9559dba/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/402fc2bd-bed9-4ae6-ac34-6a6cc9559dba/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
       ],
-      "evToEbitda": 13.160919617154175,
+      "evToEbitda": 12.687427843845215,
       "fcfPerShare": 2.0104151779431927,
       "fcfYield": 1.9518593960613524,
       "fetchAttemptedAt": "2026-08-03T22:14:02.527341+00:00",
@@ -1953,6 +1972,25 @@
       "id": "sca-b-st",
       "incomeStatementDate": "2025-12-31",
       "incomeStatementPeriod": "2025",
+      "independentVerification": {
+        "checkedAt": "2026-08-04T13:30:00+00:00",
+        "fields": [
+          "totalRevenue",
+          "ebitda",
+          "netIncome",
+          "eps",
+          "freeCashFlow",
+          "totalAssets",
+          "bookEquity",
+          "totalLiabilities",
+          "cash",
+          "netDebt"
+        ],
+        "period": "2025-12-31",
+        "sourceName": "SCA Year-end Report 2025",
+        "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260130-year-end-report-q4-2025-en-0-5296365.pdf",
+        "status": "verified"
+      },
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
       "liabilitiesPerShare": 63.98018161193719,
@@ -1960,8 +1998,8 @@
       "marketPrice": null,
       "marketPriceDate": null,
       "name": "SCA B",
-      "netDebt": 14047000000.0,
-      "netDebtPerShare": 20.00021388425498,
+      "netDebt": 10939000000.0,
+      "netDebtPerShare": 15.575022401926761,
       "netIncome": 3205000000.0,
       "normalizedEbitdaPerShare": 9.345867725226004,
       "normalizedFcfPerShare": 2.0104151779431927,
@@ -1972,7 +2010,7 @@
       "sector": "Materials",
       "sharesOutstanding": 702342489.0,
       "source": "B\u00f6rsAPI",
-      "targetEvToEbitda": 13.160919617154175,
+      "targetEvToEbitda": 12.687427843845215,
       "targetPe": null,
       "ticker": "SCA-B.ST",
       "totalAssets": 146457000000.0,
@@ -2001,10 +2039,12 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:42.033926+00:00",
       "ebit": null,
@@ -2089,7 +2129,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -2183,10 +2223,12 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:52.350663+00:00",
       "ebit": 8897000000.0,
@@ -2263,10 +2305,12 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
-        "issues": [],
-        "status": "ok",
-        "valuationReady": true
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "issues": [
+          "Not independently verified against an official company report"
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:05:56.427226+00:00",
       "ebit": null,
@@ -2345,7 +2389,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Fundamentals are stale (947 days)"
         ],
@@ -2429,7 +2473,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -2519,7 +2563,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -2596,7 +2640,7 @@
   ],
   "generatedAt": "2026-08-03T22:14:03.848613+00:00",
   "provider": "B\u00f6rsAPI fundamentals",
-  "qualityCheckedAt": "2026-08-04T10:39:59.465906+00:00",
+  "qualityCheckedAt": "2026-08-04T22:02:57.998550+00:00",
   "universe": "OMXS30",
   "universeAsOf": "2025-07-01",
   "version": 1
