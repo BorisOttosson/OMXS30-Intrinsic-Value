@@ -8,7 +8,7 @@ A local personal finance research app for valuing the OMXS30 universe with:
 - Investment company NAV discount/premium and P/E where useful
 - Cyclical normalized FCF, P/E, and EV/EBITDA
 - Industry, company, and leadership scorecard
-- BörsAPI fundamentals pipeline and Yahoo/yfinance price pipeline
+- Direct official-report evidence collector, plus optional BörsAPI fundamentals and Yahoo/yfinance prices
 - Top 12 synthetic portfolio ranking
 - Separate companies into model buckets: operating, banks, investment companies, and cyclicals
 - Local persistence, JSON export, and JSON import
@@ -105,12 +105,32 @@ If a PNG is missing, the app shows a quiet logo placeholder instead of pulling a
 
 ## Automatic Updates On GitHub
 
-The repository includes two GitHub Actions workflows:
+The repository includes GitHub Actions workflows for official reports, optional
+provider fundamentals, and prices:
 
 ```text
+.github/workflows/update-official-reports.yml
 .github/workflows/update-market-data.yml
 .github/workflows/update-prices.yml
 ```
+
+The **Collect official report evidence** workflow does not use a financial-data
+API. It visits every company's official investor-relations page, discovers the
+newest interim report or workbook, extracts auditable snippets for TTM revenue,
+TTM earnings/EBITDA when presented, and latest-quarter balance-sheet fields, and
+writes:
+
+```text
+data/official-report-audit.json
+```
+
+Every row keeps a clickable official source page and, when discovered, a direct
+report link. Because column headings and reporting formats differ between
+companies, extracted snippets are candidates for review—not automatic proof.
+The collector never marks a valuation as independently verified and never
+silently replaces valuation inputs. A missing TTM basis or ambiguous balance-
+sheet date is recorded as `review-required`. It runs weekly and can also be run
+manually for `ALL`, one ticker, or batches of ten companies.
 
 The fundamentals workflow is manual, so it does not quietly spend BörsAPI requests. It writes:
 
