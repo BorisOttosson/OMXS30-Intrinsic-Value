@@ -19,6 +19,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Synthetic TTM contains duplicate accounting quarters"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:52.464222+00:00",
       "ebit": 66016418261.528015,
       "ebitda": 73911244015.69366,
@@ -31,7 +39,8 @@
         "B\u00f6rsAPI: no stored TTM cash-flow statement; summed the last four quarters (2026-Q1, 2026-Q1, 2026-Q1, 2025-Q1)",
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
         "B\u00f6rsAPI companies/3706b802-f3d8-4cc7-8759-91f63a88cd3c/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/3706b802-f3d8-4cc7-8759-91f63a88cd3c/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/3706b802-f3d8-4cc7-8759-91f63a88cd3c/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Synthetic TTM contains duplicate accounting quarters"
       ],
       "evToEbitda": 23.731827477308872,
       "fcfPerShare": null,
@@ -41,6 +50,7 @@
       "financialToQuoteFx": 9.557900428771973,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:57:00.905801+00:00",
@@ -94,6 +104,12 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T21:01:53.562622+00:00",
       "ebit": 2757000000.0,
       "ebitda": null,
@@ -116,6 +132,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 911000000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "addt-b-st",
       "incomeStatementDate": "2025-12-31",
@@ -167,6 +184,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:46.839048+00:00",
       "ebit": null,
       "ebitda": null,
@@ -181,7 +206,8 @@
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
         "B\u00f6rsAPI companies/934f72bd-caa7-4cae-ab48-9ad9c5d22a49/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/934f72bd-caa7-4cae-ab48-9ad9c5d22a49/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/934f72bd-caa7-4cae-ab48-9ad9c5d22a49/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -191,6 +217,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:57:04.739770+00:00",
@@ -244,6 +271,14 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Absolute FCF yield is 0.002%"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:55.983097+00:00",
       "ebit": 34841000000.0,
       "ebitda": 37442994355.0,
@@ -255,7 +290,8 @@
         "B\u00f6rsAPI companies/dee64b93-d83b-46af-aa16-0f1c01f0bb18/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/dee64b93-d83b-46af-aa16-0f1c01f0bb18/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/dee64b93-d83b-46af-aa16-0f1c01f0bb18/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/dee64b93-d83b-46af-aa16-0f1c01f0bb18/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/dee64b93-d83b-46af-aa16-0f1c01f0bb18/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Absolute FCF yield is 0.002%"
       ],
       "evToEbitda": 11.967822244485623,
       "fcfPerShare": 0.006721425161368266,
@@ -264,6 +300,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 7466000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "assa-b-st",
       "incomeStatementDate": "2024-12-31",
@@ -315,6 +352,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:48.750697+00:00",
       "ebit": null,
       "ebitda": null,
@@ -330,7 +375,8 @@
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
         "B\u00f6rsAPI companies/406b0e50-f115-45e9-ad85-2220a5be346a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/406b0e50-f115-45e9-ad85-2220a5be346a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/406b0e50-f115-45e9-ad85-2220a5be346a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/406b0e50-f115-45e9-ad85-2220a5be346a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -340,6 +386,7 @@
       "financialToQuoteFx": 9.50946044921875,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-01T20:48:49.880053+00:00",
@@ -397,6 +444,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Net debt per share is unavailable"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:54.816289+00:00",
       "ebit": 34182000000.0,
       "ebitda": 42143000000.0,
@@ -408,7 +463,8 @@
         "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
         "B\u00f6rsAPI companies/4aacc063-89ca-43af-9081-53cd80ab4505/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/4aacc063-89ca-43af-9081-53cd80ab4505/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/4aacc063-89ca-43af-9081-53cd80ab4505/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/4aacc063-89ca-43af-9081-53cd80ab4505/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Net debt per share is unavailable"
       ],
       "evToEbitda": null,
       "fcfPerShare": 7.263066348592446,
@@ -420,6 +476,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 24097000000.0,
+      "fundamentalsAgeDays": 35,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-01T20:49:22.515462+00:00",
@@ -477,6 +534,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:50.263778+00:00",
       "ebit": null,
       "ebitda": null,
@@ -492,7 +557,8 @@
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
         "B\u00f6rsAPI companies/c88095e8-50b3-41a9-a77f-59579cc732f8/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/c88095e8-50b3-41a9-a77f-59579cc732f8/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/c88095e8-50b3-41a9-a77f-59579cc732f8/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/c88095e8-50b3-41a9-a77f-59579cc732f8/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -502,6 +568,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-01T20:48:52.641562+00:00",
@@ -559,6 +626,15 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Synthetic TTM contains duplicate accounting quarters",
+          "Net debt per share is unavailable"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:51.087920+00:00",
       "ebit": 12794000000.0,
       "ebitda": 14447000000.0,
@@ -571,7 +647,9 @@
         "B\u00f6rsAPI: no stored TTM cash-flow statement; summed the last four quarters (2026-Q2, 2026-Q2, 2026-Q2, 2026-Q1)",
         "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
         "B\u00f6rsAPI companies/2573bf80-fcde-4e3d-ac43-b52029e66473/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/2573bf80-fcde-4e3d-ac43-b52029e66473/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/2573bf80-fcde-4e3d-ac43-b52029e66473/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Synthetic TTM contains duplicate accounting quarters",
+        "Data quality: Net debt per share is unavailable"
       ],
       "evToEbitda": null,
       "fcfPerShare": 5.628277597427153,
@@ -583,6 +661,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 4615000000.0,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:56:25.161087+00:00",
@@ -636,6 +715,14 @@
       "companyType": "investment",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "EPS differs from net income / shares by 995x"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:56.927419+00:00",
       "ebit": 10512042487.335205,
       "ebitda": 15242902918.243408,
@@ -649,7 +736,8 @@
         "B\u00f6rsAPI reports: no reports returned for EQT.ST",
         "B\u00f6rsAPI companies/c2577c0a-c6ab-4420-8e05-f92f0ce41ac7/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/c2577c0a-c6ab-4420-8e05-f92f0ce41ac7/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/c2577c0a-c6ab-4420-8e05-f92f0ce41ac7/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/c2577c0a-c6ab-4420-8e05-f92f0ce41ac7/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: EPS differs from net income / shares by 995x"
       ],
       "evToEbitda": 23.722160804643913,
       "fcfPerShare": 3.7409738769445178,
@@ -658,6 +746,7 @@
       "financialToQuoteFx": 11.032790184020996,
       "forwardPe": null,
       "freeCashFlow": 4376707866.001129,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "eqt-st",
       "incomeStatementDate": "2025-12-31",
@@ -709,6 +798,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T21:01:45.664941+00:00",
       "ebit": null,
       "ebitda": null,
@@ -724,7 +821,8 @@
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
         "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
         "B\u00f6rsAPI companies/42749979-f022-40a0-9249-c708602646f0/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/42749979-f022-40a0-9249-c708602646f0/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/42749979-f022-40a0-9249-c708602646f0/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -734,6 +832,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:56:29.609545+00:00",
@@ -791,6 +890,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:01:56.201127+00:00",
       "ebit": null,
       "ebitda": null,
@@ -803,7 +910,8 @@
         "B\u00f6rsAPI: TTM cash-flow statement is missing or has the wrong period type",
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
-        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement"
+        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -813,6 +921,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:01:56.201159+00:00",
@@ -871,6 +980,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:02:27.445575+00:00",
       "ebit": null,
       "ebitda": null,
@@ -884,7 +1001,8 @@
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
-        "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet"
+        "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -894,6 +1012,7 @@
       "financialToQuoteFx": 11.002309799194336,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:02:27.445607+00:00",
@@ -952,6 +1071,12 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T22:02:16.335269+00:00",
       "ebit": null,
       "ebitda": null,
@@ -973,6 +1098,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": -27400000000.0,
+      "fundamentalsAgeDays": 35,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:02:16.335300+00:00",
@@ -1031,6 +1157,15 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available",
+          "Fundamentals are aging (400 days)"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:02:01.692801+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1044,7 +1179,8 @@
         "B\u00f6rsAPI: latest quarterly balance sheet is 399 days old (2025-06-30)",
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
-        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement"
+        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -1054,6 +1190,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 400,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:02:01.692829+00:00",
@@ -1112,6 +1249,15 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Total debt is 173.5x total assets",
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:02:06.993116+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1124,7 +1270,9 @@
         "B\u00f6rsAPI: TTM cash-flow statement is missing or has the wrong period type",
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
-        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement"
+        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
+        "Data quality: Total debt is 173.5x total assets",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -1134,6 +1282,7 @@
       "financialToQuoteFx": 11.002309799194336,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:02:06.993145+00:00",
@@ -1188,6 +1337,12 @@
       "companyType": "investment",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T17:06:05.987578+00:00",
       "ebit": 35655000000.0,
       "ebitda": null,
@@ -1211,6 +1366,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 4562000000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "indu-c-st",
       "incomeStatementDate": "2025-12-31",
@@ -1262,6 +1418,12 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T22:02:12.196339+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1284,6 +1446,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:02:12.196382+00:00",
@@ -1338,6 +1501,12 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T17:06:12.559799+00:00",
       "ebit": 5170000000.0,
       "ebitda": null,
@@ -1361,6 +1530,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 1291000000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "lifco-b-st",
       "incomeStatementDate": "2025-12-31",
@@ -1408,6 +1578,14 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Total debt is missing; net debt cannot be derived from cash alone"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T17:06:17.548734+00:00",
       "ebit": 4125000000.0,
       "ebitda": 6263000000.0,
@@ -1421,7 +1599,8 @@
         "B\u00f6rsAPI reports: no reports returned for NIBE-B.ST",
         "B\u00f6rsAPI companies/3d0c2c30-0697-4dd2-a936-65a30975ddba/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/3d0c2c30-0697-4dd2-a936-65a30975ddba/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI reports: no reports returned for NIBE-B.ST"
+        "B\u00f6rsAPI reports: no reports returned for NIBE-B.ST",
+        "Data quality: Total debt is missing; net debt cannot be derived from cash alone"
       ],
       "evToEbitda": 11.050078500357124,
       "fcfPerShare": 0.9647499284259716,
@@ -1431,6 +1610,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 1945000000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "nibe-b-st",
       "incomeStatementDate": "2025-12-31",
@@ -1478,6 +1658,14 @@
       "companyType": "bank",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Fundamentals are stale (581 days)"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T17:06:06.933712+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1491,7 +1679,8 @@
         "B\u00f6rsAPI reports: no reports returned for NDA-SE.ST",
         "B\u00f6rsAPI companies/d838e9bf-6e67-4007-9be9-3030df4d090a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/d838e9bf-6e67-4007-9be9-3030df4d090a/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI reports: no reports returned for NDA-SE.ST"
+        "B\u00f6rsAPI reports: no reports returned for NDA-SE.ST",
+        "Data quality: Fundamentals are stale (581 days)"
       ],
       "evToEbitda": null,
       "fcfPerShare": -6.534330572484605,
@@ -1501,6 +1690,7 @@
       "financialToQuoteFx": 11.032790184020996,
       "forwardPe": null,
       "freeCashFlow": -22175908269.882202,
+      "fundamentalsAgeDays": 581,
       "growth5y": null,
       "id": "nda-se-st",
       "incomeStatementDate": "2024-12-31",
@@ -1552,6 +1742,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:14:00.100855+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1565,7 +1763,8 @@
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
         "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
-        "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet"
+        "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -1575,6 +1774,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:14:00.100881+00:00",
@@ -1633,6 +1833,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:13:49.001782+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1645,7 +1853,8 @@
         "B\u00f6rsAPI: TTM cash-flow statement is missing or has the wrong period type",
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
-        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement"
+        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -1655,6 +1864,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:13:49.001807+00:00",
@@ -1709,6 +1919,12 @@
       "companyType": "cyclical",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T17:06:18.284862+00:00",
       "ebit": 4432000000.0,
       "ebitda": 6564000000.0,
@@ -1732,6 +1948,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 1412000000.0,
+      "fundamentalsAgeDays": 216,
       "growth5y": null,
       "id": "sca-b-st",
       "incomeStatementDate": "2025-12-31",
@@ -1783,6 +2000,12 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T22:13:42.033926+00:00",
       "ebit": null,
       "ebitda": null,
@@ -1806,6 +2029,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:13:42.033951+00:00",
@@ -1864,6 +2088,15 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Synthetic TTM contains duplicate accounting quarters",
+          "Net debt per share is unavailable"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T17:06:14.477346+00:00",
       "ebit": 10811000000.0,
       "ebitda": 11744998401.0,
@@ -1876,7 +2109,9 @@
         "B\u00f6rsAPI: no stored TTM cash-flow statement; summed the last four quarters (2026-Q2, 2026-Q2, 2026-Q2, 2026-Q1)",
         "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
         "B\u00f6rsAPI companies/b5b294e4-a434-4206-8f98-bcf9fda17285/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/b5b294e4-a434-4206-8f98-bcf9fda17285/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/b5b294e4-a434-4206-8f98-bcf9fda17285/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Synthetic TTM contains duplicate accounting quarters",
+        "Data quality: Net debt per share is unavailable"
       ],
       "evToEbitda": null,
       "fcfPerShare": 2.5547137250662364,
@@ -1889,6 +2124,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 1007993667.0,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:56:46.408618+00:00",
@@ -1946,6 +2182,12 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T22:13:52.350663+00:00",
       "ebit": 8897000000.0,
       "ebitda": null,
@@ -1965,6 +2207,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:13:52.350686+00:00",
@@ -2019,6 +2262,12 @@
       "companyType": "bank",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [],
+        "status": "ok",
+        "valuationReady": true
+      },
       "dataUpdatedAt": "2026-08-03T17:05:56.427226+00:00",
       "ebit": null,
       "ebitda": null,
@@ -2047,6 +2296,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 126,
       "growth5y": null,
       "id": "swed-a-st",
       "incomeStatementDate": null,
@@ -2094,6 +2344,14 @@
       "companyType": "operating",
       "consensusGrowth": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Fundamentals are stale (947 days)"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T17:06:19.050303+00:00",
       "ebit": 5466000000.0,
       "ebitda": 11616000000.0,
@@ -2107,7 +2365,8 @@
         "B\u00f6rsAPI companies/5ed810a3-7a2e-436f-a0ea-a45850020400/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/5ed810a3-7a2e-436f-a0ea-a45850020400/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
         "B\u00f6rsAPI companies/5ed810a3-7a2e-436f-a0ea-a45850020400/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/5ed810a3-7a2e-436f-a0ea-a45850020400/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/5ed810a3-7a2e-436f-a0ea-a45850020400/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Fundamentals are stale (947 days)"
       ],
       "evToEbitda": 9.591392044489863,
       "fcfPerShare": 8.776167544953854,
@@ -2117,6 +2376,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 6087000000.0,
+      "fundamentalsAgeDays": 947,
       "growth5y": null,
       "id": "tel2-b-st",
       "incomeStatementDate": "2023-12-31",
@@ -2168,6 +2428,14 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "No category-relevant valuation fundamentals are available"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T22:13:56.502158+00:00",
       "ebit": null,
       "ebitda": null,
@@ -2180,7 +2448,8 @@
         "B\u00f6rsAPI: TTM cash-flow statement is missing or has the wrong period type",
         "B\u00f6rsAPI: revenue is missing from the TTM income statement",
         "B\u00f6rsAPI: EBITDA is missing from the TTM income statement",
-        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement"
+        "B\u00f6rsAPI: free cash flow cannot be derived from the TTM cash-flow statement",
+        "Data quality: No category-relevant valuation fundamentals are available"
       ],
       "evToEbitda": null,
       "fcfPerShare": null,
@@ -2190,6 +2459,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
+      "fundamentalsAgeDays": 35,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T22:13:56.502184+00:00",
@@ -2248,6 +2518,15 @@
       "consensusGrowthAsOf": null,
       "consensusGrowthSource": null,
       "currency": "SEK",
+      "dataQuality": {
+        "checkedAt": "2026-08-04T10:39:59.465906+00:00",
+        "issues": [
+          "Synthetic TTM contains duplicate accounting quarters",
+          "Net debt per share is unavailable"
+        ],
+        "status": "rejected",
+        "valuationReady": false
+      },
       "dataUpdatedAt": "2026-08-03T17:06:15.224481+00:00",
       "ebit": 51112000000.0,
       "ebitda": 74785000000.0,
@@ -2260,7 +2539,9 @@
         "B\u00f6rsAPI: no stored TTM cash-flow statement; summed the last four quarters (2026-Q2, 2026-Q2, 2026-Q2, 2026-Q1)",
         "B\u00f6rsAPI: total debt is missing from the latest quarterly balance sheet",
         "B\u00f6rsAPI companies/4ab76fca-5a61-4de0-a5fe-0c1505374888/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
-        "B\u00f6rsAPI companies/4ab76fca-5a61-4de0-a5fe-0c1505374888/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}"
+        "B\u00f6rsAPI companies/4ab76fca-5a61-4de0-a5fe-0c1505374888/reports HTTP 429: {\"error\":\"Rate limit \u00f6verskriden. Kontrollera din kvot i dashboarden eller uppgradera ditt konto.\",\"code\":\"RATE_LIMIT_EXCEEDED\"}",
+        "Data quality: Synthetic TTM contains duplicate accounting quarters",
+        "Data quality: Net debt per share is unavailable"
       ],
       "evToEbitda": null,
       "fcfPerShare": 4.826368844268305,
@@ -2273,6 +2554,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 7687000000.0,
+      "fundamentalsAgeDays": 18,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": "2026-08-03T16:56:56.666972+00:00",
@@ -2314,6 +2596,7 @@
   ],
   "generatedAt": "2026-08-03T22:14:03.848613+00:00",
   "provider": "B\u00f6rsAPI fundamentals",
+  "qualityCheckedAt": "2026-08-04T10:39:59.465906+00:00",
   "universe": "OMXS30",
   "universeAsOf": "2025-07-01",
   "version": 1
