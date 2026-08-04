@@ -21,6 +21,33 @@ class UnitNormalizationTests(unittest.TestCase):
 
 
 class DataQualityTests(unittest.TestCase):
+    def test_plausible_row_is_blocked_without_independent_verification(self):
+        row = {
+            "ticker": "TEST-B.ST",
+            "companyType": "investment",
+            "latestFiscalDate": "2025-12-31",
+            "bookValuePerShare": 100,
+        }
+        checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
+        self.assertEqual(checked["dataQuality"]["status"], "unverified")
+        self.assertFalse(checked["dataQuality"]["valuationReady"])
+
+    def test_official_report_verification_enables_valid_row(self):
+        row = {
+            "ticker": "TEST-B.ST",
+            "companyType": "investment",
+            "latestFiscalDate": "2025-12-31",
+            "bookValuePerShare": 100,
+            "independentVerification": {
+                "status": "verified",
+                "period": "2025-12-31",
+                "sourceUrl": "https://example.com/official-report",
+            },
+        }
+        checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
+        self.assertEqual(checked["dataQuality"]["status"], "ok")
+        self.assertTrue(checked["dataQuality"]["valuationReady"])
+
     def test_rejects_eps_unit_mismatch_and_quarantines_valuation(self):
         row = {
             "ticker": "EQT.ST",
