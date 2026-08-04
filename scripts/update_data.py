@@ -459,6 +459,7 @@ def validate_company_fundamentals(company: dict[str, Any], now: datetime | None 
         and verification.get("status") == "verified"
         and bool(verification.get("sourceUrl"))
         and bool(verification.get("period"))
+        and verification.get("period") == result.get("latestFiscalDate")
     )
     if not critical and not independently_verified:
         issues.append("Not independently verified against an official company report")
@@ -756,6 +757,9 @@ def load_existing_companies(path: Path) -> dict[str, dict[str, Any]]:
 PRESERVE_IF_PROVIDER_BLANK_KEYS = {
     "marketCap",
     "sharesOutstanding",
+    # Keep the audit trail across provider refreshes. Validation below only
+    # accepts it while its period still matches latestFiscalDate.
+    "independentVerification",
 }
 
 
