@@ -6,7 +6,7 @@
     "ADDT-B.ST": {"sourceName": "Addtech Q1 2026/2027 interim report", "sourceUrl": "https://q12026.reports.addtech.com/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "ALFA.ST": {"sourceName": "Alfa Laval Q2 2026 interim report", "sourceUrl": "https://www.alfalaval.com/media/news/investors/2026/alfa-laval-ab-publ-interim-report-1-april-30-june-2026/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "ASSA-B.ST": {"sourceName": "ASSA ABLOY interim reports", "sourceUrl": "https://www.assaabloy.com/group/en/investors/reports-presentations/interim-reports", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "AZN.ST": {"sourceName": "AstraZeneca results and presentations", "sourceUrl": "https://www.astrazeneca.com/investor-relations/results-and-presentations.html", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "AZN.ST": {"sourceName": "AstraZeneca Sverige ekonomiska rapporter", "sourceUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html", "period": "2026-06-30", "earningsBasis": "TTM"},
     "ATCO-A.ST": {"sourceName": "Atlas Copco Q2 2026 report", "sourceUrl": "https://www.atlascopcogroup.com/en/investors/reports-and-presentations.html", "period": "2026-06-30", "earningsBasis": "TTM"},
     "BOL.ST": {"sourceName": "Boliden financial reports", "sourceUrl": "https://investors.boliden.com/en/reports-and-presentations/financial-reports", "period": "2026-06-30", "earningsBasis": "TTM"},
     "EPI-A.ST": {"sourceName": "Epiroc financial publications", "sourceUrl": "https://www.epirocgroup.com/en/investors/financial-publications", "period": "2026-06-30", "earningsBasis": "TTM"},
