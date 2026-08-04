@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T23:47:39.454090+00:00",
+  "generatedAt": "2026-08-04T23:58:01.261968+00:00",
   "method": "Direct retrieval from official company investor-relations pages; no financial-data API",
   "verificationPolicy": "Extracted snippets are candidates for human or independent-source verification. This file never makes a company valuation-ready by itself.",
   "companies": [
@@ -3369,24 +3369,617 @@
     },
     {
       "ticker": "ERIC-B.ST",
-      "sourceName": "Ericsson Q2 2026 results",
-      "sourceUrl": "https://www.ericsson.com/en/press-releases/2026/7/ericsson-reports-second-quarter-results-2026",
+      "sourceName": "Ericsson Q2 2026 report – official Cision attachment",
+      "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
-      "directReportUrl": null,
-      "documentType": null,
-      "status": "download-error",
+      "directReportUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
+      "documentType": "pdf",
+      "status": "review-required",
       "autoVerificationEligible": false,
-      "evidence": {},
+      "evidence": {
+        "revenue": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "revenue",
+              "basisDetected": "unknown",
+              "numbers": [
+                "52.7",
+                "56.1",
+                "-1%",
+                "25.5",
+                "27.0"
+              ],
+              "snippet": "– Demonstrated AI-enabled drone sensing and tracking using existing cell towers at a Texas stadium during a major global sporting event. | Financial highlights – solid financial performance | – Reported sales were SEK 52.7 (56.1) b. Organic* sales decreased by -1%* YoY primarily due to lower IPR licensing revenues, reflecting a | non-recurring benefit from a partial settlement in the prior year period. Organic* sales grew in three out of four market areas. | – Adjusted1 gross income was SEK 25.5 (27.0) b., with solid operational execution partly offset by currency headwinds. Reported gross"
+            },
+            {
+              "label": "sales",
+              "basisDetected": "unknown",
+              "numbers": [
+                "52.7",
+                "56.1",
+                "-1%",
+                "25.5",
+                "27.0",
+                "24.1",
+                "26.6"
+              ],
+              "snippet": "Financial highlights – solid financial performance | – Reported sales were SEK 52.7 (56.1) b. Organic* sales decreased by -1%* YoY primarily due to lower IPR licensing revenues, reflecting a | non-recurring benefit from a partial settlement in the prior year period. Organic* sales grew in three out of four market areas. | – Adjusted1 gross income was SEK 25.5 (27.0) b., with solid operational execution partly offset by currency headwinds. Reported gross | income was SEK 24.1 (26.6) b."
+            },
+            {
+              "label": "net sales",
+              "basisDetected": "ytd",
+              "numbers": [
+                " 2026",
+                " 2025",
+                "2026",
+                "2026",
+                " 2025",
+                "52.7",
+                " 56.1",
+                "-6%",
+                " 49.3",
+                " 7%",
+                " 102.0",
+                " 111.2"
+              ],
+              "snippet": "Q2 Q2 YoY Q1 QoQ Jan-Jun Jan-Jun YoY | SEK b. 2026 2025 change 2026 change 2026 2025 change | Net sales 52.7 56.1 -6% 49.3 7% 102.0 111.2 -8% | Organic sales growth*²⁾ - - -1% - - - - 2% | Gross income 24.1 26.6 -9% 23.3 4% 47.4 53.2 -11%"
+            },
+            {
+              "label": "sales",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 2026",
+                " 2025",
+                "2026",
+                "2026",
+                " 2025",
+                "52.7",
+                " 56.1",
+                "-6%",
+                " 49.3",
+                " 7%",
+                " 102.0",
+                " 111.2"
+              ],
+              "snippet": "SEK b. 2026 2025 change 2026 change 2026 2025 change | Net sales 52.7 56.1 -6% 49.3 7% 102.0 111.2 -8% | Organic sales growth*²⁾ - - -1% - - - - 2% | Gross income 24.1 26.6 -9% 23.3 4% 47.4 53.2 -11% | Gross margin²⁾ 45.8% 47.5% - 47.2% - 46.5% 47.8% -"
+            }
+          ]
+        },
+        "ebitda": {
+          "requiredBasis": "ttm-if-presented",
+          "matches": []
+        },
+        "netIncome": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "net income",
+              "basisDetected": "unknown",
+              "numbers": [
+                "6.9",
+                "7.4",
+                "13.1%",
+                "13.2%",
+                "6.3",
+                "6.8",
+                "11.9%",
+                "12.0%",
+                "4.1",
+                "4.6",
+                "1.22",
+                "1.37"
+              ],
+              "snippet": "– Adjusted1 EBITA was SEK 6.9 (7.4) b. with a 13.1% (13.2%) margin, benefiting from continued strong margin expansion in Cloud | Software and Services. Reported EBITA was SEK 6.3 (6.8) b., with an 11.9% (12.0%) margin. | – Net income was SEK 4.1 (4.6) b. EPS diluted was SEK 1.22 (1.37). | – Free cash flow before M&A was SEK 0.4 (2.6) b. | – Capital returns to shareholders were SEK 8.2 b. in Q2, including SEK 3.2 b. of share repurchases."
+            },
+            {
+              "label": "net income",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 6.3",
+                " 6.8",
+                "-7%",
+                " 1.8",
+                "- 8.1",
+                " 13.4",
+                "-40%",
+                " 11.9%",
+                " 12.0%",
+                "- 3.6%",
+                "- 7.9%",
+                " 12.1%"
+              ],
+              "snippet": "EBITA²⁾ 6.3 6.8 -7% 1.8 - 8.1 13.4 -40% | EBITA margin²⁾ 11.9% 12.0% - 3.6% - 7.9% 12.1% - | Net income 4.1 4.6 -12% 0.9 - 5.0 8.8 -44% | EPS diluted, SEK 1.22 1.37 -11% 0.27 - 1.48 2.61 -43% | Free cash flow before M&A²⁾ 0.4 2.6 -85% 5.9 -93% 6.3 5.3 19%"
+            },
+            {
+              "label": "net income",
+              "basisDetected": "unknown",
+              "numbers": [
+                "-0.2",
+                " 0.0",
+                "-0.2",
+                "-0.4",
+                " 0.0",
+                "-1.7",
+                "-1.8",
+                "-0.4",
+                "-2.0",
+                "-3.4",
+                "4.1",
+                " 4.6"
+              ],
+              "snippet": "Financial income and expenses, net -0.2 0.0 - -0.2 - -0.4 0.0 - | Income tax -1.7 -1.8 - -0.4 - -2.0 -3.4 - | Net income 4.1 4.6 -12% 0.9 - 5.0 8.8 -44% | Restructuring charges -0.6 -0.7 - -3.8 - -4.4 -0.9 - | Adjusted financial measures¹⁾"
+            },
+            {
+              "label": "net income",
+              "basisDetected": "unknown",
+              "numbers": [
+                "11.5%",
+                "11.9%",
+                "-0.7",
+                "-1.1",
+                "5.0",
+                "8.8",
+                "4.1",
+                "4.6",
+                "-4.4",
+                "-0.9",
+                "1.48",
+                "1.22"
+              ],
+              "snippet": "restructuring costs. of 11.5% (11.9%). Amortization of intangible assets was SEK -0.7 | (-1.1) b. | Net income Net income decreased to SEK 5.0 (8.8) b. including restructuring | Net income decreased to SEK 4.1 (4.6) b. Diluted EPS was charges of SEK -4.4 (-0.9) b. Diluted EPS decreased to SEK 1.48 | SEK 1.22 (1.37). (2.61)."
+            }
+          ]
+        },
+        "eps": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                "6.9",
+                "7.4",
+                "13.1%",
+                "13.2%",
+                "6.3",
+                "6.8",
+                "11.9%",
+                "12.0%",
+                "4.1",
+                "4.6",
+                "1.22",
+                "1.37"
+              ],
+              "snippet": "– Adjusted1 EBITA was SEK 6.9 (7.4) b. with a 13.1% (13.2%) margin, benefiting from continued strong margin expansion in Cloud | Software and Services. Reported EBITA was SEK 6.3 (6.8) b., with an 11.9% (12.0%) margin. | – Net income was SEK 4.1 (4.6) b. EPS diluted was SEK 1.22 (1.37). | – Free cash flow before M&A was SEK 0.4 (2.6) b. | – Capital returns to shareholders were SEK 8.2 b. in Q2, including SEK 3.2 b. of share repurchases."
+            },
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 11.9%",
+                " 12.0%",
+                "- 3.6%",
+                "- 7.9%",
+                " 12.1%",
+                "4.1",
+                " 4.6",
+                "-12%",
+                " 0.9",
+                "- 5.0",
+                " 8.8",
+                "-44%"
+              ],
+              "snippet": "EBITA margin²⁾ 11.9% 12.0% - 3.6% - 7.9% 12.1% - | Net income 4.1 4.6 -12% 0.9 - 5.0 8.8 -44% | EPS diluted, SEK 1.22 1.37 -11% 0.27 - 1.48 2.61 -43% | Free cash flow before M&A²⁾ 0.4 2.6 -85% 5.9 -93% 6.3 5.3 19% | Net cash, end of period²⁾ 59.8 36.0 66% 68.1 -12% 59.8 36.0 66%"
+            },
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                "-1.1",
+                "5.0",
+                "8.8",
+                "4.1",
+                "4.6",
+                "-4.4",
+                "-0.9",
+                "1.48",
+                "1.22",
+                "1.37",
+                "2.61"
+              ],
+              "snippet": "(-1.1) b. | Net income Net income decreased to SEK 5.0 (8.8) b. including restructuring | Net income decreased to SEK 4.1 (4.6) b. Diluted EPS was charges of SEK -4.4 (-0.9) b. Diluted EPS decreased to SEK 1.48 | SEK 1.22 (1.37). (2.61). | Employees"
+            },
+            {
+              "label": "earnings per share",
+              "basisDetected": "quarter",
+              "numbers": [
+                "64,898,958",
+                "38,002,276",
+                "2026",
+                "14",
+                " 2026",
+                "9"
+              ],
+              "snippet": "64,898,958 treasury shares (38,002,276). Repurchased shares are | reflected in the average number of shares outstanding and in the | calculation of earnings per share. | Ericsson | Second quarter report 2026. July 14, 2026. Parent Company 9 | Other information"
+            }
+          ]
+        },
+        "freeCashFlow": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "free cash flow",
+              "basisDetected": "unknown",
+              "numbers": [
+                "6.3",
+                "6.8",
+                "11.9%",
+                "12.0%",
+                "4.1",
+                "4.6",
+                "1.22",
+                "1.37",
+                "0.4",
+                "2.6",
+                "8.2",
+                "3.2"
+              ],
+              "snippet": "Software and Services. Reported EBITA was SEK 6.3 (6.8) b., with an 11.9% (12.0%) margin. | – Net income was SEK 4.1 (4.6) b. EPS diluted was SEK 1.22 (1.37). | – Free cash flow before M&A was SEK 0.4 (2.6) b. | – Capital returns to shareholders were SEK 8.2 b. in Q2, including SEK 3.2 b. of share repurchases. | Comment from Börje Ekholm, President and CEO"
+            },
+            {
+              "label": "free cash flow",
+              "basisDetected": "unknown",
+              "numbers": [
+                "4.1",
+                " 4.6",
+                "-12%",
+                " 0.9",
+                "- 5.0",
+                " 8.8",
+                "-44%",
+                "1.22",
+                " 1.37",
+                "-11%",
+                " 0.27",
+                "- 1.48"
+              ],
+              "snippet": "Net income 4.1 4.6 -12% 0.9 - 5.0 8.8 -44% | EPS diluted, SEK 1.22 1.37 -11% 0.27 - 1.48 2.61 -43% | Free cash flow before M&A²⁾ 0.4 2.6 -85% 5.9 -93% 6.3 5.3 19% | Net cash, end of period²⁾ 59.8 36.0 66% 68.1 -12% 59.8 36.0 66% | Adjusted financial measures¹⁾²⁾"
+            },
+            {
+              "label": "free cash flow",
+              "basisDetected": "ytd",
+              "numbers": [
+                " 2026",
+                " 2025",
+                " 2026",
+                " 2026",
+                " 2025",
+                "6.9",
+                " 7.4",
+                " 5.6",
+                " 12.4",
+                " 14.4",
+                "1.6",
+                " 1.8"
+              ],
+              "snippet": "Cash flow and financial position | Q2 Q2 Q1 Jan-Jun Jan-Jun | Free cash flow bridge, SEK b. 2026 2025 2026 2026 2025 | Adjusted EBITA 6.9 7.4 5.6 12.4 14.4 | Depreciation and amortization of non-acquired assets 1.6 1.8 1.6 3.3 3.8"
+            },
+            {
+              "label": "free cash flow",
+              "basisDetected": "unknown",
+              "numbers": [
+                "-1.0",
+                "-1.0",
+                "-1.0",
+                "-2.1",
+                "-2.1",
+                "-0.5",
+                "-0.6",
+                "-0.5",
+                "-1.0",
+                "-1.1",
+                "0.4",
+                " 2.6"
+              ],
+              "snippet": "Net capex and other investing activities -1.0 -1.0 -1.0 -2.1 -2.1 | Repayment of lease liabilities -0.5 -0.6 -0.5 -1.0 -1.1 | Free cash flow before M&A 0.4 2.6 5.9 6.3 5.3 | Cash flow from operating activities 1.9 4.2 7.4 9.3 8.5 | Cash flow from investing activities -3.7 -10.9 1.9 -1.9 -9.6"
+            }
+          ]
+        },
+        "totalAssets": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "total assets",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "5",
+                " 41,691",
+                " 43,926",
+                " 147,113 143,554",
+                "287,899 279,223"
+              ],
+              "snippet": "Cash and cash equivalents 5 41,691 43,926 | 147,113 143,554 | Total assets 287,899 279,223 | Equity and liabilities | Equity"
+            },
+            {
+              "label": "total assets",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "28,921",
+                " 27,807",
+                " 61,582",
+                " 59,781",
+                "197,947 195,261"
+              ],
+              "snippet": "Cash and cash equivalents 28,921 27,807 | 61,582 59,781 | Total assets 197,947 195,261 | Stockholders' equity, provisions and liabilities | Equity"
+            },
+            {
+              "label": "total assets",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "59,839",
+                " 68,141",
+                " 61,236",
+                " 51,858",
+                " 36,040",
+                " 38,647",
+                " 2026",
+                " 2025"
+              ],
+              "snippet": "Net cash, end of period 59,839 68,141 61,236 51,858 36,040 38,647 | Capital employed | Total assets less non-interest-bearing provisions and liabilities (which includes non-current provisions, deferred tax liabilities, contract | liabilities, other non-current liabilities, current provisions, trade payables, current tax liabilities and other current liabilities). | 2026 2025"
+            },
+            {
+              "label": "total assets",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "2026",
+                " 2025",
+                "287,899 290,393 279,223 282,476 270,555 277,978",
+                "-4,037",
+                "-4,822",
+                "-2,993",
+                "-2,478",
+                "-2,365",
+                "-2,541"
+              ],
+              "snippet": "2026 2025 | SEK million Q2 Q1 Q4 Q3 Q2 Q1 | Total assets 287,899 290,393 279,223 282,476 270,555 277,978 | Less: Non-interest-bearing provisions and liabilities | Provisions, non-current -4,037 -4,822 -2,993 -2,478 -2,365 -2,541"
+            }
+          ]
+        },
+        "bookEquity": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "total equity",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "0.4",
+                " 58.4",
+                "31.9",
+                "106.7",
+                "80.2",
+                "27.7",
+                "18.9"
+              ],
+              "snippet": "a decrease in intercompany borrowing of SEK 0.4 b. in the quarter. | At the end of the quarter, non-restricted equity amounted to SEK | 58.4 (31.9) b., and total equity amounted to SEK 106.7 (80.2) b. | The Parent Company has recognized dividends from subsidiaries | of SEK 27.7 (18.9) b. in the quarter."
+            },
+            {
+              "label": "total equity",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "34,231",
+                " 34,038",
+                " 131,327 110,937",
+                "287,899 279,223",
+                "2026",
+                "14",
+                " 2026",
+                "18"
+              ],
+              "snippet": "Other current liabilities 34,231 34,038 | 131,327 110,937 | Total equity and liabilities 287,899 279,223 | Ericsson | Second quarter report 2026. July 14, 2026. Financial statements 18 | Condensed consolidated statement of cash flows"
+            },
+            {
+              "label": "total equity",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "2026",
+                " 2025",
+                "104,764 103,133 110,264 102,494",
+                " 85,699",
+                " 84,858",
+                "287,899 290,393 279,223 282,476 270,555 277,978",
+                " 36.4%",
+                " 35.5%",
+                " 39.5%",
+                " 36.3%",
+                " 31.7%",
+                " 30.5%"
+              ],
+              "snippet": "2026 2025 | SEK million Q2 Q1 Q4 Q3 Q2 Q1 | Total equity 104,764 103,133 110,264 102,494 85,699 84,858 | Total assets 287,899 290,393 279,223 282,476 270,555 277,978 | Equity ratio (%) 36.4% 35.5% 39.5% 36.3% 31.7% 30.5%"
+            }
+          ]
+        },
+        "totalLiabilities": {
+          "requiredBasis": "latest-quarter",
+          "matches": []
+        },
+        "totalDebt": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "-0.2",
+                "0.0",
+                "8.1",
+                "13.4",
+                "7.9%",
+                "12.1%",
+                "-0.1",
+                "0.1"
+              ],
+              "snippet": "Financial income and expenses, net offset by negative currency impacts. The gross margin in Enterprise | Financial income and expenses were SEK -0.2 (0.0) b. Improved net declined YoY primarily as a result of the divestment of iconectiv. | interest, driven by higher asset volumes and lower borrowings, was EBITA decreased to SEK 8.1 (13.4) b. with a margin of | offset by negative net foreign exchange effects, including a currency 7.9% (12.1%), impacted by lower net sales, increased restructuring | hedge effect of SEK -0.1 (0.1) b. charges, the divestment of iconectiv, and a negative currency impact"
+            },
+            {
+              "label": "borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                " 2026",
+                " 2025",
+                " 2026",
+                "91.3",
+                " 73.3",
+                " 99.5",
+                "9.5",
+                " 7.3",
+                " 9.9",
+                "22.0",
+                " 29.9",
+                " 21.5"
+              ],
+              "snippet": "SEK b. 2026 2025 2026 | Gross cash 91.3 73.3 99.5 | - Borrowings, current 9.5 7.3 9.9 | - Borrowings, non-current 22.0 29.9 21.5 | Net cash 59.8 36.0 68.1"
+            },
+            {
+              "label": "borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "91.3",
+                " 73.3",
+                " 99.5",
+                "9.5",
+                " 7.3",
+                " 9.9",
+                "22.0",
+                " 29.9",
+                " 21.5",
+                "59.8",
+                " 36.0",
+                " 68.1"
+              ],
+              "snippet": "Gross cash 91.3 73.3 99.5 | - Borrowings, current 9.5 7.3 9.9 | - Borrowings, non-current 22.0 29.9 21.5 | Net cash 59.8 36.0 68.1 | Equity 104.8 85.7 103.1"
+            },
+            {
+              "label": "borrowings",
+              "basisDetected": "latest-quarter",
+              "numbers": [
+                "-8.3",
+                "59.8",
+                "2.5",
+                "30",
+                " 2026",
+                "2.7",
+                "31",
+                "2026"
+              ],
+              "snippet": "earnings and impacted by increased operating net assets. The impacted by dividend payments and share repurchases. | increase mainly reflected higher inventories ahead of planned Q3 Net cash decreased sequentially by SEK -8.3 b. to SEK 59.8 b. | deliveries. The average maturity of parent company borrowings was 2.5 | Quarterly cash flow from operating activities decreased years as of June 30, 2026, compared with 2.7 years as of March 31, | compared to the prior-year period, mainly due to higher inventories 2026."
+            }
+          ]
+        },
+        "cash": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "8,916",
+                " 9,920",
+                "5",
+                " 12,413",
+                " 12,715",
+                "5",
+                " 41,691",
+                " 43,926",
+                " 147,113 143,554",
+                "287,899 279,223"
+              ],
+              "snippet": "Other current receivables 8,916 9,920 | Interest-bearing securities, current 5 12,413 12,715 | Cash and cash equivalents 5 41,691 43,926 | 147,113 143,554 | Total assets 287,899 279,223"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "-9,216",
+                "-3,471",
+                "-11,494",
+                "-4,203",
+                "381",
+                "-787",
+                " 1,784",
+                "-5,013",
+                "-10,624",
+                "-10,970",
+                "-2,236",
+                "-10,265"
+              ],
+              "snippet": "Cash flow from financing activities -9,216 -3,471 -11,494 -4,203 | Effect of exchange rate changes on cash 381 -787 1,784 -5,013 | Net change in cash and cash equivalents -10,624 -10,970 -2,236 -10,265 | Cash and cash equivalents, beginning of period 52,315 44,590 43,926 43,885 | Cash and cash equivalents, end of period 41,691 33,620 41,691 33,620"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "381",
+                "-787",
+                " 1,784",
+                "-5,013",
+                "-10,624",
+                "-10,970",
+                "-2,236",
+                "-10,265",
+                "52,315",
+                " 44,590",
+                " 43,926",
+                " 43,885"
+              ],
+              "snippet": "Effect of exchange rate changes on cash 381 -787 1,784 -5,013 | Net change in cash and cash equivalents -10,624 -10,970 -2,236 -10,265 | Cash and cash equivalents, beginning of period 52,315 44,590 43,926 43,885 | Cash and cash equivalents, end of period 41,691 33,620 41,691 33,620 | Ericsson | Second quarter report 2026. July 14, 2026. Financial statements 19"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "-10,624",
+                "-10,970",
+                "-2,236",
+                "-10,265",
+                "52,315",
+                " 44,590",
+                " 43,926",
+                " 43,885",
+                "41,691",
+                " 33,620",
+                " 41,691",
+                " 33,620"
+              ],
+              "snippet": "Net change in cash and cash equivalents -10,624 -10,970 -2,236 -10,265 | Cash and cash equivalents, beginning of period 52,315 44,590 43,926 43,885 | Cash and cash equivalents, end of period 41,691 33,620 41,691 33,620 | Ericsson | Second quarter report 2026. July 14, 2026. Financial statements 19 | Condensed consolidated statement of changes in equity"
+            }
+          ]
+        }
+      },
       "summary": {
-        "fieldsFound": [],
+        "fieldsFound": [
+          "revenue",
+          "netIncome",
+          "eps",
+          "freeCashFlow",
+          "totalAssets",
+          "bookEquity",
+          "totalDebt",
+          "cash"
+        ],
         "ttmCandidates": [],
-        "latestQuarterCandidates": []
+        "latestQuarterCandidates": [
+          "totalAssets",
+          "bookEquity",
+          "totalDebt",
+          "cash"
+        ]
       },
       "errors": [
-        "Official source page: HTTPError: HTTP Error 403: Forbidden"
+        "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-04T23:24:02.409618+00:00"
+      "checkedAt": "2026-08-04T23:58:01.261968+00:00"
     },
     {
       "ticker": "ESSITY-B.ST",

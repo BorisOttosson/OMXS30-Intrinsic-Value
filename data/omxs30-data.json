@@ -942,12 +942,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
-        "auditStatus": "download-error",
+        "auditCheckedAt": "2026-08-04T23:58:01.261968+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Ericsson Q2 2026 results",
-        "sourceUrl": "https://www.ericsson.com/en/press-releases/2026/7/ericsson-reports-second-quarter-results-2026"
+        "sourceName": "Ericsson Q2 2026 report \u2013 official Cision attachment",
+        "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
