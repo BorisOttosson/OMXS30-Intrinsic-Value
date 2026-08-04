@@ -1,0 +1,115 @@
+name: Collect official report evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "ALL, one ticker (for example ABB.ST), or BATCH 1 / BATCH 2 / BATCH 3."
+        required: true
+        default: "ALL"
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: omxs30-data-writes
+  cancel-in-progress: false
+
+jobs:
+  collect-official-reports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PDF text extractor
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Test the collector
+        run: python -m unittest tests.test_official_reports -v
+
+      - name: Collect evidence from official reports
+        env:
+          REQUESTED_SCOPE: ${{ github.event.inputs.scope || 'ALL' }}
+        run: |
+          scope="$(echo "$REQUESTED_SCOPE" | xargs)"
+          upper="$(echo "$scope" | tr '[:lower:]' '[:upper:]')"
+          extra_args=()
+          batch_number="$(echo "$upper" | sed -n 's/^BATCH[ _-]*\([0-9]\+\)$/\1/p')"
+
+          if [ -n "$batch_number" ]; then
+            extra_args+=(--batch "$batch_number" --batch-size 10)
+          elif [ "$upper" != "ALL" ]; then
+            extra_args+=(--ticker "$upper")
+          fi
+
+          python scripts/update_official_reports.py \
+            --output data/official-report-audit.json \
+            "${extra_args[@]}"
+
+      - name: Validate audit trail
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          catalogue = json.loads(Path("data/official-sources.json").read_text())
+          audit = json.loads(Path("data/official-report-audit.json").read_text())
+          expected = set(catalogue["companies"])
+          rows = audit.get("companies", [])
+          actual = {row.get("ticker") for row in rows}
+
+          unknown = sorted(actual - expected)
+          if unknown:
+              raise SystemExit(f"Unknown audit tickers: {', '.join(unknown)}")
+
+          missing_sources = [
+              row.get("ticker")
+              for row in rows
+              if not row.get("sourceUrl") or not str(row.get("sourceUrl")).startswith("http")
+          ]
+          if missing_sources:
+              raise SystemExit(f"Rows without clickable official sources: {', '.join(missing_sources)}")
+
+          counts = {}
+          for row in rows:
+              counts[row.get("status", "missing")] = counts.get(row.get("status", "missing"), 0) + 1
+          print(f"Audit rows: {len(rows)} of {len(expected)}")
+          print(f"Statuses: {counts}")
+          print("Automatic valuation verification remains disabled for every collected row.")
+          PY
+
+      - name: Commit audit trail
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/official-report-audit.json
+
+          if git diff --cached --quiet; then
+            echo "No official-report audit changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Collect official report evidence"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push; then
+              exit 0
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Could not push the official-report audit after 3 attempts"
+          exit 1
