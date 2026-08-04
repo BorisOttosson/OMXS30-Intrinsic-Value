@@ -349,6 +349,125 @@ def per_share(value: float | None, shares: float | None, exchange_rate: float) -
     return (value * exchange_rate) / shares
 
 
+def normalize_flow_unit(value: float | None, anchor: float | None) -> tuple[float | None, float]:
+    """Normalize provider flow values that occasionally mix units in one report.
+
+    BörsAPI normally returns absolute currency values, but a minority of rows
+    contain values in thousands or millions alongside absolute values. Select
+    the smallest power-of-1,000 adjustment that brings the flow into a broad,
+    economically plausible range relative to revenue/assets.
+    """
+    number = finite(value)
+    reference = abs(finite(anchor) or 0)
+    if number is None or reference <= 0 or number == 0:
+        return number, 1.0
+    for factor in (1.0, 1_000.0, 1_000_000.0):
+        ratio = abs(number * factor) / reference
+        if 0.001 <= ratio <= 2.0:
+            return number * factor, factor
+    return number, 1.0
+
+
+def normalize_balance_unit(value: float | None, assets: float | None) -> tuple[float | None, float]:
+    """Correct obvious thousand-scale balance-sheet outliers against assets."""
+    number = finite(value)
+    reference = abs(finite(assets) or 0)
+    if number is None or reference <= 0 or number == 0:
+        return number, 1.0
+    for factor in (1.0, 0.001, 1_000.0):
+        ratio = abs(number * factor) / reference
+        if 0.0001 <= ratio <= 3.0:
+            return number * factor, factor
+    return number, 1.0
+
+
+def validate_company_fundamentals(company: dict[str, Any], now: datetime | None = None) -> dict[str, Any]:
+    """Attach machine-readable quality results and quarantine unsafe outputs."""
+    result = dict(company)
+    result["errors"] = [
+        message for message in (result.get("errors") or [])
+        if not str(message).startswith("Data quality:")
+    ]
+    issues: list[str] = []
+    critical: list[str] = []
+    assets = finite(result.get("totalAssets"))
+    equity = finite(result.get("bookEquity"))
+    liabilities = finite(result.get("totalLiabilities"))
+    debt = finite(result.get("totalDebt"))
+    cash = finite(result.get("cash"))
+    net_debt = finite(result.get("netDebt"))
+    category = result.get("companyType") or company_type(str(result.get("ticker") or ""))
+
+    if assets and equity is not None and liabilities is not None:
+        identity_error = abs(assets - equity - liabilities) / abs(assets)
+        if identity_error > 0.10:
+            critical.append(f"Balance-sheet identity differs by {identity_error:.0%}")
+    if assets and debt is not None and abs(debt) > abs(assets) * 3:
+        critical.append(f"Total debt is {abs(debt / assets):.1f}x total assets")
+    if category not in ("bank", "investment") and debt is None and cash is not None and net_debt is not None:
+        critical.append("Total debt is missing; net debt cannot be derived from cash alone")
+
+    shares = finite(result.get("sharesOutstanding"))
+    net_income = finite(result.get("netIncome"))
+    eps = finite(result.get("eps"))
+    computed_eps = net_income / shares if net_income is not None and shares and shares > 0 else None
+    if eps is not None and computed_eps not in (None, 0):
+        eps_ratio = abs(eps / computed_eps)
+        if eps_ratio > 5 or eps_ratio < 0.2:
+            critical.append(f"EPS differs from net income / shares by {eps_ratio:.0f}x")
+
+    market_cap = finite(result.get("marketCap"))
+    free_cashflow = finite(result.get("freeCashFlow"))
+    if market_cap and free_cashflow is not None and free_cashflow != 0:
+        fcf_yield = abs(free_cashflow / market_cap)
+        if fcf_yield < 0.0001 or fcf_yield > 0.50:
+            critical.append(f"Absolute FCF yield is {fcf_yield:.3%}")
+
+    fiscal_date = parse_report_date(result.get("latestFiscalDate"))
+    reference_now = (now or datetime.now(timezone.utc)).replace(tzinfo=None)
+    if fiscal_date != datetime.min:
+        age_days = (reference_now - fiscal_date).days
+        result["fundamentalsAgeDays"] = age_days
+        if age_days > 550:
+            critical.append(f"Fundamentals are stale ({age_days} days)")
+        elif age_days > 300:
+            issues.append(f"Fundamentals are aging ({age_days} days)")
+
+    for message in result.get("errors") or []:
+        if "summed the last four quarters" not in str(message):
+            continue
+        quarters = re.findall(r"20\d{2}-Q[1-4]", str(message))
+        if quarters and len(set(quarters)) != len(quarters):
+            critical.append("Synthetic TTM contains duplicate accounting quarters")
+            break
+
+    if category == "bank":
+        required = ("eps", "bookValuePerShare", "roe")
+    elif category == "investment":
+        required = ("bookValuePerShare",)
+    else:
+        required = ("fcfPerShare", "eps", "ebitdaPerShare")
+    available = sum(finite(result.get(key)) is not None for key in required)
+    if available == 0:
+        critical.append("No category-relevant valuation fundamentals are available")
+    elif category not in ("bank", "investment") and finite(result.get("netDebtPerShare")) is None:
+        critical.append("Net debt per share is unavailable")
+
+    all_issues = [*critical, *issues]
+    status = "rejected" if critical else ("warning" if issues else "ok")
+    result["dataQuality"] = {
+        "status": status,
+        "valuationReady": not critical,
+        "issues": all_issues,
+        "checkedAt": (now or datetime.now(timezone.utc)).isoformat(),
+    }
+    if critical:
+        # Preserve raw values for diagnosis. The UI consumes valuationReady
+        # and refuses to feed rejected values into any valuation model.
+        result["errors"] = [*(result.get("errors") or []), *[f"Data quality: {item}" for item in critical]]
+    return result
+
+
 def median_per_share(values: list[float], shares: float | None, exchange_rate: float) -> float | None:
     if not shares or shares <= 0:
         return None
@@ -1933,14 +2052,37 @@ def fetch_borsapi_company(
     operating_cashflow = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_OPERATING_CASHFLOW_KEYS)
     capital_expenditure = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_CAPEX_KEYS)
     free_cashflow = borsapi_number(latest_cashflow, BORSAPI_CASHFLOW_CONTAINERS, BORSAPI_FCF_KEYS)
-    if free_cashflow is None and operating_cashflow is not None and capital_expenditure is not None:
-        free_cashflow = operating_cashflow + capital_expenditure
+    derive_free_cashflow = free_cashflow is None
 
     total_assets = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_ASSETS_KEYS)
     liabilities = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_LIABILITIES_KEYS)
     equity = borsapi_number(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_EQUITY_KEYS)
     cash = borsapi_positive(latest_balance, BORSAPI_BALANCE_CONTAINERS, BORSAPI_CASH_KEYS)
     total_debt, net_debt = borsapi_debt_values(latest_balance, cash)
+
+    flow_anchor = revenue or total_assets
+    operating_cashflow, operating_cashflow_factor = normalize_flow_unit(operating_cashflow, flow_anchor)
+    capital_expenditure, capex_factor = normalize_flow_unit(capital_expenditure, flow_anchor)
+    free_cashflow, free_cashflow_factor = normalize_flow_unit(free_cashflow, flow_anchor)
+    if derive_free_cashflow and operating_cashflow is not None and capital_expenditure is not None:
+        free_cashflow = operating_cashflow + capital_expenditure
+    total_debt, debt_factor = normalize_balance_unit(total_debt, total_assets)
+    cash, cash_factor = normalize_balance_unit(cash, total_assets)
+    if total_debt is not None and cash is not None:
+        net_debt = total_debt - cash
+    else:
+        net_debt, net_debt_factor = normalize_balance_unit(net_debt, total_assets)
+        if net_debt_factor != 1:
+            errors.append(f"BörsAPI: normalized net debt unit by {net_debt_factor:g}x")
+    for label, factor in (
+        ("operating cash flow", operating_cashflow_factor),
+        ("capital expenditure", capex_factor),
+        ("free cash flow", free_cashflow_factor),
+        ("total debt", debt_factor),
+        ("cash", cash_factor),
+    ):
+        if factor != 1:
+            errors.append(f"BörsAPI: normalized {label} unit by {factor:g}x")
 
     if revenue is None:
         errors.append("BörsAPI: revenue is missing from the TTM income statement")
@@ -1959,7 +2101,8 @@ def fetch_borsapi_company(
     if shares is None:
         errors.append("Outstanding shares: Yahoo returned no share count; per-share values are unavailable")
 
-    fcf_values = borsapi_cashflow_values(reports)
+    fcf_values = [normalize_flow_unit(value, flow_anchor)[0] for value in borsapi_cashflow_values(reports)]
+    fcf_values = [value for value in fcf_values if value is not None]
     ebitda_values = [
         value
         for value in (borsapi_ebitda(report) for report in reports if str(report.get("report_type", "")).upper() == "RR")
@@ -2083,7 +2226,7 @@ def fetch_borsapi_company(
         "errors": errors,
     }
 
-    return {key: clean(value) for key, value in output.items()}
+    return {key: clean(value) for key, value in validate_company_fundamentals(output).items()}
 
 
 def fetch_company(ticker: str, name: str, sector: str, fx_cache: dict[tuple[str, str], float]) -> dict[str, Any]:
@@ -2273,6 +2416,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("--batch-size", type=int, default=10, help="Companies per batch (default 10).")
     parser.add_argument("--max-companies", type=int, default=None, help="Limit how many companies to update for testing.")
+    parser.add_argument("--validate-only", action="store_true", help="Validate and quarantine the existing output without calling a provider")
     parser.add_argument("--enforce-fundamentals-window", action="store_true", help="Only run around 09:10 Europe/Stockholm on weekdays")
     parser.add_argument(
         "--provider",
@@ -2283,6 +2427,17 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     now = datetime.now(timezone.utc)
+    if args.validate_only:
+        payload = json.loads(args.output.read_text(encoding="utf-8"))
+        rows = payload.get("companies")
+        if not isinstance(rows, list):
+            raise SystemExit("Existing output has no companies array")
+        payload["companies"] = [validate_company_fundamentals(row, now) for row in rows]
+        payload["qualityCheckedAt"] = now.isoformat()
+        args.output.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+        print(f"Validated {len(rows)} companies in {args.output}")
+        return 0
+
     if args.enforce_fundamentals_window and not should_run_fundamentals_update(now):
         local = now.astimezone(STOCKHOLM_TZ)
         print(f"Skipping fundamentals update outside Stockholm morning window: {local.isoformat()}")
@@ -2468,6 +2623,12 @@ def main(argv: list[str]) -> int:
                     "errors": ["No existing fundamentals row yet."],
                 })
         companies = merged_companies
+
+    # Validate every emitted row, including preserved rows from partial or
+    # rate-limited updates, so a fresh file timestamp never disguises stale or
+    # internally inconsistent company data.
+    quality_checked_at = datetime.now(timezone.utc)
+    companies = [validate_company_fundamentals(company, quality_checked_at) for company in companies]
 
     payload = {
         "version": 1,
