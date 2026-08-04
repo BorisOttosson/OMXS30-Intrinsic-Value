@@ -11,7 +11,7 @@
     "BOL.ST": {"sourceName": "Boliden financial reports", "sourceUrl": "https://investors.boliden.com/en/reports-and-presentations/financial-reports", "period": "2026-06-30", "earningsBasis": "TTM"},
     "EPI-A.ST": {"sourceName": "Epiroc financial publications", "sourceUrl": "https://www.epirocgroup.com/en/investors/financial-publications", "period": "2026-06-30", "earningsBasis": "TTM"},
     "EQT.ST": {"sourceName": "EQT reports and presentations", "sourceUrl": "https://eqtgroup.com/shareholders/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "ERIC-B.ST": {"sourceName": "Ericsson Q2 2026 results", "sourceUrl": "https://www.ericsson.com/en/press-releases/2026/7/ericsson-reports-second-quarter-results-2026", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "ERIC-B.ST": {"sourceName": "Ericsson Q2 2026 report – official Cision attachment", "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf", "period": "2026-06-30", "earningsBasis": "TTM"},
     "ESSITY-B.ST": {"sourceName": "Essity interim reports", "sourceUrl": "https://www.essity.com/investors/financial-reports/interim-reports/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "EVO.ST": {"sourceName": "Evolution financial reports", "sourceUrl": "https://www.evolution.com/investors/financial-publications/reports", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SHB-A.ST": {"sourceName": "Handelsbanken financial reports", "sourceUrl": "https://www.handelsbanken.com/en/investor-relations/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
