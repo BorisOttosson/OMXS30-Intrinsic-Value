@@ -398,6 +398,17 @@ def validate_company_fundamentals(company: dict[str, Any], now: datetime | None 
     net_debt = finite(result.get("netDebt"))
     category = result.get("companyType") or company_type(str(result.get("ticker") or ""))
 
+    if category not in ("bank", "investment"):
+        if result.get("incomeStatementBasis") != "ttm":
+            critical.append("Revenue and earnings are not based on four distinct TTM quarters")
+        if result.get("cashFlowStatementBasis") != "ttm":
+            critical.append("Cash flow is not based on four distinct TTM quarters")
+    if result.get("balanceSheetBasis") != "quarter":
+        critical.append("Balance sheet is not from the latest reported quarter")
+    balance_date = result.get("balanceSheetDate")
+    if balance_date and result.get("latestFiscalDate") and balance_date != result.get("latestFiscalDate"):
+        critical.append("Balance-sheet date does not match the latest fiscal period")
+
     if assets and equity is not None and liabilities is not None:
         identity_error = abs(assets - equity - liabilities) / abs(assets)
         if identity_error > 0.10:
@@ -454,12 +465,17 @@ def validate_company_fundamentals(company: dict[str, Any], now: datetime | None 
         critical.append("Net debt per share is unavailable")
 
     verification = result.get("independentVerification")
+    official_source = result.get("officialSource")
+    official_period = official_source.get("period") if isinstance(official_source, dict) else None
     independently_verified = (
         isinstance(verification, dict)
         and verification.get("status") == "verified"
         and bool(verification.get("sourceUrl"))
         and bool(verification.get("period"))
         and verification.get("period") == result.get("latestFiscalDate")
+        and (not official_period or verification.get("period") == official_period)
+        and (category in ("bank", "investment") or verification.get("earningsBasis") == "TTM")
+        and verification.get("balanceSheetBasis") == "latest-quarter"
     )
     if not critical and not independently_verified:
         issues.append("Not independently verified against an official company report")
