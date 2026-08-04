@@ -453,11 +453,21 @@ def validate_company_fundamentals(company: dict[str, Any], now: datetime | None 
     elif category not in ("bank", "investment") and finite(result.get("netDebtPerShare")) is None:
         critical.append("Net debt per share is unavailable")
 
+    verification = result.get("independentVerification")
+    independently_verified = (
+        isinstance(verification, dict)
+        and verification.get("status") == "verified"
+        and bool(verification.get("sourceUrl"))
+        and bool(verification.get("period"))
+    )
+    if not critical and not independently_verified:
+        issues.append("Not independently verified against an official company report")
+
     all_issues = [*critical, *issues]
-    status = "rejected" if critical else ("warning" if issues else "ok")
+    status = "rejected" if critical else ("unverified" if not independently_verified else ("warning" if issues else "ok"))
     result["dataQuality"] = {
         "status": status,
-        "valuationReady": not critical,
+        "valuationReady": not critical and independently_verified,
         "issues": all_issues,
         "checkedAt": (now or datetime.now(timezone.utc)).isoformat(),
     }
