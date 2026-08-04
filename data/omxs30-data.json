@@ -72,10 +72,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "ABB Q2 2026 results",
-        "sourceUrl": "https://global.abb/group/en/investors/quarterly-results"
+        "sourceUrl": "https://library.e.abb.com/public/47f0bfb2ecaf494b99846882bffa5409/ABB-Q2-2026-Group-results.pdf?x-sign=NscNT684BFYp7M4jGSjTtpBkntV5j1ZmzwGrF687e6KhOmTevkCeRmbhNTnevEu4"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -166,6 +168,8 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 3.374568485852457,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Addtech Q1 2026/2027 interim report",
@@ -259,10 +263,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Alfa Laval Q2 2026 interim report",
-        "sourceUrl": "https://www.alfalaval.com/media/news/investors/2026/alfa-laval-ab-publ-interim-report-1-april-30-june-2026/"
+        "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -355,6 +361,8 @@
       "normalizedEbitdaPerShare": 35.549946716609966,
       "normalizedFcfPerShare": 7.088533028896696,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "ASSA ABLOY interim reports",
@@ -451,6 +459,8 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "download-error",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "AstraZeneca results and presentations",
@@ -545,10 +555,12 @@
       "normalizedEbitdaPerShare": 12.70230340410555,
       "normalizedFcfPerShare": 7.263066348592446,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Atlas Copco Q2 2026 report",
-        "sourceUrl": "https://www.atlascopcogroup.com/en/investors/reports-and-presentations.html"
+        "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
       },
       "operatingCashFlow": 26447000000.0,
       "previousClose": null,
@@ -641,10 +653,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Boliden reports and presentations",
-        "sourceUrl": "https://www.boliden.com/investor-relations/reports-and-presentations/"
+        "sourceName": "Boliden financial reports",
+        "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -738,10 +752,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Epiroc financial publications",
-        "sourceUrl": "https://www.epirocgroup.com/en/investors/financial-publications"
+        "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/cmd/2026/Epiroc%20CMD%202026%20Presentation.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -830,10 +846,12 @@
       "normalizedEbitdaPerShare": 13.028811465557212,
       "normalizedFcfPerShare": 3.7409738769445178,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "EQT reports and presentations",
-        "sourceUrl": "https://eqtgroup.com/shareholders/reports-and-presentations"
+        "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf"
       },
       "operatingCashFlow": 4747409616.184235,
       "previousClose": null,
@@ -924,10 +942,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "download-error",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Ericsson financial reports",
-        "sourceUrl": "https://www.ericsson.com/en/investors/financial-reports"
+        "sourceName": "Ericsson Q2 2026 results",
+        "sourceUrl": "https://www.ericsson.com/en/press-releases/2026/7/ericsson-reports-second-quarter-results-2026"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1022,10 +1042,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Essity interim reports",
-        "sourceUrl": "https://www.essity.com/investors/reports-and-presentations/interim-reports/"
+        "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1119,10 +1141,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Evolution interim reports",
-        "sourceUrl": "https://www.evolution.com/investors/reports-presentations/"
+        "sourceName": "Evolution financial reports",
+        "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1215,6 +1239,8 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -14.089017751295943,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Handelsbanken financial reports",
@@ -1315,10 +1341,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "evidence-found",
         "earningsBasis": "TTM",
         "period": "2026-05-31",
         "sourceName": "H&M Group six-month report 2026",
-        "sourceUrl": "https://hmgroup.com/investors/reports/"
+        "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1415,10 +1443,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Hexagon interim reports",
-        "sourceUrl": "https://hexagon.com/company/investors/financial-information/reports-and-presentations"
+        "sourceName": "Hexagon reports and presentations",
+        "sourceUrl": "https://airtools-hexagon.prod-mid-euw3.investis.com/sites/airtools-hexagon/files/pr/202603207919-1.pdf?ts=1774249484"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1516,10 +1546,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 10.562652053451336,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Industriv\u00e4rden interim reports",
-        "sourceUrl": "https://www.industrivarden.se/en-gb/investors/reports-and-presentations/"
+        "sourceName": "Industriv\u00e4rden 2026 reports",
+        "sourceUrl": "https://www.industrivarden.se/en-gb/media/press-releases/2026/interim-report-january-1--june-30-2026/"
       },
       "operatingCashFlow": 9212000000.0,
       "previousClose": null,
@@ -1610,10 +1642,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Investor reports and presentations",
-        "sourceUrl": "https://www.investorab.com/investors-media/reports-presentations/"
+        "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -1704,10 +1738,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 2.8422581928477686,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Lifco financial reports",
-        "sourceUrl": "https://www.lifco.se/investors/financial-reports?lang=en"
+        "sourceUrl": "https://network.s-z.se/app/uploads/sites/16/Notice-of-Annual-General-Meeting-2026.pdf"
       },
       "operatingCashFlow": 5124000000.0,
       "previousClose": null,
@@ -1797,10 +1833,12 @@
       "normalizedEbitdaPerShare": 3.106544371070365,
       "normalizedFcfPerShare": 0.9647499284259716,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-03-31",
-        "sourceName": "NIBE reports and presentations",
-        "sourceUrl": "https://www.nibe.com/investors/reports-and-presentations"
+        "sourceName": "NIBE Q1 2026 interim report",
+        "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
       },
       "operatingCashFlow": 4888000000.0,
       "previousClose": null,
@@ -1886,10 +1924,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -6.534330572484605,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Nordea quarterly results",
-        "sourceUrl": "https://www.nordea.com/en/investors/quarterly-results"
+        "sourceName": "Nordea Q2 2026 interim results",
+        "sourceUrl": "https://www.nordea.com/en/doc/income-statement-second-quarter-2026-0.xlsx"
       },
       "operatingCashFlow": 9995707906.723022,
       "previousClose": null,
@@ -1980,10 +2020,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Saab reports and presentations",
-        "sourceUrl": "https://www.saab.com/investors/financials/reports-and-presentations"
+        "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -2076,10 +2118,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "Sandvik reports and presentations",
-        "sourceUrl": "https://www.home.sandvik/en/investors/reports-and-presentations/"
+        "sourceName": "Sandvik interim reports",
+        "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -2188,10 +2232,12 @@
       "normalizedEbitdaPerShare": 9.345867725226004,
       "normalizedFcfPerShare": 2.0104151779431927,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "SCA interim reports",
-        "sourceUrl": "https://www.sca.com/en/investors/reports-and-presentations/interim-reports/"
+        "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
       },
       "operatingCashFlow": 4017000000.0,
       "previousClose": null,
@@ -2281,10 +2327,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "SEB interim reports",
-        "sourceUrl": "https://sebgroup.com/investor-relations/reports-and-presentations/interim-reports"
+        "sourceUrl": "https://sebgroup.com/our-offering/reports-and-publications"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -2382,10 +2430,12 @@
       "normalizedEbitdaPerShare": 29.767159852518898,
       "normalizedFcfPerShare": 2.5547137250662364,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "evidence-found",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Skanska interim reports",
-        "sourceUrl": "https://group.skanska.com/investors/reports-publications/interim-reports/"
+        "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf"
       },
       "operatingCashFlow": -3483000000.0,
       "previousClose": null,
@@ -2473,6 +2523,8 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "SKF financial reports",
@@ -2567,10 +2619,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Swedbank interim reports",
-        "sourceUrl": "https://www.swedbank.com/investor-relations/reports-and-presentations/interim-reports.html"
+        "sourceUrl": "https://internetbank.swedbank.se/ConditionsEarchive/download?bankid=1111&id=WEBDOC-PRODE307024995"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -2659,6 +2713,8 @@
       "normalizedEbitdaPerShare": 16.74781702023722,
       "normalizedFcfPerShare": 8.776167544953854,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Tele2 reports and presentations",
@@ -2752,6 +2808,8 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Telia reports and presentations",
@@ -2853,10 +2911,12 @@
       "normalizedEbitdaPerShare": 46.9545978949662,
       "normalizedFcfPerShare": 4.826368844268305,
       "officialSource": {
+        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "Volvo Group reports",
-        "sourceUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html"
+        "sourceUrl": "https://www.volvogroup.com/content/dam/volvo-group/markets/master/investors/reports-and-presentations/interim-reports/2026/volvo-group-q2-2026-eng.pdf"
       },
       "operatingCashFlow": 29274000000.0,
       "previousClose": null,
