@@ -27,6 +27,8 @@ class DataQualityTests(unittest.TestCase):
             "companyType": "investment",
             "latestFiscalDate": "2025-12-31",
             "bookValuePerShare": 100,
+            "balanceSheetBasis": "quarter",
+            "balanceSheetDate": "2025-12-31",
         }
         checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
         self.assertEqual(checked["dataQuality"]["status"], "unverified")
@@ -38,10 +40,13 @@ class DataQualityTests(unittest.TestCase):
             "companyType": "investment",
             "latestFiscalDate": "2025-12-31",
             "bookValuePerShare": 100,
+            "balanceSheetBasis": "quarter",
+            "balanceSheetDate": "2025-12-31",
             "independentVerification": {
                 "status": "verified",
                 "period": "2025-12-31",
                 "sourceUrl": "https://example.com/official-report",
+                "balanceSheetBasis": "latest-quarter",
             },
         }
         checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
@@ -54,6 +59,8 @@ class DataQualityTests(unittest.TestCase):
             "companyType": "investment",
             "latestFiscalDate": "2026-03-31",
             "bookValuePerShare": 100,
+            "balanceSheetBasis": "quarter",
+            "balanceSheetDate": "2026-03-31",
             "independentVerification": {
                 "status": "verified",
                 "period": "2025-12-31",
@@ -63,6 +70,41 @@ class DataQualityTests(unittest.TestCase):
         checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
         self.assertEqual(checked["dataQuality"]["status"], "unverified")
         self.assertFalse(checked["dataQuality"]["valuationReady"])
+
+    def test_newer_official_report_expires_old_verification(self):
+        row = {
+            "ticker": "TEST-B.ST",
+            "companyType": "investment",
+            "latestFiscalDate": "2025-12-31",
+            "bookValuePerShare": 100,
+            "balanceSheetBasis": "quarter",
+            "balanceSheetDate": "2025-12-31",
+            "officialSource": {"period": "2026-06-30"},
+            "independentVerification": {
+                "status": "verified",
+                "period": "2025-12-31",
+                "sourceUrl": "https://example.com/official-report",
+            },
+        }
+        checked = validate_company_fundamentals(row, datetime(2026, 8, 5, tzinfo=timezone.utc))
+        self.assertEqual(checked["dataQuality"]["status"], "unverified")
+        self.assertFalse(checked["dataQuality"]["valuationReady"])
+
+    def test_operating_company_requires_ttm_and_latest_quarter(self):
+        row = {
+            "ticker": "TEST-B.ST",
+            "companyType": "operating",
+            "latestFiscalDate": "2026-06-30",
+            "fcfPerShare": 5,
+            "eps": 8,
+            "ebitdaPerShare": 12,
+            "netDebtPerShare": 20,
+            "balanceSheetBasis": "annual",
+        }
+        checked = validate_company_fundamentals(row, datetime(2026, 8, 5, tzinfo=timezone.utc))
+        self.assertEqual(checked["dataQuality"]["status"], "rejected")
+        self.assertTrue(any("TTM" in issue for issue in checked["dataQuality"]["issues"]))
+        self.assertTrue(any("latest reported quarter" in issue for issue in checked["dataQuality"]["issues"]))
 
     def test_rejects_eps_unit_mismatch_and_quarantines_valuation(self):
         row = {
