@@ -1370,3 +1370,15 @@ input[type="range"]::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+.fundamentals-source-link {
+  display: inline-flex;
+  margin-top: 0.35rem;
+  color: var(--accent, #d6b36a);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.fundamentals-source-link[hidden] {
+  display: none;
+}

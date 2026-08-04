@@ -327,6 +327,7 @@ const elements = {
   syntheticSummary: document.querySelector("#syntheticSummary"),
   syntheticCount: document.querySelector("#syntheticCount"),
   fundamentalsSubtitle: document.querySelector("#fundamentalsSubtitle"),
+  fundamentalsSourceLink: document.querySelector("#fundamentalsSourceLink"),
   fundMarketCap: document.querySelector("#fundMarketCap"),
   fundRevenue: document.querySelector("#fundRevenue"),
   fundEbitda: document.querySelector("#fundEbitda"),
@@ -601,6 +602,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       cashFlowStatementDate: market.cashFlowStatementDate ?? null,
       cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
       independentVerification: market.independentVerification ?? null,
+      officialSource: market.officialSource ?? null,
       dataQuality: market.dataQuality ?? null,
       errors: market.errors ?? []
     };
@@ -644,6 +646,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       dataQuality: market.dataQuality ?? null,
       source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
       independentVerification: market.independentVerification ?? null,
+      officialSource: market.officialSource ?? null,
       notes: current.notes ?? seedCompany.notes,
       targetPriceData: current.targetPriceData ?? seedCompany.targetPriceData,
       wacc: numberOrFallback(market.wacc, current.wacc ?? seedCompany.wacc),
@@ -2047,6 +2050,16 @@ function renderFundamentals() {
     qualityText,
     ...statementReferences
   ].filter(Boolean).join(" | ");
+  const officialSource = verification?.sourceUrl ? verification : company.officialSource;
+  if (officialSource?.sourceUrl) {
+    elements.fundamentalsSourceLink.hidden = false;
+    elements.fundamentalsSourceLink.href = officialSource.sourceUrl;
+    elements.fundamentalsSourceLink.textContent = `Source: ${officialSource.sourceName ?? "Official company report"}`;
+  } else {
+    elements.fundamentalsSourceLink.hidden = true;
+    elements.fundamentalsSourceLink.removeAttribute("href");
+    elements.fundamentalsSourceLink.textContent = "Source unavailable";
+  }
   elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
   const isBank = normalizeCompanyType(company.companyType, company.ticker) === "bank";
