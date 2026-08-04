@@ -30,8 +30,9 @@ from xml.etree import ElementTree
 
 
 DEFAULT_USER_AGENT = (
-    "OMXS30-Intrinsic-Value/1.0 official-report research collector "
-    "(https://github.com/BorisOttosson/OMXS30-Intrinsic-Value)"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/127.0 Safari/537.36 "
+    "OMXS30-Intrinsic-Value-official-report-collector/1.0"
 )
 
 FLOW_FIELDS = {
@@ -259,6 +260,35 @@ def parse_html(content: bytes, base_url: str) -> PageParser:
     return parser
 
 
+def embedded_document_links(content: bytes, base_url: str) -> list[Link]:
+    """Find report files embedded in JSON, data attributes, and script state."""
+
+    raw = content.decode("utf-8", errors="replace")
+    decoded = html.unescape(
+        raw.replace("\\/", "/")
+        .replace("\\u002F", "/")
+        .replace("\\u002f", "/")
+        .replace("\\u0026", "&")
+    )
+    pattern = re.compile(
+        r"(?P<url>(?:https?:)?//[^\s\"'<>\\]+?\.(?:pdf|xlsx|xlsm)(?:\?[^\s\"'<>\\]*)?"
+        r"|/[^\s\"'<>\\]+?\.(?:pdf|xlsx|xlsm)(?:\?[^\s\"'<>\\]*)?)",
+        re.IGNORECASE,
+    )
+    links: list[Link] = []
+    for match in pattern.finditer(decoded):
+        url = match.group("url")
+        if url.startswith("//"):
+            url = f"https:{url}"
+        url = urllib.parse.urljoin(base_url, url).rstrip(",;)")
+        start = max(0, match.start() - 280)
+        end = min(len(decoded), match.end() + 280)
+        context = re.sub(r"<[^>]+>", " ", decoded[start:end])
+        context = " ".join(context.split())[:500]
+        links.append(Link(url, context))
+    return links
+
+
 def quarter_terms(period: str) -> tuple[str, ...]:
     month = int(period[5:7])
     if month <= 3:
@@ -382,7 +412,7 @@ def extract_field_evidence(text: str, labels: tuple[str, ...], group: str, perio
     return matches
 
 
-def collect_evidence(text: str, period: str) -> dict:
+def collect_evidence(text: str, period: str, document_period_confirmed: bool = False) -> dict:
     evidence = {}
     for field, labels in FLOW_FIELDS.items():
         evidence[field] = {
@@ -390,9 +420,14 @@ def collect_evidence(text: str, period: str) -> dict:
             "matches": extract_field_evidence(text, labels, "flow", period),
         }
     for field, labels in BALANCE_FIELDS.items():
+        matches = extract_field_evidence(text, labels, "balance", period)
+        if document_period_confirmed:
+            for match in matches:
+                if match["basisDetected"] == "unknown":
+                    match["basisDetected"] = "latest-quarter-candidate"
         evidence[field] = {
             "requiredBasis": "latest-quarter",
-            "matches": extract_field_evidence(text, labels, "balance", period),
+            "matches": matches,
         }
     return evidence
 
@@ -410,7 +445,10 @@ def evidence_summary(evidence: dict) -> dict:
     latest_quarter_candidates = [
         field
         for field in BALANCE_FIELDS
-        if any(match["basisDetected"] == "latest-quarter" for match in evidence[field]["matches"])
+        if any(
+            match["basisDetected"] in {"latest-quarter", "latest-quarter-candidate"}
+            for match in evidence[field]["matches"]
+        )
     ]
     return {
         "fieldsFound": fields_found,
@@ -471,6 +509,8 @@ def collect_company(
     try:
         content, content_type, final_url = request_bytes(source_url, timeout, user_agent)
         source_text, source_kind, source_links = readable_document(content, content_type, final_url)
+        if source_kind == "html":
+            source_links.extend(embedded_document_links(content, final_url))
     except Exception as error:  # network and parser errors must become audit output
         result["status"] = "download-error"
         result["errors"].append(f"Official source page: {type(error).__name__}: {error}")
@@ -489,6 +529,8 @@ def collect_company(
         try:
             item_content, item_type, item_final_url = request_bytes(link.url, timeout, user_agent)
             item_text, item_kind, child_links = readable_document(item_content, item_type, item_final_url)
+            if item_kind == "html":
+                child_links.extend(embedded_document_links(item_content, item_final_url))
             relevance = report_relevance(item_text, period) + score_link(link, period)
             if len(item_text) >= 400:
                 documents.append((relevance, item_final_url, item_kind, item_text))
@@ -517,7 +559,11 @@ def collect_company(
 
     documents.sort(key=lambda item: item[0], reverse=True)
     _, report_url, report_kind, report_text = documents[0]
-    evidence = collect_evidence(report_text, period)
+    report_identity = f"{report_url} {report_text[:20_000]}".lower()
+    document_period_confirmed = period[:4] in report_identity and any(
+        term in report_identity for term in quarter_terms(period)
+    )
+    evidence = collect_evidence(report_text, period, document_period_confirmed)
     summary = evidence_summary(evidence)
     result.update(
         {
