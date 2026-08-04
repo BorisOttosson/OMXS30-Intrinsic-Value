@@ -20,7 +20,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters"
         ],
@@ -71,6 +71,12 @@
       "netIncome": 48907776494.026184,
       "normalizedEbitdaPerShare": 40.749387610549846,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "ABB Q2 2026 results",
+        "sourceUrl": "https://global.abb/group/en/investors/quarterly-results"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -105,7 +111,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -151,6 +157,12 @@
       "netIncome": 1940000000.0,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 3.374568485852457,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Addtech Q1 2026/2027 interim report",
+        "sourceUrl": "https://q12026.reports.addtech.com/"
+      },
       "operatingCashFlow": 2709000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -187,7 +199,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -240,6 +252,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Alfa Laval Q2 2026 interim report",
+        "sourceUrl": "https://www.alfalaval.com/media/news/investors/2026/alfa-laval-ab-publ-interim-report-1-april-30-june-2026/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -274,7 +292,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Absolute FCF yield is 0.002%"
         ],
@@ -319,6 +337,12 @@
       "netIncome": 22893000000.0,
       "normalizedEbitdaPerShare": 33.70885137619434,
       "normalizedFcfPerShare": 0.006721425161368266,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "ASSA ABLOY interim reports",
+        "sourceUrl": "https://www.assaabloy.com/group/en/investors/reports-presentations/interim-reports"
+      },
       "operatingCashFlow": 21391000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -355,7 +379,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -409,6 +433,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "AstraZeneca results and presentations",
+        "sourceUrl": "https://www.astrazeneca.com/investor-relations/results-and-presentations.html"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -447,7 +477,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Net debt per share is unavailable"
         ],
@@ -499,6 +529,12 @@
       "netIncome": 26285000000.0,
       "normalizedEbitdaPerShare": 12.70230340410555,
       "normalizedFcfPerShare": 7.263066348592446,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Atlas Copco Q2 2026 report",
+        "sourceUrl": "https://www.atlascopcogroup.com/en/investors/reports-and-presentations.html"
+      },
       "operatingCashFlow": 26447000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -537,7 +573,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -591,6 +627,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Boliden reports and presentations",
+        "sourceUrl": "https://www.boliden.com/investor-relations/reports-and-presentations/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -629,7 +671,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -684,6 +726,12 @@
       "netIncome": 9383000000.0,
       "normalizedEbitdaPerShare": 17.619008981588316,
       "normalizedFcfPerShare": 5.628277597427153,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Epiroc financial publications",
+        "sourceUrl": "https://www.epirocgroup.com/en/investors/financial-publications"
+      },
       "operatingCashFlow": 7572000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -718,7 +766,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "EPS differs from net income / shares by 995x"
         ],
@@ -765,6 +813,12 @@
       "netIncome": 8029664695.930481,
       "normalizedEbitdaPerShare": 13.028811465557212,
       "normalizedFcfPerShare": 3.7409738769445178,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "EQT reports and presentations",
+        "sourceUrl": "https://eqtgroup.com/shareholders/reports-and-presentations"
+      },
       "operatingCashFlow": 4747409616.184235,
       "previousClose": null,
       "recommendationMean": null,
@@ -801,7 +855,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -855,6 +909,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Ericsson financial reports",
+        "sourceUrl": "https://www.ericsson.com/en/investors/financial-reports"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -893,7 +953,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -944,6 +1004,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Essity interim reports",
+        "sourceUrl": "https://www.essity.com/investors/reports-and-presentations/interim-reports/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -983,7 +1049,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1035,6 +1101,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Evolution interim reports",
+        "sourceUrl": "https://www.evolution.com/investors/reports-presentations/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1074,7 +1146,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -1123,6 +1195,12 @@
       "netIncome": 23510000000.0,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -14.089017751295943,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Handelsbanken financial reports",
+        "sourceUrl": "https://www.handelsbanken.com/en/investor-relations/reports-and-presentations"
+      },
       "operatingCashFlow": -26410000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -1162,7 +1240,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available",
           "Fundamentals are aging (400 days)"
@@ -1215,6 +1293,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-05-31",
+        "sourceName": "H&M Group six-month report 2026",
+        "sourceUrl": "https://hmgroup.com/investors/reports/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1254,7 +1338,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Total debt is 173.5x total assets",
           "No category-relevant valuation fundamentals are available"
@@ -1307,6 +1391,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Hexagon interim reports",
+        "sourceUrl": "https://hexagon.com/company/investors/financial-information/reports-and-presentations"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1342,7 +1432,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [],
         "status": "ok",
         "valuationReady": true
@@ -1398,6 +1488,12 @@
       "netIncome": 35401000000.0,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 10.562652053451336,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Industriv\u00e4rden interim reports",
+        "sourceUrl": "https://www.industrivarden.se/en-gb/investors/reports-and-presentations/"
+      },
       "operatingCashFlow": 9212000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -1434,7 +1530,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -1484,6 +1580,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Investor reports and presentations",
+        "sourceUrl": "https://www.investorab.com/investors-media/reports-presentations/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1519,7 +1621,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -1566,6 +1668,12 @@
       "netIncome": 3669000000.0,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 2.8422581928477686,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Lifco financial reports",
+        "sourceUrl": "https://www.lifco.se/investors/financial-reports?lang=en"
+      },
       "operatingCashFlow": 5124000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -1598,7 +1706,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Total debt is missing; net debt cannot be derived from cash alone"
         ],
@@ -1646,6 +1754,12 @@
       "netIncome": 2280000000.0,
       "normalizedEbitdaPerShare": 3.106544371070365,
       "normalizedFcfPerShare": 0.9647499284259716,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-03-31",
+        "sourceName": "NIBE reports and presentations",
+        "sourceUrl": "https://www.nibe.com/investors/reports-and-presentations"
+      },
       "operatingCashFlow": 4888000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -1678,7 +1792,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Fundamentals are stale (581 days)"
         ],
@@ -1726,6 +1840,12 @@
       "netIncome": 55814885540.96222,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -6.534330572484605,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Nordea quarterly results",
+        "sourceUrl": "https://www.nordea.com/en/investors/quarterly-results"
+      },
       "operatingCashFlow": 9995707906.723022,
       "previousClose": null,
       "recommendationMean": null,
@@ -1762,7 +1882,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1814,6 +1934,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Saab reports and presentations",
+        "sourceUrl": "https://www.saab.com/investors/financials/reports-and-presentations"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1853,7 +1979,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -1904,6 +2030,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Sandvik reports and presentations",
+        "sourceUrl": "https://www.home.sandvik/en/investors/reports-and-presentations/"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -1939,7 +2071,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [],
         "status": "ok",
         "valuationReady": true
@@ -2003,6 +2135,12 @@
       "netIncome": 3205000000.0,
       "normalizedEbitdaPerShare": 9.345867725226004,
       "normalizedFcfPerShare": 2.0104151779431927,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "SCA interim reports",
+        "sourceUrl": "https://www.sca.com/en/investors/reports-and-presentations/interim-reports/"
+      },
       "operatingCashFlow": 4017000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -2039,7 +2177,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -2090,6 +2228,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "SEB interim reports",
+        "sourceUrl": "https://sebgroup.com/investor-relations/reports-and-presentations/interim-reports"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -2129,7 +2273,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -2185,6 +2329,12 @@
       "netIncome": 8895000000.0,
       "normalizedEbitdaPerShare": 29.767159852518898,
       "normalizedFcfPerShare": 2.5547137250662364,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Skanska interim reports",
+        "sourceUrl": "https://group.skanska.com/investors/reports-publications/interim-reports/"
+      },
       "operatingCashFlow": -3483000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -2223,7 +2373,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -2270,6 +2420,12 @@
       "netIncome": 5114000000.0,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "SKF financial reports",
+        "sourceUrl": "https://investors.skf.com/en/reports-and-presentations"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -2305,7 +2461,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Not independently verified against an official company report"
         ],
@@ -2357,6 +2513,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Swedbank interim reports",
+        "sourceUrl": "https://www.swedbank.com/investor-relations/reports-and-presentations/interim-reports.html"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -2389,7 +2551,7 @@
       "consensusGrowth": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Fundamentals are stale (947 days)"
         ],
@@ -2437,6 +2599,12 @@
       "netIncome": 3736000000.0,
       "normalizedEbitdaPerShare": 16.74781702023722,
       "normalizedFcfPerShare": 8.776167544953854,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Tele2 reports and presentations",
+        "sourceUrl": "https://www.tele2.com/investors/reports-and-presentations"
+      },
       "operatingCashFlow": 10013000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -2473,7 +2641,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "No category-relevant valuation fundamentals are available"
         ],
@@ -2524,6 +2692,12 @@
       "netIncome": null,
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Telia reports and presentations",
+        "sourceUrl": "https://www.teliacompany.com/en/investors/reports-and-presentations"
+      },
       "operatingCashFlow": null,
       "previousClose": null,
       "recommendationMean": null,
@@ -2563,7 +2737,7 @@
       "consensusGrowthSource": null,
       "currency": "SEK",
       "dataQuality": {
-        "checkedAt": "2026-08-04T22:02:57.998550+00:00",
+        "checkedAt": "2026-08-04T22:27:20.296911+00:00",
         "issues": [
           "Synthetic TTM contains duplicate accounting quarters",
           "Net debt per share is unavailable"
@@ -2619,6 +2793,12 @@
       "netIncome": 39436000000.0,
       "normalizedEbitdaPerShare": 46.9545978949662,
       "normalizedFcfPerShare": 4.826368844268305,
+      "officialSource": {
+        "earningsBasis": "TTM",
+        "period": "2026-06-30",
+        "sourceName": "Volvo Group reports",
+        "sourceUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html"
+      },
       "operatingCashFlow": 29274000000.0,
       "previousClose": null,
       "recommendationMean": null,
@@ -2640,7 +2820,7 @@
   ],
   "generatedAt": "2026-08-03T22:14:03.848613+00:00",
   "provider": "B\u00f6rsAPI fundamentals",
-  "qualityCheckedAt": "2026-08-04T22:02:57.998550+00:00",
+  "qualityCheckedAt": "2026-08-04T22:27:20.296911+00:00",
   "universe": "OMXS30",
   "universeAsOf": "2025-07-01",
   "version": 1
