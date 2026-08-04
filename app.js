@@ -600,6 +600,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       balanceSheetPeriod: market.balanceSheetPeriod ?? null,
       cashFlowStatementDate: market.cashFlowStatementDate ?? null,
       cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
+      independentVerification: market.independentVerification ?? null,
       dataQuality: market.dataQuality ?? null,
       errors: market.errors ?? []
     };
@@ -642,6 +643,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       fundamentalsUsable,
       dataQuality: market.dataQuality ?? null,
       source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
+      independentVerification: market.independentVerification ?? null,
       notes: current.notes ?? seedCompany.notes,
       targetPriceData: current.targetPriceData ?? seedCompany.targetPriceData,
       wacc: numberOrFallback(market.wacc, current.wacc ?? seedCompany.wacc),
@@ -1596,7 +1598,7 @@ function renderHeader() {
   elements.selectedName.textContent = company.name;
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
   elements.inputBadge.textContent = company.fundamentalsUsable === false
-    ? "Fundamentals rejected"
+    ? (company.dataQuality?.status === "unverified" ? "Not independently verified" : "Fundamentals rejected")
     : (category !== "operating"
       ? getCompanyModelLabel(category)
       : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
@@ -2033,10 +2035,15 @@ function renderFundamentals() {
   const qualityText = quality?.status && quality.status !== "ok"
     ? `Data quality: ${quality.status} - ${(quality.issues ?? []).join("; ")}`
     : null;
+  const verification = company.independentVerification ?? fundamentals.independentVerification;
+  const verificationText = verification?.status === "verified"
+    ? `Independently verified: ${verification.sourceName} (${verification.period})`
+    : "Independent verification: missing";
 
   elements.fundamentalsSubtitle.textContent = [
     company.source,
     updatedText,
+    verificationText,
     qualityText,
     ...statementReferences
   ].filter(Boolean).join(" | ");

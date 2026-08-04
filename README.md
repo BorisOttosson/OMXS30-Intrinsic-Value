@@ -75,6 +75,9 @@ FCF-yield ratios, EPS that conflicts with net income per share, duplicate
 quarters in a synthetic TTM statement, missing net debt, or stale reporting.
 Rejected raw values remain visible for troubleshooting, but the website marks
 the company as **Model needed** and does not use them in valuation rankings.
+Rows that only pass automated checks remain **unverified** and are also blocked.
+A valuation is enabled only when the row includes an `independentVerification`
+record with an official company-report URL and matching reporting period.
 
 To quality-check an existing file without spending provider quota:
 
