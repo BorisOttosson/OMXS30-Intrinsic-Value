@@ -1,5 +1,7 @@
 const STORAGE_KEY = "intrinsic-value-omxs30-v1";
-const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/BorisOttosson/OMXS30-Intrinsic-Value/main/data";
+// Load the data deployed with this exact site revision. Using raw main here
+// can mix a cached page with a newer/older dataset and also breaks local QA.
+const RAW_DATA_BASE_URL = "data";
 const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
@@ -598,27 +600,30 @@ function applyMarketData(currentCompanies, marketCompanies) {
       balanceSheetPeriod: market.balanceSheetPeriod ?? null,
       cashFlowStatementDate: market.cashFlowStatementDate ?? null,
       cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
+      dataQuality: market.dataQuality ?? null,
       errors: market.errors ?? []
     };
 
     const marketBookValue = market.bookValuePerShare ?? market.equityPerShare;
+    const fundamentalsUsable = market.dataQuality?.valuationReady !== false;
+    const fundamentalInput = (value) => fundamentalsUsable ? numberOrNull(value) : null;
 
     return {
       ...seedCompany,
       ...current,
       companyType: normalizeCompanyType(market.companyType ?? current.companyType, seedCompany.ticker),
       marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
-      fcfPerShare: numberOrFallback(market.fcfPerShare, current.fcfPerShare ?? seedCompany.fcfPerShare),
-      ebitdaPerShare: numberOrFallback(market.ebitdaPerShare, current.ebitdaPerShare ?? seedCompany.ebitdaPerShare),
-      eps: numberOrFallback(market.eps, current.eps ?? seedCompany.eps),
-      netDebtPerShare: numberOrFallback(market.netDebtPerShare, current.netDebtPerShare ?? seedCompany.netDebtPerShare),
+      fcfPerShare: fundamentalInput(market.fcfPerShare),
+      ebitdaPerShare: fundamentalInput(market.ebitdaPerShare),
+      eps: fundamentalInput(market.eps),
+      netDebtPerShare: fundamentalInput(market.netDebtPerShare),
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
       navPerShare: numberOrFallback(market.navPerShare, current.navPerShare ?? seedCompany.navPerShare),
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
       normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
       normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
       // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
-      growth5y: numberOrFallback(market.growth5y, current.growth5y ?? seedCompany.growth5y),
+      growth5y: fundamentalInput(market.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
       fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
@@ -634,6 +639,8 @@ function applyMarketData(currentCompanies, marketCompanies) {
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
       currency: market.currency ?? current.currency ?? "SEK",
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
+      fundamentalsUsable,
+      dataQuality: market.dataQuality ?? null,
       source: market.source ? `${market.source} + manual assumptions` : (current.source ?? seedCompany.source),
       notes: current.notes ?? seedCompany.notes,
       targetPriceData: current.targetPriceData ?? seedCompany.targetPriceData,
@@ -1311,6 +1318,28 @@ function calculateCyclicalModel(company, scenario) {
 }
 
 function calculateCategoryModel(company, scenario) {
+  if (company.fundamentalsUsable === false) {
+    return {
+      dcf: { value: NaN, flows: [], error: "Fundamentals rejected" },
+      peValue: NaN,
+      ebitdaValue: NaN,
+      currentPe: NaN,
+      blendedValue: NaN,
+      primaryLabel: "Data quality",
+      primaryValue: NaN,
+      secondaryLabel: "Valuation",
+      secondaryValue: NaN,
+      tertiaryLabel: "Status",
+      tertiaryValue: "Unavailable",
+      reverseLabel: "Data quality",
+      reverseValue: "-",
+      reverseSub: "Refresh or correct fundamentals",
+      valueDescription: "Valuation disabled because fundamentals failed validation",
+      modelSupportScore: 0,
+      modelWarning: (company.dataQuality?.issues ?? ["Fundamentals failed validation"]).join("; "),
+      chartTitle: "Fundamentals unavailable"
+    };
+  }
   const category = normalizeCompanyType(company.companyType, company.ticker);
   if (category === "bank") return calculateBankModel(company, scenario);
   if (category === "investment") return calculateInvestmentModel(company, scenario);
@@ -1566,9 +1595,11 @@ function renderHeader() {
   elements.selectedLogoImage.src = logoUrl;
   elements.selectedName.textContent = company.name;
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
-  elements.inputBadge.textContent = category !== "operating"
-    ? getCompanyModelLabel(category)
-    : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs"));
+  elements.inputBadge.textContent = company.fundamentalsUsable === false
+    ? "Fundamentals rejected"
+    : (category !== "operating"
+      ? getCompanyModelLabel(category)
+      : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
   elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(category)}`;
@@ -1998,10 +2029,15 @@ function renderFundamentals() {
     formatStatementReference("Balance sheet", fundamentals.balanceSheetPeriod, fundamentals.balanceSheetDate),
     formatStatementReference("Cash flow statement", fundamentals.cashFlowStatementPeriod, fundamentals.cashFlowStatementDate)
   ].filter(Boolean);
+  const quality = company.dataQuality ?? fundamentals.dataQuality;
+  const qualityText = quality?.status && quality.status !== "ok"
+    ? `Data quality: ${quality.status} - ${(quality.issues ?? []).join("; ")}`
+    : null;
 
   elements.fundamentalsSubtitle.textContent = [
     company.source,
     updatedText,
+    qualityText,
     ...statementReferences
   ].filter(Boolean).join(" | ");
   elements.fundMarketCap.textContent = formatCurrency(numberOrNull(fundamentals.marketCap), currency);

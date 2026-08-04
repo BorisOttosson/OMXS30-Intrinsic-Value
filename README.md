@@ -67,6 +67,21 @@ Reload the browser app after the file is generated. The app keeps manual assumpt
 
 The fundamentals updater can use `BORSAPI_API_KEY`, `FMP_API_KEY`, `EODHD_API_TOKEN`, or `yfinance`, but the GitHub workflow now defaults to BörsAPI. Treat all feeds as personal research inputs, not guaranteed production market data.
 
+### Fundamentals quality gates
+
+Every generated company row now includes a `dataQuality` object. The updater
+rejects rows with implausible balance-sheet identities, extreme debt/assets or
+FCF-yield ratios, EPS that conflicts with net income per share, duplicate
+quarters in a synthetic TTM statement, missing net debt, or stale reporting.
+Rejected raw values remain visible for troubleshooting, but the website marks
+the company as **Model needed** and does not use them in valuation rankings.
+
+To quality-check an existing file without spending provider quota:
+
+```bash
+python3 scripts/update_data.py --validate-only --output data/omxs30-data.json
+```
+
 ## Company Logos
 
 The app uses local transparent PNG wordmarks from:
