@@ -48,6 +48,22 @@ class DataQualityTests(unittest.TestCase):
         self.assertEqual(checked["dataQuality"]["status"], "ok")
         self.assertTrue(checked["dataQuality"]["valuationReady"])
 
+    def test_verification_from_older_period_is_blocked(self):
+        row = {
+            "ticker": "TEST-B.ST",
+            "companyType": "investment",
+            "latestFiscalDate": "2026-03-31",
+            "bookValuePerShare": 100,
+            "independentVerification": {
+                "status": "verified",
+                "period": "2025-12-31",
+                "sourceUrl": "https://example.com/official-report",
+            },
+        }
+        checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
+        self.assertEqual(checked["dataQuality"]["status"], "unverified")
+        self.assertFalse(checked["dataQuality"]["valuationReady"])
+
     def test_rejects_eps_unit_mismatch_and_quarantines_valuation(self):
         row = {
             "ticker": "EQT.ST",
