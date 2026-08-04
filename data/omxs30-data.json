@@ -459,12 +459,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:44:18.129984+00:00",
-        "auditStatus": "download-error",
+        "auditCheckedAt": "2026-08-04T23:47:39.454090+00:00",
+        "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
-        "sourceName": "AstraZeneca Sverige ekonomiska rapporter",
-        "sourceUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html"
+        "sourceName": "AstraZeneca H1 and Q2 2026 full report",
+        "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
       },
       "operatingCashFlow": null,
       "previousClose": null,

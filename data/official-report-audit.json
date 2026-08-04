@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T23:44:18.129984+00:00",
+  "generatedAt": "2026-08-04T23:47:39.454090+00:00",
   "method": "Direct retrieval from official company investor-relations pages; no financial-data API",
   "verificationPolicy": "Extracted snippets are candidates for human or independent-source verification. This file never makes a company valuation-ready by itself.",
   "companies": [
@@ -1511,24 +1511,500 @@
     },
     {
       "ticker": "AZN.ST",
-      "sourceName": "AstraZeneca Sverige ekonomiska rapporter",
-      "sourceUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html",
+      "sourceName": "AstraZeneca H1 and Q2 2026 full report",
+      "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
-      "directReportUrl": null,
-      "documentType": null,
-      "status": "download-error",
+      "directReportUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
+      "documentType": "pdf",
+      "status": "review-required",
       "autoVerificationEligible": false,
-      "evidence": {},
+      "evidence": {
+        "revenue": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "revenue",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 27",
+                "2026",
+                " 2026"
+              ],
+              "snippet": "Summary Revenue Drivers R&D Progress Sustainability Financial Performance Financial Statements Glossary | 27 July 2026 | AstraZeneca results: H1 and Q2 2026"
+            },
+            {
+              "label": "revenue",
+              "basisDetected": "unknown",
+              "numbers": [
+                "27",
+                "2026",
+                " 2026",
+                "80",
+                "2030",
+                " 2026 %",
+                " 2026 %"
+              ],
+              "snippet": "27 July 2026 | AstraZeneca results: H1 and Q2 2026 | Growth momentum continues. On track to deliver ambition of $80 billion in Total Revenue in 2030 | Revenue and EPS summary | H1 2026 % Change Q2 2026 % Change"
+            },
+            {
+              "label": "revenue",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 2026",
+                "80",
+                "2030",
+                " 2026 %",
+                " 2026 %"
+              ],
+              "snippet": "AstraZeneca results: H1 and Q2 2026 | Growth momentum continues. On track to deliver ambition of $80 billion in Total Revenue in 2030 | Revenue and EPS summary | H1 2026 % Change Q2 2026 % Change | $m Actual CER1 $m Actual CER"
+            },
+            {
+              "label": "sales",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 2026 %",
+                " 2026 %",
+                "28,896",
+                " 8",
+                " 5",
+                " 14,510",
+                " 5",
+                " 4",
+                "1,699",
+                " 31",
+                " 29 874",
+                " 34"
+              ],
+              "snippet": "H1 2026 % Change Q2 2026 % Change | $m Actual CER1 $m Actual CER | - Product Sales 28,896 8 5 14,510 5 4 | - Alliance Revenue 1,699 31 29 874 34 33 | Product Revenue 30,595 9 6 15,384 6 5"
+            }
+          ]
+        },
+        "ebitda": {
+          "requiredBasis": "ttm-if-presented",
+          "matches": [
+            {
+              "label": "ebitda",
+              "basisDetected": "unknown",
+              "numbers": [
+                "7",
+                "7",
+                "8",
+                "18",
+                "9",
+                "18",
+                "10",
+                " 2026"
+              ],
+              "snippet": "Table 7: Product Revenue by region .........................................................................................................................................................7 | Table 8: Reported Profit and Loss...........................................................................................................................................................18 | Table 9: Reconciliation of Reported Profit before tax to EBITDA ...........................................................................................................18 | Table 10: Reconciliation of Reported to Core financial measures: H1 2026 .................................................................."
+            },
+            {
+              "label": "ebitda",
+              "basisDetected": "unknown",
+              "numbers": [],
+              "snippet": "All narrative on growth and results in this (cont.) Gross Margin is defined as Gross Profit as a | section is based on actual exchange rates, Core financial measures are adjusted to percentage of Total Revenue. | and financial figures are in US$ millions exclude certain significant items: EBITDA is defined as Reported Profit | ($m), unless stated otherwise. – Charges and provisions related to our before tax after adding back Net finance | global restructuring programmes, which expense, results from Joint ventures and"
+            },
+            {
+              "label": "ebitda",
+              "basisDetected": "unknown",
+              "numbers": [
+                "30",
+                "2026",
+                " 2026",
+                "30",
+                "2025",
+                " 2025"
+              ],
+              "snippet": "The performance shown in this impact of restructuring programmes on amortisation and impairment. Reference | announcement covers the six-month our capitalised manufacturing assets should be made to the Reconciliation of | period to 30 June 2026 ('H1 2026') and IT assets Reported Profit before tax to EBITDA | compared to the six-month period to 30 included in the Financial Performance | June 2025 (‘H1 2025’), and the three- – Amortisation and impairment of"
+            },
+            {
+              "label": "ebitda",
+              "basisDetected": "unknown",
+              "numbers": [
+                "3"
+              ],
+              "snippet": "comprising acquisition-related costs loans and borrowings and Lease liabilities, | Non-GAAP financial measures and credits, which include the imputed net of Cash and cash equivalents, Other | Core financial measures, EBITDA, Net debt, finance charges and fair value investments, and Net derivative financial | Core Tax rate and CER are non-GAAP movements relating to contingent instruments. Reference should be made to | financial measures because they cannot be consideration on business Note 3 'Net debt', included in the Notes to"
+            }
+          ]
+        },
+        "netIncome": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "profit for the period",
+              "basisDetected": "unknown",
+              "numbers": [
+                "6,713",
+                " 6,529",
+                "1,124",
+                "1,160",
+                "5,589",
+                " 5,369"
+              ],
+              "snippet": "Profit before tax 6,713 6,529 | Taxation (1,124) (1,160) | Profit for the period 5,589 5,369 | Other comprehensive income | Items that will not be reclassified to profit and loss:"
+            },
+            {
+              "label": "profit for the period",
+              "basisDetected": "unknown",
+              "numbers": [
+                "2,799",
+                " 3,127",
+                "291",
+                "679",
+                "2,508",
+                " 2,448"
+              ],
+              "snippet": "Profit before tax 2,799 3,127 | Taxation (291) (679) | Profit for the period 2,508 2,448 | Other comprehensive income | Items that will not be reclassified to profit and loss:"
+            },
+            {
+              "label": "profit for the period",
+              "basisDetected": "unknown",
+              "numbers": [
+                "1",
+                "2025",
+                " 388",
+                " 35,226",
+                " 2,012",
+                " 3,160",
+                " 40,786",
+                " 85",
+                " 40,871",
+                "- 5,366",
+                " 5,366",
+                " 3"
+              ],
+              "snippet": "$m $m $m $m $m $m $m | At 1 Jan 2025 388 35,226 2,012 3,160 40,786 85 40,871 | Profit for the period - - - 5,366 5,366 3 5,369 | Other comprehensive (expense)/income - - (34) 2,242 2,208 4 2,212 | Transfer to Other reserves - - 47 (47) - - -"
+            },
+            {
+              "label": "profit for the period",
+              "basisDetected": "unknown",
+              "numbers": [
+                "30",
+                "2025",
+                " 388",
+                " 35,238",
+                " 2,070",
+                " 7,023",
+                " 44,719",
+                " 91",
+                " 44,810",
+                "1",
+                "2026",
+                " 388"
+              ],
+              "snippet": "At 30 Jun 2025 388 35,238 2,070 7,023 44,719 91 44,810 | At 1 Jan 2026 388 35,266 2,041 10,972 48,667 52 48,719 | Profit for the period - - - 5,587 5,587 2 5,589 | Other comprehensive income/(expense) - - 13 6 19 (2) 17 | Transfer to Other reserves - - 8 (8) - - -"
+            }
+          ]
+        },
+        "eps": {
+          "requiredBasis": "ttm",
+          "matches": [
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 2026",
+                "80",
+                "2030",
+                " 2026 %",
+                " 2026 %"
+              ],
+              "snippet": "AstraZeneca results: H1 and Q2 2026 | Growth momentum continues. On track to deliver ambition of $80 billion in Total Revenue in 2030 | Revenue and EPS summary | H1 2026 % Change Q2 2026 % Change | $m Actual CER1 $m Actual CER"
+            },
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                "77",
+                "6",
+                "9",
+                "30,672",
+                " 9",
+                " 6",
+                " 15,384",
+                " 6",
+                " 5",
+                " 3.60",
+                " 4",
+                " 3"
+              ],
+              "snippet": "Collaboration Revenue 77 (6) (9) - n/m n/m | Total Revenue 30,672 9 6 15,384 6 5 | Reported EPS ($) 3.60 4 3 1.61 2 (2) | Core2 EPS ($) 5.21 12 11 2.63 21 18 | Key performance elements for H1 2026 Pascal Soriot, Chief Executive Officer, AstraZeneca, said:"
+            },
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                "30,672",
+                " 9",
+                " 6",
+                " 15,384",
+                " 6",
+                " 5",
+                " 3.60",
+                " 4",
+                " 3",
+                " 1.61",
+                " 2",
+                "2"
+              ],
+              "snippet": "Total Revenue 30,672 9 6 15,384 6 5 | Reported EPS ($) 3.60 4 3 1.61 2 (2) | Core2 EPS ($) 5.21 12 11 2.63 21 18 | Key performance elements for H1 2026 Pascal Soriot, Chief Executive Officer, AstraZeneca, said: | (Growth numbers at constant exchange rates) “In the first half we saw strong performance and continued pipeline"
+            },
+            {
+              "label": "eps",
+              "basisDetected": "unknown",
+              "numbers": [
+                "80",
+                "11%",
+                "3",
+                "1.06",
+                "79.5",
+                " 10.32",
+                "18"
+              ],
+              "snippet": "procurement | we are on track to deliver our $80bn Total Revenue ambition, which |  Core Operating profit and Core EPS increased 11% assumes successes and setbacks. We remain confident in the |  Interim dividend increased 3 cents to $1.06 per share strength of our pipeline and have more than twenty high-value | (79.5 pence, 10.32 SEK) readouts due over the next 18 months."
+            }
+          ]
+        },
+        "freeCashFlow": {
+          "requiredBasis": "ttm",
+          "matches": []
+        },
+        "totalAssets": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "total assets",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "4,893",
+                " 5,711",
+                " 7,058",
+                " 27,965",
+                " 28,723",
+                " 28,939",
+                "115,833 114,074 112,422"
+              ],
+              "snippet": "Cash and cash equivalents 4,893 5,711 7,058 | 27,965 28,723 28,939 | Total assets 115,833 114,074 112,422 | Liabilities | Current liabilities"
+            }
+          ]
+        },
+        "bookEquity": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "total equity",
+              "basisDetected": "latest-quarter",
+              "numbers": [
+                "50,295",
+                " 48,667",
+                " 44,719",
+                "75",
+                " 52",
+                " 91",
+                "50,370",
+                " 48,719",
+                " 44,810",
+                "30",
+                "2026",
+                "2410"
+              ],
+              "snippet": "Capital and reserves attributable to equity holders of the Parent 50,295 48,667 44,719 | Non-controlling interests 75 52 91 | Total equity 50,370 48,719 44,810 | The Condensed consolidated statement of financial position as at 30 June 2026 has been reviewed by KPMG LLP under ISRE 2410. The Condensed consolidated | statement of financial position as at 30 June 2025 has been reviewed by PricewaterhouseCoopers LLP under ISRE 2410 and the Condensed consolidated statement of"
+            },
+            {
+              "label": "total equity",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "20"
+              ],
+              "snippet": "Summary Revenue Drivers R&D Progress Sustainability Financial Performance Financial Statements Glossary | Table 20: Condensed consolidated statement of changes in equity | Share Share Other Retained Total Non- Total equity | capital premium reserves earnings attributable controlling | account to owners of interests"
+            }
+          ]
+        },
+        "totalLiabilities": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "total liabilities",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "1,971",
+                "2,379",
+                "1,600",
+                "33,910",
+                "34,738",
+                "34,076",
+                "65,463",
+                "65,355",
+                "67,612",
+                "50,370",
+                " 48,719",
+                " 44,810"
+              ],
+              "snippet": "Other payables (1,971) (2,379) (1,600) | (33,910) (34,738) (34,076) | Total liabilities (65,463) (65,355) (67,612) | Net assets 50,370 48,719 44,810 | Equity"
+            }
+          ]
+        },
+        "totalDebt": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "loans and borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "30",
+                "2025",
+                " 2025"
+              ],
+              "snippet": "three-month period to 30 June 2025 (‘Q2 relating to IT assets profit as a percentage of Total Revenue. | 2025’), unless stated otherwise. – Other specified items, principally Net debt is defined as Interest-bearing | comprising acquisition-related costs loans and borrowings and Lease liabilities, | Non-GAAP financial measures and credits, which include the imputed net of Cash and cash equivalents, Other | Core financial measures, EBITDA, Net debt, finance charges and fair value investments, and Net derivative financial"
+            },
+            {
+              "label": "borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "75",
+                " 30",
+                " 50",
+                "4,968",
+                " 5,741",
+                " 7,108",
+                "542",
+                "644",
+                "561",
+                "2,407",
+                "1,470",
+                "2,748"
+              ],
+              "snippet": "Other investments 75 30 50 | Cash and investments 4,968 5,741 7,108 | Overdrafts and short-term borrowings (542) (644) (561) | Commercial paper (2,407) - (1,470) | Lease liabilities (2,748) (1,803) (1,633)"
+            },
+            {
+              "label": "loans and borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "2,859",
+                "2,460",
+                "4,461",
+                "23,683",
+                "24,715",
+                "24,714",
+                "32,239",
+                "29,622",
+                "32,839",
+                "359 507 504",
+                "26,912",
+                "23,374"
+              ],
+              "snippet": "Current instalments of loans (2,859) (2,460) (4,461) | Non-current instalments of loans (23,683) (24,715) (24,714) | Interest-bearing loans and borrowings (Gross debt) (32,239) (29,622) (32,839) | Net derivatives 359 507 504 | Net debt (26,912) (23,374) (25,227)"
+            },
+            {
+              "label": "loans and borrowings",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "5,808",
+                "3,104",
+                "6,492",
+                "426",
+                "382",
+                "361",
+                "22,893",
+                "25,280",
+                "23,986"
+              ],
+              "snippet": "Liabilities | Current liabilities | Interest-bearing loans and borrowings (5,808) (3,104) (6,492) | Lease liabilities (426) (382) (361) | Trade and other payables (22,893) (25,280) (23,986)"
+            }
+          ]
+        },
+        "cash": {
+          "requiredBasis": "latest-quarter",
+          "matches": [
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "2025"
+              ],
+              "snippet": "2025’), unless stated otherwise. – Other specified items, principally Net debt is defined as Interest-bearing | comprising acquisition-related costs loans and borrowings and Lease liabilities, | Non-GAAP financial measures and credits, which include the imputed net of Cash and cash equivalents, Other | Core financial measures, EBITDA, Net debt, finance charges and fair value investments, and Net derivative financial | Core Tax rate and CER are non-GAAP movements relating to contingent instruments. Reference should be made to"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "4,704",
+                "3,361",
+                "1,343",
+                "2,325",
+                "2,189",
+                "136",
+                "805",
+                " 1,549",
+                "2,354"
+              ],
+              "snippet": "Net cash outflow from investing activities (4,704) (3,361) (1,343) | Net cash outflow from financing activities (2,325) (2,189) (136) | Net (decrease)/increase in cash and cash equivalents in the period (805) 1,549 (2,354) | Net cash flow Capital expenditure | The decrease in Net cash inflow from Capital expenditure on Property, plant"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "2026",
+                " 2025",
+                " 2025",
+                "4,893",
+                " 5,711",
+                " 7,058",
+                "75",
+                " 30",
+                " 50",
+                "4,968",
+                " 5,741",
+                " 7,108"
+              ],
+              "snippet": "2026 2025 2025 | $m $m $m | Cash and cash equivalents 4,893 5,711 7,058 | Other investments 75 30 50 | Cash and investments 4,968 5,741 7,108"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "- 100",
+                "1,659",
+                " 1,158",
+                " 1,001",
+                "4,893",
+                " 5,711",
+                " 7,058",
+                " 27,965",
+                " 28,723",
+                " 28,939",
+                "115,833 114,074 112,422"
+              ],
+              "snippet": "Intangible assets - - 100 | Income tax receivable 1,659 1,158 1,001 | Cash and cash equivalents 4,893 5,711 7,058 | 27,965 28,723 28,939 | Total assets 115,833 114,074 112,422"
+            }
+          ]
+        }
+      },
       "summary": {
-        "fieldsFound": [],
+        "fieldsFound": [
+          "revenue",
+          "ebitda",
+          "netIncome",
+          "eps",
+          "totalAssets",
+          "bookEquity",
+          "totalLiabilities",
+          "totalDebt",
+          "cash"
+        ],
         "ttmCandidates": [],
-        "latestQuarterCandidates": []
+        "latestQuarterCandidates": [
+          "totalAssets",
+          "bookEquity",
+          "totalLiabilities",
+          "totalDebt",
+          "cash"
+        ]
       },
       "errors": [
-        "Official source page: HTTPError: HTTP Error 403: Forbidden"
+        "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-04T23:44:18.129984+00:00"
+      "checkedAt": "2026-08-04T23:47:39.454090+00:00"
     },
     {
       "ticker": "BOL.ST",
