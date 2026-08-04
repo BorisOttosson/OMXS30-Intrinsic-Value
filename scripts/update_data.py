@@ -760,6 +760,7 @@ PRESERVE_IF_PROVIDER_BLANK_KEYS = {
     # Keep the audit trail across provider refreshes. Validation below only
     # accepts it while its period still matches latestFiscalDate.
     "independentVerification",
+    "officialSource",
 }
 
 
