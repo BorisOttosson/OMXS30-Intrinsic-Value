@@ -1,7 +1,148 @@
 {
   "schemaVersion": 1,
-  "policy": "Values are imported only when a direct official report contains every configured evidence check. Flow figures are TTM; balance-sheet figures are from the latest published quarter. Missing metrics are never estimated.",
+  "policy": "Every company is imported from an official company report or official results page. Revenue and earnings are TTM; balance-sheet figures use the latest published quarter. EBITDA is populated only when the company presents a comparable TTM measure.",
   "companies": {
+    "ABB.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "USD",
+      "unit": "USD million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 9.7367,
+      "sourceName": "ABB Q2 2026 Financial Information",
+      "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": "Free cash flow (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 35752,
+        "ebitda": null,
+        "netIncome": 5036,
+        "operatingCashFlow": null,
+        "freeCashFlow": 5182,
+        "eps": 2.77,
+        "totalAssets": 45736,
+        "bookEquity": 16405,
+        "totalLiabilities": 29331,
+        "totalDebt": 8982,
+        "cash": 5857,
+        "netDebt": 2300,
+        "sharesOutstanding": 1815000000,
+        "bookValuePerShare": 8.7603
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - owners' equity",
+          "terms": [
+            45736,
+            -16405
+          ],
+          "expected": 29331
+        }
+      ],
+      "documentChecks": [
+        "5,182",
+        "45,736",
+        "16,405",
+        "29,331"
+      ]
+    },
+    "ADDT-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q1",
+      "reportPublishedAt": "2026-07-16",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Addtech Q1 2026/27 interim report",
+      "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 23036,
+        "ebitda": null,
+        "netIncome": 2275,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 8.25,
+        "totalAssets": 21827,
+        "bookEquity": 9170,
+        "totalLiabilities": 12657,
+        "totalDebt": 6834,
+        "cash": 1397,
+        "netDebt": 5437,
+        "sharesOutstanding": 270079026,
+        "bookValuePerShare": 31.85
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            21827,
+            -9170
+          ],
+          "expected": 12657
+        }
+      ],
+      "documentChecks": [
+        "23,036",
+        "21,827",
+        "5,437"
+      ]
+    },
+    "ALFA.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Alfa Laval Q2 2026 report",
+      "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 70426,
+        "ebitda": 14443,
+        "netIncome": 8194,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 19.82,
+        "totalAssets": 104767,
+        "bookEquity": 45881,
+        "totalLiabilities": 58886,
+        "totalDebt": 20991,
+        "cash": 7124,
+        "netDebt": 16013,
+        "sharesOutstanding": 413326315,
+        "bookValuePerShare": 109.94
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - owners' equity",
+          "terms": [
+            104767,
+            -45881
+          ],
+          "expected": 58886
+        }
+      ],
+      "documentChecks": [
+        "70,426",
+        "14,443",
+        "104,767",
+        "45,881",
+        "58,886"
+      ]
+    },
     "ASSA-B.ST": {
       "period": "2026-06-30",
       "fiscalPeriod": "2026-Q2",
@@ -27,22 +168,35 @@
         "cash": 3869,
         "netDebt": 68246,
         "sharesOutstanding": 1110776000,
-        "bookValuePerShare": 100.10
+        "bookValuePerShare": 100.1
       },
       "calculationChecks": [
         {
           "label": "TTM EPS = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [3.74, 3.86, 3.18, 3.98],
+          "terms": [
+            3.74,
+            3.86,
+            3.18,
+            3.98
+          ],
           "expected": 14.76
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [228110, -111365],
+          "terms": [
+            228110,
+            -111365
+          ],
           "expected": 116745
         },
         {
           "label": "Debt = loans plus lease liabilities",
-          "terms": [47620, 5174, 16715, 1879],
+          "terms": [
+            47620,
+            5174,
+            16715,
+            1879
+          ],
           "expected": 71388
         }
       ],
@@ -55,6 +209,174 @@
         "Financial net debt totaled SEK 68,246 M",
         "Average number of shares, thousands 1,110,776"
       ]
+    },
+    "ATCO-A.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-16",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Atlas Copco Group Q2 2026 report",
+      "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+      "cashFlowMetricLabel": "Cash flow from operating activities (TTM)",
+      "values": {
+        "totalRevenue": 169917,
+        "ebitda": 44512,
+        "netIncome": 26624,
+        "operatingCashFlow": 25220,
+        "freeCashFlow": null,
+        "eps": 5.47,
+        "totalAssets": 215592,
+        "bookEquity": 106506,
+        "totalLiabilities": 109086,
+        "totalDebt": 35858,
+        "cash": 14709,
+        "netDebt": 22305,
+        "sharesOutstanding": 4876200000,
+        "bookValuePerShare": 21.802
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM revenue = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            168343,
+            85514,
+            -83940
+          ],
+          "expected": 169917
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            215592,
+            -106506
+          ],
+          "expected": 109086
+        }
+      ],
+      "documentChecks": [
+        "85 514",
+        "215 592",
+        "22 305"
+      ]
+    },
+    "AZN.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "USD",
+      "unit": "USD million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 9.7367,
+      "sourceName": "AstraZeneca H1 and Q2 2026 report",
+      "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
+      "auditor": "KPMG, review under ISRE 2410",
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "Reported EBITDA (TTM)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 61366,
+        "ebitda": 20326,
+        "netIncome": 10453,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 6.74,
+        "totalAssets": 115833,
+        "bookEquity": 50370,
+        "totalLiabilities": 65463,
+        "totalDebt": 32239,
+        "cash": 4893,
+        "netDebt": 26912,
+        "sharesOutstanding": 1550000000,
+        "bookValuePerShare": 32.4968
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM revenue = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            58739,
+            30672,
+            -28045
+          ],
+          "expected": 61366
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            115833,
+            -50370
+          ],
+          "expected": 65463
+        }
+      ],
+      "documentChecks": [
+        "30,672",
+        "115,833",
+        "26,912"
+      ],
+      "sourcePageUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html"
+    },
+    "BOL.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Boliden Q2 2026 official financial workbook",
+      "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 103657,
+        "ebitda": null,
+        "netIncome": 12679,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 46.36,
+        "totalAssets": 151132,
+        "bookEquity": 80482,
+        "totalLiabilities": 70650,
+        "totalDebt": 23898,
+        "cash": 4198,
+        "netDebt": 19145,
+        "sharesOutstanding": 273511169,
+        "bookValuePerShare": 294.25
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM revenue = four reported quarters",
+          "terms": [
+            21971,
+            28131,
+            27822,
+            25733
+          ],
+          "expected": 103657
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            151132,
+            -80482
+          ],
+          "expected": 70650
+        }
+      ],
+      "documentChecks": [
+        "151132",
+        "80482",
+        "19145"
+      ],
+      "documentType": "xlsx"
     },
     "EPI-A.ST": {
       "period": "2026-06-30",
@@ -86,27 +408,45 @@
       "calculationChecks": [
         {
           "label": "TTM revenue = FY 2025 + H1 2026 - H1 2025",
-          "terms": [61998, 31053, -30666],
+          "terms": [
+            61998,
+            31053,
+            -30666
+          ],
           "expected": 62385
         },
         {
           "label": "TTM operating cash flow = FY 2025 + H1 2026 - H1 2025",
-          "terms": [7726, 3202, -2673],
+          "terms": [
+            7726,
+            3202,
+            -2673
+          ],
           "expected": 8255
         },
         {
           "label": "TTM EPS = FY 2025 + H1 2026 - H1 2025",
-          "terms": [7.12, 3.75, -3.56],
+          "terms": [
+            7.12,
+            3.75,
+            -3.56
+          ],
           "expected": 7.31
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [85891, -44597],
+          "terms": [
+            85891,
+            -44597
+          ],
           "expected": 41294
         },
         {
           "label": "Debt = current plus non-current interest-bearing liabilities",
-          "terms": [15966, 2807],
+          "terms": [
+            15966,
+            2807
+          ],
           "expected": 18773
         }
       ],
@@ -118,6 +458,419 @@
         "Total equity 44 597 38 596 42 272",
         "The net debt was MSEK 11 430",
         "Basic number of shares outstanding, millions 1 210"
+      ]
+    },
+    "EQT.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "EUR",
+      "unit": "EUR million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 11.0935,
+      "sourceName": "EQT H1 2026 report",
+      "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 2799,
+        "ebitda": 1673,
+        "netIncome": 1331,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 1.135,
+        "totalAssets": 11700,
+        "bookEquity": 7731,
+        "totalLiabilities": 3969,
+        "totalDebt": 2629,
+        "cash": 843,
+        "netDebt": 1596,
+        "sharesOutstanding": 1171204861,
+        "bookValuePerShare": 6.6
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM adjusted revenue = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            2732,
+            1407,
+            -1340
+          ],
+          "expected": 2799
+        },
+        {
+          "label": "TTM adjusted EBITDA = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            1642,
+            837,
+            -806
+          ],
+          "expected": 1673
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            11700,
+            -7731
+          ],
+          "expected": 3969
+        }
+      ],
+      "documentChecks": [
+        "1,407",
+        "837",
+        "1,596"
+      ]
+    },
+    "ERIC-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Ericsson Q2 2026 report",
+      "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": "Free cash flow before M&A (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 227546,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": 27790,
+        "eps": null,
+        "totalAssets": 287899,
+        "bookEquity": 104764,
+        "totalLiabilities": 183135,
+        "totalDebt": 31458,
+        "cash": 91297,
+        "netDebt": -59839,
+        "sharesOutstanding": 3306000000,
+        "bookValuePerShare": 31.472
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            287899,
+            -104764
+          ],
+          "expected": 183135
+        }
+      ],
+      "documentChecks": [
+        "227.5",
+        "27.8",
+        "59.8"
+      ]
+    },
+    "ESSITY-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Essity Q2 2026 report",
+      "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf",
+      "auditor": "EY, review under ISRE 2410",
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 137571,
+        "ebitda": null,
+        "netIncome": 12176,
+        "operatingCashFlow": 16837,
+        "freeCashFlow": null,
+        "eps": 17.72,
+        "totalAssets": 181535,
+        "bookEquity": 93180,
+        "totalLiabilities": 88355,
+        "totalDebt": 31046,
+        "cash": 7246,
+        "netDebt": 28462,
+        "sharesOutstanding": 678587806,
+        "bookValuePerShare": 136.7
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            181535,
+            -93180
+          ],
+          "expected": 88355
+        }
+      ],
+      "documentChecks": [
+        "181,535",
+        "28,462"
+      ]
+    },
+    "EVO.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "EUR",
+      "unit": "EUR million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 11.0935,
+      "sourceName": "Evolution Q2 2026 report",
+      "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf",
+      "auditor": "Not reviewed by the company's auditors",
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 2052.157,
+        "ebitda": 1406.404,
+        "netIncome": 1062.479,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 5.33,
+        "totalAssets": 5470.585,
+        "bookEquity": 4234.367,
+        "totalLiabilities": 1236.218,
+        "totalDebt": 106.567,
+        "cash": 1153.539,
+        "netDebt": -1046.972,
+        "sharesOutstanding": 194085085,
+        "bookValuePerShare": 21.82
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            5470.585,
+            -4234.367
+          ],
+          "expected": 1236.218
+        }
+      ],
+      "documentChecks": [
+        "2,052,157",
+        "1,406,404",
+        "5,470,585"
+      ]
+    },
+    "HEXA-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-29",
+      "currency": "EUR",
+      "unit": "EUR million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 11.0935,
+      "sourceName": "Hexagon Q2 2026 interim report",
+      "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf",
+      "auditor": "Not reviewed by the company's auditors",
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA is presented for Q2/H1; TTM omitted after the Octave distribution",
+      "cashFlowMetricLabel": "Operating cash flow before non-recurring items (TTM)",
+      "values": {
+        "totalRevenue": 4041.3,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": 909.1,
+        "freeCashFlow": null,
+        "eps": 0.288,
+        "totalAssets": 10319.9,
+        "bookEquity": 5639.1,
+        "totalLiabilities": 4680.8,
+        "totalDebt": 2644.3,
+        "cash": 2161.5,
+        "netDebt": 531.8,
+        "sharesOutstanding": 2684378000,
+        "bookValuePerShare": 2.09
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM continuing revenue = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            3999.3,
+            2014.0,
+            -1972.0
+          ],
+          "expected": 4041.3
+        },
+        {
+          "label": "TTM operating cash flow = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            729.9,
+            415.9,
+            -236.7
+          ],
+          "expected": 909.1
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            10319.9,
+            -5639.1
+          ],
+          "expected": 4680.8
+        }
+      ],
+      "documentChecks": [
+        "1,050.2",
+        "10,319.9",
+        "531.8"
+      ],
+      "sourcePageUrl": "https://hexagon.com/company/newsroom/press-releases/2026/hexagon-interim-report-1-january---30-june-2026"
+    },
+    "HM-B.ST": {
+      "period": "2026-05-31",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-06-25",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "H&M six-month report 2026",
+      "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 220673,
+        "ebitda": null,
+        "netIncome": 12211,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 7.68,
+        "totalAssets": 165884,
+        "bookEquity": 33924,
+        "totalLiabilities": 131960,
+        "totalDebt": 77305,
+        "cash": 18697,
+        "netDebt": 1731,
+        "sharesOutstanding": 1596373000,
+        "bookValuePerShare": 21.25
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM revenue = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            228285,
+            104435,
+            -112047
+          ],
+          "expected": 220673
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            165884,
+            -33924
+          ],
+          "expected": 131960
+        }
+      ],
+      "documentChecks": [
+        "165,884",
+        "1,731"
+      ]
+    },
+    "INDU-C.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Industrivärden interim report January-June 2026",
+      "sourceUrl": "https://storage.mfn.se/50056ea1-ff68-49a1-8543-515f405f6e65/delarsrapport-6m-2026-eng.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": null,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 145.54,
+        "totalAssets": 231370,
+        "bookEquity": 224297,
+        "totalLiabilities": 7073,
+        "totalDebt": 6279,
+        "cash": 3929,
+        "netDebt": 2350,
+        "sharesOutstanding": 431960000,
+        "bookValuePerShare": 521
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            231370,
+            -224297
+          ],
+          "expected": 7073
+        }
+      ],
+      "documentChecks": [
+        "225,043",
+        "521",
+        "231,370"
+      ]
+    },
+    "INVE-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Investor AB interim report January-June 2026",
+      "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": null,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": null,
+        "totalAssets": 1249297,
+        "bookEquity": 1086109,
+        "totalLiabilities": 163188,
+        "totalDebt": 52100,
+        "cash": 28800,
+        "netDebt": 23300,
+        "sharesOutstanding": 3059780000,
+        "bookValuePerShare": 397
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            1249297,
+            -1086109
+          ],
+          "expected": 163188
+        }
+      ],
+      "documentChecks": [
+        "1,214,733",
+        "397",
+        "23,300",
+        "1,086,109"
       ]
     },
     "LIFCO-B.ST": {
@@ -152,22 +905,36 @@
       "calculationChecks": [
         {
           "label": "TTM attributable net income = FY 2025 + H1 2026 - H1 2025",
-          "terms": [3633, 1923, -1704],
+          "terms": [
+            3633,
+            1923,
+            -1704
+          ],
           "expected": 3852
         },
         {
           "label": "TTM operating cash flow = FY 2025 + H1 2026 - H1 2025",
-          "terms": [5124, 1851, -1744],
+          "terms": [
+            5124,
+            1851,
+            -1744
+          ],
           "expected": 5231
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [43673, -20477],
+          "terms": [
+            43673,
+            -20477
+          ],
           "expected": 23196
         },
         {
           "label": "Debt = current plus non-current interest-bearing liabilities including pensions",
-          "terms": [5187, 6711],
+          "terms": [
+            5187,
+            6711
+          ],
           "expected": 11898
         }
       ],
@@ -181,6 +948,286 @@
         "Net debt, SEK million 13,348 12,048 12,835",
         "Number of shares, thousands 454,216 454,216 454,216"
       ]
+    },
+    "NDA-SE.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "EUR",
+      "unit": "EUR million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 11.0935,
+      "sourceName": "Nordea Q2 2026 official financial workbook",
+      "sourceUrl": "https://www.nordea.com/en/doc/income-statement-second-quarter-2026-0.xlsx",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 11800,
+        "ebitda": null,
+        "netIncome": 4717,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 1.38,
+        "totalAssets": 712394,
+        "bookEquity": 31144,
+        "totalLiabilities": 681250,
+        "totalDebt": null,
+        "cash": 44594,
+        "netDebt": null,
+        "sharesOutstanding": 3403000000,
+        "bookValuePerShare": 9.17,
+        "roe": 15.7
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            712394,
+            -31144
+          ],
+          "expected": 681250
+        }
+      ],
+      "documentChecks": [
+        "712394",
+        "31144",
+        "9.17"
+      ],
+      "documentType": "xlsx"
+    },
+    "NIBE-B.ST": {
+      "period": "2026-03-31",
+      "fiscalPeriod": "2026-Q1",
+      "reportPublishedAt": "2026-05-19",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "NIBE Q1 2026 report",
+      "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 40818,
+        "ebitda": 6397,
+        "netIncome": 2571,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 1.27,
+        "totalAssets": 66882,
+        "bookEquity": 31614,
+        "totalLiabilities": 35268,
+        "totalDebt": 22758,
+        "cash": 5507,
+        "netDebt": 17251,
+        "sharesOutstanding": 2016066488,
+        "bookValuePerShare": 15.68
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            66882,
+            -31614
+          ],
+          "expected": 35268
+        }
+      ],
+      "documentChecks": [
+        "40,818",
+        "6,397",
+        "66,882"
+      ]
+    },
+    "SAAB-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Saab Q2 2026 report",
+      "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+      "cashFlowMetricLabel": "Free cash flow (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 88185,
+        "ebitda": 12881,
+        "netIncome": 7179,
+        "operatingCashFlow": null,
+        "freeCashFlow": 5381,
+        "eps": 13.12,
+        "totalAssets": 135605,
+        "bookEquity": 50590,
+        "totalLiabilities": 85015,
+        "totalDebt": 14707,
+        "cash": 17230,
+        "netDebt": -2523,
+        "sharesOutstanding": 538649464,
+        "bookValuePerShare": 93.18
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            135605,
+            -50590
+          ],
+          "expected": 85015
+        }
+      ],
+      "documentChecks": [
+        "88,185",
+        "135,605",
+        "2,523"
+      ]
+    },
+    "SAND.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Sandvik Q2 2026 report",
+      "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": "Free operating cash flow (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 129116,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": 19520,
+        "eps": 13.42,
+        "totalAssets": 186882,
+        "bookEquity": 100493,
+        "totalLiabilities": 86389,
+        "totalDebt": 43121,
+        "cash": 3620,
+        "netDebt": 30200,
+        "sharesOutstanding": 1254000000,
+        "bookValuePerShare": 80.14
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            186882,
+            -100493
+          ],
+          "expected": 86389
+        }
+      ],
+      "documentChecks": [
+        "186,882",
+        "30.2"
+      ]
+    },
+    "SCA-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-22",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "SCA Q2 2026 report",
+      "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM)",
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 19779,
+        "ebitda": 5290,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": null,
+        "totalAssets": 147667,
+        "bookEquity": 101194,
+        "totalLiabilities": 46473,
+        "totalDebt": 15583,
+        "cash": 4724,
+        "netDebt": 10859,
+        "sharesOutstanding": 702342489,
+        "bookValuePerShare": 144.08
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            147667,
+            -101194
+          ],
+          "expected": 46473
+        }
+      ],
+      "documentChecks": [
+        "147,667",
+        "10,859"
+      ]
+    },
+    "SEB-A.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "SEB Q2 2026 Fact Book",
+      "sourceUrl": "https://webapp.sebgroup.com/mb/mblib.nsf/alldocsbyunid/A37209093393EED9C1258E350018CEF4/$FILE/Q226_FactBookfigures.xlsx",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 76019,
+        "ebitda": null,
+        "netIncome": 31146,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 15.85,
+        "totalAssets": 4354686,
+        "bookEquity": 225767,
+        "totalLiabilities": 4128919,
+        "totalDebt": null,
+        "cash": 499915,
+        "netDebt": null,
+        "sharesOutstanding": 1949534651,
+        "bookValuePerShare": 115.81,
+        "roe": 15.7
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            4354686,
+            -225767
+          ],
+          "expected": 4128919
+        }
+      ],
+      "documentChecks": [
+        "76019",
+        "4354686",
+        "225767",
+        "15.85"
+      ],
+      "sourcePageUrl": "https://sebgroup.com/our-offering/reports-and-publications",
+      "documentType": "xlsx"
     },
     "SHB-A.ST": {
       "period": "2026-06-30",
@@ -213,22 +1260,37 @@
       "calculationChecks": [
         {
           "label": "TTM total income = FY 2025 + H1 2026 - H1 2025",
-          "terms": [57300, 28234, -28708],
+          "terms": [
+            57300,
+            28234,
+            -28708
+          ],
           "expected": 56826
         },
         {
           "label": "TTM attributable net income = FY 2025 + H1 2026 - H1 2025",
-          "terms": [23727, 11585, -11809],
+          "terms": [
+            23727,
+            11585,
+            -11809
+          ],
           "expected": 23503
         },
         {
           "label": "TTM EPS = FY 2025 + H1 2026 - H1 2025",
-          "terms": [11.98, 5.81, -5.96],
+          "terms": [
+            11.98,
+            5.81,
+            -5.96
+          ],
           "expected": 11.83
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [3872440, -184395],
+          "terms": [
+            3872440,
+            -184395
+          ],
           "expected": 3688045
         }
       ],
@@ -241,6 +1303,52 @@
         "3 688 045 3 553 154 3 188 211 3 607 577 3 472 218",
         "Summa eget kapital 184 395 172 228 199 355 194 690 188 548",
         "Genomsnittligt antal utestående aktier, miljoner 1 980,0"
+      ]
+    },
+    "SKA-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Skanska Q2 2026 report",
+      "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 174937,
+        "ebitda": null,
+        "netIncome": 6574,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 16.02,
+        "totalAssets": 166100,
+        "bookEquity": 61700,
+        "totalLiabilities": 104400,
+        "totalDebt": 0,
+        "cash": 17600,
+        "netDebt": -17600,
+        "sharesOutstanding": 414052718,
+        "bookValuePerShare": 149.01
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            166100,
+            -61700
+          ],
+          "expected": 104400
+        }
+      ],
+      "documentChecks": [
+        "174,937",
+        "16.02",
+        "166.1"
       ]
     },
     "SKF-B.ST": {
@@ -275,32 +1383,58 @@
       "calculationChecks": [
         {
           "label": "TTM revenue = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [22482, 21969, 21873, 23195],
+          "terms": [
+            22482,
+            21969,
+            21873,
+            23195
+          ],
           "expected": 89519
         },
         {
           "label": "TTM adjusted EBITDA = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [3763, 3600, 3894, 4181],
+          "terms": [
+            3763,
+            3600,
+            3894,
+            4181
+          ],
           "expected": 15438
         },
         {
           "label": "TTM attributable net income = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [1047, 568, 1627, 1263],
+          "terms": [
+            1047,
+            568,
+            1627,
+            1263
+          ],
           "expected": 4505
         },
         {
           "label": "TTM EPS = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [2.30, 1.25, 3.57, 2.77],
+          "terms": [
+            2.3,
+            1.25,
+            3.57,
+            2.77
+          ],
           "expected": 9.89
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [118605, -59871],
+          "terms": [
+            118605,
+            -59871
+          ],
           "expected": 58734
         },
         {
           "label": "Debt = current plus non-current financial liabilities",
-          "terms": [18458, 2114],
+          "terms": [
+            18458,
+            2114
+          ],
           "expected": 20572
         }
       ],
@@ -315,6 +1449,119 @@
         "Nettoskuld 13 629 654 -511 903 531 12 052",
         "Totalt antal aktier: 455 351 068"
       ]
+    },
+    "SWED-A.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Swedbank Q2 2026 official results and report",
+      "sourceUrl": "https://www.swedbank.com/newsroom/press-releases.details.swedbank%E2%80%99s-interim-report-for-the-second-quarter-2026.DA59ABC946065D11.html",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": null,
+      "values": {
+        "totalRevenue": 69623,
+        "ebitda": null,
+        "netIncome": 31217,
+        "operatingCashFlow": null,
+        "freeCashFlow": null,
+        "eps": 27.6,
+        "totalAssets": 3306693,
+        "bookEquity": 207068,
+        "totalLiabilities": 3099625,
+        "totalDebt": null,
+        "cash": 261232,
+        "netDebt": null,
+        "sharesOutstanding": 1123714665,
+        "bookValuePerShare": 184.2,
+        "roe": 14.2
+      },
+      "calculationChecks": [
+        {
+          "label": "TTM total income = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            68736,
+            35178,
+            -34291
+          ],
+          "expected": 69623
+        },
+        {
+          "label": "TTM profit = FY 2025 + H1 2026 - H1 2025",
+          "terms": [
+            32759,
+            14540,
+            -16082
+          ],
+          "expected": 31217
+        },
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            3306693,
+            -207068
+          ],
+          "expected": 3099625
+        }
+      ],
+      "documentChecks": [
+        "18 104 17 073",
+        "7 195 7 345",
+        "14.2"
+      ],
+      "documentType": "html"
+    },
+    "TEL2-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Tele2 Q2 2026 report",
+      "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf",
+      "auditor": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "Underlying EBITDAaL (TTM, company-defined)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM, company-defined)",
+      "values": {
+        "totalRevenue": 30119,
+        "ebitda": 12126,
+        "netIncome": 10114,
+        "operatingCashFlow": null,
+        "freeCashFlow": 6203,
+        "eps": 14.58,
+        "totalAssets": 67453,
+        "bookEquity": 22737,
+        "totalLiabilities": 44716,
+        "totalDebt": 30746,
+        "cash": 3489,
+        "netDebt": 26907,
+        "sharesOutstanding": 694053567,
+        "bookValuePerShare": 32.76
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            67453,
+            -22737
+          ],
+          "expected": 44716
+        }
+      ],
+      "documentChecks": [
+        "6,203",
+        "67,453",
+        "26,907"
+      ],
+      "sourcePageUrl": "https://www.tele2.com/investors/reports-and-presentations"
     },
     "TELIA.ST": {
       "period": "2026-06-30",
@@ -352,32 +1599,58 @@
       "calculationChecks": [
         {
           "label": "TTM revenue = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [19860.56558582, 21299.6823861, 19969.40447114, 20704.57627056],
+          "terms": [
+            19860.56558582,
+            21299.6823861,
+            19969.40447114,
+            20704.57627056
+          ],
           "expected": 81834.22871362
         },
         {
           "label": "TTM attributable net income = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [2353.17961204, -1308.24727445, 1663.69331963, 2230.0002156],
+          "terms": [
+            2353.17961204,
+            -1308.24727445,
+            1663.69331963,
+            2230.0002156
+          ],
           "expected": 4938.62587282
         },
         {
           "label": "TTM operating cash flow = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [7130.579062, 7460.14665545, 6466.31957642, 6202.29566146],
+          "terms": [
+            7130.579062,
+            7460.14665545,
+            6466.31957642,
+            6202.29566146
+          ],
           "expected": 27259.34095533
         },
         {
           "label": "TTM cash CAPEX = Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026",
-          "terms": [3201.45978706, 4415.16162766, 3479.77743492, 2963.87489967],
+          "terms": [
+            3201.45978706,
+            4415.16162766,
+            3479.77743492,
+            2963.87489967
+          ],
           "expected": 14060.27374931
         },
         {
           "label": "Liabilities = assets - equity",
-          "terms": [196434, -53585],
+          "terms": [
+            196434,
+            -53585
+          ],
           "expected": 142849
         },
         {
           "label": "Debt = current plus non-current borrowings",
-          "terms": [78368, 12266],
+          "terms": [
+            78368,
+            12266
+          ],
           "expected": 90634
         }
       ],
@@ -391,6 +1664,53 @@
         "Net debt 66,979 61,749",
         "3,932,109 3,932,063 3,932,109 3,932,063"
       ]
+    },
+    "VOLV-B.ST": {
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-07-17",
+      "currency": "SEK",
+      "unit": "SEK million",
+      "unitMultiplier": 1000000,
+      "financialToQuoteFx": 1.0,
+      "sourceName": "Volvo Group Q2 2026 report",
+      "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html",
+      "auditor": null,
+      "ebitdaPresented": false,
+      "ebitdaMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow, Industrial Operations (H1; TTM EPS used for valuation)",
+      "values": {
+        "totalRevenue": 471533,
+        "ebitda": null,
+        "netIncome": null,
+        "operatingCashFlow": null,
+        "freeCashFlow": 6269,
+        "eps": 17.63,
+        "totalAssets": 678690,
+        "bookEquity": 176694,
+        "totalLiabilities": 501996,
+        "totalDebt": 260355,
+        "cash": 46971,
+        "netDebt": -36000,
+        "sharesOutstanding": 2033000000,
+        "bookValuePerShare": 86.91
+      },
+      "calculationChecks": [
+        {
+          "label": "Liabilities = assets - equity",
+          "terms": [
+            678690,
+            -176694
+          ],
+          "expected": 501996
+        }
+      ],
+      "documentChecks": [
+        "126.3",
+        "14.8"
+      ],
+      "sourcePageUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html",
+      "documentType": "html"
     }
   }
 }
