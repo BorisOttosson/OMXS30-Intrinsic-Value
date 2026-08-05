@@ -49,7 +49,7 @@ That writes:
 data/prices.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, normalized FCF per share, valuation multiples, and qualitative scores editable. Unverified fundamentals remain blank and cannot enter a valuation model.
+Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, normalized FCF per share, valuation multiples, and qualitative scores editable. The last pre-removal fundamentals snapshot is retained for reference and labelled as unverified; it cannot enter a valuation model. Each company also links to the official report that must be used to replace and independently verify the cached figures.
 
 ### Fundamentals quality gates
 

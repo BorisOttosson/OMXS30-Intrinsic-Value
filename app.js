@@ -329,13 +329,21 @@ const elements = {
   fundamentalsSubtitle: document.querySelector("#fundamentalsSubtitle"),
   fundamentalsSourceLink: document.querySelector("#fundamentalsSourceLink"),
   fundMarketCap: document.querySelector("#fundMarketCap"),
+  fundRevenueLabel: document.querySelector("#fundRevenueLabel"),
   fundRevenue: document.querySelector("#fundRevenue"),
+  fundEbitdaLabel: document.querySelector("#fundEbitdaLabel"),
   fundEbitda: document.querySelector("#fundEbitda"),
+  fundFcfLabel: document.querySelector("#fundFcfLabel"),
   fundFcf: document.querySelector("#fundFcf"),
+  fundAssetsLabel: document.querySelector("#fundAssetsLabel"),
   fundAssets: document.querySelector("#fundAssets"),
+  fundEquityLabel: document.querySelector("#fundEquityLabel"),
   fundEquity: document.querySelector("#fundEquity"),
+  fundLiabilitiesLabel: document.querySelector("#fundLiabilitiesLabel"),
   fundLiabilities: document.querySelector("#fundLiabilities"),
+  fundDebtLabel: document.querySelector("#fundDebtLabel"),
   fundDebt: document.querySelector("#fundDebt"),
+  fundCashLabel: document.querySelector("#fundCashLabel"),
   fundCash: document.querySelector("#fundCash"),
   fundShares: document.querySelector("#fundShares"),
   fundEvEbitda: document.querySelector("#fundEvEbitda"),
@@ -1032,9 +1040,11 @@ function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
   const targetProvider = marketData.targetPricesProvider ?? "";
-  const fundamentalsLabel = fundamentalsProvider.includes("Official")
-    ? "Official report evidence"
-    : "Fundamentals";
+  const fundamentalsLabel = fundamentalsProvider.includes("Legacy cached")
+    ? "Legacy fundamentals (unverified) + official report links"
+    : fundamentalsProvider.includes("Official")
+      ? "Official report evidence"
+      : "Fundamentals";
   const priceLabel = priceProvider.includes("Yahoo")
     ? "Yahoo prices"
     : priceProvider.includes("EODHD")
@@ -2038,6 +2048,15 @@ function renderFundamentals() {
   const verificationText = verification?.status === "verified"
     ? `Independently verified: ${verification.sourceName} (${verification.period})`
     : "Independent verification: missing";
+  const balancePeriodLabel = verification?.status === "verified" ? "latest quarter" : "cached period";
+  elements.fundRevenueLabel.textContent = verification?.status === "verified" ? "Revenue (TTM)" : "Revenue (cached TTM)";
+  elements.fundEbitdaLabel.textContent = verification?.status === "verified" ? "EBITDA (TTM)" : "EBITDA (cached TTM)";
+  elements.fundFcfLabel.textContent = verification?.status === "verified" ? "Free cash flow" : "Free cash flow (cached TTM)";
+  elements.fundAssetsLabel.textContent = `Total assets (${balancePeriodLabel})`;
+  elements.fundEquityLabel.textContent = `Book equity (${balancePeriodLabel})`;
+  elements.fundLiabilitiesLabel.textContent = `Liabilities (${balancePeriodLabel})`;
+  elements.fundDebtLabel.textContent = `Total debt (${balancePeriodLabel})`;
+  elements.fundCashLabel.textContent = `Cash (${balancePeriodLabel})`;
 
   elements.fundamentalsSubtitle.textContent = [
     company.source,
@@ -2050,7 +2069,9 @@ function renderFundamentals() {
   if (officialSource?.sourceUrl) {
     elements.fundamentalsSourceLink.hidden = false;
     elements.fundamentalsSourceLink.href = officialSource.sourceUrl;
-    elements.fundamentalsSourceLink.textContent = `Source: ${officialSource.sourceName ?? "Official company report"}`;
+    elements.fundamentalsSourceLink.textContent = verification?.status === "verified"
+      ? `Verified source: ${officialSource.sourceName ?? "Official company report"}`
+      : `Official report for verification: ${officialSource.sourceName ?? "Official company report"}`;
   } else {
     elements.fundamentalsSourceLink.hidden = true;
     elements.fundamentalsSourceLink.removeAttribute("href");
