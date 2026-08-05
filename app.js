@@ -471,7 +471,7 @@ async function loadMarketData({ quiet = true } = {}) {
     state.companies = applyMarketData(state.companies, payload.companies);
     nextMarketData.fundamentalsLoaded = true;
     nextMarketData.fundamentalsGeneratedAt = payload.generatedAt ?? null;
-    nextMarketData.fundamentalsProvider = payload.provider ?? "Yahoo Finance via yfinance";
+    nextMarketData.fundamentalsProvider = payload.provider ?? "Official company reports";
     nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
     changed = true;
   } catch (error) {
@@ -1032,13 +1032,9 @@ function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
   const targetProvider = marketData.targetPricesProvider ?? "";
-  const fundamentalsLabel = fundamentalsProvider.includes("BörsAPI")
-    ? "BörsAPI fundamentals"
-    : fundamentalsProvider.includes("Financial Modeling Prep")
-    ? "FMP fundamentals"
-    : fundamentalsProvider.includes("EODHD")
-      ? "EODHD fundamentals"
-      : "Yahoo fundamentals";
+  const fundamentalsLabel = fundamentalsProvider.includes("Official")
+    ? "Official report evidence"
+    : "Fundamentals";
   const priceLabel = priceProvider.includes("Yahoo")
     ? "Yahoo prices"
     : priceProvider.includes("EODHD")
@@ -1744,7 +1740,7 @@ function renderGrowthMeta(company) {
     if (!Number.isFinite(asNumber(company.growth5y)) || company.growth5y === null || company.growth5y === "") {
       cagrMeta.textContent = "N/A - not enough positive FCF history";
     } else {
-      cagrMeta.textContent = `${label} | Source: ${company.growth5ySource ?? "BorsAPI"} | Updated: ${formatShortDate(company.growth5yUpdatedAt) ?? "n/a"}`;
+      cagrMeta.textContent = `${label} | Source: ${company.growth5ySource ?? "Official company reports"} | Updated: ${formatShortDate(company.growth5yUpdatedAt) ?? "n/a"}`;
     }
   }
 

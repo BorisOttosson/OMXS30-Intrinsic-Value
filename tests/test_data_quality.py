@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from scripts.update_data import (
+from scripts.validate_fundamentals import (
     normalize_balance_unit,
     normalize_flow_unit,
     validate_company_fundamentals,
@@ -140,9 +140,7 @@ class DataQualityTests(unittest.TestCase):
             "latestFiscalDate": "2026-07-17",
             "fcfPerShare": 4.8,
             "netDebtPerShare": 2,
-            "errors": [
-                "BörsAPI: summed the last four quarters (2026-Q2, 2026-Q2, 2026-Q2, 2026-Q1)"
-            ],
+            "errors": ["Official import: summed the last four quarters (2026-Q2, 2026-Q2, 2026-Q2, 2026-Q1)"],
         }
         checked = validate_company_fundamentals(row, datetime(2026, 8, 4, tzinfo=timezone.utc))
         self.assertEqual(checked["dataQuality"]["status"], "rejected")
