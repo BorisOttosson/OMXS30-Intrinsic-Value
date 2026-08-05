@@ -19,12 +19,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:34:08.754154+00:00",
       "ebit": null,
@@ -57,6 +57,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:34:08.754154+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 153.45931734955704,
       "marketCap": 1747052272694.4001,
       "marketPrice": null,
@@ -68,12 +73,12 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
         "sourceName": "ABB Q2 2026 results",
-        "sourceUrl": "https://library.e.abb.com/public/47f0bfb2ecaf494b99846882bffa5409/ABB-Q2-2026-Group-results.pdf?x-sign=NscNT684BFYp7M4jGSjTtpBkntV5j1ZmzwGrF687e6KhOmTevkCeRmbhNTnevEu4"
+        "sourceUrl": "https://library.e.abb.com/public/47f0bfb2ecaf494b99846882bffa5409/ABB-Q2-2026-Group-results.pdf?x-sign=mc1pZKbR1%2baSboT%2fImDxb6t%2fuCChpLwX5VziMeJUpaNoFHNxXY6V%2boOEKDopwBhp"
       },
       "operatingCashFlow": null,
       "previousClose": null,
@@ -92,12 +97,7 @@
       "totalLiabilities": 278344527763.3667,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:34:08.754154+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -116,12 +116,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T21:01:53.562622+00:00",
       "ebit": 2757000000.0,
@@ -154,6 +154,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T21:01:53.562622+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 42.413621474215844,
       "marketCap": 92650426989.81555,
       "marketPrice": null,
@@ -165,7 +170,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 3.374568485852457,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -188,12 +193,7 @@
       "totalLiabilities": 11450000000.0,
       "totalRevenue": 21796000000.0,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T21:01:53.562622+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -214,12 +214,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:33:49.895221+00:00",
       "ebit": null,
@@ -252,6 +252,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:33:49.895221+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 133.02806524670464,
       "marketCap": 236174656391.0,
       "marketPrice": null,
@@ -263,7 +268,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -287,12 +292,7 @@
       "totalLiabilities": 54984000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:33:49.895221+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -303,6 +303,7 @@
       "bookValuePerShare": 100.1,
       "capitalExpenditures": null,
       "cash": 3869000000.0,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -315,9 +316,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-05T00:43:22.587023+00:00"
+        "checkedAt": "2026-08-05T00:55:40.172689+00:00"
       },
-      "dataUpdatedAt": "2026-08-05T00:43:21.377419+00:00",
+      "dataUpdatedAt": "2026-08-05T00:55:39.664205+00:00",
       "ebit": null,
       "ebitda": 30995000000.0,
       "ebitdaPerShare": 27.903915821011616,
@@ -350,7 +351,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "EY, review under ISRE 2410",
-        "checkedAt": "2026-08-05T00:43:21.377419+00:00",
+        "checkedAt": "2026-08-05T00:55:39.664205+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true
       },
@@ -372,7 +373,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-05T00:43:21.377419+00:00"
+        "auditCheckedAt": "2026-08-05T00:55:39.664205+00:00"
       },
       "operatingCashFlow": 24225000000.0,
       "previousClose": null,
@@ -391,8 +392,7 @@
       "totalLiabilities": 116745000000.0,
       "totalRevenue": 151463000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)"
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -413,12 +413,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:33:54.817275+00:00",
       "ebit": null,
@@ -451,6 +451,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:33:54.817275+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 408.6746140123209,
       "marketCap": 2342599688863.5,
       "marketPrice": null,
@@ -462,7 +467,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:47:39.454090+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -486,12 +491,7 @@
       "totalLiabilities": 633804054042.8162,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:33:54.817275+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -512,12 +512,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:34:15.652360+00:00",
       "ebit": 34182000000.0,
@@ -550,6 +550,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-06-30",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:34:15.652360+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 12.525677397537297,
       "marketCap": 1017680288032.7999,
       "marketPrice": null,
@@ -561,7 +566,7 @@
       "normalizedEbitdaPerShare": 12.70230340410555,
       "normalizedFcfPerShare": 7.263066348592446,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -585,12 +590,7 @@
       "totalLiabilities": 41557000000.0,
       "totalRevenue": 167727000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:34:15.652360+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -611,12 +611,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:33:59.987434+00:00",
       "ebit": null,
@@ -649,6 +649,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:33:59.987434+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 237.3729326720985,
       "marketCap": 141924433509.6,
       "marketPrice": null,
@@ -660,7 +665,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -684,12 +689,7 @@
       "totalLiabilities": 67405000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:33:59.987434+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -700,6 +700,7 @@
       "bookValuePerShare": 36.9,
       "capitalExpenditures": null,
       "cash": 6928000000.0,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, non-IFRS)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -712,9 +713,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-05T00:43:24.157036+00:00"
+        "checkedAt": "2026-08-05T00:55:40.337715+00:00"
       },
-      "dataUpdatedAt": "2026-08-05T00:43:21.377419+00:00",
+      "dataUpdatedAt": "2026-08-05T00:55:39.664205+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaPerShare": null,
@@ -747,7 +748,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "EY, review under ISRE 2410",
-        "checkedAt": "2026-08-05T00:43:21.377419+00:00",
+        "checkedAt": "2026-08-05T00:55:39.664205+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false
       },
@@ -769,7 +770,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-05T00:43:21.377419+00:00"
+        "auditCheckedAt": "2026-08-05T00:55:39.664205+00:00"
       },
       "operatingCashFlow": 8255000000.0,
       "previousClose": null,
@@ -788,8 +789,7 @@
       "totalLiabilities": 41294000000.0,
       "totalRevenue": 62385000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "cashFlowMetricLabel": "Operating cash flow (TTM, non-IFRS)"
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -808,12 +808,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T21:01:56.927419+00:00",
       "ebit": 10512042487.335205,
@@ -846,6 +846,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T21:01:56.927419+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 36.34506533685875,
       "marketCap": 372391282630.22906,
       "marketPrice": null,
@@ -857,7 +862,7 @@
       "normalizedEbitdaPerShare": 13.028811465557212,
       "normalizedFcfPerShare": 3.7409738769445178,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -880,12 +885,7 @@
       "totalLiabilities": 42521476648.23532,
       "totalRevenue": 29042716880.41687,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T21:01:56.927419+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -906,12 +906,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:33:44.476634+00:00",
       "ebit": null,
@@ -944,6 +944,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:33:44.476634+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": null,
       "marketCap": 323442718271.5,
       "marketPrice": null,
@@ -955,7 +960,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:58:01.261968+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -979,12 +984,7 @@
       "totalLiabilities": null,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:33:44.476634+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1005,12 +1005,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:01:56.201127+00:00",
       "ebit": null,
@@ -1043,6 +1043,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:01:56.201127+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 149.18230047022215,
       "marketCap": 187006900308.0,
       "marketPrice": null,
@@ -1054,7 +1059,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1078,12 +1083,7 @@
       "totalLiabilities": 92696000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:01:56.201127+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1104,12 +1104,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-04T22:36:15.620975+00:00",
       "ebit": null,
@@ -1142,6 +1142,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-04T22:36:15.620975+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 71.20825622451049,
       "marketCap": 141439985508.6,
       "marketPrice": null,
@@ -1153,7 +1158,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1177,12 +1182,7 @@
       "totalLiabilities": 13562745392.522812,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-04T22:36:15.620975+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1203,12 +1203,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:16.335269+00:00",
       "ebit": null,
@@ -1241,6 +1241,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-06-30",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:02:16.335269+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 1897.389616871607,
       "marketCap": 294299651442.4,
       "marketPrice": null,
@@ -1252,7 +1257,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -14.089017751295943,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1276,12 +1281,7 @@
       "totalLiabilities": 3690000000000.0,
       "totalRevenue": 56590000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:02:16.335269+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1302,12 +1302,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:01.692801+00:00",
       "ebit": null,
@@ -1340,6 +1340,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-06-30",
       "latestFiscalPeriod": "2025-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:02:01.692801+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 93.9911108973045,
       "marketCap": 284234213184.15,
       "marketPrice": null,
@@ -1351,7 +1356,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "evidence-found",
         "earningsBasis": "TTM",
         "period": "2026-05-31",
@@ -1375,12 +1380,7 @@
       "totalLiabilities": 131773000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:02:01.692801+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1401,12 +1401,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:06.993116+00:00",
       "ebit": null,
@@ -1439,6 +1439,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:02:06.993116+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 25.56489981858774,
       "marketCap": 255355083901.44,
       "marketPrice": null,
@@ -1450,7 +1455,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1474,12 +1479,7 @@
       "totalLiabilities": 65267902190.78064,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:02:06.993116+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1498,12 +1498,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:05.987578+00:00",
       "ebit": 35655000000.0,
@@ -1536,6 +1536,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:05.987578+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 18.249632504450553,
       "marketCap": 224242022145.8059,
       "marketPrice": null,
@@ -1547,7 +1552,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 10.562652053451336,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1570,12 +1575,7 @@
       "totalLiabilities": 7882000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:05.987578+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1596,12 +1596,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:02:12.196339+00:00",
       "ebit": null,
@@ -1634,6 +1634,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:02:12.196339+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 50.606977861713524,
       "marketCap": 1274428522016.0,
       "marketPrice": null,
@@ -1645,7 +1650,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1669,12 +1674,7 @@
       "totalLiabilities": 155036000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:02:12.196339+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1693,12 +1693,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:12.559799+00:00",
       "ebit": 5170000000.0,
@@ -1731,6 +1731,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:12.559799+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 48.36682435218639,
       "marketCap": 148892097595.36743,
       "marketPrice": null,
@@ -1742,7 +1747,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": 2.8422581928477686,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1765,12 +1770,7 @@
       "totalLiabilities": 21969000000.0,
       "totalRevenue": 28251000000.0,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:12.559799+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1789,12 +1789,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:17.548734+00:00",
       "ebit": 4125000000.0,
@@ -1827,6 +1827,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:17.548734+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 17.243974941762932,
       "marketCap": 73989641647.73666,
       "marketPrice": null,
@@ -1838,7 +1843,7 @@
       "normalizedEbitdaPerShare": 3.106544371070365,
       "normalizedFcfPerShare": 0.9647499284259716,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-03-31",
@@ -1861,12 +1866,7 @@
       "totalLiabilities": 34765000000.0,
       "totalRevenue": 40841000000.0,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:17.548734+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1885,12 +1885,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:06.933712+00:00",
       "ebit": null,
@@ -1923,6 +1923,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2024-12-31",
       "latestFiscalPeriod": "2024",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:06.933712+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 1921.0249191850899,
       "marketCap": 637516644993.4285,
       "marketPrice": null,
@@ -1934,7 +1939,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": -6.534330572484605,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -1957,12 +1962,7 @@
       "totalLiabilities": 6519485342751.503,
       "totalRevenue": 133320236583.70972,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:06.933712+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1983,12 +1983,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:14:00.100855+00:00",
       "ebit": null,
@@ -2021,6 +2021,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:14:00.100855+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 117.79695383971917,
       "marketCap": 331323285306.4,
       "marketPrice": null,
@@ -2032,7 +2037,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2056,12 +2061,7 @@
       "totalLiabilities": 62328000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:14:00.100855+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2082,12 +2082,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:49.001782+00:00",
       "ebit": null,
@@ -2120,6 +2120,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:13:49.001782+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 68.86955474866247,
       "marketCap": 447815774511.0,
       "marketPrice": null,
@@ -2131,7 +2136,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2155,12 +2160,7 @@
       "totalLiabilities": 86389000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:13:49.001782+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2179,12 +2179,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:18.284862+00:00",
       "ebit": 4432000000.0,
@@ -2217,6 +2217,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2025-12-31",
       "latestFiscalPeriod": "2025",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:18.284862+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 63.98018161193719,
       "marketCap": 72341276367.0,
       "marketPrice": null,
@@ -2228,7 +2233,7 @@
       "normalizedEbitdaPerShare": 9.345867725226004,
       "normalizedFcfPerShare": 2.0104151779431927,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2251,12 +2256,7 @@
       "totalLiabilities": 44936000000.0,
       "totalRevenue": 20427000000.0,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:18.284862+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2277,12 +2277,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:42.033926+00:00",
       "ebit": null,
@@ -2315,6 +2315,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:13:42.033926+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 2005.5249317174366,
       "marketCap": 444425990999.4,
       "marketPrice": null,
@@ -2326,7 +2331,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2350,12 +2355,7 @@
       "totalLiabilities": 3907653000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:13:42.033926+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2376,12 +2376,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:14.477346+00:00",
       "ebit": 10811000000.0,
@@ -2414,6 +2414,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:14.477346+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 264.7186662887221,
       "marketCap": 111097769216.60748,
       "marketPrice": null,
@@ -2425,7 +2430,7 @@
       "normalizedEbitdaPerShare": 29.767159852518898,
       "normalizedFcfPerShare": 2.5547137250662364,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "evidence-found",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2449,12 +2454,7 @@
       "totalLiabilities": 104448000000.0,
       "totalRevenue": 183460000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:14.477346+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2475,12 +2475,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:52.350663+00:00",
       "ebit": 8897000000.0,
@@ -2513,6 +2513,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:13:52.350663+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 137.7333243646663,
       "marketCap": 120638442216.8,
       "marketPrice": null,
@@ -2524,7 +2529,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2548,12 +2553,7 @@
       "totalLiabilities": 58734000000.0,
       "totalRevenue": 89385000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:13:52.350663+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2572,12 +2572,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:05:56.427226+00:00",
       "ebit": null,
@@ -2610,6 +2610,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-03-31",
       "latestFiscalPeriod": "2026-Q1",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:05:56.427226+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 2659.927909724307,
       "marketCap": 415549669399.77997,
       "marketPrice": null,
@@ -2621,7 +2626,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2644,12 +2649,7 @@
       "totalLiabilities": 2989000000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:05:56.427226+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2668,12 +2668,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:19.050303+00:00",
       "ebit": 5466000000.0,
@@ -2706,6 +2706,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2023-12-31",
       "latestFiscalPeriod": "2023",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:19.050303+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 62.399171213743685,
       "marketCap": 111909609988.79425,
       "marketPrice": null,
@@ -2717,7 +2722,7 @@
       "normalizedEbitdaPerShare": 16.74781702023722,
       "normalizedFcfPerShare": 8.776167544953854,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2740,12 +2745,7 @@
       "totalLiabilities": 43279000000.0,
       "totalRevenue": 29099000000.0,
       "totalRevenueBasis": null,
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:19.050303+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2766,12 +2766,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T22:13:56.502158+00:00",
       "ebit": null,
@@ -2804,6 +2804,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-06-30",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T22:13:56.502158+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 28.963335379687106,
       "marketCap": 174389046878.45,
       "marketPrice": null,
@@ -2815,7 +2820,7 @@
       "normalizedEbitdaPerShare": null,
       "normalizedFcfPerShare": null,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "source-only",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2839,12 +2844,7 @@
       "totalLiabilities": 113887000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T22:13:56.502158+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2865,12 +2865,12 @@
       "currency": "SEK",
       "dataQuality": {
         "checkedAt": "2026-08-05T00:30:00+00:00",
-        "status": "unverified",
-        "valuationReady": false,
         "issues": [
           "Legacy cached fundamentals are shown for reference only",
           "Not independently verified against the linked official report"
-        ]
+        ],
+        "status": "unverified",
+        "valuationReady": false
       },
       "dataUpdatedAt": "2026-08-03T17:06:15.224481+00:00",
       "ebit": 51112000000.0,
@@ -2903,6 +2903,11 @@
       "independentVerification": null,
       "latestFiscalDate": "2026-07-17",
       "latestFiscalPeriod": "2026-Q2",
+      "legacySnapshot": {
+        "capturedAt": "2026-08-03T17:06:15.224481+00:00",
+        "provenance": "Pre-removal BörsAPI cache",
+        "status": "unverified"
+      },
       "liabilitiesPerShare": 23.894512697582787,
       "marketCap": 751157187418.3934,
       "marketPrice": null,
@@ -2914,7 +2919,7 @@
       "normalizedEbitdaPerShare": 46.9545978949662,
       "normalizedFcfPerShare": 4.826368844268305,
       "officialSource": {
-        "auditCheckedAt": "2026-08-04T23:24:02.409618+00:00",
+        "auditCheckedAt": "2026-08-05T00:52:58.968424+00:00",
         "auditStatus": "review-required",
         "earningsBasis": "TTM",
         "period": "2026-06-30",
@@ -2938,24 +2943,19 @@
       "totalLiabilities": 38057000000.0,
       "totalRevenue": 489584000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null,
-      "legacySnapshot": {
-        "capturedAt": "2026-08-03T17:06:15.224481+00:00",
-        "provenance": "Pre-removal BörsAPI cache",
-        "status": "unverified"
-      }
+      "trailingPe": null
     }
   ],
-  "generatedAt": "2026-08-05T00:43:21.377419+00:00",
+  "generatedAt": "2026-08-05T00:55:39.664205+00:00",
   "provider": "Official reports: 2 verified; 28 legacy cached (unverified)",
   "qualityCheckedAt": "2026-08-04T22:50:10.117137+00:00",
   "universe": "OMXS30",
   "universeAsOf": "2025-07-01",
-  "version": 1,
   "verificationSummary": {
     "verified": 2,
     "pending": 28,
     "total": 30,
     "policy": "Values are imported only when a direct official report contains every configured evidence check. Flow figures are TTM; balance-sheet figures are from the latest published quarter. Missing metrics are never estimated."
-  }
+  },
+  "version": 1
 }
