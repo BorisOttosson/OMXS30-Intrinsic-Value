@@ -346,6 +346,7 @@ const elements = {
   fundCashLabel: document.querySelector("#fundCashLabel"),
   fundCash: document.querySelector("#fundCash"),
   fundShares: document.querySelector("#fundShares"),
+  fundSharesLabel: document.querySelector("#fundSharesLabel"),
   fundEvEbitda: document.querySelector("#fundEvEbitda"),
   fundFcfYield: document.querySelector("#fundFcfYield"),
   footerDataNote: document.querySelector("#footerDataNote"),
@@ -580,6 +581,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       ebit: numberOrNull(market.ebit),
       netIncome: numberOrNull(market.netIncome),
       operatingCashFlow: numberOrNull(market.operatingCashFlow),
+      cashFlowMetricLabel: market.cashFlowMetricLabel ?? null,
       capitalExpenditures: numberOrNull(market.capitalExpenditures),
       freeCashFlow: numberOrNull(market.freeCashFlow),
       totalAssets: numberOrNull(market.totalAssets),
@@ -1040,7 +1042,9 @@ function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
   const targetProvider = marketData.targetPricesProvider ?? "";
-  const fundamentalsLabel = fundamentalsProvider.includes("Legacy cached")
+  const fundamentalsLabel = fundamentalsProvider.includes("verified;")
+    ? fundamentalsProvider.replace("Official reports: ", "Official fundamentals: ")
+    : fundamentalsProvider.includes("Legacy cached")
     ? "Legacy fundamentals (unverified) + official report links"
     : fundamentalsProvider.includes("Official")
       ? "Official report evidence"
@@ -2051,7 +2055,9 @@ function renderFundamentals() {
   const balancePeriodLabel = verification?.status === "verified" ? "latest quarter" : "cached period";
   elements.fundRevenueLabel.textContent = verification?.status === "verified" ? "Revenue (TTM)" : "Revenue (cached TTM)";
   elements.fundEbitdaLabel.textContent = verification?.status === "verified" ? "EBITDA (TTM)" : "EBITDA (cached TTM)";
-  elements.fundFcfLabel.textContent = verification?.status === "verified" ? "Free cash flow" : "Free cash flow (cached TTM)";
+  elements.fundFcfLabel.textContent = verification?.status === "verified" && fundamentals.cashFlowMetricLabel
+    ? fundamentals.cashFlowMetricLabel
+    : verification?.status === "verified" ? "Free cash flow (TTM)" : "Free cash flow (cached TTM)";
   elements.fundAssetsLabel.textContent = `Total assets (${balancePeriodLabel})`;
   elements.fundEquityLabel.textContent = `Book equity (${balancePeriodLabel})`;
   elements.fundLiabilitiesLabel.textContent = `Liabilities (${balancePeriodLabel})`;
@@ -2095,13 +2101,19 @@ function renderFundamentals() {
     elements.fundEbitda.style.fontSize = "";
     elements.fundEbitda.title = "";
   }
-  elements.fundFcf.textContent = formatCurrency(numberOrNull(fundamentals.freeCashFlow), currency);
+  const displayedCashFlow = verification?.status === "verified" && fundamentals.cashFlowMetricLabel
+    ? numberOrNull(fundamentals.operatingCashFlow)
+    : numberOrNull(fundamentals.freeCashFlow);
+  elements.fundFcf.textContent = formatCurrency(displayedCashFlow, currency);
   elements.fundAssets.textContent = formatCurrency(numberOrNull(fundamentals.totalAssets), currency);
   elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
   elements.fundLiabilities.textContent = formatCurrency(numberOrNull(fundamentals.totalLiabilities), currency);
   elements.fundDebt.textContent = formatCurrency(numberOrNull(fundamentals.totalDebt), currency);
   elements.fundCash.textContent = formatCurrency(numberOrNull(fundamentals.cash), currency);
   elements.fundShares.textContent = formatShares(numberOrNull(fundamentals.sharesOutstanding));
+  elements.fundSharesLabel.textContent = verification?.status === "verified"
+    ? "Outstanding shares (official report)"
+    : "Outstanding shares (cached)";
   elements.fundShares.title = fundamentals.sharesOutstandingSource
     ? `Outstanding shares - ${fundamentals.sharesOutstandingSource}`
     : "Outstanding shares from Yahoo Finance";

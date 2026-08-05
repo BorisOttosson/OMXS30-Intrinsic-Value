@@ -28,11 +28,16 @@ class LegacySnapshotTests(unittest.TestCase):
                 company["ticker"],
             )
 
-    def test_legacy_values_never_enable_valuation(self):
+    def test_only_independently_verified_values_enable_valuation(self):
         for company in self.payload["companies"]:
-            self.assertEqual(company["dataQuality"]["status"], "unverified")
-            self.assertFalse(company["dataQuality"]["valuationReady"])
-            self.assertEqual(company["legacySnapshot"]["status"], "unverified")
+            verification = company.get("independentVerification") or {}
+            if verification.get("status") == "verified":
+                self.assertTrue(company["dataQuality"]["valuationReady"])
+                self.assertNotIn("legacySnapshot", company)
+            else:
+                self.assertEqual(company["dataQuality"]["status"], "unverified")
+                self.assertFalse(company["dataQuality"]["valuationReady"])
+                self.assertEqual(company["legacySnapshot"]["status"], "unverified")
 
     def test_every_company_keeps_an_official_report_link(self):
         for company in self.payload["companies"]:
