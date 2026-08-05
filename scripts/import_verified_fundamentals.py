@@ -11,6 +11,8 @@ import subprocess
 import tempfile
 import unicodedata
 import urllib.request
+import zipfile
+from xml.etree import ElementTree
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -59,6 +61,8 @@ def check_manifest_entry(ticker: str, entry: dict[str, Any]) -> None:
         raise ValueError(f"{ticker}: source must be a clickable HTTPS link")
     if entry["unitMultiplier"] <= 0:
         raise ValueError(f"{ticker}: unitMultiplier must be positive")
+    if float(entry.get("financialToQuoteFx", 1.0)) <= 0:
+        raise ValueError(f"{ticker}: financialToQuoteFx must be positive")
 
     values = entry["values"]
     assets = values.get("totalAssets")
@@ -95,16 +99,75 @@ def extract_pdf_text(document: Path) -> str:
     return "\n".join(page.extract_text() or "" for page in PdfReader(document).pages)
 
 
+def extract_xlsx_text(document: Path) -> str:
+    """Extract displayed cell text from an official XLSX using only the standard library."""
+    with zipfile.ZipFile(document) as archive:
+        shared_strings: list[str] = []
+        if "xl/sharedStrings.xml" in archive.namelist():
+            root = ElementTree.fromstring(archive.read("xl/sharedStrings.xml"))
+            shared_strings = ["".join(node.itertext()) for node in root]
+
+        values: list[str] = []
+        worksheet_names = sorted(
+            name for name in archive.namelist()
+            if name.startswith("xl/worksheets/sheet") and name.endswith(".xml")
+        )
+        for worksheet_name in worksheet_names:
+            root = ElementTree.fromstring(archive.read(worksheet_name))
+            for cell in root.iter():
+                if not cell.tag.endswith("}c"):
+                    continue
+                cell_type = cell.attrib.get("t")
+                value_node = next((child for child in cell if child.tag.endswith("}v")), None)
+                if value_node is None or value_node.text is None:
+                    inline = "".join(cell.itertext())
+                    if inline:
+                        values.append(inline)
+                    continue
+                value = value_node.text
+                if cell_type == "s":
+                    value = shared_strings[int(value)]
+                values.append(value)
+        return "\n".join(values)
+
+
+def extract_html_text(document: Path) -> str:
+    html = document.read_text(encoding="utf-8", errors="ignore")
+    return re.sub(r"<[^>]+>", " ", html)
+
+
 def verify_official_document(ticker: str, entry: dict[str, Any]) -> None:
     request = urllib.request.Request(
         entry["sourceUrl"],
-        headers={"User-Agent": "OMXS30-official-report-verifier/1.0"},
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; OMXS30-official-report-verifier/1.0)",
+            "Accept": "application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/html;q=0.9,*/*;q=0.8",
+        },
     )
     with tempfile.TemporaryDirectory(prefix="omxs30-report-") as temporary:
-        document = Path(temporary) / f"{ticker}.pdf"
-        with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310 - manifest URLs are reviewed
-            document.write_bytes(response.read())
-        text = normalize_document_text(extract_pdf_text(document))
+        document_type = entry.get("documentType", "pdf").lower()
+        document = Path(temporary) / f"{ticker}.{document_type}"
+        try:
+            curl = shutil.which("curl")
+            if curl:
+                subprocess.run(
+                    [curl, "--fail", "--location", "--silent", "--show-error",
+                     "--user-agent", request.headers["User-agent"], "--output", str(document), entry["sourceUrl"]],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+            else:
+                with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310 - manifest URLs are reviewed
+                    document.write_bytes(response.read())
+        except Exception as error:
+            raise RuntimeError(f"{ticker}: could not download official source: {error}") from error
+        extractors = {
+            "xlsx": extract_xlsx_text,
+            "html": extract_html_text,
+        }
+        extractor = extractors.get(document_type, extract_pdf_text)
+        text = normalize_document_text(extractor(document))
 
     missing_checks = [
         check for check in entry.get("documentChecks", [])
@@ -120,7 +183,8 @@ def scaled(value: Any, multiplier: float) -> float | None:
 
 def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], checked_at: str) -> dict[str, Any]:
     values = entry["values"]
-    multiplier = float(entry["unitMultiplier"])
+    financial_to_quote_fx = float(entry.get("financialToQuoteFx", 1.0))
+    multiplier = float(entry["unitMultiplier"]) * financial_to_quote_fx
     result = dict(company)
 
     for field in FLOW_FIELDS + BALANCE_FIELDS:
@@ -130,16 +194,16 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
     result.update({
         "sharesOutstanding": shares,
         "sharesOutstandingSource": f"{entry['sourceName']} (official basic/average shares)",
-        "eps": values.get("eps"),
+        "eps": scaled(values.get("eps"), financial_to_quote_fx),
         "fcfPerShare": scaled(values.get("freeCashFlow"), multiplier) / shares if values.get("freeCashFlow") is not None else None,
         "ebitdaPerShare": scaled(values.get("ebitda"), multiplier) / shares if values.get("ebitda") is not None else None,
         "netDebtPerShare": scaled(values.get("netDebt"), multiplier) / shares if values.get("netDebt") is not None else None,
-        "bookValuePerShare": values.get("bookValuePerShare") or scaled(values.get("bookEquity"), multiplier) / shares,
-        "equityPerShare": values.get("bookValuePerShare") or scaled(values.get("bookEquity"), multiplier) / shares,
+        "bookValuePerShare": scaled(values.get("bookValuePerShare"), financial_to_quote_fx) or scaled(values.get("bookEquity"), multiplier) / shares,
+        "equityPerShare": scaled(values.get("bookValuePerShare"), financial_to_quote_fx) or scaled(values.get("bookEquity"), multiplier) / shares,
         "liabilitiesPerShare": scaled(values.get("totalLiabilities"), multiplier) / shares,
         "financialCurrency": entry["currency"],
         "reportedCurrency": entry["currency"],
-        "financialToQuoteFx": 1.0,
+        "financialToQuoteFx": financial_to_quote_fx,
         "latestFiscalDate": entry["period"],
         "latestFiscalPeriod": entry["fiscalPeriod"],
         "incomeStatementBasis": "ttm",
@@ -163,11 +227,15 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
             "earningsBasis": "TTM",
             "auditStatus": "verified",
             "auditCheckedAt": checked_at,
+            "sourcePageUrl": entry.get("sourcePageUrl"),
+            "financialCurrency": entry["currency"],
+            "financialToQuoteFx": financial_to_quote_fx,
         },
         "independentVerification": {
             "status": "verified",
             "sourceName": entry["sourceName"],
             "sourceUrl": entry["sourceUrl"],
+            "sourcePageUrl": entry.get("sourcePageUrl"),
             "period": entry["period"],
             "earningsBasis": "TTM",
             "balanceSheetBasis": "latest-quarter",
@@ -175,6 +243,8 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
             "checkedAt": checked_at,
             "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
             "ebitdaPresented": entry.get("ebitdaPresented"),
+            "financialCurrency": entry["currency"],
+            "financialToQuoteFx": financial_to_quote_fx,
         },
         "errors": [],
         "marketCap": None,
@@ -182,6 +252,8 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
         "evToEbitda": None,
         "fcfYield": None,
     })
+    if values.get("roe") is not None:
+        result["roe"] = float(values["roe"])
     result.pop("legacySnapshot", None)
     return validate_company_fundamentals(result)
 
