@@ -14,12 +14,12 @@
     "ERIC-B.ST": {"sourceName": "Ericsson Q2 2026 report – official Cision attachment", "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf", "period": "2026-06-30", "earningsBasis": "TTM"},
     "ESSITY-B.ST": {"sourceName": "Essity interim reports", "sourceUrl": "https://www.essity.com/investors/financial-reports/interim-reports/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "EVO.ST": {"sourceName": "Evolution financial reports", "sourceUrl": "https://www.evolution.com/investors/financial-publications/reports", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "SHB-A.ST": {"sourceName": "Handelsbanken financial reports", "sourceUrl": "https://www.handelsbanken.com/en/investor-relations/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "SHB-A.ST": {"sourceName": "Handelsbanken interim report January-June 2026", "sourceUrl": "https://www.handelsbanken.com/sv/investor-relations/rapporter-och-presentationer", "period": "2026-06-30", "earningsBasis": "TTM"},
     "HM-B.ST": {"sourceName": "H&M Group six-month report 2026", "sourceUrl": "https://hmgroup.com/investors/reports/", "period": "2026-05-31", "earningsBasis": "TTM"},
     "HEXA-B.ST": {"sourceName": "Hexagon reports and presentations", "sourceUrl": "https://investors.hexagon.com/en/financial-information/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
     "INDU-C.ST": {"sourceName": "Industrivärden 2026 reports", "sourceUrl": "https://www.industrivarden.se/en-gb/media/press-releases/2026/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "INVE-B.ST": {"sourceName": "Investor reports and presentations", "sourceUrl": "https://www.investorab.com/investors-media/reports-presentations/", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "LIFCO-B.ST": {"sourceName": "Lifco financial reports", "sourceUrl": "https://www.lifco.se/investors/financial-reports?lang=en", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "LIFCO-B.ST": {"sourceName": "Lifco interim report January-June 2026", "sourceUrl": "https://www.lifco.se/investors/mfn/interim-report-january-june-2026", "period": "2026-06-30", "earningsBasis": "TTM"},
     "NIBE-B.ST": {"sourceName": "NIBE Q1 2026 interim report", "sourceUrl": "https://www.nibegroup.com/investors/pm-news-reports/2026---news-reports/2026-05-19-interim-report-1-2026-q1", "period": "2026-03-31", "earningsBasis": "TTM"},
     "NDA-SE.ST": {"sourceName": "Nordea Q2 2026 interim results", "sourceUrl": "https://www.nordea.com/en/investors/latest-interim-results", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SAAB-B.ST": {"sourceName": "Saab reports and presentations", "sourceUrl": "https://www.saab.com/investors/financials/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
@@ -27,10 +27,10 @@
     "SCA-B.ST": {"sourceName": "SCA interim reports", "sourceUrl": "https://www.sca.com/en/investors/reports-and-presentations/interim-reports/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SEB-A.ST": {"sourceName": "SEB interim reports", "sourceUrl": "https://sebgroup.com/investor-relations/reports-and-presentations/interim-reports", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SKA-B.ST": {"sourceName": "Skanska interim reports", "sourceUrl": "https://group.skanska.com/investors/reports-publications/interim-reports/", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "SKF-B.ST": {"sourceName": "SKF financial reports", "sourceUrl": "https://investors.skf.com/en/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "SKF-B.ST": {"sourceName": "SKF Q2 2026 report", "sourceUrl": "https://www.skf.com/se/investors", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SWED-A.ST": {"sourceName": "Swedbank interim reports", "sourceUrl": "https://www.swedbank.com/investor-relations/reports-and-presentations/interim-reports.html", "period": "2026-06-30", "earningsBasis": "TTM"},
     "TEL2-B.ST": {"sourceName": "Tele2 reports and presentations", "sourceUrl": "https://www.tele2.com/investors/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "TELIA.ST": {"sourceName": "Telia reports and presentations", "sourceUrl": "https://www.teliacompany.com/en/investors/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
+    "TELIA.ST": {"sourceName": "Telia Company Q2 2026 interim report", "sourceUrl": "https://www.teliacompany.com/en/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
     "VOLV-B.ST": {"sourceName": "Volvo Group reports", "sourceUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html", "period": "2026-06-30", "earningsBasis": "TTM"}
   }
 }
