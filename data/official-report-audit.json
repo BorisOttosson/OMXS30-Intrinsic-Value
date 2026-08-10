@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-05T00:52:58.968424+00:00",
+  "generatedAt": "2026-08-10T06:44:40.794440+00:00",
   "method": "Direct retrieval from official company investor-relations pages; no financial-data API",
   "verificationPolicy": "Extracted snippets are candidates for human or independent-source verification. This file never makes a company valuation-ready by itself.",
   "companies": [
@@ -9,7 +9,7 @@
       "sourceUrl": "https://global.abb/group/en/investors/quarterly-results",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
-      "directReportUrl": "https://library.e.abb.com/public/47f0bfb2ecaf494b99846882bffa5409/ABB-Q2-2026-Group-results.pdf?x-sign=mc1pZKbR1%2baSboT%2fImDxb6t%2fuCChpLwX5VziMeJUpaNoFHNxXY6V%2boOEKDopwBhp",
+      "directReportUrl": "https://library.e.abb.com/public/47f0bfb2ecaf494b99846882bffa5409/ABB-Q2-2026-Group-results.pdf?x-sign=2j5T8pAdZkpWQjOnBzuG5cLcia3%2b8dDp4Qj7O%2f7mky16axfQJsANnmc2%2fDIRIexc",
       "documentType": "pdf",
       "status": "review-required",
       "autoVerificationEligible": false,
@@ -265,7 +265,7 @@
         "TTM revenue was not unambiguously identified",
         "Fewer than two latest-quarter balance-sheet fields were identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ADDT-B.ST",
@@ -286,7 +286,7 @@
       "errors": [
         "No readable report document was discovered from the official source page"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ALFA.ST",
@@ -933,7 +933,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ASSA-B.ST",
@@ -1518,7 +1518,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ATCO-A.ST",
@@ -2071,7 +2071,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "AZN.ST",
@@ -2568,7 +2568,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "BOL.ST",
@@ -3068,7 +3068,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "EPI-A.ST",
@@ -3707,7 +3707,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "EQT.ST",
@@ -4359,7 +4359,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ERIC-B.ST",
@@ -4973,7 +4973,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "ESSITY-B.ST",
@@ -5654,7 +5654,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "EVO.ST",
@@ -6226,7 +6226,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "HEXA-B.ST",
@@ -6820,7 +6820,7 @@
         "TTM revenue was not unambiguously identified",
         "Fewer than two latest-quarter balance-sheet fields were identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "HM-B.ST",
@@ -7394,7 +7394,7 @@
         ]
       },
       "errors": [],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "INDU-C.ST",
@@ -7498,7 +7498,7 @@
         "TTM revenue was not unambiguously identified",
         "Fewer than two latest-quarter balance-sheet fields were identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "INVE-B.ST",
@@ -8057,12 +8057,12 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "LIFCO-B.ST",
-      "sourceName": "Lifco financial reports",
-      "sourceUrl": "https://www.lifco.se/investors/financial-reports?lang=en",
+      "sourceName": "Lifco interim report January-June 2026",
+      "sourceUrl": "https://www.lifco.se/investors/mfn/interim-report-january-june-2026",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
       "directReportUrl": "https://network.s-z.se/app/uploads/sites/16/Notice-of-Annual-General-Meeting-2026.pdf",
@@ -8134,7 +8134,7 @@
         "TTM revenue was not unambiguously identified",
         "Fewer than two latest-quarter balance-sheet fields were identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "NDA-SE.ST",
@@ -8823,7 +8823,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "NIBE-B.ST",
@@ -9278,7 +9278,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SAAB-B.ST",
@@ -9935,7 +9935,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SAND.ST",
@@ -10580,7 +10580,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SCA-B.ST",
@@ -11150,7 +11150,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SEB-A.ST",
@@ -11213,12 +11213,12 @@
         "TTM revenue was not unambiguously identified",
         "Fewer than two latest-quarter balance-sheet fields were identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SHB-A.ST",
-      "sourceName": "Handelsbanken financial reports",
-      "sourceUrl": "https://www.handelsbanken.com/en/investor-relations/reports-and-presentations",
+      "sourceName": "Handelsbanken interim report January-June 2026",
+      "sourceUrl": "https://www.handelsbanken.com/sv/investor-relations/rapporter-och-presentationer",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
       "directReportUrl": null,
@@ -11234,7 +11234,7 @@
       "errors": [
         "No readable report document was discovered from the official source page"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SKA-B.ST",
@@ -11719,12 +11719,12 @@
         ]
       },
       "errors": [],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SKF-B.ST",
-      "sourceName": "SKF financial reports",
-      "sourceUrl": "https://investors.skf.com/en/reports-and-presentations",
+      "sourceName": "SKF Q2 2026 report",
+      "sourceUrl": "https://www.skf.com/se/investors",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
       "directReportUrl": null,
@@ -11740,7 +11740,7 @@
       "errors": [
         "No readable report document was discovered from the official source page"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "SWED-A.ST",
@@ -12297,7 +12297,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "TEL2-B.ST",
@@ -12318,12 +12318,12 @@
       "errors": [
         "No readable report document was discovered from the official source page"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "TELIA.ST",
-      "sourceName": "Telia reports and presentations",
-      "sourceUrl": "https://www.teliacompany.com/en/investors/reports-and-presentations",
+      "sourceName": "Telia Company Q2 2026 interim report",
+      "sourceUrl": "https://www.teliacompany.com/en/reports-and-presentations",
       "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
       "directReportUrl": null,
@@ -12339,7 +12339,7 @@
       "errors": [
         "No readable report document was discovered from the official source page"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     },
     {
       "ticker": "VOLV-B.ST",
@@ -12913,7 +12913,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-05T00:52:58.968424+00:00"
+      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
     }
   ]
 }
