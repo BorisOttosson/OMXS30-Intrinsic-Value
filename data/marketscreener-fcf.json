@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T07:57:53.692612+00:00",
+  "updatedAt": "2026-08-10T05:56:10.138375+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
   "count": 25,
   "failures": [
@@ -29,7 +29,7 @@
       "ticker": "ABB.ST",
       "id": "abb-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
-      "retrievedAt": "2026-08-03T07:54:10.497833+00:00",
+      "retrievedAt": "2026-08-10T05:51:36.133442+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -57,15 +57,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 4760.0
+          "fcf": 4779.0
         },
         {
           "year": 2027,
-          "fcf": 5702.0
+          "fcf": 5757.0
         },
         {
           "year": 2028,
-          "fcf": 6563.0
+          "fcf": 6620.0
         }
       ],
       "historyYoy": [
@@ -93,23 +93,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 4760.0,
-          "growth": 0.042488
+          "fcf": 4779.0,
+          "growth": 0.046649
         },
         {
           "year": 2027,
-          "fcf": 5702.0,
-          "growth": 0.197899
+          "fcf": 5757.0,
+          "growth": 0.204645
         },
         {
           "year": 2028,
-          "fcf": 6563.0,
-          "growth": 0.151
+          "fcf": 6620.0,
+          "growth": 0.149904
         }
       ],
       "historicalFcfCagr": 0.161356,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.128554,
+      "consensusFcfCagr": 0.131811,
       "consensusYears": [
         2026,
         2027,
@@ -120,7 +120,7 @@
       "ticker": "ADDT-B.ST",
       "id": "addt-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
-      "retrievedAt": "2026-08-03T07:54:18.017229+00:00",
+      "retrievedAt": "2026-08-10T05:51:44.879524+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -211,7 +211,7 @@
       "ticker": "ALFA.ST",
       "id": "alfa-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
-      "retrievedAt": "2026-08-03T07:54:25.626863+00:00",
+      "retrievedAt": "2026-08-10T05:51:54.543239+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -302,7 +302,7 @@
       "ticker": "ASSA-B.ST",
       "id": "assa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
-      "retrievedAt": "2026-08-03T07:54:33.075991+00:00",
+      "retrievedAt": "2026-08-10T05:52:03.320069+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -393,7 +393,7 @@
       "ticker": "AZN.ST",
       "id": "azn-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
-      "retrievedAt": "2026-08-03T07:54:40.506967+00:00",
+      "retrievedAt": "2026-08-10T05:52:13.544006+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -421,15 +421,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 9604.0
+          "fcf": 9605.0
         },
         {
           "year": 2027,
-          "fcf": 12959.0
+          "fcf": 12920.0
         },
         {
           "year": 2028,
-          "fcf": 14376.0
+          "fcf": 14381.0
         }
       ],
       "historyYoy": [
@@ -457,23 +457,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 9604.0,
-          "growth": -0.18368
+          "fcf": 9605.0,
+          "growth": -0.183595
         },
         {
           "year": 2027,
-          "fcf": 12959.0,
-          "growth": 0.349334
+          "fcf": 12920.0,
+          "growth": 0.345133
         },
         {
           "year": 2028,
-          "fcf": 14376.0,
-          "growth": 0.109345
+          "fcf": 14381.0,
+          "growth": 0.11308
         }
       ],
       "historicalFcfCagr": 0.246583,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.069093,
+      "consensusFcfCagr": 0.069217,
       "consensusYears": [
         2026,
         2027,
@@ -484,7 +484,7 @@
       "ticker": "ATCO-A.ST",
       "id": "atco-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
-      "retrievedAt": "2026-08-03T07:54:47.976095+00:00",
+      "retrievedAt": "2026-08-10T05:52:22.385792+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -512,15 +512,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 27003.0
+          "fcf": 27083.0
         },
         {
           "year": 2027,
-          "fcf": 33212.0
+          "fcf": 33432.0
         },
         {
           "year": 2028,
-          "fcf": 37185.0
+          "fcf": 37651.0
         }
       ],
       "historyYoy": [
@@ -548,23 +548,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 27003.0,
-          "growth": 0.023655
+          "fcf": 27083.0,
+          "growth": 0.026688
         },
         {
           "year": 2027,
-          "fcf": 33212.0,
-          "growth": 0.229937
+          "fcf": 33432.0,
+          "growth": 0.234428
         },
         {
           "year": 2028,
-          "fcf": 37185.0,
-          "growth": 0.119625
+          "fcf": 37651.0,
+          "growth": 0.126196
         }
       ],
       "historicalFcfCagr": 0.074451,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.121252,
+      "consensusFcfCagr": 0.125916,
       "consensusYears": [
         2026,
         2027,
@@ -575,7 +575,7 @@
       "ticker": "BOL.ST",
       "id": "bol-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
-      "retrievedAt": "2026-08-03T07:54:55.381531+00:00",
+      "retrievedAt": "2026-08-10T05:52:33.333525+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -666,7 +666,7 @@
       "ticker": "EPI-A.ST",
       "id": "epi-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
-      "retrievedAt": "2026-08-03T07:55:02.753524+00:00",
+      "retrievedAt": "2026-08-10T05:52:42.261953+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -757,7 +757,7 @@
       "ticker": "EQT.ST",
       "id": "eqt-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
-      "retrievedAt": "2026-08-03T07:55:10.134217+00:00",
+      "retrievedAt": "2026-08-10T05:52:50.893330+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -848,7 +848,7 @@
       "ticker": "ERIC-B.ST",
       "id": "eric-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
-      "retrievedAt": "2026-08-03T07:55:17.621780+00:00",
+      "retrievedAt": "2026-08-10T05:52:58.308750+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -939,7 +939,7 @@
       "ticker": "ESSITY-B.ST",
       "id": "essity-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
-      "retrievedAt": "2026-08-03T07:55:25.064445+00:00",
+      "retrievedAt": "2026-08-10T05:53:08.719632+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1030,7 +1030,7 @@
       "ticker": "EVO.ST",
       "id": "evo-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
-      "retrievedAt": "2026-08-03T07:55:32.440715+00:00",
+      "retrievedAt": "2026-08-10T05:53:16.232837+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1121,7 +1121,7 @@
       "ticker": "HM-B.ST",
       "id": "hm-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
-      "retrievedAt": "2026-08-03T07:55:47.280821+00:00",
+      "retrievedAt": "2026-08-10T05:53:34.309111+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1212,7 +1212,7 @@
       "ticker": "HEXA-B.ST",
       "id": "hexa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
-      "retrievedAt": "2026-08-03T07:55:54.870997+00:00",
+      "retrievedAt": "2026-08-10T05:53:41.804968+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1303,7 +1303,7 @@
       "ticker": "INVE-B.ST",
       "id": "inve-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
-      "retrievedAt": "2026-08-03T07:56:09.847788+00:00",
+      "retrievedAt": "2026-08-10T05:54:00.995008+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1376,7 +1376,7 @@
       "ticker": "LIFCO-B.ST",
       "id": "lifco-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
-      "retrievedAt": "2026-08-03T07:56:17.328367+00:00",
+      "retrievedAt": "2026-08-10T05:54:09.820443+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1467,7 +1467,7 @@
       "ticker": "NIBE-B.ST",
       "id": "nibe-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
-      "retrievedAt": "2026-08-03T07:56:24.763020+00:00",
+      "retrievedAt": "2026-08-10T05:54:18.596723+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1558,7 +1558,7 @@
       "ticker": "SAAB-B.ST",
       "id": "saab-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
-      "retrievedAt": "2026-08-03T07:56:39.510936+00:00",
+      "retrievedAt": "2026-08-10T05:54:37.573884+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1649,7 +1649,7 @@
       "ticker": "SAND.ST",
       "id": "sand-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
-      "retrievedAt": "2026-08-03T07:56:46.857384+00:00",
+      "retrievedAt": "2026-08-10T05:54:46.571668+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1740,7 +1740,7 @@
       "ticker": "SCA-B.ST",
       "id": "sca-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
-      "retrievedAt": "2026-08-03T07:56:54.416605+00:00",
+      "retrievedAt": "2026-08-10T05:54:55.709974+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1831,7 +1831,7 @@
       "ticker": "SKA-B.ST",
       "id": "ska-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
-      "retrievedAt": "2026-08-03T07:57:09.373081+00:00",
+      "retrievedAt": "2026-08-10T05:55:15.945362+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -1913,7 +1913,7 @@
       "ticker": "SKF-B.ST",
       "id": "skf-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
-      "retrievedAt": "2026-08-03T07:57:16.777444+00:00",
+      "retrievedAt": "2026-08-10T05:55:26.362060+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2004,7 +2004,7 @@
       "ticker": "TEL2-B.ST",
       "id": "tel2-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
-      "retrievedAt": "2026-08-03T07:57:31.608268+00:00",
+      "retrievedAt": "2026-08-10T05:55:45.509788+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2032,15 +2032,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 9734.0
+          "fcf": 10154.0
         },
         {
           "year": 2027,
-          "fcf": 8861.0
+          "fcf": 8885.0
         },
         {
           "year": 2028,
-          "fcf": 9104.0
+          "fcf": 9167.0
         }
       ],
       "historyYoy": [
@@ -2068,23 +2068,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 9734.0,
-          "growth": 0.272418
+          "fcf": 10154.0,
+          "growth": 0.32732
         },
         {
           "year": 2027,
-          "fcf": 8861.0,
-          "growth": -0.089686
+          "fcf": 8885.0,
+          "growth": -0.124975
         },
         {
           "year": 2028,
-          "fcf": 9104.0,
-          "growth": 0.027424
+          "fcf": 9167.0,
+          "growth": 0.031739
         }
       ],
       "historicalFcfCagr": 0.023546,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.059718,
+      "consensusFcfCagr": 0.062157,
       "consensusYears": [
         2026,
         2027,
@@ -2095,7 +2095,7 @@
       "ticker": "TELIA.ST",
       "id": "telia-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
-      "retrievedAt": "2026-08-03T07:57:39.109274+00:00",
+      "retrievedAt": "2026-08-10T05:55:54.262386+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
@@ -2186,7 +2186,7 @@
       "ticker": "VOLV-B.ST",
       "id": "volv-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
-      "retrievedAt": "2026-08-03T07:57:46.692451+00:00",
+      "retrievedAt": "2026-08-10T05:56:03.138191+00:00",
       "currency": "SEK",
       "unit": "million",
       "fcfHistory": [
