@@ -773,7 +773,7 @@ input::placeholder { color: var(--faint); }
     grid-template-columns: repeat(12, minmax(0, 1fr));
   }
   .model-panel { grid-column: span 7; }
-  .valuation-panel { grid-column: span 5; }
+  .valuation-panel { grid-column: 1 / -1; }
   .outlook-panel { grid-column: span 5; }
   .target-price-panel { grid-column: span 7; }
 }
@@ -993,6 +993,72 @@ input::placeholder { color: var(--faint); }
 /* --------------------------------------------------------------------------
    14. Valuation
    -------------------------------------------------------------------------- */
+.valuation-panel {
+  gap: 22px;
+  background:
+    radial-gradient(circle at 82% 4%, rgba(79, 146, 216, 0.12), transparent 34%),
+    linear-gradient(165deg, rgba(18, 32, 63, 0.78), rgba(8, 16, 34, 0.92));
+}
+
+.analysis-heading {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 22px;
+  align-items: end;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.analysis-heading h3 {
+  font-size: clamp(1.25rem, 2.3vw, 1.65rem);
+}
+
+.analysis-heading p,
+.analysis-section-heading p,
+.analysis-chart-heading p {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.analysis-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.analysis-control-group {
+  display: grid;
+  gap: 6px;
+}
+
+.analysis-control-group > span,
+.eyebrow {
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.model-selector .segment { min-width: 86px; }
+
+.analysis-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.analysis-section-heading h4,
+.analysis-chart-heading h4,
+.analysis-explainer h4 {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
 .value-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -1022,11 +1088,109 @@ input::placeholder { color: var(--faint); }
   font-variant-numeric: tabular-nums;
 }
 
-.chart-wrap {
-  padding: 12px;
+.analysis-value-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.analysis-value-grid > div {
+  min-height: 112px;
+  align-content: start;
+  gap: 7px;
+  padding: 17px 18px;
+}
+
+.analysis-value-grid strong {
+  font-size: clamp(1.35rem, 2.7vw, 1.8rem);
+}
+
+.analysis-value-grid small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.analysis-body {
+  display: grid;
+  grid-template-columns: minmax(0, 2.35fr) minmax(245px, 0.85fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.analysis-chart-card,
+.analysis-explainer {
+  padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(6, 11, 22, 0.42);
+}
+
+.analysis-chart-card {
+  display: grid;
+  gap: 14px;
+}
+
+.analysis-chart-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.analysis-chart-heading > span {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.67rem;
+  white-space: nowrap;
+}
+
+.analysis-explainer {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+}
+
+.analysis-explainer > p {
+  color: var(--muted);
+  font-size: 0.79rem;
+  line-height: 1.65;
+}
+
+.analysis-formula {
+  padding: 11px 12px;
+  border: 1px solid rgba(79, 146, 216, 0.24);
+  border-radius: var(--radius-sm);
+  background: rgba(79, 146, 216, 0.09);
+  color: var(--ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.analysis-assumptions {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.analysis-assumptions > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.analysis-assumptions > div:last-child { border-bottom: 0; }
+.analysis-assumptions dt { color: var(--muted); font-size: 0.72rem; }
+.analysis-assumptions dd { margin: 0; color: var(--ink); font-size: 0.72rem; font-weight: 600; text-align: right; }
+
+.chart-wrap {
+  padding: 8px;
+  border: 1px solid rgba(79, 146, 216, 0.16);
+  border-radius: var(--radius);
+  background: #071b2e;
 }
 
 .chart-wrap canvas {
@@ -1034,6 +1198,53 @@ input::placeholder { color: var(--faint); }
   width: 100%;
   height: auto;
 }
+
+.scenario-guide {
+  display: grid;
+  gap: 13px;
+  padding-top: 4px;
+}
+
+.scenario-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.scenario-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px 10px;
+  min-height: 112px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(6, 11, 22, 0.34);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.scenario-card:hover,
+.scenario-card.is-active {
+  border-color: var(--accent);
+  background: rgba(79, 146, 216, 0.1);
+}
+
+.scenario-card strong { font-family: var(--font-display); font-size: 0.82rem; }
+.scenario-card small { grid-column: 2; color: var(--muted); font-size: 0.72rem; line-height: 1.5; }
+
+.scenario-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.scenario-dot.bull { background: var(--pos); }
+.scenario-dot.bear { background: var(--neg); }
 
 /* --------------------------------------------------------------------------
    15. Outlook
@@ -1375,6 +1586,22 @@ input[type="range"]::-moz-range-thumb {
   .ticker-value-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fundamental-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .input-grid { grid-template-columns: minmax(0, 1fr); }
+  .analysis-heading { grid-template-columns: minmax(0, 1fr); }
+  .analysis-controls { justify-content: stretch; }
+  .analysis-control-group { width: 100%; }
+  .analysis-control-group .segmented-control { display: flex; width: 100%; }
+  .analysis-control-group .segment { flex: 1; min-width: 0; padding-inline: 8px; }
+  .analysis-section-heading { align-items: start; flex-direction: column; gap: 5px; }
+  .analysis-value-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analysis-body { grid-template-columns: minmax(0, 1fr); }
+  .scenario-card-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (min-width: 641px) and (max-width: 920px) {
+  .analysis-heading { grid-template-columns: minmax(0, 1fr); }
+  .analysis-controls { justify-content: flex-start; }
+  .analysis-value-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analysis-body { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
