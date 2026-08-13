@@ -595,8 +595,11 @@ function applyMarketData(currentCompanies, marketCompanies) {
       fcfYield: numberOrNull(market.fcfYield),
       equityPerShare: numberOrNull(market.equityPerShare),
       liabilitiesPerShare: numberOrNull(market.liabilitiesPerShare),
-      trailingPe: numberOrNull(market.trailingPe),
+      trailingPe: numberOrNull(current.fundamentals?.trailingPe) ?? numberOrNull(market.trailingPe),
       forwardPe: numberOrNull(market.forwardPe),
+      trailingEps: numberOrNull(market.trailingEps) ?? numberOrNull(current.fundamentals?.trailingEps),
+      trailingPeSource: market.trailingPeSource ?? current.fundamentals?.trailingPeSource ?? null,
+      trailingPeUpdatedAt: market.trailingPeUpdatedAt ?? current.fundamentals?.trailingPeUpdatedAt ?? null,
       analystTargetMeanPrice: numberOrNull(market.analystTargetMeanPrice),
       recommendationMean: numberOrNull(market.recommendationMean),
       roe: numberOrNull(market.roe),
@@ -702,6 +705,9 @@ function applyPriceData(currentCompanies, priceCompanies) {
     const marketPrice = numberOrNull(price?.marketPrice);
     if (marketPrice === null) return company;
     const existingFundamentals = company.fundamentals ?? {};
+    const trailingEps = numberOrNull(price.trailingEps) ?? numberOrNull(existingFundamentals.trailingEps);
+    const providerTrailingPe = numberOrNull(price.trailingPe);
+    const pricePayloadHasPe = Object.prototype.hasOwnProperty.call(price, "trailingPe");
     const sharesOutstanding = numberOrNull(existingFundamentals.sharesOutstanding);
     const marketCap = sharesOutstanding !== null
       ? marketPrice * sharesOutstanding
@@ -731,6 +737,12 @@ function applyPriceData(currentCompanies, priceCompanies) {
         enterpriseValue,
         evToEbitda,
         fcfYield,
+        trailingEps,
+        trailingPe: pricePayloadHasPe
+          ? (providerTrailingPe !== null && providerTrailingPe > 0 ? providerTrailingPe : null)
+          : numberOrNull(existingFundamentals.trailingPe),
+        trailingPeSource: price.peSource ?? existingFundamentals.trailingPeSource ?? null,
+        trailingPeUpdatedAt: price.peUpdatedAt ?? price.priceUpdatedAt ?? existingFundamentals.trailingPeUpdatedAt ?? null,
         previousClose: numberOrNull(price.previousClose) ?? numberOrNull(existingFundamentals.previousClose)
       }
     };
@@ -876,6 +888,15 @@ function formatSek(value) {
 function formatPriceNumber(value) {
   if (!Number.isFinite(value)) return "-";
   return Math.round(value).toLocaleString("sv-SE");
+}
+
+function getDisplayTrailingPe(company) {
+  const stored = numberOrNull(company?.fundamentals?.trailingPe);
+  if (stored !== null && stored > 0 && stored < 1000) return stored;
+  const price = numberOrNull(company?.marketPrice);
+  const eps = numberOrNull(company?.fundamentals?.trailingEps) ?? numberOrNull(company?.eps);
+  if (price !== null && price > 0 && eps !== null && eps > 0) return price / eps;
+  return null;
 }
 
 function formatTickerMoney(value, currency = "SEK") {
@@ -1672,11 +1693,14 @@ function renderCompanyList(updateHtml = true) {
 
   elements.companyList.innerHTML = filtered.map(({ company, calc }) => {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
+    const trailingPe = getDisplayTrailingPe(company);
+    const peSource = company.fundamentals?.trailingPeSource ?? "Market price / trailing EPS";
     return `
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}" data-logo-fit="${escapeHtml(getCompanyLogoFit(company))}">
         <span class="company-price">
           <strong>${formatPriceNumber(asNumber(company.marketPrice))}</strong>
           <small>${escapeHtml(company.currency ?? "SEK")}</small>
+          <span class="company-pe" title="${escapeHtml(peSource)}">P/E ${trailingPe === null ? "N/A" : `${formatDecimal(trailingPe, 1)}x`}</span>
         </span>
         <span class="company-main">
           <span class="company-logo-mark">

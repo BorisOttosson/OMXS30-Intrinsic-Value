@@ -366,7 +366,7 @@ input::placeholder { color: var(--faint); }
 
 .company-row {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) auto;
+  grid-template-columns: 68px minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   width: 100%;
@@ -408,6 +408,16 @@ input::placeholder { color: var(--faint); }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--sticker-muted);
+}
+
+.company-pe {
+  margin-top: 2px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--sticker-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .company-main {
