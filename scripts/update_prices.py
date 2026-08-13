@@ -5,19 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from datetime import datetime, time as day_time, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
-
-try:
-    from update_data import OMXS30, company_id
-except ImportError:
-    ROOT_FOR_IMPORT = Path(__file__).resolve().parents[1]
-    sys.path.insert(0, str(ROOT_FOR_IMPORT))
-    from update_data import OMXS30, company_id
 
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
@@ -36,6 +28,19 @@ PRICE_UPDATE_SLOTS = [
     day_time(15, 1), day_time(15, 25), day_time(15, 49),
     day_time(16, 13), day_time(16, 37),
 ]
+
+
+def company_id(ticker: str) -> str:
+    return "".join(ch.lower() if ch.isalnum() else "-" for ch in ticker).strip("-")
+
+
+def load_omxs30_universe() -> list[tuple[str, str, str]]:
+    """Use the checked-in price snapshot as the canonical 30-company universe."""
+    payload = json.loads((ROOT / "data" / "prices.json").read_text(encoding="utf-8"))
+    rows = payload.get("companies")
+    if not isinstance(rows, list) or len(rows) != 30:
+        raise RuntimeError("data/prices.json must contain the 30-company OMXS30 universe")
+    return [(str(row["ticker"]), str(row["name"]), str(row["sector"])) for row in rows]
 
 
 def finite(value: Any) -> float | None:
@@ -113,12 +118,35 @@ def fetch_yahoo_quote(yf: Any, ticker: str) -> dict[str, Any]:
         if previous_close is None and len(closes) > 1:
             previous_close = closes[-2]
 
+    trailing_eps = None
+    yahoo_trailing_pe = None
+    pe_error = None
+    try:
+        info = ticker_obj.info or {}
+        trailing_eps = finite(info.get("trailingEps"))
+        yahoo_trailing_pe = finite(info.get("trailingPE"))
+    except Exception as exc:  # Keep the current price usable if this endpoint fails.
+        pe_error = str(exc)
+
+    trailing_pe = price / trailing_eps if trailing_eps is not None and trailing_eps > 0 else None
+    pe_calculation = "Market price / Yahoo Finance trailing EPS" if trailing_pe is not None else None
+    pe_source = "Calculated from Yahoo Finance price and trailing EPS" if trailing_pe is not None else None
+    if trailing_pe is None and yahoo_trailing_pe is not None and yahoo_trailing_pe > 0:
+        trailing_pe = yahoo_trailing_pe
+        pe_source = "Yahoo Finance reported trailing P/E"
+
     return {
         "quoteTicker": ticker,
         "marketPrice": price,
         "previousClose": previous_close,
         "currency": currency,
         "priceUpdatedAt": datetime.now(timezone.utc).isoformat(),
+        "trailingEps": trailing_eps,
+        "trailingPe": trailing_pe,
+        "peCalculation": pe_calculation,
+        "peSource": pe_source,
+        "peUpdatedAt": datetime.now(timezone.utc).isoformat() if trailing_pe is not None else None,
+        "peError": pe_error,
     }
 
 
@@ -146,7 +174,7 @@ def main(argv: list[str]) -> int:
         raise SystemExit("Missing dependency: yfinance. Run `python3 -m pip install -r requirements.txt` first.") from exc
 
     companies = []
-    for ticker, name, sector in OMXS30:
+    for ticker, name, sector in load_omxs30_universe():
         print(f"Fetching Yahoo price for {ticker}...", flush=True)
         try:
             quote = fetch_yahoo_quote(yf, ticker)
@@ -171,7 +199,7 @@ def main(argv: list[str]) -> int:
         time.sleep(args.delay)
 
     payload = {
-        "version": 1,
+        "version": 2,
         "provider": "Yahoo Finance via yfinance prices",
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "market": "Nasdaq Stockholm",
