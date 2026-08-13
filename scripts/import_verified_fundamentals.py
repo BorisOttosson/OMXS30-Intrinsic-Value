@@ -81,6 +81,79 @@ def check_manifest_entry(ticker: str, entry: dict[str, Any]) -> None:
         if abs(result - expected) > max(abs(expected) * 1e-9, 1e-9):
             raise ValueError(f"{ticker}: failed calculation check: {calculation['label']}")
 
+    history = entry.get("fcfHistory", [])
+    if history:
+        if not isinstance(history, list) or len(history) < 2:
+            raise ValueError(f"{ticker}: fcfHistory needs at least two annual observations")
+        years: list[int] = []
+        for row in history:
+            year = row.get("year")
+            if not isinstance(year, int):
+                raise ValueError(f"{ticker}: every fcfHistory row needs an integer fiscal year")
+            years.append(year)
+            source_url = row.get("sourceUrl", entry.get("sourceUrl"))
+            if not str(source_url).startswith("https://"):
+                raise ValueError(f"{ticker}: every historical FCF observation needs an official HTTPS source")
+            if not row.get("documentChecks"):
+                raise ValueError(f"{ticker}: {year} historical FCF has no official-document evidence checks")
+            historical_fcf_value(ticker, row)
+        if years != sorted(set(years)):
+            raise ValueError(f"{ticker}: fcfHistory years must be unique and ordered oldest to newest")
+        if any(current != previous + 1 for previous, current in zip(years, years[1:])):
+            raise ValueError(f"{ticker}: fcfHistory must contain consecutive fiscal years")
+
+
+def historical_fcf_value(ticker: str, row: dict[str, Any]) -> float:
+    reported = row.get("freeCashFlow")
+    operating = row.get("operatingCashFlow")
+    capex = row.get("capitalExpenditures")
+    if reported is None:
+        if operating is None or capex is None:
+            raise ValueError(
+                f"{ticker}: {row.get('year')} needs reported freeCashFlow or both operatingCashFlow and capitalExpenditures"
+            )
+        return float(operating) - abs(float(capex))
+    value = float(reported)
+    if operating is not None and capex is not None:
+        derived = float(operating) - abs(float(capex))
+        if abs(value - derived) > max(abs(value) * 1e-9, 1e-9):
+            raise ValueError(f"{ticker}: {row.get('year')} reported FCF does not reconcile to OCF minus capex")
+    return value
+
+
+def build_official_fcf_history(
+    ticker: str,
+    entry: dict[str, Any],
+    checked_at: str,
+) -> tuple[list[dict[str, Any]], float | None, int | None]:
+    rows: list[dict[str, Any]] = []
+    base_multiplier = float(entry["unitMultiplier"])
+    base_fx = float(entry.get("financialToQuoteFx", 1.0))
+    for row in entry.get("fcfHistory", []):
+        multiplier = float(row.get("unitMultiplier", base_multiplier))
+        fx = float(row.get("financialToQuoteFx", base_fx))
+        rows.append({
+            "year": int(row["year"]),
+            "fcf": historical_fcf_value(ticker, row) * multiplier * fx,
+            "sourceName": row.get("sourceName", entry["sourceName"]),
+            "sourceUrl": row.get("sourceUrl", entry["sourceUrl"]),
+            "verifiedAt": checked_at,
+            "calculation": (
+                "operating cash flow minus capital expenditures"
+                if row.get("freeCashFlow") is None else "company-reported free cash flow"
+            ),
+        })
+    if len(rows) < 2:
+        return rows, None, None
+    window = rows[-6:]
+    years = window[-1]["year"] - window[0]["year"]
+    oldest = float(window[0]["fcf"])
+    latest = float(window[-1]["fcf"])
+    if years < 1 or oldest <= 0 or latest <= 0:
+        return rows, None, None
+    cagr_percent = ((latest / oldest) ** (1 / years) - 1) * 100
+    return rows, cagr_percent, years
+
 
 def extract_pdf_text(document: Path) -> str:
     extractor = shutil.which("pdftotext")
@@ -136,23 +209,23 @@ def extract_html_text(document: Path) -> str:
     return re.sub(r"<[^>]+>", " ", html)
 
 
-def verify_official_document(ticker: str, entry: dict[str, Any]) -> None:
+def extract_official_source_text(ticker: str, source_url: str, document_type: str = "pdf") -> str:
     request = urllib.request.Request(
-        entry["sourceUrl"],
+        source_url,
         headers={
             "User-Agent": "Mozilla/5.0 (compatible; OMXS30-official-report-verifier/1.0)",
             "Accept": "application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/html;q=0.9,*/*;q=0.8",
         },
     )
     with tempfile.TemporaryDirectory(prefix="omxs30-report-") as temporary:
-        document_type = entry.get("documentType", "pdf").lower()
+        document_type = document_type.lower()
         document = Path(temporary) / f"{ticker}.{document_type}"
         try:
             curl = shutil.which("curl")
             if curl:
                 subprocess.run(
                     [curl, "--fail", "--location", "--silent", "--show-error",
-                     "--user-agent", request.headers["User-agent"], "--output", str(document), entry["sourceUrl"]],
+                     "--user-agent", request.headers["User-agent"], "--output", str(document), source_url],
                     check=True,
                     capture_output=True,
                     text=True,
@@ -167,7 +240,15 @@ def verify_official_document(ticker: str, entry: dict[str, Any]) -> None:
             "html": extract_html_text,
         }
         extractor = extractors.get(document_type, extract_pdf_text)
-        text = normalize_document_text(extractor(document))
+        return normalize_document_text(extractor(document))
+
+
+def verify_official_document(ticker: str, entry: dict[str, Any]) -> None:
+    text = extract_official_source_text(
+        ticker,
+        entry["sourceUrl"],
+        entry.get("documentType", "pdf"),
+    )
 
     missing_checks = [
         check for check in entry.get("documentChecks", [])
@@ -175,6 +256,26 @@ def verify_official_document(ticker: str, entry: dict[str, Any]) -> None:
     ]
     if missing_checks:
         raise ValueError(f"{ticker}: official report evidence missing: {missing_checks[0]}")
+
+    document_cache = {entry["sourceUrl"]: text}
+    for row in entry.get("fcfHistory", []):
+        source_url = row.get("sourceUrl", entry["sourceUrl"])
+        source_text = document_cache.get(source_url)
+        if source_text is None:
+            source_text = extract_official_source_text(
+                ticker,
+                source_url,
+                row.get("documentType", entry.get("documentType", "pdf")),
+            )
+            document_cache[source_url] = source_text
+        missing_history_checks = [
+            check for check in row.get("documentChecks", [])
+            if normalize_document_text(check) not in source_text
+        ]
+        if missing_history_checks:
+            raise ValueError(
+                f"{ticker}: {row['year']} official FCF evidence missing: {missing_history_checks[0]}"
+            )
 
 
 def scaled(value: Any, multiplier: float) -> float | None:
@@ -252,6 +353,30 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
         "evToEbitda": None,
         "fcfYield": None,
     })
+    fcf_history, historical_cagr, historical_years = build_official_fcf_history(
+        company["ticker"], entry, checked_at
+    )
+    if fcf_history:
+        result.update({
+            "fcfHistory": fcf_history,
+            "fcfSeries": [row["fcf"] for row in reversed(fcf_history[-6:])],
+            "fcfHistoryUnit": None,
+            "growth5y": historical_cagr,
+            "growth5yYears": historical_years,
+            "growth5ySource": "Official company annual reports (independently verified)",
+            "growth5ySourceUrl": fcf_history[-1]["sourceUrl"],
+            "growth5yUpdatedAt": checked_at,
+        })
+    else:
+        result.update({
+            "fcfHistory": None,
+            "fcfSeries": None,
+            "growth5y": None,
+            "growth5yYears": None,
+            "growth5ySource": None,
+            "growth5ySourceUrl": None,
+            "growth5yUpdatedAt": None,
+        })
     if values.get("roe") is not None:
         result["roe"] = float(values["roe"])
     result.pop("legacySnapshot", None)
