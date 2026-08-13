@@ -44,6 +44,9 @@ jobs:
             python scripts/update_prices.py --output data/prices.json
           fi
 
+      - name: Test price and P/E calculations
+        run: python -m unittest tests.test_update_prices -v
+
       - name: Commit updated prices
         run: |
           if [ ! -f data/prices.json ]; then
