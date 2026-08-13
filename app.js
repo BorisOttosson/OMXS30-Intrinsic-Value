@@ -412,6 +412,7 @@ function createDefaultCompanies() {
       normalizedFcfPerShare,
       normalizedEbitdaPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
+      dcfGrowth: null,
       consensusGrowth: null,
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
@@ -459,6 +460,7 @@ function mergeWithSeed(savedCompanies) {
       ...company,
       ...saved,
       companyType: normalizeCompanyType(saved.companyType, company.ticker),
+      dcfGrowth: numberOrNull(saved.dcfGrowth),
       consensusGrowth: null,
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
@@ -665,6 +667,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
       growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
+      dcfGrowth: numberOrNull(current.dcfGrowth),
       // Populated only from the traceable MarketScreener FCF forecast below.
       consensusGrowth: null,
       consensusGrowthSource: null,
@@ -1108,16 +1111,18 @@ function getDataStatusLabel(marketData = state.marketData) {
 function calculateDcf(company, scenario = "base", growthOverride = null) {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const fcf = asNumber(company.fcfPerShare);
-  const growth = (growthOverride ?? (asNumber(company.growth5y) + adjustment.growth)) / 100;
+  const manualGrowth = numberOrNull(company.dcfGrowth);
+  const selectedGrowth = growthOverride ?? (manualGrowth === null ? null : manualGrowth + adjustment.growth);
+  const growth = selectedGrowth === null ? NaN : selectedGrowth / 100;
   const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const terminalGrowth = asNumber(company.terminalGrowth) / 100;
   const netDebt = asNumber(company.netDebtPerShare);
 
-  if (fcf <= 0 || wacc <= terminalGrowth || wacc <= 0) {
+  if (fcf <= 0 || !Number.isFinite(growth) || wacc <= terminalGrowth || wacc <= 0) {
     return {
       value: NaN,
       flows: [],
-      error: "DCF input conflict"
+      error: !Number.isFinite(growth) ? "Enter a DCF growth assumption" : "DCF input conflict"
     };
   }
 
@@ -1654,7 +1659,9 @@ function bindEvents() {
     }
 
     if (field) {
-      company[field] = field === "notes" ? event.target.value : asNumber(event.target.value);
+      company[field] = field === "notes"
+        ? event.target.value
+        : (field === "dcfGrowth" ? numberOrNull(event.target.value) : asNumber(event.target.value));
       company.source = "Edited";
     }
 
@@ -1978,7 +1985,7 @@ function renderCagrBreakdown(company) {
   const series = Array.isArray(company.fcfSeries)
     ? company.fcfSeries.map(Number).filter((value) => Number.isFinite(value))
     : [];
-  const cagr = asNumber(company.growth5y);
+  const cagr = numberOrNull(company.growth5y);
   const source = company.growth5ySource ?? "not set";
   const updated = formatShortDate(company.growth5yUpdatedAt) ?? "n/a";
 
@@ -2035,7 +2042,7 @@ function renderCagrBreakdown(company) {
     ${usable
       ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
       : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
-    <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus FCF growth is a separate input and never feeds this calculation.</p>
+    <p class="cagr-note">Historical result: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. This CAGR is read-only and is not used by the DCF. Enter the forward assumption separately below.</p>
   `;
 }
 
@@ -2043,7 +2050,7 @@ function renderCagrBreakdown(company) {
 function getScenarioExplanation(scenario = state.scenario) {
   if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x.";
   if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x.";
-  return "Base uses the saved growth, WACC and target P/E without adjustment.";
+  return "Base uses the manual DCF growth assumption, WACC and target P/E without adjustment.";
 }
 
 function getAnalysisPresentation(company) {
@@ -2054,7 +2061,8 @@ function getAnalysisPresentation(company) {
   const category = normalizeCompanyType(company.companyType, company.ticker);
   const price = asNumber(company.marketPrice);
   const currentFcf = asNumber(company.fcfPerShare);
-  const growth = asNumber(company.growth5y) + adjustment.growth;
+  const baseDcfGrowth = numberOrNull(company.dcfGrowth);
+  const growth = baseDcfGrowth === null ? NaN : baseDcfGrowth + adjustment.growth;
   const wacc = asNumber(company.wacc) + adjustment.wacc;
   const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
   const difference = (value) => price > 0 && Number.isFinite(value) ? ((value - price) / price) * 100 : NaN;
@@ -2142,14 +2150,14 @@ function getAnalysisPresentation(company) {
     formula: "Present value of 5yr FCF + terminal value − net debt",
     assumptions: [
       ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
-      ["FCF growth", formatPercent(growth, 1)],
+      ["Manual FCF growth", formatPercent(growth, 1)],
       ["WACC", formatPercent(wacc, 1)],
       ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
     ],
     metrics: [
       ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
       ["Current price", formatTickerMoney(price, currency), "Market price input"],
-      ["5yr FCF growth", formatPercent(growth, 1), `${formatPercent(asNumber(company.growth5y), 1)} saved input`],
+      ["5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? "Enter the manual assumption in Model Inputs" : `${formatPercent(baseDcfGrowth, 1)} manual input`],
       ["WACC", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
     ],
     chartValues: [{ label: "Actual", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]

@@ -814,6 +814,21 @@ input::placeholder { color: var(--faint); }
   min-width: 0;
 }
 
+.dcf-growth-input {
+  padding: 12px;
+  border: 1px solid rgba(79, 146, 216, 0.4);
+  border-radius: var(--radius);
+  background: rgba(79, 146, 216, 0.08);
+}
+
+.dcf-growth-input > span:first-child {
+  color: var(--ink-dim);
+}
+
+.dcf-growth-input input {
+  border-color: rgba(79, 146, 216, 0.5);
+}
+
 .input-grid > label > span {
   display: flex;
   flex-wrap: wrap;
