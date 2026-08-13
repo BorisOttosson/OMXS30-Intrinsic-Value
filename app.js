@@ -665,7 +665,9 @@ function applyMarketData(currentCompanies, marketCompanies) {
       growth5y: fundamentalInput(market.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
       fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
+      fcfHistory: market.fcfHistory ?? current.fcfHistory ?? seedCompany.fcfHistory ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
+      growth5ySourceUrl: market.growth5ySourceUrl ?? current.growth5ySourceUrl ?? null,
       growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
       dcfGrowth: numberOrNull(current.dcfGrowth),
       // Populated only from the traceable MarketScreener FCF forecast below.
@@ -1578,6 +1580,121 @@ function applyMarketScreenerNextFyGrowth(companies, rows) {
   });
 }
 
+function normalizeHistoricalFcfRows(rows) {
+  if (!Array.isArray(rows)) return [];
+  const byYear = new Map();
+  rows.forEach((item) => {
+    const year = Number(item?.year);
+    const fcf = numberOrNull(item?.fcf ?? item?.freeCashFlow);
+    if (!Number.isInteger(year) || fcf === null) return;
+    byYear.set(year, {
+      ...item,
+      year,
+      fcf,
+      sourceName: item?.sourceName ?? null,
+      sourceUrl: item?.sourceUrl ?? null
+    });
+  });
+  return [...byYear.values()].sort((left, right) => left.year - right.year);
+}
+
+function validateHistoricalFcfSeries(rows, metadata = {}) {
+  const normalized = normalizeHistoricalFcfRows(rows).slice(-6);
+  if (normalized.length < 2) {
+    return { valid: false, reason: "At least two annual FCF observations are required" };
+  }
+
+  for (let index = 1; index < normalized.length; index += 1) {
+    if (normalized[index].year !== normalized[index - 1].year + 1) {
+      return { valid: false, reason: "The annual FCF history has a missing fiscal year" };
+    }
+  }
+
+  const oldest = normalized[0];
+  const latest = normalized[normalized.length - 1];
+  const years = latest.year - oldest.year;
+  if (years < 1) return { valid: false, reason: "The FCF history does not span a full fiscal year" };
+  if (oldest.fcf <= 0 || latest.fcf <= 0) {
+    return { valid: false, reason: "CAGR requires positive FCF in both the first and last fiscal year" };
+  }
+
+  const cagr = (latest.fcf / oldest.fcf) ** (1 / years) - 1;
+  const supplied = numberOrNull(metadata.suppliedCagr);
+  if (supplied !== null && Math.abs(supplied - cagr) > 0.00001) {
+    return { valid: false, reason: "The stored CAGR does not reconcile to the displayed annual FCF values" };
+  }
+
+  return {
+    valid: true,
+    rows: normalized,
+    oldest,
+    latest,
+    years,
+    cagr,
+    currency: metadata.currency ?? "SEK",
+    unit: metadata.unit ?? null,
+    source: metadata.source ?? "Source unavailable",
+    sourceUrl: metadata.sourceUrl ?? null,
+    updatedAt: metadata.updatedAt ?? null,
+    sourceKind: metadata.sourceKind ?? "unknown"
+  };
+}
+
+function getHistoricalFcfAudit(company, fallbackRow) {
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  if (category === "bank" || category === "investment") {
+    return {
+      valid: false,
+      notApplicable: true,
+      reason: "Ordinary free-cash-flow CAGR is not meaningful for this company type"
+    };
+  }
+
+  const officialRows = normalizeHistoricalFcfRows(company.fcfHistory);
+  if (officialRows.length) {
+    return validateHistoricalFcfSeries(officialRows, {
+      suppliedCagr: numberOrNull(company.growth5y) === null ? null : Number(company.growth5y) / 100,
+      currency: company.currency ?? "SEK",
+      unit: company.fcfHistoryUnit ?? null,
+      source: company.growth5ySource ?? "Official company reports (independently verified)",
+      sourceUrl: company.growth5ySourceUrl ?? company.officialSource?.sourceUrl ?? null,
+      updatedAt: company.growth5yUpdatedAt ?? company.dataUpdatedAt ?? null,
+      sourceKind: "official"
+    });
+  }
+
+  if (!fallbackRow) {
+    return { valid: false, reason: "No annual free-cash-flow history is available" };
+  }
+  if (!fallbackRow.sourceUrl || !fallbackRow.retrievedAt) {
+    return { valid: false, reason: "The fallback history is missing its source link or retrieval date" };
+  }
+  return validateHistoricalFcfSeries(fallbackRow.fcfHistory, {
+    suppliedCagr: fallbackRow.historicalFcfCagr,
+    currency: fallbackRow.currency ?? company.currency ?? "SEK",
+    unit: fallbackRow.unit ?? "million",
+    source: "MarketScreener reported FCF history (fallback)",
+    sourceUrl: fallbackRow.sourceUrl,
+    updatedAt: fallbackRow.retrievedAt,
+    sourceKind: "third-party-fallback"
+  });
+}
+
+function applyHistoricalFcfGrowth(companies, rows) {
+  return companies.map((company) => {
+    const audit = getHistoricalFcfAudit(company, rows?.[company.id]);
+    return {
+      ...company,
+      growth5y: audit.valid ? audit.cagr * 100 : null,
+      growth5yYears: audit.valid ? audit.years : null,
+      growth5ySource: audit.valid ? audit.source : null,
+      growth5ySourceUrl: audit.valid ? audit.sourceUrl : null,
+      growth5yUpdatedAt: audit.valid ? audit.updatedAt : null,
+      historicalFcfAudit: audit
+    };
+  });
+}
+
 async function loadMarketScreenerFcf() {
   try {
     const response = await fetch(`${MARKETSCREENER_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
@@ -1585,10 +1702,12 @@ async function loadMarketScreenerFcf() {
     const payload = await response.json();
     marketScreenerFcf = payload?.companies ?? null;
     state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
     renderAll();
   } catch (error) {
     marketScreenerFcf = null;
     state.companies = applyMarketScreenerNextFyGrowth(state.companies, null);
+    state.companies = applyHistoricalFcfGrowth(state.companies, null);
     renderAll();
   }
 }
@@ -1722,6 +1841,7 @@ function bindEvents() {
 function renderAll() {
   if (marketScreenerFcf) {
     state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
   }
   renderDataStatus();
   renderCompanyList();
@@ -1904,12 +2024,14 @@ function daysSince(value) {
 function renderGrowthMeta(company) {
   const cagrMeta = document.querySelector("#growth5yMeta");
   if (cagrMeta) {
-    const years = Number(company.growth5yYears);
-    const label = Number.isFinite(years) && years > 0 && years < 5 ? `${years}yr CAGR` : "5yr CAGR";
-    if (!Number.isFinite(asNumber(company.growth5y)) || company.growth5y === null || company.growth5y === "") {
-      cagrMeta.textContent = "N/A - not enough positive FCF history";
+    const audit = company.historicalFcfAudit ?? getHistoricalFcfAudit(company, marketScreenerFcf?.[company?.id]);
+    if (audit?.notApplicable) {
+      cagrMeta.textContent = "N/A — use EPS/book-value growth for banks and NAV growth for investment companies";
+    } else if (!audit?.valid) {
+      cagrMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated annual FCF history"}`;
     } else {
-      cagrMeta.textContent = `${label} | Source: ${company.growth5ySource ?? "Official company reports"} | Updated: ${formatShortDate(company.growth5yUpdatedAt) ?? "n/a"}`;
+      const source = audit.sourceKind === "official" ? "Verified official reports" : "MarketScreener fallback";
+      cagrMeta.textContent = `${audit.years}yr CAGR (${audit.oldest.year}–${audit.latest.year}) | ${source} | Updated: ${formatShortDate(audit.updatedAt) ?? "n/a"}`;
     }
   }
 
@@ -1977,72 +2099,72 @@ function formatFcfAmount(value, currency = "SEK") {
   return `${value.toFixed(0)} ${currency}`;
 }
 
+function formatHistoricalFcf(value, audit) {
+  if (!Number.isFinite(value)) return "n/a";
+  if (audit?.unit === "million") {
+    return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} million ${audit.currency ?? "SEK"}`;
+  }
+  return formatFcfAmount(value, audit?.currency ?? "SEK");
+}
+
 function renderCagrBreakdown(company) {
   const host = document.querySelector("#cagrBreakdown");
   if (!host) return;
 
-  const currency = company.currency ?? "SEK";
-  const series = Array.isArray(company.fcfSeries)
-    ? company.fcfSeries.map(Number).filter((value) => Number.isFinite(value))
-    : [];
-  const cagr = numberOrNull(company.growth5y);
-  const source = company.growth5ySource ?? "not set";
-  const updated = formatShortDate(company.growth5yUpdatedAt) ?? "n/a";
-
-  if (!series.length) {
+  const audit = company.historicalFcfAudit ?? getHistoricalFcfAudit(company, marketScreenerFcf?.[company?.id]);
+  if (audit?.notApplicable) {
+    host.innerHTML = `<p class="cagr-note">${escapeHtml(audit.reason)}. The dashboard therefore leaves historical FCF CAGR blank.</p>`;
+    return;
+  }
+  if (!audit?.valid) {
     host.innerHTML = `
-      <p class="cagr-note">No free-cash-flow history stored for ${company.ticker} yet.</p>
-      <p class="cagr-note">The pipeline saves the FCF series next time the data workflow runs. Current stored CAGR: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong> (source: ${source}, updated ${updated}).</p>
-    `;
+      <p class="cagr-note">Historical FCF CAGR is unavailable: ${escapeHtml(audit?.reason ?? "no validated annual history")}. No estimate is substituted.</p>
+      <p class="cagr-note">Official company-report history is preferred. MarketScreener actual-year figures are used only as a clearly labelled fallback.</p>`;
     return;
   }
 
-  // Mirror the pipeline: newest-first window, shrink until both ends are positive.
-  let window = series.slice(0, 6);
-  while (window.length >= 2 && !(window[0] > 0 && window[window.length - 1] > 0)) {
-    window = window.slice(0, -1);
-  }
-  const usable = window.length >= 2 && window[0] > 0 && window[window.length - 1] > 0;
-  const years = usable ? window.length - 1 : null;
-  const newest = usable ? window[0] : null;
-  const oldest = usable ? window[window.length - 1] : null;
-  const computed = usable ? ((newest / oldest) ** (1 / years) - 1) * 100 : null;
-
-  const rows = series
-    .map((value, index) => {
-      const label = index === 0 ? "Latest FY" : `FY -${index}`;
-      const inWindow = index < window.length;
-      const prev = series[index + 1];
-      const yoyValue = Number.isFinite(prev) && prev > 0 && value > 0 ? (value / prev - 1) * 100 : null;
+  const rows = audit.rows
+    .map((row, index) => {
+      const previous = index > 0 ? audit.rows[index - 1] : null;
+      const yoyValue = previous && previous.fcf > 0 && row.fcf > 0 ? (row.fcf / previous.fcf - 1) * 100 : null;
       const yoy = yoyValue === null
         ? '<span class="cagr-na">n/a</span>'
         : `<span class="${yoyValue >= 0 ? "cagr-up" : "cagr-down"}">${yoyValue >= 0 ? "+" : ""}${yoyValue.toFixed(1)} %</span>`;
-      return `<tr class="${inWindow ? "" : "is-muted"}">
-        <td>${label}</td>
-        <td>${formatFcfAmount(value, currency)}</td>
+      const evidence = row.sourceUrl
+        ? `<a href="${escapeHtml(row.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(row.sourceName ?? "official report")}</a>`
+        : (audit.sourceKind === "official" ? "official report" : "MarketScreener");
+      return `<tr>
+        <td>${row.year}A</td>
+        <td>${escapeHtml(formatHistoricalFcf(row.fcf, audit))}</td>
         <td>${yoy}</td>
-        <td>${inWindow ? "used" : "outside window"}</td>
+        <td>${evidence}</td>
       </tr>`;
     })
     .join("");
 
+  const sourceLink = audit.sourceUrl
+    ? `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(audit.source)}</a>`
+    : escapeHtml(audit.source);
+  const percentage = audit.cagr * 100;
+  const historyNote = audit.sourceKind === "official"
+    ? "Independently verified annual figures from official company reports."
+    : "Temporary third-party fallback because a verified official annual series is not stored yet.";
+
   host.innerHTML = `
     <div class="cagr-head">
       <div>
-        <span class="cagr-label">${usable ? `${years}yr FCF CAGR` : "FCF CAGR"}</span>
-        <strong class="cagr-value">${computed === null ? "N/A" : `${computed.toFixed(2)} %`}</strong>
+        <span class="cagr-label">${audit.years}yr FCF CAGR · ${audit.oldest.year}–${audit.latest.year}</span>
+        <strong class="cagr-value">${percentage.toFixed(2)} %</strong>
       </div>
-      <p class="cagr-note">Source: ${source} | Updated: ${updated}</p>
+      <p class="cagr-note">Source: ${sourceLink} | Retrieved/verified: ${escapeHtml(formatShortDate(audit.updatedAt) ?? "n/a")}</p>
     </div>
     <table class="cagr-table">
-      <thead><tr><th>Period</th><th>Free cash flow</th><th>Growth</th><th>Window</th></tr></thead>
+      <thead><tr><th>Period</th><th>Free cash flow</th><th>Growth</th><th>Evidence</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <p class="cagr-formula">CAGR = (FCF<sub>latest</sub> / FCF<sub>oldest</sub>)<sup>1/${years ?? "n"}</sup> - 1</p>
-    ${usable
-      ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
-      : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
-    <p class="cagr-note">Historical result: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. This CAGR is read-only and is not used by the DCF. Enter the forward assumption separately below.</p>
+    <p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
+    <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    <p class="cagr-note">${historyNote} The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and is not used by the DCF.</p>
   `;
 }
 

@@ -42,6 +42,16 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertNotIn("company.growth5y", dcf_function)
         self.assertIn("This CAGR is read-only and is not used by the DCF", self.javascript)
 
+    def test_historical_cagr_is_recomputed_from_traceable_annual_fcf(self):
+        self.assertIn("function validateHistoricalFcfSeries", self.javascript)
+        self.assertIn("(latest.fcf / oldest.fcf) ** (1 / years) - 1", self.javascript)
+        self.assertIn("The annual FCF history has a missing fiscal year", self.javascript)
+        self.assertIn("Official company reports (independently verified)", self.javascript)
+        self.assertIn("MarketScreener reported FCF history (fallback)", self.javascript)
+        self.assertIn("Temporary third-party fallback", self.javascript)
+        self.assertIn("FCF<sub>${audit.latest.year}</sub>", self.javascript)
+        self.assertNotIn("shrink until both ends are positive", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()
