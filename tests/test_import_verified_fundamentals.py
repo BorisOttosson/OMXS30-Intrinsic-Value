@@ -1,5 +1,6 @@
 import json
 import unittest
+from copy import deepcopy
 from pathlib import Path
 
 from scripts.import_verified_fundamentals import (
@@ -74,6 +75,65 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
         telia = next(company for company in output["companies"] if company["ticker"] == "TELIA.ST")
         self.assertAlmostEqual(telia["fcfPerShare"], 2.387526, places=5)
+
+    def test_official_annual_fcf_history_calculates_cagr_from_displayed_values(self):
+        manifest = deepcopy(self.manifest)
+        entry = manifest["companies"]["ABB.ST"]
+        entry["fcfHistory"] = [
+            {
+                "year": 2021,
+                "freeCashFlow": 100,
+                "documentChecks": ["Free cash flow 100"],
+            },
+            {
+                "year": 2022,
+                "operatingCashFlow": 145,
+                "capitalExpenditures": 25,
+                "documentChecks": ["Operating cash flow 145", "Capital expenditures 25"],
+            },
+            {
+                "year": 2023,
+                "freeCashFlow": 144,
+                "documentChecks": ["Free cash flow 144"],
+            },
+        ]
+        output = import_manifest(
+            self.payload,
+            manifest,
+            tickers={"ABB.ST"},
+            checked_at="2026-08-13T10:00:00+00:00",
+        )
+        abb = next(company for company in output["companies"] if company["ticker"] == "ABB.ST")
+        expected = ((144 / 100) ** (1 / 2) - 1) * 100
+        self.assertAlmostEqual(abb["growth5y"], expected)
+        self.assertEqual(abb["growth5yYears"], 2)
+        self.assertEqual([row["year"] for row in abb["fcfHistory"]], [2021, 2022, 2023])
+        self.assertEqual(abb["fcfHistory"][1]["calculation"], "operating cash flow minus capital expenditures")
+        self.assertIn("Official company annual reports", abb["growth5ySource"])
+
+    def test_official_fcf_history_rejects_missing_years(self):
+        entry = deepcopy(self.manifest["companies"]["ABB.ST"])
+        entry["fcfHistory"] = [
+            {"year": 2021, "freeCashFlow": 100, "documentChecks": ["FCF 100"]},
+            {"year": 2023, "freeCashFlow": 120, "documentChecks": ["FCF 120"]},
+        ]
+        with self.assertRaisesRegex(ValueError, "consecutive fiscal years"):
+            check_manifest_entry("ABB.ST", entry)
+
+    def test_derived_fcf_must_reconcile_to_reported_fcf(self):
+        entry = deepcopy(self.manifest["companies"]["ABB.ST"])
+        entry["fcfHistory"] = [
+            {"year": 2022, "freeCashFlow": 100, "documentChecks": ["FCF 100"]},
+            {
+                "year": 2023,
+                "freeCashFlow": 130,
+                "operatingCashFlow": 160,
+                "capitalExpenditures": 20,
+                "documentChecks": ["FCF 130"],
+            },
+        ]
+        with self.assertRaisesRegex(ValueError, "does not reconcile"):
+            check_manifest_entry("ABB.ST", entry)
 
 
 if __name__ == "__main__":
