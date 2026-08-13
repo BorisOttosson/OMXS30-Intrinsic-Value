@@ -396,9 +396,10 @@ function createDefaultCompanies() {
       normalizedFcfPerShare,
       normalizedEbitdaPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
-      consensusGrowth: round(defaults.consensusGrowth + ((index % 4) - 1) * 0.25, 1),
-      consensusGrowthSource: "Annat",
-      consensusGrowthAsOf: "",
+      consensusGrowth: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
       growth5yYears: null,
       fcfSeries: null,
       growth5ySource: null,
@@ -441,7 +442,11 @@ function mergeWithSeed(savedCompanies) {
     return {
       ...company,
       ...saved,
-      companyType: normalizeCompanyType(saved.companyType, company.ticker)
+      companyType: normalizeCompanyType(saved.companyType, company.ticker),
+      consensusGrowth: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" }
     };
   });
 }
@@ -644,13 +649,11 @@ function applyMarketData(currentCompanies, marketCompanies) {
       fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
       growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
-      // Consensus growth is a manual, externally sourced input. It is never
-      // derived from, nor overwritten by, the historical CAGR above.
-      consensusGrowth: market.consensusGrowthSource
-        ? numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? null)
-        : (current.consensusGrowth ?? seedCompany.consensusGrowth),
-      consensusGrowthSource: current.consensusGrowthSource ?? market.consensusGrowthSource ?? seedCompany.consensusGrowthSource ?? "",
-      consensusGrowthAsOf: current.consensusGrowthAsOf ?? market.consensusGrowthAsOf ?? "",
+      // Populated only from the traceable MarketScreener FCF forecast below.
+      consensusGrowth: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
       targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
       currency: market.currency ?? current.currency ?? "SEK",
@@ -1467,15 +1470,105 @@ function getStance(marginOfSafety, qualityScore) {
 
 let marketScreenerFcf = null;
 
+function getMarketScreenerNextFyAudit(row) {
+  if (!row) return { valid: false, reason: "No MarketScreener FCF forecast is available" };
+  if (!row.sourceUrl || !row.retrievedAt) {
+    return { valid: false, reason: "The forecast is missing its source link or retrieval date" };
+  }
+
+  const ageDays = daysSince(row.retrievedAt);
+  if (ageDays === null || ageDays < -1) {
+    return { valid: false, reason: "The forecast has an invalid retrieval date" };
+  }
+  if (ageDays > 21) {
+    return { valid: false, reason: `The MarketScreener snapshot is stale (${ageDays} days old)` };
+  }
+
+  const actual = Array.isArray(row.fcfHistory)
+    ? row.fcfHistory.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
+    : [];
+  const forecast = Array.isArray(row.fcfForecast)
+    ? row.fcfForecast.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
+    : [];
+  actual.sort((left, right) => Number(left.year) - Number(right.year));
+  forecast.sort((left, right) => Number(left.year) - Number(right.year));
+  if (!actual.length || !forecast.length) {
+    return { valid: false, reason: "Latest reported and next-year forecast FCF are both required" };
+  }
+
+  const base = actual[actual.length - 1];
+  const estimate = forecast[0];
+  const baseYear = Number(base.year);
+  const estimateYear = Number(estimate.year);
+  const baseFcf = Number(base.fcf);
+  const estimateFcf = Number(estimate.fcf);
+  if (estimateYear !== baseYear + 1) {
+    return { valid: false, reason: "The first forecast is not the fiscal year immediately after the latest actual" };
+  }
+  if (baseFcf <= 0 || estimateFcf <= 0) {
+    return { valid: false, reason: "Next-FY growth is not meaningful when either FCF value is zero or negative" };
+  }
+
+  const growth = estimateFcf / baseFcf - 1;
+  const storedForecast = Array.isArray(row.forecastYoy)
+    ? row.forecastYoy.find((item) => Number(item?.year) === estimateYear)
+    : null;
+  const storedGrowth = numberOrNull(storedForecast?.growth);
+  if (storedGrowth === null || Math.abs(storedGrowth - growth) > 0.00001) {
+    return { valid: false, reason: "The stored MarketScreener growth rate does not reconcile to its FCF values" };
+  }
+
+  return {
+    valid: true,
+    growth,
+    baseYear,
+    estimateYear,
+    baseFcf,
+    estimateFcf,
+    currency: row.currency ?? "SEK",
+    unit: row.unit ?? "million",
+    sourceUrl: row.sourceUrl,
+    retrievedAt: row.retrievedAt,
+    ageDays
+  };
+}
+
+function applyMarketScreenerNextFyGrowth(companies, rows) {
+  return companies.map((company) => {
+    const category = normalizeCompanyType(company.companyType, company.ticker);
+    if (category === "bank" || category === "investment") {
+      return {
+        ...company,
+        consensusGrowth: null,
+        consensusGrowthSource: "Not applicable for this company type",
+        consensusGrowthAsOf: null,
+        consensusGrowthAudit: { valid: false, notApplicable: true }
+      };
+    }
+
+    const audit = getMarketScreenerNextFyAudit(rows?.[company.id]);
+    return {
+      ...company,
+      consensusGrowth: audit.valid ? audit.growth * 100 : null,
+      consensusGrowthSource: audit.valid ? "MarketScreener analyst-consensus FCF forecast" : null,
+      consensusGrowthAsOf: audit.valid ? audit.retrievedAt : null,
+      consensusGrowthAudit: audit
+    };
+  });
+}
+
 async function loadMarketScreenerFcf() {
   try {
     const response = await fetch(`${MARKETSCREENER_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     marketScreenerFcf = payload?.companies ?? null;
+    state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
     renderAll();
   } catch (error) {
     marketScreenerFcf = null;
+    state.companies = applyMarketScreenerNextFyGrowth(state.companies, null);
+    renderAll();
   }
 }
 
@@ -1593,6 +1686,9 @@ function bindEvents() {
 }
 
 function renderAll() {
+  if (marketScreenerFcf) {
+    state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
+  }
   renderDataStatus();
   renderCompanyList();
   renderForm();
@@ -1755,6 +1851,7 @@ function renderForm() {
 
   renderGrowthMeta(company);
   renderCagrBreakdown(company);
+  renderConsensusGrowthBreakdown(company);
 }
 
 function formatShortDate(value) {
@@ -1784,13 +1881,56 @@ function renderGrowthMeta(company) {
 
   const consensusMeta = document.querySelector("#consensusGrowthMeta");
   if (consensusMeta) {
-    const row = marketScreenerFcf?.[company?.id] ?? null;
-    const url = row?.sourceUrl ?? "https://www.marketscreener.com/";
-    const asOf = formatShortDate(row?.retrievedAt ?? company?.consensusGrowthAsOf);
-    consensusMeta.innerHTML =
-      `Source: <a href="${escapeHtml(url)}" target="_blank" rel="noopener">MarketScreener</a>` +
-      (asOf ? ` (${escapeHtml(asOf)})` : "");
+    const audit = company.consensusGrowthAudit ?? getMarketScreenerNextFyAudit(marketScreenerFcf?.[company?.id]);
+    if (audit?.notApplicable) {
+      consensusMeta.textContent = "N/A — use EPS/book-value growth for banks and NAV growth for investment companies";
+    } else if (!audit?.valid) {
+      consensusMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated forecast data"}`;
+    } else {
+      const asOf = formatShortDate(audit.retrievedAt);
+      consensusMeta.innerHTML =
+        `${audit.baseYear}A → ${audit.estimateYear}E | ` +
+        `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">MarketScreener cash-flow forecast</a>` +
+        (asOf ? ` | Retrieved ${escapeHtml(asOf)}` : "");
+    }
   }
+}
+
+function formatConsensusFcf(value, audit) {
+  if (!Number.isFinite(value)) return "n/a";
+  const formatted = Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return `${formatted} ${audit.unit ?? "million"} ${audit.currency ?? "SEK"}`;
+}
+
+function renderConsensusGrowthBreakdown(company) {
+  const container = document.querySelector("#consensusGrowthBreakdown");
+  const details = document.querySelector("#consensusGrowthDetails");
+  if (!container || !details) return;
+
+  const audit = company.consensusGrowthAudit ?? getMarketScreenerNextFyAudit(marketScreenerFcf?.[company?.id]);
+  if (audit?.notApplicable) {
+    container.innerHTML = "<p class=\"cagr-note\">FCF growth is not used for this company type.</p>";
+    details.open = false;
+    return;
+  }
+  if (!audit?.valid) {
+    container.innerHTML = `<p class="cagr-note">${escapeHtml(audit?.reason ?? "No validated MarketScreener forecast is available.")}</p>`;
+    details.open = false;
+    return;
+  }
+
+  const percentage = audit.growth * 100;
+  details.open = true;
+  container.innerHTML = `
+    <table class="cagr-table">
+      <thead><tr><th>Period</th><th>Free cash flow</th><th>Basis</th></tr></thead>
+      <tbody>
+        <tr><td>${audit.baseYear}A</td><td>${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}</td><td>Latest reported</td></tr>
+        <tr><td>${audit.estimateYear}E</td><td>${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))}</td><td>Analyst consensus</td></tr>
+      </tbody>
+    </table>
+    <p class="cagr-formula">(${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}) − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    <p class="cagr-note">Calculated by this dashboard from the displayed FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
