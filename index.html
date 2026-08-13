@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260813-fcf-calc">
+  <link rel="stylesheet" href="styles.css?v=20260813-analysis">
   </head>
   <body>
     <div class="app-shell">
@@ -187,6 +187,114 @@
         </section>
 
         <section class="workspace-grid">
+          <section class="tool-panel valuation-panel" aria-label="Cash flow analysis">
+            <div class="analysis-heading">
+              <div>
+                <h3>Cash Flow Analysis</h3>
+                <p id="valuationSubtitle">Understand the selected valuation model and its assumptions</p>
+              </div>
+              <div class="analysis-controls">
+                <div class="analysis-control-group">
+                  <span>Financial model</span>
+                  <div class="segmented-control model-selector" aria-label="Financial model">
+                    <button class="segment is-active" type="button" data-model-view="dcf">DCF</button>
+                    <button class="segment" type="button" data-model-view="reverse-dcf">Reverse DCF</button>
+                    <button class="segment" type="button" data-model-view="pe">P/E</button>
+                  </div>
+                </div>
+                <div class="analysis-control-group">
+                  <span>Scenario</span>
+                  <div class="segmented-control" aria-label="Scenario">
+                    <button class="segment is-active" type="button" data-scenario="base">Base</button>
+                    <button class="segment" type="button" data-scenario="bull">Bull</button>
+                    <button class="segment" type="button" data-scenario="bear">Bear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-section-heading">
+              <div>
+                <span class="eyebrow">Key numbers</span>
+                <h4 id="analysisMetricsTitle">DCF · Base case</h4>
+              </div>
+              <p id="analysisMetricsNote">Values use the inputs already shown in Model Inputs.</p>
+            </div>
+
+            <div class="value-grid analysis-value-grid">
+              <div>
+                <span id="valuationPrimaryLabel">Intrinsic value / share</span>
+                <strong id="dcfValue">-</strong>
+                <small id="valuationPrimarySub">-</small>
+              </div>
+              <div>
+                <span id="valuationSecondaryLabel">Current price</span>
+                <strong id="peValue">-</strong>
+                <small id="valuationSecondarySub">-</small>
+              </div>
+              <div>
+                <span id="valuationTertiaryLabel">FCF growth</span>
+                <strong id="currentPe">-</strong>
+                <small id="valuationTertiarySub">-</small>
+              </div>
+              <div>
+                <span id="valuationFourthLabel">WACC</span>
+                <strong id="valuationFourthValue">-</strong>
+                <small id="valuationFourthSub">-</small>
+              </div>
+            </div>
+
+            <div class="analysis-body">
+              <div class="analysis-chart-card">
+                <div class="analysis-chart-heading">
+                  <div>
+                    <h4 id="analysisChartTitle">Projected free cash flow / share</h4>
+                    <p id="analysisChartSubtitle">Base-case five-year forecast</p>
+                  </div>
+                  <span id="analysisChartUnit">SEK / share</span>
+                </div>
+                <div class="chart-wrap">
+                  <canvas id="dcfChart" width="960" height="390" aria-label="Valuation model chart"></canvas>
+                </div>
+              </div>
+
+              <aside class="analysis-explainer" aria-live="polite">
+                <span class="eyebrow">About the selected model</span>
+                <h4 id="analysisModelTitle">DCF — Discounted Cash Flow</h4>
+                <p id="analysisModelDescription">Projects free cash flow and discounts it back to today.</p>
+                <div class="analysis-formula" id="analysisFormula">FCF forecast + terminal value − net debt</div>
+                <dl class="analysis-assumptions" id="analysisAssumptions"></dl>
+              </aside>
+            </div>
+
+            <div class="scenario-guide">
+              <div class="analysis-section-heading">
+                <div>
+                  <span class="eyebrow">What changes?</span>
+                  <h4>Scenario assumptions</h4>
+                </div>
+                <p>Each case starts from the same company inputs.</p>
+              </div>
+              <div class="scenario-card-grid">
+                <button class="scenario-card is-active" type="button" data-scenario="base" data-scenario-card="base">
+                  <span class="scenario-dot base"></span>
+                  <strong>Base · Most likely</strong>
+                  <small>Uses the saved growth, WACC and target P/E without adjustment.</small>
+                </button>
+                <button class="scenario-card" type="button" data-scenario="bull" data-scenario-card="bull">
+                  <span class="scenario-dot bull"></span>
+                  <strong>Bull · More optimistic</strong>
+                  <small>FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x.</small>
+                </button>
+                <button class="scenario-card" type="button" data-scenario="bear" data-scenario-card="bear">
+                  <span class="scenario-dot bear"></span>
+                  <strong>Bear · More conservative</strong>
+                  <small>FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x.</small>
+                </button>
+              </div>
+            </div>
+          </section>
+
           <form class="tool-panel model-panel" id="valuationForm">
             <div class="panel-title">
               <div>
@@ -320,41 +428,6 @@
               </label>
             </div>
           </form>
-
-
-          <section class="tool-panel valuation-panel" aria-label="Valuation outputs">
-            <div class="panel-title">
-              <div>
-                <h3>Valuation</h3>
-                <p id="valuationSubtitle">Base case</p>
-              </div>
-              <div class="segmented-control" aria-label="Scenario">
-                <button class="segment is-active" type="button" data-scenario="base">Base</button>
-                <button class="segment" type="button" data-scenario="bear">Bear</button>
-                <button class="segment" type="button" data-scenario="bull">Bull</button>
-              </div>
-            </div>
-
-            <div class="value-grid">
-              <div>
-                <span id="valuationPrimaryLabel">DCF value</span>
-                <strong id="dcfValue">-</strong>
-              </div>
-              <div>
-                <span id="valuationSecondaryLabel">P/E value</span>
-                <strong id="peValue">-</strong>
-              </div>
-              <div>
-                <span id="valuationTertiaryLabel">Current P/E</span>
-                <strong id="currentPe">-</strong>
-              </div>
-            </div>
-
-            <div class="chart-wrap">
-              <canvas id="dcfChart" width="640" height="260" aria-label="Five year free cash flow projection"></canvas>
-            </div>
-          </section>
-
           <section class="tool-panel outlook-panel" aria-label="Outlook scorecard">
             <div class="panel-title">
               <div>
@@ -457,6 +530,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260813-fcf-calc"></script>
+  <script src="app.js?v=20260813-analysis"></script>
   </body>
 </html>

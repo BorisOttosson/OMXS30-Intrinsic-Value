@@ -255,6 +255,7 @@ let state = {
   companies: loadCompanies(),
   selectedId: null,
   scenario: "base",
+  analysisModel: "dcf",
   marketData: {
     fundamentalsLoaded: false,
     pricesLoaded: false,
@@ -306,9 +307,24 @@ const elements = {
   valuationPrimaryLabel: document.querySelector("#valuationPrimaryLabel"),
   valuationSecondaryLabel: document.querySelector("#valuationSecondaryLabel"),
   valuationTertiaryLabel: document.querySelector("#valuationTertiaryLabel"),
+  valuationPrimarySub: document.querySelector("#valuationPrimarySub"),
+  valuationSecondarySub: document.querySelector("#valuationSecondarySub"),
+  valuationTertiarySub: document.querySelector("#valuationTertiarySub"),
+  valuationFourthLabel: document.querySelector("#valuationFourthLabel"),
+  valuationFourthValue: document.querySelector("#valuationFourthValue"),
+  valuationFourthSub: document.querySelector("#valuationFourthSub"),
   dcfValue: document.querySelector("#dcfValue"),
   peValue: document.querySelector("#peValue"),
   currentPe: document.querySelector("#currentPe"),
+  analysisMetricsTitle: document.querySelector("#analysisMetricsTitle"),
+  analysisMetricsNote: document.querySelector("#analysisMetricsNote"),
+  analysisChartTitle: document.querySelector("#analysisChartTitle"),
+  analysisChartSubtitle: document.querySelector("#analysisChartSubtitle"),
+  analysisChartUnit: document.querySelector("#analysisChartUnit"),
+  analysisModelTitle: document.querySelector("#analysisModelTitle"),
+  analysisModelDescription: document.querySelector("#analysisModelDescription"),
+  analysisFormula: document.querySelector("#analysisFormula"),
+  analysisAssumptions: document.querySelector("#analysisAssumptions"),
   qualityRing: document.querySelector("#qualityRing"),
   qualitySummary: document.querySelector("#qualitySummary"),
   growthGap: document.querySelector("#growthGap"),
@@ -1199,7 +1215,7 @@ function calculateOperatingModel(company, scenario) {
   const ebitdaValue = calculateEbitdaValue(company, scenario);
   const currentPe = asNumber(company.eps) > 0 ? asNumber(company.marketPrice) / asNumber(company.eps) : NaN;
   const currentEvEbitda = numberOrNull(company.fundamentals?.evToEbitda);
-  const reverse = calculateReverseDcf(company);
+  const reverse = calculateReverseDcf(company, scenario);
   const reverseBurdenScore = Number.isFinite(reverse.value)
     ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
     : 50;
@@ -1386,11 +1402,11 @@ function calculateCategoryModel(company, scenario) {
   return calculateOperatingModel(company, scenario);
 }
 
-function calculateReverseDcf(company) {
+function calculateReverseDcf(company, scenario = "base") {
   const price = asNumber(company.marketPrice);
   if (price <= 0 || asNumber(company.fcfPerShare) <= 0) return { value: NaN, label: "-" };
 
-  const valueAt = (growth) => calculateDcf(company, "base", growth * 100).value;
+  const valueAt = (growth) => calculateDcf(company, scenario, growth * 100).value;
   const low = -0.4;
   const high = 0.6;
   const lowValue = valueAt(low);
@@ -1657,8 +1673,19 @@ function bindEvents() {
   document.querySelectorAll("[data-scenario]").forEach((button) => {
     button.addEventListener("click", () => {
       state.scenario = button.dataset.scenario;
-      document.querySelectorAll("[data-scenario]").forEach((item) => item.classList.toggle("is-active", item === button));
+      document.querySelectorAll("[data-scenario]").forEach((item) => {
+        item.classList.toggle("is-active", item.dataset.scenario === state.scenario);
+      });
       renderDependentViews();
+    });
+  });
+
+  document.querySelectorAll("[data-model-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.analysisModel = button.dataset.modelView;
+      document.querySelectorAll("[data-model-view]").forEach((item) => item.classList.toggle("is-active", item === button));
+      renderMetrics();
+      drawDcfChart();
     });
   });
 
@@ -1734,7 +1761,7 @@ function renderHeader() {
       : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
-  elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(category)}`;
+  elements.valuationSubtitle.textContent = `Understand ${company.name} through the selected model and scenario`;
 }
 
 function renderDataStatus() {
@@ -2013,6 +2040,149 @@ function renderCagrBreakdown(company) {
 }
 
 
+function getScenarioExplanation(scenario = state.scenario) {
+  if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x.";
+  if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x.";
+  return "Base uses the saved growth, WACC and target P/E without adjustment.";
+}
+
+function getAnalysisPresentation(company) {
+  const currency = company.currency ?? "SEK";
+  const scenario = state.scenario;
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const scenarioLabel = adjustment.label;
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const price = asNumber(company.marketPrice);
+  const currentFcf = asNumber(company.fcfPerShare);
+  const growth = asNumber(company.growth5y) + adjustment.growth;
+  const wacc = asNumber(company.wacc) + adjustment.wacc;
+  const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
+  const difference = (value) => price > 0 && Number.isFinite(value) ? ((value - price) / price) * 100 : NaN;
+  const differenceText = (value) => {
+    const result = difference(value);
+    if (!Number.isFinite(result)) return "Cannot calculate from current inputs";
+    return `${formatPercent(result, 1)} ${result >= 0 ? "upside" : "downside"} vs current price`;
+  };
+
+  if (state.analysisModel === "pe") {
+    const value = calculatePeValue(company, scenario);
+    const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
+    return {
+      key: "pe",
+      title: `P/E · ${scenarioLabel}`,
+      note: getScenarioExplanation(scenario),
+      chartTitle: "P/E valuation compared with market price",
+      chartSubtitle: `${formatDecimal(asNumber(company.eps), 2)} ${currency} EPS × ${formatDecimal(targetPe, 1)}x target P/E`,
+      chartUnit: `${currency} / share`,
+      modelTitle: "P/E — Price / Earnings",
+      modelDescription: "Values one share by multiplying earnings per share by the selected target P/E multiple.",
+      formula: "EPS × target P/E = value per share",
+      assumptions: [
+        ["EPS", formatTickerMoney(asNumber(company.eps), currency)],
+        ["Target P/E", `${formatDecimal(targetPe, 1)}x`],
+        ["Current P/E", Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-"]
+      ],
+      metrics: [
+        ["P/E value / share", formatTickerMoney(value, currency), differenceText(value)],
+        ["Current price", formatTickerMoney(price, currency), "Market price input"],
+        ["EPS", formatTickerMoney(asNumber(company.eps), currency), "Earnings per share input"],
+        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-", `${formatDecimal(asNumber(company.targetPe), 1)}x saved input`]
+      ],
+      chartValues: [
+        { label: "Current price", value: price },
+        { label: `${scenarioLabel} value`, value }
+      ]
+    };
+  }
+
+  if (state.analysisModel === "reverse-dcf") {
+    const reverse = category === "operating" ? calculateReverseDcf(company, scenario) : { value: NaN, label: "-" };
+    const reverseFlows = Number.isFinite(reverse.value) ? calculateDcf(company, scenario, reverse.value).flows : [];
+    const consensus = numberOrNull(company.consensusGrowth);
+    return {
+      key: "reverse-dcf",
+      title: `Reverse DCF · ${scenarioLabel}`,
+      note: getScenarioExplanation(scenario),
+      chartTitle: "Market-implied free cash flow / share",
+      chartSubtitle: "The five-year FCF path required for the DCF value to equal today’s market price",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Reverse DCF — Implied Growth",
+      modelDescription: category === "operating"
+        ? "Works backwards from the current share price to find the annual five-year FCF growth required by the market."
+        : "Reverse DCF is not used for this company type because ordinary free cash flow is not its primary valuation basis.",
+      formula: "Solve DCF growth until DCF value = current price",
+      assumptions: [
+        ["Current price", formatTickerMoney(price, currency)],
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
+        ["WACC", formatPercent(wacc, 1)],
+        ["Consensus next FY", Number.isFinite(consensus) ? `${formatPercent(consensus, 1)} (different horizon)` : "N/A"]
+      ],
+      metrics: [
+        ["Required 5yr FCF growth", reverse.label, "Annual growth implied by today’s price"],
+        ["Current price", formatTickerMoney(price, currency), "The value the model solves back to"],
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency), "Latest FCF input"],
+        ["WACC", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+      ],
+      chartValues: [{ label: "Actual", value: currentFcf }, ...reverseFlows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
+    };
+  }
+
+  const dcf = category === "operating" ? calculateDcf(company, scenario) : { value: NaN, flows: [] };
+  return {
+    key: "dcf",
+    title: `DCF · ${scenarioLabel}`,
+    note: getScenarioExplanation(scenario),
+    chartTitle: "Projected free cash flow / share",
+    chartSubtitle: `${scenarioLabel} five-year forecast from the current FCF / share input`,
+    chartUnit: `${currency} / share`,
+    modelTitle: "DCF — Discounted Cash Flow",
+    modelDescription: category === "operating"
+      ? "Projects five years of free cash flow, discounts those cash flows and the terminal value back to today, then subtracts net debt."
+      : "DCF is not used for this company type in the dashboard’s existing category model.",
+    formula: "Present value of 5yr FCF + terminal value − net debt",
+    assumptions: [
+      ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
+      ["FCF growth", formatPercent(growth, 1)],
+      ["WACC", formatPercent(wacc, 1)],
+      ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
+    ],
+    metrics: [
+      ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
+      ["Current price", formatTickerMoney(price, currency), "Market price input"],
+      ["5yr FCF growth", formatPercent(growth, 1), `${formatPercent(asNumber(company.growth5y), 1)} saved input`],
+      ["WACC", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+    ],
+    chartValues: [{ label: "Actual", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
+  };
+}
+
+function renderAnalysis(company) {
+  const presentation = getAnalysisPresentation(company);
+  const metricTargets = [
+    [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
+    [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
+    [elements.valuationTertiaryLabel, elements.currentPe, elements.valuationTertiarySub],
+    [elements.valuationFourthLabel, elements.valuationFourthValue, elements.valuationFourthSub]
+  ];
+  presentation.metrics.forEach(([label, value, sub], index) => {
+    metricTargets[index][0].textContent = label;
+    metricTargets[index][1].textContent = value;
+    metricTargets[index][2].textContent = sub;
+  });
+
+  elements.analysisMetricsTitle.textContent = presentation.title;
+  elements.analysisMetricsNote.textContent = presentation.note;
+  elements.analysisChartTitle.textContent = presentation.chartTitle;
+  elements.analysisChartSubtitle.textContent = presentation.chartSubtitle;
+  elements.analysisChartUnit.textContent = presentation.chartUnit;
+  elements.analysisModelTitle.textContent = presentation.modelTitle;
+  elements.analysisModelDescription.textContent = presentation.modelDescription;
+  elements.analysisFormula.textContent = presentation.formula;
+  elements.analysisAssumptions.innerHTML = presentation.assumptions
+    .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
+    .join("");
+}
+
 function renderMetrics() {
   const company = getSelectedCompany();
   if (!company) return;
@@ -2030,12 +2200,7 @@ function renderMetrics() {
   elements.metricScore.textContent = Number.isFinite(calc.researchScore) ? `${calc.researchScore}` : "-";
   elements.metricScoreSub.textContent = calc.stance.label;
 
-  elements.valuationPrimaryLabel.textContent = calc.model.primaryLabel;
-  elements.valuationSecondaryLabel.textContent = calc.model.secondaryLabel;
-  elements.valuationTertiaryLabel.textContent = calc.model.tertiaryLabel;
-  elements.dcfValue.textContent = formatCurrency(calc.model.primaryValue, company.currency ?? "SEK");
-  elements.peValue.textContent = formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK");
-  elements.currentPe.textContent = calc.model.tertiaryValue;
+  renderAnalysis(company);
 }
 
 function renderOutlook() {
@@ -2314,68 +2479,74 @@ function drawDcfChart() {
 
   const width = rect.width;
   const height = rect.height;
-  const calc = calculateCompany(company);
-  const flows = calc.dcf.flows;
-  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const presentation = getAnalysisPresentation(company);
+  const values = presentation.chartValues.filter((item) => Number.isFinite(item.value) && item.value >= 0);
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#071b2e";
   context.fillRect(0, 0, width, height);
 
-  if (category !== "operating") {
-    context.fillStyle = "#f8fbff";
-    context.font = `14px ${CHART_FONT_STACK}`;
-    context.fillText(calc.model.chartTitle, 22, 34);
+  if (!values.length) {
     context.fillStyle = "#b8c0ca";
-    context.fillText(calc.model.valueDescription, 22, 62);
-    context.fillText(`${calc.model.primaryLabel}: ${formatCurrency(calc.model.primaryValue, company.currency ?? "SEK")}`, 22, 92);
-    context.fillText(`${calc.model.secondaryLabel}: ${formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK")}`, 22, 120);
+    context.font = `15px ${CHART_FONT_STACK}`;
+    context.textAlign = "center";
+    context.fillText("This model is unavailable from the existing inputs for this company.", width / 2, height / 2);
     return;
   }
 
-  if (!flows.length) {
-    context.fillStyle = "#b8c0ca";
-    context.font = `14px ${CHART_FONT_STACK}`;
-    context.fillText("DCF input conflict", 22, 34);
-    return;
-  }
-
-  const padding = { top: 26, right: 22, bottom: 42, left: 46 };
+  const padding = { top: 48, right: 26, bottom: 54, left: 62 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
-  const maxFlow = Math.max(...flows.map((flow) => flow.cashFlow), asNumber(company.fcfPerShare));
-  const barWidth = Math.min(58, chartWidth / flows.length * 0.54);
+  const maxValue = Math.max(...values.map((item) => item.value));
+  const chartMax = maxValue > 0 ? maxValue * 1.18 : 1;
+  const slotWidth = chartWidth / values.length;
+  const barWidth = Math.min(82, slotWidth * 0.56);
 
-  context.strokeStyle = "rgba(220, 229, 240, 0.28)";
-  context.lineWidth = 1;
-  context.beginPath();
-  context.moveTo(padding.left, padding.top);
-  context.lineTo(padding.left, height - padding.bottom);
-  context.lineTo(width - padding.right, height - padding.bottom);
-  context.stroke();
+  context.font = `11px ${CHART_FONT_STACK}`;
+  context.textAlign = "right";
+  context.textBaseline = "middle";
+  for (let line = 0; line <= 4; line += 1) {
+    const ratio = line / 4;
+    const y = height - padding.bottom - chartHeight * ratio;
+    const tick = chartMax * ratio;
+    context.strokeStyle = line === 0 ? "rgba(220, 229, 240, 0.34)" : "rgba(220, 229, 240, 0.1)";
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(width - padding.right, y);
+    context.stroke();
+    context.fillStyle = "#7f8ea5";
+    context.fillText(formatDecimal(tick, tick >= 100 ? 0 : 1), padding.left - 10, y);
+  }
 
-  flows.forEach((flow, index) => {
-    const x = padding.left + (chartWidth / flows.length) * index + (chartWidth / flows.length - barWidth) / 2;
-    const barHeight = Math.max(2, (flow.cashFlow / maxFlow) * chartHeight);
+  values.forEach((item, index) => {
+    const x = padding.left + slotWidth * index + (slotWidth - barWidth) / 2;
+    const barHeight = Math.max(2, (item.value / chartMax) * chartHeight);
     const y = height - padding.bottom - barHeight;
     const gradient = context.createLinearGradient(0, y, 0, height - padding.bottom);
-    gradient.addColorStop(0, "#6aa7ff");
-    gradient.addColorStop(1, "#72d05f");
+    if (state.scenario === "bear") {
+      gradient.addColorStop(0, "#ff7694");
+      gradient.addColorStop(1, "#a64267");
+    } else if (state.scenario === "bull") {
+      gradient.addColorStop(0, "#72c8ff");
+      gradient.addColorStop(1, "#72d05f");
+    } else {
+      gradient.addColorStop(0, "#6aa7ff");
+      gradient.addColorStop(1, state.analysisModel === "reverse-dcf" ? "#8f7cff" : "#72d05f");
+    }
 
     context.fillStyle = gradient;
     roundedRect(context, x, y, barWidth, barHeight, 6);
     context.fill();
 
+    context.fillStyle = "#f8fbff";
+    context.font = `600 12px ${CHART_FONT_STACK}`;
+    context.textAlign = "center";
+    context.textBaseline = "alphabetic";
+    context.fillText(formatDecimal(item.value, item.value >= 100 ? 0 : 2), x + barWidth / 2, Math.max(18, y - 10));
     context.fillStyle = "#b8c0ca";
     context.font = `12px ${CHART_FONT_STACK}`;
-    context.textAlign = "center";
-    context.fillText(`Y${flow.year}`, x + barWidth / 2, height - 18);
+    context.fillText(item.label, x + barWidth / 2, height - 20);
   });
-
-  context.fillStyle = "#f8fbff";
-  context.font = `13px ${CHART_FONT_STACK}`;
-  context.textAlign = "left";
-  context.fillText(calc.model.chartTitle, padding.left, 18);
 }
 
 function roundedRect(context, x, y, width, height, radius) {
