@@ -1868,7 +1868,7 @@ function renderCagrBreakdown(company) {
     ${usable
       ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
       : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
-    <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus growth is a separate manual input and never feeds this calculation.</p>
+    <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus FCF growth is a separate input and never feeds this calculation.</p>
   `;
 }
 
