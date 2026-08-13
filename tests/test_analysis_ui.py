@@ -34,6 +34,14 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("calculateReverseDcf(company, scenario)", self.javascript)
         self.assertIn("Projected free cash flow / share", self.html)
 
+    def test_dcf_growth_is_a_separate_manual_input(self):
+        self.assertIn('data-field="growth5y" type="number" step="0.1" readonly', self.html)
+        self.assertIn('data-field="dcfGrowth"', self.html)
+        dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
+        self.assertIn("company.dcfGrowth", dcf_function)
+        self.assertNotIn("company.growth5y", dcf_function)
+        self.assertIn("This CAGR is read-only and is not used by the DCF", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()
