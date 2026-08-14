@@ -990,6 +990,33 @@ input::placeholder { color: var(--faint); }
 .cagr-table tr:last-child td { border-bottom: 0; }
 .cagr-table tr.is-muted td { opacity: 0.42; }
 
+.fcf-source-value,
+.fx-equivalent {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.fx-equivalent {
+  margin-top: 2px;
+  color: var(--accent);
+  font-size: 0.68rem;
+}
+
+.fx-disclosure {
+  padding: 10px 12px;
+  border: 1px solid rgba(79, 146, 216, 0.28);
+  border-radius: 8px;
+  background: rgba(79, 146, 216, 0.07);
+  color: var(--muted);
+  font-size: 0.71rem;
+  line-height: 1.55;
+}
+
+.fx-disclosure.is-warning {
+  border-color: rgba(255, 182, 72, 0.34);
+  background: rgba(255, 182, 72, 0.07);
+}
+
 .cagr-up { color: var(--pos); }
 .cagr-down { color: var(--neg); }
 .cagr-na { color: var(--faint); }

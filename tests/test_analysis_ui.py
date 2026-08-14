@@ -59,6 +59,13 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn(".model-panel { grid-column: 1 / -1; }", styles)
         self.assertIn(".target-price-panel { grid-column: 1 / -1; }", styles)
 
+    def test_market_screener_currency_and_fx_are_shown_transparently(self):
+        self.assertIn("FX_DATA_URL", self.javascript)
+        self.assertIn("function getFxAudit", self.javascript)
+        self.assertIn("MarketScreener values are reported in", self.javascript)
+        self.assertIn("1 ${escapeHtml(currency)} = ${audit.fx.rateToSek.toFixed(5)} SEK", self.javascript)
+        self.assertIn("The growth percentage is calculated from the source-currency values", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()
