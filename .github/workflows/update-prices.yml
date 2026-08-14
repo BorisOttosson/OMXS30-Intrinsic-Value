@@ -3,13 +3,11 @@ name: Update prices
 on:
   workflow_dispatch:
   schedule:
-    # GitHub uses UTC. These paired schedules cover the same 20 Stockholm
-    # trading-day slots during summer and winter time. The Python script
-    # filters to the real local slots.
-    - cron: "1,25,49 7,9,11,13 * * 1-5"
-    - cron: "13,37 8,10,12,14 * * 1-5"
-    - cron: "1,25,49 8,10,12,14 * * 1-5"
-    - cron: "13,37 9,11,13,15 * * 1-5"
+    # Offset from round hours to reduce GitHub scheduler congestion.
+    - cron: "7-57/10 9-16 * * 1-5"
+      timezone: "Europe/Stockholm"
+    - cron: "7,17,27 17 * * 1-5"
+      timezone: "Europe/Stockholm"
 
 permissions:
   contents: write
@@ -39,7 +37,7 @@ jobs:
       - name: Fetch Yahoo Finance prices
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            python scripts/update_prices.py --output data/prices.json --enforce-price-slots
+            python scripts/update_prices.py --output data/prices.json --enforce-market-window --prices-only
           else
             python scripts/update_prices.py --output data/prices.json
           fi

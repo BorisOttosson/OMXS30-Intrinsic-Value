@@ -76,6 +76,11 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         )
         self.assertIn("Automatically equals the current trailing P/E shown next to the share price", self.html)
 
+    def test_analysis_section_has_financial_title_without_dynamic_subtitle(self):
+        self.assertIn("<h3>Financial Analysis</h3>", self.html)
+        self.assertNotIn('id="valuationSubtitle"', self.html)
+        self.assertNotIn("elements.valuationSubtitle", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()

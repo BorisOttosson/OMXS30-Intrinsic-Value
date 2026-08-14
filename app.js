@@ -294,7 +294,6 @@ const elements = {
   selectedMeta: document.querySelector("#selectedMeta"),
   inputBadge: document.querySelector("#inputBadge"),
   stanceBadge: document.querySelector("#stanceBadge"),
-  valuationSubtitle: document.querySelector("#valuationSubtitle"),
   metricValue: document.querySelector("#metricValue"),
   metricValueSub: document.querySelector("#metricValueSub"),
   heroCurrentPrice: document.querySelector("#heroCurrentPrice"),
@@ -1968,7 +1967,6 @@ function renderHeader() {
       : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
-  elements.valuationSubtitle.textContent = `Understand ${company.name} through the selected model and scenario`;
 }
 
 function renderDataStatus() {
