@@ -420,7 +420,7 @@ function createDefaultCompanies() {
       growth5yUpdatedAt: null,
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
       terminalGrowth: defaults.terminalGrowth,
-      targetPe: round(defaults.targetPe + ((index % 3) - 1) * 0.6, 1),
+      targetPe: round(price / eps, 2),
       targetEvToEbitda,
       portfolioWeight: 0,
       industryScore,
@@ -453,7 +453,7 @@ function mergeWithSeed(savedCompanies) {
   const savedById = new Map(savedCompanies.map((company) => [company.id, company]));
   return defaults.map((company) => {
     const saved = savedById.get(company.id) ?? {};
-    return {
+    const merged = {
       ...company,
       ...saved,
       companyType: normalizeCompanyType(saved.companyType, company.ticker),
@@ -463,6 +463,8 @@ function mergeWithSeed(savedCompanies) {
       consensusGrowthAsOf: null,
       consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" }
     };
+    merged.targetPe = getCurrentPeRatio(merged);
+    return merged;
   });
 }
 
@@ -644,14 +646,22 @@ function applyMarketData(currentCompanies, marketCompanies) {
     const fundamentalsUsable = market.dataQuality?.valuationReady !== false;
     const fundamentalInput = (value) => fundamentalsUsable ? numberOrNull(value) : null;
 
+    const resolvedMarketPrice = numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice);
+    const resolvedEps = fundamentalInput(market.eps);
+    const currentPe = getCurrentPeRatio({
+      marketPrice: resolvedMarketPrice,
+      eps: resolvedEps,
+      fundamentals
+    });
+
     return {
       ...seedCompany,
       ...current,
       companyType: normalizeCompanyType(market.companyType ?? current.companyType, seedCompany.ticker),
-      marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
+      marketPrice: resolvedMarketPrice,
       fcfPerShare: fundamentalInput(market.fcfPerShare),
       ebitdaPerShare: fundamentalInput(market.ebitdaPerShare),
-      eps: fundamentalInput(market.eps),
+      eps: resolvedEps,
       netDebtPerShare: fundamentalInput(market.netDebtPerShare),
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
       navPerShare: numberOrFallback(market.navPerShare, current.navPerShare ?? seedCompany.navPerShare),
@@ -672,7 +682,9 @@ function applyMarketData(currentCompanies, marketCompanies) {
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
       consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
-      targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
+      // Base-case target P/E is always anchored to the current trailing P/E
+      // displayed beside the share price.
+      targetPe: currentPe,
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
       currency: market.currency ?? current.currency ?? "SEK",
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
@@ -745,10 +757,16 @@ function applyPriceData(currentCompanies, priceCompanies) {
     const fcfYield = marketCap !== null && freeCashFlow !== null && marketCap > 0
       ? (freeCashFlow / marketCap) * 100
       : numberOrNull(existingFundamentals.fcfYield);
+    const currentPe = providerTrailingPe !== null && providerTrailingPe > 0
+      ? providerTrailingPe
+      : (trailingEps !== null && trailingEps > 0
+        ? marketPrice / trailingEps
+        : getCurrentPeRatio({ ...company, marketPrice }));
 
     return {
       ...company,
       marketPrice,
+      targetPe: currentPe,
       currency: price.currency ?? company.currency ?? "SEK",
       priceSource: price.source ?? "Yahoo Finance",
       priceUpdatedAt: price.priceUpdatedAt ?? price.dataUpdatedAt ?? null,
@@ -772,6 +790,10 @@ function applyPriceData(currentCompanies, priceCompanies) {
 
 function getSelectedCompany() {
   return state.companies.find((company) => company.id === state.selectedId) ?? state.companies[0];
+}
+
+function getCurrentPeRatio(company) {
+  return getDisplayTrailingPe(company);
 }
 
 function getCompanyType(ticker) {
@@ -1151,7 +1173,8 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
 function calculatePeValue(company, scenario = "base") {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const eps = asNumber(company.eps);
-  const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
+  const currentPe = getCurrentPeRatio(company);
+  const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
   return eps > 0 && targetPe > 0 ? eps * targetPe : NaN;
 }
 
@@ -1338,14 +1361,14 @@ function calculateCyclicalModel(company, scenario) {
   const currency = company.currency ?? "SEK";
   const price = asNumber(company.marketPrice);
   const normalizedFcf = getNormalizedFcfPerShare(company);
-  const normalizedMultiple = clamp(asNumber(company.targetPe) * 0.85, 7, 16);
+  const currentPe = getCurrentPeRatio(company);
+  const normalizedMultiple = clamp(asNumber(currentPe) * 0.85, 7, 16);
   const netDebt = asNumber(company.netDebtPerShare);
   const normalizedFcfValue = normalizedFcf && normalizedFcf > 0
     ? normalizedFcf * normalizedMultiple - netDebt
     : NaN;
   const ebitdaValue = calculateEbitdaValue(company, scenario, true);
   const peValue = calculatePeValue(company, scenario);
-  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
   const normalizedFcfYield = price > 0 && normalizedFcf && normalizedFcf > 0 ? (normalizedFcf / price) * 100 : NaN;
 
   return {
@@ -1834,6 +1857,11 @@ function bindEvents() {
       company[field] = field === "notes"
         ? event.target.value
         : (field === "dcfGrowth" ? numberOrNull(event.target.value) : asNumber(event.target.value));
+      if (field === "marketPrice" || field === "eps") {
+        company.targetPe = getCurrentPeRatio(company);
+        const targetPeInput = document.querySelector('[data-field="targetPe"]');
+        if (targetPeInput) targetPeInput.value = roundFieldValue(company.targetPe);
+      }
       company.source = "Edited";
     }
 
@@ -2272,7 +2300,7 @@ function renderCagrBreakdown(company) {
 function getScenarioExplanation(scenario = state.scenario) {
   if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x.";
   if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x.";
-  return "Base uses the manual DCF growth assumption, WACC and target P/E without adjustment.";
+  return "Base uses the manual DCF growth assumption, WACC and the current P/E as its target P/E anchor.";
 }
 
 function getAnalysisPresentation(company) {
@@ -2286,7 +2314,8 @@ function getAnalysisPresentation(company) {
   const baseDcfGrowth = numberOrNull(company.dcfGrowth);
   const growth = baseDcfGrowth === null ? NaN : baseDcfGrowth + adjustment.growth;
   const wacc = asNumber(company.wacc) + adjustment.wacc;
-  const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
+  const currentPe = getCurrentPeRatio(company);
+  const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
   const difference = (value) => price > 0 && Number.isFinite(value) ? ((value - price) / price) * 100 : NaN;
   const differenceText = (value) => {
     const result = difference(value);
@@ -2296,7 +2325,6 @@ function getAnalysisPresentation(company) {
 
   if (state.analysisModel === "pe") {
     const value = calculatePeValue(company, scenario);
-    const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
     return {
       key: "pe",
       title: `P/E · ${scenarioLabel}`,
@@ -2305,18 +2333,18 @@ function getAnalysisPresentation(company) {
       chartSubtitle: `${formatDecimal(asNumber(company.eps), 2)} ${currency} EPS × ${formatDecimal(targetPe, 1)}x target P/E`,
       chartUnit: `${currency} / share`,
       modelTitle: "P/E — Price / Earnings",
-      modelDescription: "Values one share by multiplying earnings per share by the selected target P/E multiple.",
+      modelDescription: "Values one share using the current P/E as the base-case target multiple. Bull and bear adjust that anchor by +2.0x or −2.0x.",
       formula: "EPS × target P/E = value per share",
       assumptions: [
         ["EPS", formatTickerMoney(asNumber(company.eps), currency)],
-        ["Target P/E", `${formatDecimal(targetPe, 1)}x`],
+        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-"],
         ["Current P/E", Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-"]
       ],
       metrics: [
         ["P/E value / share", formatTickerMoney(value, currency), differenceText(value)],
         ["Current price", formatTickerMoney(price, currency), "Market price input"],
         ["EPS", formatTickerMoney(asNumber(company.eps), currency), "Earnings per share input"],
-        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-", `${formatDecimal(asNumber(company.targetPe), 1)}x saved input`]
+        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-", state.scenario === "base" ? "Equal to current P/E" : `${formatDecimal(adjustment.targetPe, 1)}x scenario adjustment`]
       ],
       chartValues: [
         { label: "Current price", value: price },
