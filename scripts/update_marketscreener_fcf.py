@@ -29,6 +29,7 @@ from typing import Any
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "marketscreener-fcf.json"
+OFFICIAL_FUNDAMENTALS_PATH = ROOT / "data" / "official-fundamentals.json"
 
 FIRECRAWL_DIRECT_URL = "https://api.firecrawl.dev/v2/scrape"
 FIRECRAWL_GATEWAY_URL = "https://connector-gateway.lovable.dev/firecrawl/v2/scrape"
@@ -167,13 +168,10 @@ def parse_finances(markdown: str) -> dict[str, Any]:
     fcf_row: list[str] | None = None
     currency: str | None = None
     unit: str | None = None
+    fcf_line_index: int | None = None
 
-    for line in lines:
+    for line_index, line in enumerate(lines):
         if not line.lstrip().startswith("|"):
-            match = re.search(r"\b(SEK|EUR|USD|GBP|DKK|NOK|CHF)\s+in\s+(Million|Billion|Thousand)", line, re.I)
-            if match and currency is None:
-                currency = match.group(1).upper()
-                unit = match.group(2).lower()
             continue
 
         cells = split_row(line)
@@ -191,16 +189,31 @@ def parse_finances(markdown: str) -> dict[str, Any]:
             values = [c for c in cells[1:] if c not in {"", "1"}]
             if len(values) >= len(years):
                 fcf_row = values[: len(years)]
+                fcf_line_index = line_index
 
     if not years or not fcf_row:
         raise RuntimeError("free cash flow row not found")
+
+    # MarketScreener puts the unit footnote immediately below the relevant
+    # table. Search locally around the FCF row so an unrelated page currency
+    # cannot be mistaken for the cash-flow reporting currency.
+    if fcf_line_index is not None:
+        nearby = "\n".join(lines[max(0, fcf_line_index - 3): fcf_line_index + 18])
+        match = re.search(
+            r"\b(SEK|EUR|USD|GBP|DKK|NOK|CHF)\s+in\s+(Million|Billion|Thousand)",
+            nearby,
+            re.I,
+        )
+        if match:
+            currency = match.group(1).upper()
+            unit = match.group(2).lower()
 
     series = []
     for year, cell in zip(years, fcf_row):
         series.append({"year": int(year), "fcf": parse_number(cell)})
 
     return {
-        "currency": currency or "SEK",
+        "currency": currency,
         "unit": unit or "million",
         "series": series,
     }
@@ -233,10 +246,61 @@ def yoy(series: list[dict[str, Any]]) -> list[dict[str, Any]]:
 # --------------------------------------------------------------------------- main
 
 
-def build_record(ticker: str, base_url: str) -> dict[str, Any]:
+def load_reporting_currency_evidence() -> dict[str, dict[str, str]]:
+    manifest = json.loads(OFFICIAL_FUNDAMENTALS_PATH.read_text(encoding="utf-8"))
+    return {
+        ticker: {
+            "currency": str(entry["currency"]).upper(),
+            "sourceName": entry["sourceName"],
+            "sourceUrl": entry["sourceUrl"],
+        }
+        for ticker, entry in manifest.get("companies", {}).items()
+    }
+
+
+def apply_currency_evidence(
+    payload: dict[str, Any],
+    evidence: dict[str, dict[str, str]],
+) -> dict[str, Any]:
+    """Attach verified reporting currency metadata to every stored row."""
+    for row in payload.get("companies", {}).values():
+        ticker = row.get("ticker")
+        official = evidence.get(ticker)
+        if not official:
+            raise ValueError(f"{ticker}: official reporting-currency evidence is missing")
+        row["currency"] = official["currency"]
+        row["reportedCurrency"] = official["currency"]
+        row["displayCurrency"] = "SEK"
+        existing_evidence = row.get("currencyEvidence", {})
+        row["currencyEvidence"] = {
+            "method": "Official company report currency cross-check",
+            "sourceName": official["sourceName"],
+            "sourceUrl": official["sourceUrl"],
+            "marketScreenerDetectedCurrency": existing_evidence.get(
+                "marketScreenerDetectedCurrency"
+            ),
+        }
+    payload["currencyPolicy"] = (
+        "FCF values stay in the company's official reporting currency; "
+        "the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+    )
+    return payload
+
+
+def build_record(
+    ticker: str,
+    base_url: str,
+    reporting_currency_evidence: dict[str, str],
+) -> dict[str, Any]:
     url = finances_url(base_url)
     markdown = firecrawl_scrape(url)
     parsed = parse_finances(markdown)
+    reporting_currency = reporting_currency_evidence["currency"]
+    if parsed["currency"] and parsed["currency"] != reporting_currency:
+        raise RuntimeError(
+            f"MarketScreener FCF currency {parsed['currency']} conflicts with "
+            f"official-report currency {reporting_currency}"
+        )
     actual, forecast = split_actual_forecast(parsed["series"])
     if not actual and not forecast:
         # Banks and other financials publish no free cash flow line on MarketScreener.
@@ -257,7 +321,18 @@ def build_record(ticker: str, base_url: str) -> dict[str, Any]:
         "id": company_id(ticker),
         "sourceUrl": url,
         "retrievedAt": datetime.now(timezone.utc).isoformat(),
-        "currency": parsed["currency"],
+        # The figures below remain in MarketScreener's source/reporting
+        # currency. SEK equivalents are calculated separately from a dated
+        # Sveriges Riksbank reference rate; never relabel raw values as SEK.
+        "currency": reporting_currency,
+        "reportedCurrency": reporting_currency,
+        "displayCurrency": "SEK",
+        "currencyEvidence": {
+            "method": "Official company report currency cross-check",
+            "sourceName": reporting_currency_evidence["sourceName"],
+            "sourceUrl": reporting_currency_evidence["sourceUrl"],
+            "marketScreenerDetectedCurrency": parsed["currency"],
+        },
         "unit": parsed["unit"],
         "fcfHistory": actual,
         "fcfForecast": forecast,
@@ -274,12 +349,15 @@ def main() -> int:
     only = {t.upper() for t in sys.argv[1:]} if len(sys.argv) > 1 else None
     rows: list[dict[str, Any]] = []
     failures: list[dict[str, str]] = []
+    currency_evidence = load_reporting_currency_evidence()
 
     for ticker, base_url in MARKETSCREENER_URLS.items():
         if only and ticker not in only:
             continue
         try:
-            record = build_record(ticker, base_url)
+            if ticker not in currency_evidence:
+                raise RuntimeError("official reporting-currency evidence is missing")
+            record = build_record(ticker, base_url, currency_evidence[ticker])
             rows.append(record)
             hist = record["historicalFcfCagr"]
             cons = record["consensusFcfCagr"]
@@ -296,6 +374,10 @@ def main() -> int:
     payload = {
         "updatedAt": datetime.now(timezone.utc).isoformat(),
         "source": "MarketScreener (financials page) via Firecrawl",
+        "currencyPolicy": (
+            "FCF values stay in the company's official reporting currency; "
+            "the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+        ),
         "count": len(rows),
         "failures": failures,
         "companies": {row["id"]: row for row in rows},
@@ -307,6 +389,8 @@ def main() -> int:
         merged.update(payload["companies"])
         payload["companies"] = merged
         payload["count"] = len(merged)
+
+    payload = apply_currency_evidence(payload, currency_evidence)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
