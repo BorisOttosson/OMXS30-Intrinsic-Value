@@ -6,6 +6,7 @@ const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
 const MARKETSCREENER_DATA_URL = `${RAW_DATA_BASE_URL}/marketscreener-fcf.json`;
+const FX_DATA_URL = `${RAW_DATA_BASE_URL}/fx-rates.json`;
 const TARGET_PRICE_DATA_URLS = [
   `${RAW_DATA_BASE_URL}/riktkurser.json`,
   `${RAW_DATA_BASE_URL}/price_targets.json`
@@ -1488,6 +1489,47 @@ function getStance(marginOfSafety, qualityScore) {
 }
 
 let marketScreenerFcf = null;
+let riksbankFx = null;
+
+function getFxAudit(currency) {
+  const reportedCurrency = String(currency ?? "").toUpperCase();
+  if (!reportedCurrency) {
+    return { valid: false, reason: "The source reporting currency is missing" };
+  }
+  if (reportedCurrency === "SEK") {
+    return {
+      valid: true,
+      noConversion: true,
+      fromCurrency: "SEK",
+      toCurrency: "SEK",
+      rateToSek: 1
+    };
+  }
+
+  const row = riksbankFx?.rates?.[reportedCurrency];
+  const rate = numberOrNull(row?.rateToSek);
+  const ageDays = daysSince(row?.date);
+  if (!row || rate === null || rate <= 0 || ageDays === null || ageDays < -1) {
+    return { valid: false, reason: `No valid ${reportedCurrency}/SEK reference rate is available` };
+  }
+  if (ageDays > 7) {
+    return { valid: false, reason: `The ${reportedCurrency}/SEK reference rate is stale (${ageDays} days old)` };
+  }
+  return {
+    valid: true,
+    noConversion: false,
+    fromCurrency: reportedCurrency,
+    toCurrency: "SEK",
+    rateToSek: rate,
+    rateDate: row.date,
+    seriesId: row.seriesId,
+    apiUrl: row.apiUrl,
+    sourceName: riksbankFx.sourceName ?? "Sveriges Riksbank",
+    sourceUrl: riksbankFx.sourceUrl,
+    retrievedAt: riksbankFx.updatedAt,
+    ageDays
+  };
+}
 
 function getMarketScreenerNextFyAudit(row) {
   if (!row) return { valid: false, reason: "No MarketScreener FCF forecast is available" };
@@ -1537,6 +1579,7 @@ function getMarketScreenerNextFyAudit(row) {
     return { valid: false, reason: "The stored MarketScreener growth rate does not reconcile to its FCF values" };
   }
 
+  const reportedCurrency = row.reportedCurrency ?? row.currency;
   return {
     valid: true,
     growth,
@@ -1544,8 +1587,12 @@ function getMarketScreenerNextFyAudit(row) {
     estimateYear,
     baseFcf,
     estimateFcf,
-    currency: row.currency ?? "SEK",
+    currency: reportedCurrency,
+    reportedCurrency,
+    displayCurrency: "SEK",
     unit: row.unit ?? "million",
+    fx: getFxAudit(reportedCurrency),
+    currencyEvidence: row.currencyEvidence ?? null,
     sourceUrl: row.sourceUrl,
     retrievedAt: row.retrievedAt,
     ageDays
@@ -1632,7 +1679,9 @@ function validateHistoricalFcfSeries(rows, metadata = {}) {
     source: metadata.source ?? "Source unavailable",
     sourceUrl: metadata.sourceUrl ?? null,
     updatedAt: metadata.updatedAt ?? null,
-    sourceKind: metadata.sourceKind ?? "unknown"
+    sourceKind: metadata.sourceKind ?? "unknown",
+    fx: metadata.fx ?? getFxAudit(metadata.currency ?? "SEK"),
+    currencyEvidence: metadata.currencyEvidence ?? null
   };
 }
 
@@ -1667,12 +1716,14 @@ function getHistoricalFcfAudit(company, fallbackRow) {
   }
   return validateHistoricalFcfSeries(fallbackRow.fcfHistory, {
     suppliedCagr: fallbackRow.historicalFcfCagr,
-    currency: fallbackRow.currency ?? company.currency ?? "SEK",
+    currency: fallbackRow.reportedCurrency ?? fallbackRow.currency,
     unit: fallbackRow.unit ?? "million",
     source: "MarketScreener reported FCF history (fallback)",
     sourceUrl: fallbackRow.sourceUrl,
     updatedAt: fallbackRow.retrievedAt,
-    sourceKind: "third-party-fallback"
+    sourceKind: "third-party-fallback",
+    fx: getFxAudit(fallbackRow.reportedCurrency ?? fallbackRow.currency),
+    currencyEvidence: fallbackRow.currencyEvidence ?? null
   });
 }
 
@@ -1693,15 +1744,21 @@ function applyHistoricalFcfGrowth(companies, rows) {
 
 async function loadMarketScreenerFcf() {
   try {
-    const response = await fetch(`${MARKETSCREENER_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
+    const cacheBuster = Date.now();
+    const [response, fxResponse] = await Promise.all([
+      fetch(`${MARKETSCREENER_DATA_URL}?t=${cacheBuster}`, { cache: "no-store" }),
+      fetch(`${FX_DATA_URL}?t=${cacheBuster}`, { cache: "no-store" }).catch(() => null)
+    ]);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
+    riksbankFx = fxResponse?.ok ? await fxResponse.json() : null;
     marketScreenerFcf = payload?.companies ?? null;
     state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
     state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
     renderAll();
   } catch (error) {
     marketScreenerFcf = null;
+    riksbankFx = null;
     state.companies = applyMarketScreenerNextFyGrowth(state.companies, null);
     state.companies = applyHistoricalFcfGrowth(state.companies, null);
     renderAll();
@@ -2026,7 +2083,10 @@ function renderGrowthMeta(company) {
       cagrMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated annual FCF history"}`;
     } else {
       const source = audit.sourceKind === "official" ? "Verified official reports" : "MarketScreener fallback";
-      cagrMeta.textContent = `${audit.years}yr CAGR (${audit.oldest.year}–${audit.latest.year}) | ${source} | Updated: ${formatShortDate(audit.updatedAt) ?? "n/a"}`;
+      const fx = audit.fx?.valid && !audit.fx.noConversion
+        ? ` | ${audit.currency}→SEK ${audit.fx.rateToSek.toFixed(5)} (${audit.fx.rateDate})`
+        : "";
+      cagrMeta.textContent = `${audit.years}yr CAGR (${audit.oldest.year}–${audit.latest.year}) | ${source}${fx} | Updated: ${formatShortDate(audit.updatedAt) ?? "n/a"}`;
     }
   }
 
@@ -2042,6 +2102,9 @@ function renderGrowthMeta(company) {
       consensusMeta.innerHTML =
         `${audit.baseYear}A → ${audit.estimateYear}E | ` +
         `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">MarketScreener cash-flow forecast</a>` +
+        (audit.fx?.valid && !audit.fx.noConversion
+          ? ` | ${escapeHtml(audit.currency)}→SEK ${audit.fx.rateToSek.toFixed(5)} (${escapeHtml(audit.fx.rateDate)})`
+          : "") +
         (asOf ? ` | Retrieved ${escapeHtml(asOf)}` : "");
     }
   }
@@ -2051,6 +2114,38 @@ function formatConsensusFcf(value, audit) {
   if (!Number.isFinite(value)) return "n/a";
   const formatted = Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
   return `${formatted} ${audit.unit ?? "million"} ${audit.currency ?? "SEK"}`;
+}
+
+function formatSekEquivalent(value, audit) {
+  if (!Number.isFinite(value) || !audit?.fx?.valid || audit.fx.noConversion) return null;
+  const converted = value * audit.fx.rateToSek;
+  return `${converted.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${audit.unit ?? "million"} SEK`;
+}
+
+function renderFcfValue(value, audit) {
+  const sourceValue = escapeHtml(formatConsensusFcf(value, audit));
+  const sekValue = formatSekEquivalent(value, audit);
+  return sekValue
+    ? `<span class="fcf-source-value">${sourceValue}</span><small class="fx-equivalent">≈ ${escapeHtml(sekValue)}</small>`
+    : `<span class="fcf-source-value">${sourceValue}</span>`;
+}
+
+function renderFxDisclosure(audit) {
+  const currency = audit?.reportedCurrency ?? audit?.currency ?? "unknown currency";
+  const currencyEvidence = audit?.currencyEvidence;
+  const evidenceLink = currencyEvidence?.sourceUrl
+    ? `<a href="${escapeHtml(currencyEvidence.sourceUrl)}" target="_blank" rel="noopener">official company report</a>`
+    : "official company report";
+  if (currency === "SEK") {
+    return `<p class="fx-disclosure"><strong>Currency:</strong> MarketScreener values are reported in SEK, cross-checked against the ${evidenceLink}. No FX conversion is applied.</p>`;
+  }
+  if (!audit?.fx?.valid) {
+    return `<p class="fx-disclosure is-warning"><strong>Currency:</strong> MarketScreener values are reported in ${escapeHtml(currency)}, cross-checked against the ${evidenceLink}. SEK equivalents are unavailable because ${escapeHtml(audit?.fx?.reason ?? "the official reference rate could not be validated")}.</p>`;
+  }
+  const sourceLink = audit.fx.sourceUrl
+    ? `<a href="${escapeHtml(audit.fx.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(audit.fx.sourceName)}</a>`
+    : escapeHtml(audit.fx.sourceName);
+  return `<p class="fx-disclosure"><strong>Currency:</strong> MarketScreener values are reported in ${escapeHtml(currency)}, cross-checked against the ${evidenceLink}. SEK equivalents use the indicative ${sourceLink} reference rate: <strong>1 ${escapeHtml(currency)} = ${audit.fx.rateToSek.toFixed(5)} SEK</strong>, dated ${escapeHtml(audit.fx.rateDate)} and retrieved ${escapeHtml(formatShortDate(audit.fx.retrievedAt) ?? "date unavailable")}. Rates refresh each weekday and are rejected when more than seven days old. The growth percentage is calculated from the source-currency values, so FX does not change it.</p>`;
 }
 
 function renderConsensusGrowthBreakdown(company) {
@@ -2076,12 +2171,13 @@ function renderConsensusGrowthBreakdown(company) {
     <table class="cagr-table">
       <thead><tr><th>Period</th><th>Free cash flow</th><th>Basis</th></tr></thead>
       <tbody>
-        <tr><td>${audit.baseYear}A</td><td>${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}</td><td>Latest reported</td></tr>
-        <tr><td>${audit.estimateYear}E</td><td>${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))}</td><td>Analyst consensus</td></tr>
+        <tr><td>${audit.baseYear}A</td><td>${renderFcfValue(audit.baseFcf, audit)}</td><td>Latest reported</td></tr>
+        <tr><td>${audit.estimateYear}E</td><td>${renderFcfValue(audit.estimateFcf, audit)}</td><td>Analyst consensus</td></tr>
       </tbody>
     </table>
     <p class="cagr-formula">(${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}) − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
-    <p class="cagr-note">Calculated by this dashboard from the displayed FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}</p>`;
+    ${renderFxDisclosure(audit)}
+    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
@@ -2100,6 +2196,14 @@ function formatHistoricalFcf(value, audit) {
     return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} million ${audit.currency ?? "SEK"}`;
   }
   return formatFcfAmount(value, audit?.currency ?? "SEK");
+}
+
+function renderHistoricalFcfValue(value, audit) {
+  const sourceValue = escapeHtml(formatHistoricalFcf(value, audit));
+  const sekValue = formatSekEquivalent(value, audit);
+  return sekValue
+    ? `<span class="fcf-source-value">${sourceValue}</span><small class="fx-equivalent">≈ ${escapeHtml(sekValue)}</small>`
+    : `<span class="fcf-source-value">${sourceValue}</span>`;
 }
 
 function renderCagrBreakdown(company) {
@@ -2130,7 +2234,7 @@ function renderCagrBreakdown(company) {
         : (audit.sourceKind === "official" ? "official report" : "MarketScreener");
       return `<tr>
         <td>${row.year}A</td>
-        <td>${escapeHtml(formatHistoricalFcf(row.fcf, audit))}</td>
+        <td>${renderHistoricalFcfValue(row.fcf, audit)}</td>
         <td>${yoy}</td>
         <td>${evidence}</td>
       </tr>`;
@@ -2159,6 +2263,7 @@ function renderCagrBreakdown(company) {
     </table>
     <p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
     <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    ${renderFxDisclosure(audit)}
     <p class="cagr-note">${historyNote} The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and is not used by the DCF.</p>
   `;
 }
