@@ -325,10 +325,6 @@ const elements = {
   analysisModelDescription: document.querySelector("#analysisModelDescription"),
   analysisFormula: document.querySelector("#analysisFormula"),
   analysisAssumptions: document.querySelector("#analysisAssumptions"),
-  qualityRing: document.querySelector("#qualityRing"),
-  qualitySummary: document.querySelector("#qualitySummary"),
-  growthGap: document.querySelector("#growthGap"),
-  qualityScore: document.querySelector("#qualityScore"),
   riktkursSummary: document.querySelector("#riktkursSummary"),
   riktkursTarget: document.querySelector("#riktkursTarget"),
   riktkursUpside: document.querySelector("#riktkursUpside"),
@@ -1852,7 +1848,6 @@ function renderAll() {
 function renderDependentViews() {
   renderHeader();
   renderMetrics();
-  renderOutlook();
   renderRiktkurser();
   renderSyntheticPortfolio();
   renderFundamentals();
@@ -2331,24 +2326,6 @@ function renderMetrics() {
   elements.metricScoreSub.textContent = calc.stance.label;
 
   renderAnalysis(company);
-}
-
-function renderOutlook() {
-  const company = getSelectedCompany();
-  if (!company) return;
-
-  const calc = calculateCompany(company);
-  elements.qualityRing.textContent = calc.qualityScore;
-  elements.qualityRing.style.borderColor = calc.qualityScore >= 75 ? "var(--green)" : calc.qualityScore >= 55 ? "var(--amber)" : "var(--red)";
-  elements.qualitySummary.textContent = `${company.industryScore}/5 | ${company.companyScore}/5 | ${company.leadershipScore}/5`;
-  elements.growthGap.textContent = formatPercent(calc.growthGap, 1);
-  elements.growthGap.className = calc.growthGap >= 0 ? "is-positive" : "is-negative";
-  elements.qualityScore.textContent = `${calc.qualityScore}/100`;
-
-  document.querySelectorAll("[data-score-value]").forEach((label) => {
-    const field = label.dataset.scoreValue;
-    label.textContent = `${company[field] ?? 3}/5`;
-  });
 }
 
 function renderRiktkurser() {

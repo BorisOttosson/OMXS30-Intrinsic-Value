@@ -52,6 +52,13 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("FCF<sub>${audit.latest.year}</sub>", self.javascript)
         self.assertNotIn("shrink until both ends are positive", self.javascript)
 
+    def test_outlook_panel_is_removed_without_leaving_a_desktop_gap(self):
+        self.assertNotIn('aria-label="Outlook scorecard"', self.html)
+        self.assertNotIn("function renderOutlook", self.javascript)
+        styles = (ROOT / "styles.css").read_text(encoding="utf-8")
+        self.assertIn(".model-panel { grid-column: 1 / -1; }", styles)
+        self.assertIn(".target-price-panel { grid-column: 1 / -1; }", styles)
+
 
 if __name__ == "__main__":
     unittest.main()

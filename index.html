@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260813-dcf-growth-live">
+  <link rel="stylesheet" href="styles.css?v=20260814-remove-outlook">
   </head>
   <body>
     <div class="app-shell">
@@ -436,42 +436,6 @@
               </label>
             </div>
           </form>
-          <section class="tool-panel outlook-panel" aria-label="Outlook scorecard">
-            <div class="panel-title">
-              <div>
-                <h3>Outlook</h3>
-                <p id="qualitySummary">Industry, company, leadership</p>
-              </div>
-              <span class="score-ring" id="qualityRing">0</span>
-            </div>
-
-            <div class="slider-stack">
-              <label>
-                <span>Industry opportunity <strong data-score-value="industryScore">3</strong></span>
-                <input data-quality="industryScore" type="range" min="1" max="5" step="1">
-              </label>
-              <label>
-                <span>Company advantage <strong data-score-value="companyScore">3</strong></span>
-                <input data-quality="companyScore" type="range" min="1" max="5" step="1">
-              </label>
-              <label>
-                <span>Leadership quality <strong data-score-value="leadershipScore">3</strong></span>
-                <input data-quality="leadershipScore" type="range" min="1" max="5" step="1">
-              </label>
-            </div>
-
-            <div class="outlook-grid">
-              <div>
-                <span>Growth gap</span>
-                <strong id="growthGap">-</strong>
-              </div>
-              <div>
-                <span>Quality score</span>
-                <strong id="qualityScore">-</strong>
-              </div>
-            </div>
-          </section>
-
           <section class="tool-panel target-price-panel" aria-label="Target prices">
             <div class="panel-title">
               <div>
@@ -538,6 +502,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260813-dcf-growth-live"></script>
+  <script src="app.js?v=20260814-remove-outlook"></script>
   </body>
 </html>
