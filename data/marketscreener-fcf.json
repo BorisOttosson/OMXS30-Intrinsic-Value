@@ -1,6 +1,7 @@
 {
-  "updatedAt": "2026-08-10T05:56:10.138375+00:00",
+  "updatedAt": "2026-08-17T05:08:39.861146+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
+  "currencyPolicy": "FCF values stay in the company's official reporting currency; the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate",
   "count": 25,
   "failures": [
     {
@@ -29,8 +30,16 @@
       "ticker": "ABB.ST",
       "id": "abb-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
-      "retrievedAt": "2026-08-10T05:51:36.133442+00:00",
+      "retrievedAt": "2026-08-17T05:03:56.703849+00:00",
       "currency": "USD",
+      "reportedCurrency": "USD",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "ABB Q2 2026 Financial Information",
+        "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -114,22 +123,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "USD",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "ABB Q2 2026 Financial Information",
-        "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "addt-b-st": {
       "ticker": "ADDT-B.ST",
       "id": "addt-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
-      "retrievedAt": "2026-08-10T05:51:44.879524+00:00",
+      "retrievedAt": "2026-08-17T05:04:06.178750+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Addtech Q1 2026/27 interim report",
+        "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -213,22 +222,22 @@
         2027,
         2028,
         2029
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Addtech Q1 2026/27 interim report",
-        "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "alfa-st": {
       "ticker": "ALFA.ST",
       "id": "alfa-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
-      "retrievedAt": "2026-08-10T05:51:54.543239+00:00",
+      "retrievedAt": "2026-08-17T05:04:15.682644+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Alfa Laval Q2 2026 report",
+        "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -312,22 +321,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Alfa Laval Q2 2026 report",
-        "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "assa-b-st": {
       "ticker": "ASSA-B.ST",
       "id": "assa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
-      "retrievedAt": "2026-08-10T05:52:03.320069+00:00",
+      "retrievedAt": "2026-08-17T05:04:26.240169+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "ASSA ABLOY Q2 2026 interim report",
+        "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -411,22 +420,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "ASSA ABLOY Q2 2026 interim report",
-        "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "azn-st": {
       "ticker": "AZN.ST",
       "id": "azn-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
-      "retrievedAt": "2026-08-10T05:52:13.544006+00:00",
+      "retrievedAt": "2026-08-17T05:04:35.402925+00:00",
       "currency": "USD",
+      "reportedCurrency": "USD",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "AstraZeneca H1 and Q2 2026 report",
+        "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -453,15 +462,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 9605.0
+          "fcf": 9418.0
         },
         {
           "year": 2027,
-          "fcf": 12920.0
+          "fcf": 12972.0
         },
         {
           "year": 2028,
-          "fcf": 14381.0
+          "fcf": 14461.0
         }
       ],
       "historyYoy": [
@@ -489,43 +498,43 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 9605.0,
-          "growth": -0.183595
+          "fcf": 9418.0,
+          "growth": -0.19949
         },
         {
           "year": 2027,
-          "fcf": 12920.0,
-          "growth": 0.345133
+          "fcf": 12972.0,
+          "growth": 0.377362
         },
         {
           "year": 2028,
-          "fcf": 14381.0,
-          "growth": 0.11308
+          "fcf": 14461.0,
+          "growth": 0.114786
         }
       ],
       "historicalFcfCagr": 0.246583,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.069217,
+      "consensusFcfCagr": 0.071196,
       "consensusYears": [
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "USD",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "AstraZeneca H1 and Q2 2026 report",
-        "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "atco-a-st": {
       "ticker": "ATCO-A.ST",
       "id": "atco-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
-      "retrievedAt": "2026-08-10T05:52:22.385792+00:00",
+      "retrievedAt": "2026-08-17T05:04:44.534286+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Atlas Copco Group Q2 2026 report",
+        "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -609,22 +618,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Atlas Copco Group Q2 2026 report",
-        "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "bol-st": {
       "ticker": "BOL.ST",
       "id": "bol-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
-      "retrievedAt": "2026-08-10T05:52:33.333525+00:00",
+      "retrievedAt": "2026-08-17T05:04:55.639422+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Boliden Q2 2026 official financial workbook",
+        "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -708,22 +717,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Boliden Q2 2026 official financial workbook",
-        "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "epi-a-st": {
       "ticker": "EPI-A.ST",
       "id": "epi-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
-      "retrievedAt": "2026-08-10T05:52:42.261953+00:00",
+      "retrievedAt": "2026-08-17T05:05:05.342262+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Epiroc Q2 2026 interim report",
+        "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -750,15 +759,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 8704.0
+          "fcf": 8584.0
         },
         {
           "year": 2027,
-          "fcf": 10757.0
+          "fcf": 10581.0
         },
         {
           "year": 2028,
-          "fcf": 12716.0
+          "fcf": 12638.0
         }
       ],
       "historyYoy": [
@@ -786,43 +795,43 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 8704.0,
-          "growth": 0.002765
+          "fcf": 8584.0,
+          "growth": -0.01106
         },
         {
           "year": 2027,
-          "fcf": 10757.0,
-          "growth": 0.235869
+          "fcf": 10581.0,
+          "growth": 0.232642
         },
         {
           "year": 2028,
-          "fcf": 12716.0,
-          "growth": 0.182114
+          "fcf": 12638.0,
+          "growth": 0.194405
         }
       ],
       "historicalFcfCagr": 0.067627,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.135735,
+      "consensusFcfCagr": 0.133408,
       "consensusYears": [
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Epiroc Q2 2026 interim report",
-        "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "eqt-st": {
       "ticker": "EQT.ST",
       "id": "eqt-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
-      "retrievedAt": "2026-08-10T05:52:50.893330+00:00",
+      "retrievedAt": "2026-08-17T05:05:15.339741+00:00",
       "currency": "EUR",
+      "reportedCurrency": "EUR",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "EQT H1 2026 report",
+        "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -849,15 +858,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 1992.0
+          "fcf": 1981.0
         },
         {
           "year": 2027,
-          "fcf": 2620.0
+          "fcf": 2742.0
         },
         {
           "year": 2028,
-          "fcf": 3095.0
+          "fcf": 3196.0
         }
       ],
       "historyYoy": [
@@ -885,43 +894,43 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 1992.0,
-          "growth": 4.043038
+          "fcf": 1981.0,
+          "growth": 4.01519
         },
         {
           "year": 2027,
-          "fcf": 2620.0,
-          "growth": 0.315261
+          "fcf": 2742.0,
+          "growth": 0.384149
         },
         {
           "year": 2028,
-          "fcf": 3095.0,
-          "growth": 0.181298
+          "fcf": 3196.0,
+          "growth": 0.165573
         }
       ],
       "historicalFcfCagr": -0.098106,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.986192,
+      "consensusFcfCagr": 1.007566,
       "consensusYears": [
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "EUR",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "EQT H1 2026 report",
-        "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "eric-b-st": {
       "ticker": "ERIC-B.ST",
       "id": "eric-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
-      "retrievedAt": "2026-08-10T05:52:58.308750+00:00",
+      "retrievedAt": "2026-08-17T05:05:24.117464+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Ericsson Q2 2026 report",
+        "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1005,22 +1014,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Ericsson Q2 2026 report",
-        "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "essity-b-st": {
       "ticker": "ESSITY-B.ST",
       "id": "essity-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
-      "retrievedAt": "2026-08-10T05:53:08.719632+00:00",
+      "retrievedAt": "2026-08-17T05:05:32.750240+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Essity Q2 2026 report",
+        "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1104,22 +1113,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Essity Q2 2026 report",
-        "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "evo-st": {
       "ticker": "EVO.ST",
       "id": "evo-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
-      "retrievedAt": "2026-08-10T05:53:16.232837+00:00",
+      "retrievedAt": "2026-08-17T05:05:41.529073+00:00",
       "currency": "EUR",
+      "reportedCurrency": "EUR",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Evolution Q2 2026 report",
+        "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1203,22 +1212,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "EUR",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Evolution Q2 2026 report",
-        "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "hm-b-st": {
       "ticker": "HM-B.ST",
       "id": "hm-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
-      "retrievedAt": "2026-08-10T05:53:34.309111+00:00",
+      "retrievedAt": "2026-08-17T05:06:00.338691+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "H&M six-month report 2026",
+        "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1302,22 +1311,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "H&M six-month report 2026",
-        "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "hexa-b-st": {
       "ticker": "HEXA-B.ST",
       "id": "hexa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
-      "retrievedAt": "2026-08-10T05:53:41.804968+00:00",
+      "retrievedAt": "2026-08-17T05:06:10.419686+00:00",
       "currency": "EUR",
+      "reportedCurrency": "EUR",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Hexagon Q2 2026 interim report",
+        "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1401,22 +1410,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "EUR",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Hexagon Q2 2026 interim report",
-        "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "inve-b-st": {
       "ticker": "INVE-B.ST",
       "id": "inve-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
-      "retrievedAt": "2026-08-10T05:54:00.995008+00:00",
+      "retrievedAt": "2026-08-17T05:06:29.793256+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Investor AB interim report January-June 2026",
+        "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1482,22 +1491,22 @@
         2024,
         2025,
         2026
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Investor AB interim report January-June 2026",
-        "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "lifco-b-st": {
       "ticker": "LIFCO-B.ST",
       "id": "lifco-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
-      "retrievedAt": "2026-08-10T05:54:09.820443+00:00",
+      "retrievedAt": "2026-08-17T05:06:38.572534+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Lifco interim report January-June 2026",
+        "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1581,22 +1590,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Lifco interim report January-June 2026",
-        "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "nibe-b-st": {
       "ticker": "NIBE-B.ST",
       "id": "nibe-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
-      "retrievedAt": "2026-08-10T05:54:18.596723+00:00",
+      "retrievedAt": "2026-08-17T05:06:47.166941+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "NIBE Q1 2026 report",
+        "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1623,15 +1632,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 3953.0
+          "fcf": 3939.0
         },
         {
           "year": 2027,
-          "fcf": 4211.0
+          "fcf": 4212.0
         },
         {
           "year": 2028,
-          "fcf": 4693.0
+          "fcf": 4689.0
         }
       ],
       "historyYoy": [
@@ -1659,43 +1668,43 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 3953.0,
-          "growth": 0.947291
+          "fcf": 3939.0,
+          "growth": 0.940394
         },
         {
           "year": 2027,
-          "fcf": 4211.0,
-          "growth": 0.065267
+          "fcf": 4212.0,
+          "growth": 0.069307
         },
         {
           "year": 2028,
-          "fcf": 4693.0,
-          "growth": 0.114462
+          "fcf": 4689.0,
+          "growth": 0.113248
         }
       ],
       "historicalFcfCagr": 0.001111,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.322264,
+      "consensusFcfCagr": 0.321888,
       "consensusYears": [
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "NIBE Q1 2026 report",
-        "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "saab-b-st": {
       "ticker": "SAAB-B.ST",
       "id": "saab-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
-      "retrievedAt": "2026-08-10T05:54:37.573884+00:00",
+      "retrievedAt": "2026-08-17T05:07:05.317683+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Saab Q2 2026 report",
+        "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1779,22 +1788,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Saab Q2 2026 report",
-        "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "sand-st": {
       "ticker": "SAND.ST",
       "id": "sand-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
-      "retrievedAt": "2026-08-10T05:54:46.571668+00:00",
+      "retrievedAt": "2026-08-17T05:07:16.926885+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Sandvik Q2 2026 report",
+        "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1878,22 +1887,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Sandvik Q2 2026 report",
-        "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "sca-b-st": {
       "ticker": "SCA-B.ST",
       "id": "sca-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
-      "retrievedAt": "2026-08-10T05:54:55.709974+00:00",
+      "retrievedAt": "2026-08-17T05:07:27.467396+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "SCA Q2 2026 report",
+        "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -1977,22 +1986,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "SCA Q2 2026 report",
-        "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "ska-b-st": {
       "ticker": "SKA-B.ST",
       "id": "ska-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
-      "retrievedAt": "2026-08-10T05:55:15.945362+00:00",
+      "retrievedAt": "2026-08-17T05:07:46.288160+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Skanska Q2 2026 report",
+        "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -2067,22 +2076,22 @@
         2025,
         2026,
         2027
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Skanska Q2 2026 report",
-        "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "skf-b-st": {
       "ticker": "SKF-B.ST",
       "id": "skf-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
-      "retrievedAt": "2026-08-10T05:55:26.362060+00:00",
+      "retrievedAt": "2026-08-17T05:07:54.954113+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "SKF Q2 2026 report",
+        "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -2166,22 +2175,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "SKF Q2 2026 report",
-        "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "tel2-b-st": {
       "ticker": "TEL2-B.ST",
       "id": "tel2-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
-      "retrievedAt": "2026-08-10T05:55:45.509788+00:00",
+      "retrievedAt": "2026-08-17T05:08:13.950340+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Tele2 Q2 2026 report",
+        "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -2265,22 +2274,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Tele2 Q2 2026 report",
-        "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "telia-st": {
       "ticker": "TELIA.ST",
       "id": "telia-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
-      "retrievedAt": "2026-08-10T05:55:54.262386+00:00",
+      "retrievedAt": "2026-08-17T05:08:22.814611+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Telia Company Q2 2026 interim report",
+        "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -2364,22 +2373,22 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Telia Company Q2 2026 interim report",
-        "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     },
     "volv-b-st": {
       "ticker": "VOLV-B.ST",
       "id": "volv-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
-      "retrievedAt": "2026-08-10T05:56:03.138191+00:00",
+      "retrievedAt": "2026-08-17T05:08:32.860983+00:00",
       "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Volvo Group Q2 2026 report",
+        "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html",
+        "marketScreenerDetectedCurrency": null
+      },
       "unit": "million",
       "fcfHistory": [
         {
@@ -2463,16 +2472,7 @@
         2026,
         2027,
         2028
-      ],
-      "reportedCurrency": "SEK",
-      "displayCurrency": "SEK",
-      "currencyEvidence": {
-        "method": "Official company report currency cross-check",
-        "sourceName": "Volvo Group Q2 2026 report",
-        "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html",
-        "marketScreenerDetectedCurrency": null
-      }
+      ]
     }
-  },
-  "currencyPolicy": "FCF values stay in the company's official reporting currency; the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+  }
 }
