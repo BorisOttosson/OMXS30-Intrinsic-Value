@@ -759,6 +759,82 @@ input::placeholder { color: var(--faint); }
   font-variant-numeric: tabular-nums;
 }
 
+.fundamental-audit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.metric-audit-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(6, 11, 22, 0.36);
+  overflow: hidden;
+}
+
+.metric-audit-card > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.metric-audit-card > summary::-webkit-details-marker { display: none; }
+.metric-audit-card > summary span::before {
+  content: "+";
+  display: inline-block;
+  width: 15px;
+  color: var(--accent);
+}
+.metric-audit-card[open] > summary span::before { content: "\2212"; }
+.metric-audit-card > summary strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-audit-body {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 14px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.metric-audit-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.metric-audit-status {
+  padding: 3px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.metric-audit-formula {
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: rgba(87, 164, 255, 0.08);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.metric-audit-components { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.metric-audit-components td { padding: 5px 0; border-bottom: 1px solid var(--line); }
+.metric-audit-components td:last-child { text-align: right; color: var(--ink); }
+.metric-audit-source a { color: var(--accent); }
+
+@media (max-width: 780px) {
+  .fundamental-audit { grid-template-columns: 1fr; }
+}
+
 /* --------------------------------------------------------------------------
    11. Workspace grid
    -------------------------------------------------------------------------- */

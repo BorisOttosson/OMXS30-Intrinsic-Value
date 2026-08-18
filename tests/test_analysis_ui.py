@@ -25,14 +25,29 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
             self.javascript,
             re.compile(r'bull:\s*\{[^}]*growth:\s*2\.0[^}]*wacc:\s*-0\.7[^}]*targetPe:\s*2\.0'),
         )
-        self.assertIn("FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x", self.html)
-        self.assertIn("FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x", self.html)
+        self.assertIn("FCF growth +2.0 pp, required equity return −0.7 pp and target P/E +2.0x", self.html)
+        self.assertIn("FCF growth −2.0 pp, required equity return +1.0 pp and target P/E −2.0x", self.html)
 
     def test_analysis_keeps_existing_dcf_pe_and_reverse_calculations(self):
         self.assertIn("calculateDcf(company, scenario)", self.javascript)
         self.assertIn("calculatePeValue(company, scenario)", self.javascript)
         self.assertIn("calculateReverseDcf(company, scenario)", self.javascript)
         self.assertIn("Projected free cash flow / share", self.html)
+
+    def test_equity_fcf_dcf_does_not_subtract_net_debt_twice(self):
+        dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
+        ebitda_function = self.javascript.split("function calculateEbitdaValue", 1)[1].split("function averageValid", 1)[0]
+        self.assertNotIn("netDebt", dcf_function)
+        self.assertIn("presentValue + discountedTerminal", dcf_function)
+        self.assertIn("- netDebt", ebitda_function)
+        self.assertIn("Net debt is not subtracted again", self.javascript)
+
+    def test_fundamental_calculation_audits_are_visible_and_traceable(self):
+        self.assertIn("How EBITDA is calculated", self.html)
+        self.assertIn("How equity FCF is calculated", self.html)
+        self.assertIn("function renderMetricAudit", self.javascript)
+        self.assertIn("Currency conversion:", self.javascript)
+        self.assertIn("Company-defined fallback", self.javascript)
 
     def test_dcf_growth_is_a_separate_manual_input(self):
         self.assertIn('data-field="growth5y" type="number" step="0.1" readonly', self.html)

@@ -54,12 +54,18 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         swedbank = next(company for company in output["companies"] if company["ticker"] == "SWED-A.ST")
         self.assertEqual(swedbank["roe"], 14.2)
 
-    def test_missing_ebitda_remains_missing_when_report_does_not_present_amount(self):
+    def test_derived_ebitda_reconciles_to_official_report_components(self):
         output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
         epiroc = next(company for company in output["companies"] if company["ticker"] == "EPI-A.ST")
-        self.assertIsNone(epiroc["ebitda"])
-        self.assertIsNone(epiroc["ebitdaPerShare"])
+        self.assertEqual(epiroc["ebitda"], 15_268_000_000)
+        self.assertAlmostEqual(epiroc["ebitdaPerShare"], 15_268_000_000 / 1_210_000_000)
         self.assertFalse(epiroc["independentVerification"]["ebitdaPresented"])
+        audit = epiroc["metricCalculations"]["ebitda"]
+        self.assertEqual(audit["status"], "derived")
+        self.assertEqual(
+            sum(row["value"] * row.get("sign", 1) for row in audit["components"]),
+            audit["result"],
+        )
 
     def test_document_checks_ignore_pdf_spacing_and_punctuation(self):
         self.assertEqual(normalize_document_text("Total assets 85 891"), "totalassets85891")
@@ -75,6 +81,27 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
         telia = next(company for company in output["companies"] if company["ticker"] == "TELIA.ST")
         self.assertAlmostEqual(telia["fcfPerShare"], 2.387526, places=5)
+
+    def test_standardized_equity_fcf_is_calculated_per_share_and_keeps_fx_audit(self):
+        output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
+        abb = next(company for company in output["companies"] if company["ticker"] == "ABB.ST")
+        expected_sek = 4_697_000_000 * 9.7367
+        self.assertAlmostEqual(abb["freeCashFlow"], expected_sek)
+        self.assertAlmostEqual(abb["fcfPerShare"], expected_sek / 1_815_000_000)
+        audit = abb["metricCalculations"]["freeCashFlow"]
+        self.assertEqual(audit["status"], "standardized")
+        self.assertEqual(audit["reportedResult"], 4697)
+        self.assertEqual(audit["reportedCurrency"], "USD")
+        self.assertEqual(audit["quoteCurrency"], "SEK")
+        self.assertEqual(sum(row["reportedValue"] * row.get("sign", 1) for row in audit["components"]), 4697)
+
+    def test_banks_and_holding_companies_mark_operating_metrics_not_applicable(self):
+        output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
+        by_ticker = {company["ticker"]: company for company in output["companies"]}
+        for ticker in ("SEB-A.ST", "INVE-B.ST"):
+            audits = by_ticker[ticker]["metricCalculations"]
+            self.assertEqual(audits["ebitda"]["status"], "not-applicable")
+            self.assertEqual(audits["freeCashFlow"]["status"], "not-applicable")
 
     def test_official_annual_fcf_history_calculates_cagr_from_displayed_values(self):
         manifest = deepcopy(self.manifest)

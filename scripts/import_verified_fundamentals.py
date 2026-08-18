@@ -41,6 +41,18 @@ BALANCE_FIELDS = (
     "cash",
     "netDebt",
 )
+METRIC_FIELDS = {
+    "ebitda": "ebitda",
+    "freeCashFlow": "freeCashFlow",
+}
+METRIC_STATUSES = {
+    "reported",
+    "derived",
+    "standardized",
+    "company-defined",
+    "unavailable",
+    "not-applicable",
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -73,8 +85,39 @@ def check_manifest_entry(ticker: str, entry: dict[str, Any]) -> None:
         if difference > max(abs(float(assets)) * 0.001, 1):
             raise ValueError(f"{ticker}: balance sheet does not balance")
 
-    if entry.get("ebitdaPresented") is False and values.get("ebitda") is not None:
-        raise ValueError(f"{ticker}: EBITDA cannot be populated when the report does not present it")
+    metric_calculations = entry.get("metricCalculations", {})
+    if not isinstance(metric_calculations, dict):
+        raise ValueError(f"{ticker}: metricCalculations must be an object")
+    for metric_name, calculation in metric_calculations.items():
+        if metric_name not in METRIC_FIELDS:
+            raise ValueError(f"{ticker}: unsupported metric calculation: {metric_name}")
+        if calculation.get("status") not in METRIC_STATUSES:
+            raise ValueError(f"{ticker}: {metric_name} has an invalid status")
+        status = calculation["status"]
+        result = calculation.get("result")
+        components = calculation.get("components", [])
+        if status in {"unavailable", "not-applicable"}:
+            if result is not None:
+                raise ValueError(f"{ticker}: {metric_name} cannot have a result when {status}")
+            continue
+        if result is None:
+            raise ValueError(f"{ticker}: {metric_name} needs a result")
+        if components:
+            component_total = sum(
+                float(component["value"]) * float(component.get("sign", 1))
+                for component in components
+            )
+            if abs(component_total - float(result)) > max(abs(float(result)) * 1e-9, 1e-9):
+                raise ValueError(f"{ticker}: {metric_name} components do not reconcile to the result")
+        field = METRIC_FIELDS[metric_name]
+        stored_value = values.get(field)
+        if stored_value is not None and abs(float(stored_value) - float(result)) > max(abs(float(result)) * 1e-9, 1e-9):
+            raise ValueError(f"{ticker}: {metric_name} result does not match values.{field}")
+
+    ebitda_calculation = metric_calculations.get("ebitda", {})
+    ebitda_is_derived = ebitda_calculation.get("status") == "derived"
+    if entry.get("ebitdaPresented") is False and values.get("ebitda") is not None and not ebitda_is_derived:
+        raise ValueError(f"{ticker}: EBITDA must be reported by the company or transparently derived")
     for calculation in entry.get("calculationChecks", []):
         result = sum(float(value) for value in calculation["terms"])
         expected = float(calculation["expected"])
@@ -282,8 +325,71 @@ def scaled(value: Any, multiplier: float) -> float | None:
     return None if value is None else float(value) * multiplier
 
 
+def resolved_metric_value(entry: dict[str, Any], metric_name: str) -> Any:
+    field = METRIC_FIELDS[metric_name]
+    calculation = entry.get("metricCalculations", {}).get(metric_name)
+    if calculation and calculation.get("status") not in {"unavailable", "not-applicable"}:
+        return calculation.get("result")
+    return entry["values"].get(field)
+
+
+def build_metric_calculations(entry: dict[str, Any], checked_at: str) -> dict[str, Any]:
+    financial_to_quote_fx = float(entry.get("financialToQuoteFx", 1.0))
+    amount_multiplier = float(entry["unitMultiplier"]) * financial_to_quote_fx
+    quote_currency = entry.get("quoteCurrency", "SEK")
+    calculations: dict[str, Any] = {}
+    for metric_name, field in METRIC_FIELDS.items():
+        configured = entry.get("metricCalculations", {}).get(metric_name)
+        value = resolved_metric_value(entry, metric_name)
+        if configured:
+            audit = dict(configured)
+        elif value is not None:
+            audit = {
+                "status": "reported" if metric_name == "ebitda" else "company-defined",
+                "label": entry.get("ebitdaMetricLabel" if metric_name == "ebitda" else "cashFlowMetricLabel")
+                    or ("EBITDA" if metric_name == "ebitda" else "Free cash flow"),
+                "formula": "Reported directly by the company",
+                "result": value,
+                "components": [],
+            }
+        else:
+            audit = {
+                "status": "unavailable",
+                "label": "EBITDA" if metric_name == "ebitda" else "Equity free cash flow",
+                "formula": None,
+                "result": None,
+                "components": [],
+                "note": "No sufficiently comparable amount has been verified from the current official report set.",
+            }
+
+        reported_result = audit.get("result")
+        audit["reportedResult"] = reported_result
+        audit["result"] = scaled(reported_result, amount_multiplier)
+        audit["reportedCurrency"] = entry["currency"]
+        audit["quoteCurrency"] = quote_currency
+        audit["unit"] = entry.get("unit")
+        audit["financialToQuoteFx"] = financial_to_quote_fx
+        audit["period"] = audit.get("period", f"TTM to {entry['period']}")
+        audit["verifiedAt"] = checked_at
+        audit["sourceName"] = audit.get("sourceName", entry["sourceName"])
+        audit["sourceUrl"] = audit.get("sourceUrl", entry["sourceUrl"])
+        converted_components = []
+        for component in audit.get("components", []):
+            converted = dict(component)
+            converted["reportedValue"] = component.get("value")
+            converted["value"] = scaled(component.get("value"), amount_multiplier)
+            converted["sourceName"] = component.get("sourceName", entry["sourceName"])
+            converted["sourceUrl"] = component.get("sourceUrl", entry["sourceUrl"])
+            converted_components.append(converted)
+        audit["components"] = converted_components
+        calculations[metric_name] = audit
+    return calculations
+
+
 def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], checked_at: str) -> dict[str, Any]:
-    values = entry["values"]
+    values = dict(entry["values"])
+    for metric_name, field in METRIC_FIELDS.items():
+        values[field] = resolved_metric_value(entry, metric_name)
     financial_to_quote_fx = float(entry.get("financialToQuoteFx", 1.0))
     multiplier = float(entry["unitMultiplier"]) * financial_to_quote_fx
     result = dict(company)
@@ -319,6 +425,7 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
         "balanceSheetPeriod": entry["fiscalPeriod"],
         "cashFlowMetricLabel": entry.get("cashFlowMetricLabel"),
         "ebitdaMetricLabel": entry.get("ebitdaMetricLabel"),
+        "metricCalculations": build_metric_calculations(entry, checked_at),
         "dataUpdatedAt": checked_at,
         "source": "Official company report (independently verified)",
         "officialSource": {

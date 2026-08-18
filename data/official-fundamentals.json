@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "policy": "Every company is imported from an official company report or official results page. Revenue and earnings are TTM; balance-sheet figures use the latest published quarter. EBITDA is populated only when the company presents a comparable TTM measure.",
+  "schemaVersion": 2,
+  "policy": "DCF uses equity free cash flow: statutory cash flow from operations minus gross tangible and intangible capital expenditure. Company-defined after-capex cash-flow measures are retained only as visibly labelled fallbacks. Equity FCF is not reduced by net debt again. EV/EBITDA uses reported EBITDA or EBITDA derived from official EBIT plus depreciation and amortisation; banks and holding companies show N/A.",
   "companies": {
     "ABB.ST": {
       "period": "2026-06-30",
@@ -13,15 +13,15 @@
       "sourceName": "ABB Q2 2026 Financial Information",
       "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf",
       "auditor": null,
-      "ebitdaPresented": false,
-      "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": "Free cash flow (TTM, company-defined)",
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (TTM)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 35752,
-        "ebitda": null,
+        "ebitda": 7327,
         "netIncome": 5036,
-        "operatingCashFlow": null,
-        "freeCashFlow": 5182,
+        "operatingCashFlow": 5887,
+        "freeCashFlow": 4697,
         "eps": 2.77,
         "totalAssets": 45736,
         "bookEquity": 16405,
@@ -30,7 +30,8 @@
         "cash": 5857,
         "netDebt": 2300,
         "sharesOutstanding": 1815000000,
-        "bookValuePerShare": 8.7603
+        "bookValuePerShare": 8.7603,
+        "capitalExpenditures": 1190
       },
       "calculationChecks": [
         {
@@ -47,7 +48,46 @@
         "45,736",
         "16,405",
         "29,331"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 7327,
+          "components": [
+            {
+              "label": "Reported EBITDA",
+              "value": 7327,
+              "sign": 1
+            }
+          ]
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − purchases of PP&E and intangibles − discontinued-operation capex",
+          "result": 4697,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 5887,
+              "sign": 1
+            },
+            {
+              "label": "PP&E and intangible purchases",
+              "value": 1033,
+              "sign": -1
+            },
+            {
+              "label": "Discontinued-operation capex",
+              "value": 157,
+              "sign": -1
+            }
+          ],
+          "note": "Asset-sale proceeds included in ABB's 5,182 USDm company-defined FCF are excluded from the standardized amount."
+        }
+      }
     },
     "ADDT-B.ST": {
       "period": "2026-06-30",
@@ -60,15 +100,15 @@
       "sourceName": "Addtech Q1 2026/27 interim report",
       "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00",
       "auditor": null,
-      "ebitdaPresented": false,
-      "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": null,
+      "ebitdaPresented": true,
+      "ebitdaMetricLabel": "EBITDA (rolling 12 months)",
+      "cashFlowMetricLabel": "Equity free cash flow (rolling 12 months)",
       "values": {
         "totalRevenue": 23036,
-        "ebitda": null,
+        "ebitda": 4218,
         "netIncome": 2275,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 3124,
+        "freeCashFlow": 2938,
         "eps": 8.25,
         "totalAssets": 21827,
         "bookEquity": 9170,
@@ -77,7 +117,8 @@
         "cash": 1397,
         "netDebt": 5437,
         "sharesOutstanding": 270079026,
-        "bookValuePerShare": 31.85
+        "bookValuePerShare": 31.85,
+        "capitalExpenditures": 186
       },
       "calculationChecks": [
         {
@@ -93,7 +134,41 @@
         "23,036",
         "21,827",
         "5,437"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (rolling 12 months)",
+          "formula": "Company-reported EBITDA",
+          "result": 4218,
+          "components": [
+            {
+              "label": "Reported EBITDA",
+              "value": 4218,
+              "sign": 1
+            }
+          ]
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (rolling 12 months)",
+          "formula": "Cash flow from operations − net investments in non-current assets",
+          "result": 2938,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 3124,
+              "sign": 1
+            },
+            {
+              "label": "Net investments in non-current assets",
+              "value": 186,
+              "sign": -1
+            }
+          ],
+          "note": "The report presents net rather than gross capex, so this is explicitly identified as CFO minus net capex."
+        }
+      }
     },
     "ALFA.ST": {
       "period": "2026-06-30",
@@ -108,13 +183,13 @@
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 70426,
         "ebitda": 14443,
         "netIncome": 8194,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 9252,
+        "freeCashFlow": 6361,
         "eps": 19.82,
         "totalAssets": 104767,
         "bookEquity": 45881,
@@ -123,7 +198,8 @@
         "cash": 7124,
         "netDebt": 16013,
         "sharesOutstanding": 413326315,
-        "bookValuePerShare": 109.94
+        "bookValuePerShare": 109.94,
+        "capitalExpenditures": 2891
       },
       "calculationChecks": [
         {
@@ -141,7 +217,41 @@
         "104,767",
         "45,881",
         "58,886"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 14443,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 14443,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − gross capital expenditure",
+          "result": 6361,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 9252,
+              "sign": 1
+            },
+            {
+              "label": "Gross capital expenditure",
+              "value": 2891,
+              "sign": -1
+            }
+          ]
+        }
+      }
     },
     "ASSA-B.ST": {
       "period": "2026-06-30",
@@ -168,7 +278,8 @@
         "cash": 3869,
         "netDebt": 68246,
         "sharesOutstanding": 1110776000,
-        "bookValuePerShare": 100.1
+        "bookValuePerShare": 100.1,
+        "freeCashFlow": 24225
       },
       "calculationChecks": [
         {
@@ -208,7 +319,37 @@
         "Total equity 101,719 99,434 111,365",
         "Financial net debt totaled SEK 68,246 M",
         "Average number of shares, thousands 1,110,776"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 30995,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 30995,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "Company-defined operating cash flow after net capex and lease repayments",
+          "result": 24225,
+          "components": [
+            {
+              "label": "Reported operating cash flow",
+              "value": 24225,
+              "sign": 1
+            }
+          ],
+          "note": "Fallback measure: this is not a statutory CFO-minus-gross-capex calculation and remains visibly labelled company-defined."
+        }
+      }
     },
     "ATCO-A.ST": {
       "period": "2026-06-30",
@@ -223,13 +364,13 @@
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
-      "cashFlowMetricLabel": "Cash flow from operating activities (TTM)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 169917,
         "ebitda": 44512,
         "netIncome": 26624,
-        "operatingCashFlow": 25220,
-        "freeCashFlow": null,
+        "operatingCashFlow": 30533,
+        "freeCashFlow": 25075,
         "eps": 5.47,
         "totalAssets": 215592,
         "bookEquity": 106506,
@@ -238,7 +379,8 @@
         "cash": 14709,
         "netDebt": 22305,
         "sharesOutstanding": 4876200000,
-        "bookValuePerShare": 21.802
+        "bookValuePerShare": 21.802,
+        "capitalExpenditures": 5458
       },
       "calculationChecks": [
         {
@@ -263,7 +405,61 @@
         "85 514",
         "215 592",
         "22 305"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+          "formula": "Company-reported EBITDA",
+          "result": 44512,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 44512,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 25075,
+          "components": [
+            {
+              "label": "FY2025 cash flow from operations",
+              "value": 32566,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 cash flow from operations",
+              "value": 13514,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 cash flow from operations",
+              "value": 15547,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 tangible + intangible capex",
+              "value": 6187,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 tangible + intangible capex",
+              "value": 2496,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 tangible + intangible capex",
+              "value": 3225,
+              "sign": 1
+            }
+          ]
+        }
+      }
     },
     "AZN.ST": {
       "period": "2026-06-30",
@@ -278,13 +474,13 @@
       "auditor": "KPMG, review under ISRE 2410",
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "Reported EBITDA (TTM)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 61366,
         "ebitda": 20326,
         "netIncome": 10453,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 13700,
+        "freeCashFlow": 10220,
         "eps": 6.74,
         "totalAssets": 115833,
         "bookEquity": 50370,
@@ -293,7 +489,8 @@
         "cash": 4893,
         "netDebt": 26912,
         "sharesOutstanding": 1550000000,
-        "bookValuePerShare": 32.4968
+        "bookValuePerShare": 32.4968,
+        "capitalExpenditures": 3480
       },
       "calculationChecks": [
         {
@@ -319,7 +516,61 @@
         "115,833",
         "26,912"
       ],
-      "sourcePageUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html"
+      "sourcePageUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Reported EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 20326,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 20326,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and software capex",
+          "result": 10220,
+          "components": [
+            {
+              "label": "FY2025 cash flow from operations",
+              "value": 14575,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 cash flow from operations",
+              "value": 6224,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 cash flow from operations",
+              "value": 7099,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 tangible + software capex",
+              "value": 3270,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 tangible + software capex",
+              "value": 1513,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 tangible + software capex",
+              "value": 1303,
+              "sign": 1
+            }
+          ]
+        }
+      }
     },
     "BOL.ST": {
       "period": "2026-06-30",
@@ -333,14 +584,14 @@
       "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx",
       "auditor": null,
       "ebitdaPresented": false,
-      "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": null,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 103657,
-        "ebitda": null,
+        "ebitda": 27413,
         "netIncome": 12679,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 20827,
+        "freeCashFlow": 4714,
         "eps": 46.36,
         "totalAssets": 151132,
         "bookEquity": 80482,
@@ -349,7 +600,8 @@
         "cash": 4198,
         "netDebt": 19145,
         "sharesOutstanding": 273511169,
-        "bookValuePerShare": 294.25
+        "bookValuePerShare": 294.25,
+        "capitalExpenditures": 16113
       },
       "calculationChecks": [
         {
@@ -376,7 +628,76 @@
         "80482",
         "19145"
       ],
-      "documentType": "xlsx"
+      "documentType": "xlsx",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "EBIT + depreciation and amortisation",
+          "result": 27413,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 17476,
+              "sign": 1
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 9937,
+              "sign": 1
+            }
+          ],
+          "note": "Derived only from official quarterly EBIT and D&A; it is not an analyst estimate."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − tangible and intangible capex",
+          "result": 4714,
+          "components": [
+            {
+              "label": "Q3 2025 CFO",
+              "value": 6120,
+              "sign": 1
+            },
+            {
+              "label": "Q4 2025 CFO",
+              "value": 7343,
+              "sign": 1
+            },
+            {
+              "label": "Q1 2026 CFO",
+              "value": 4884,
+              "sign": 1
+            },
+            {
+              "label": "Q2 2026 CFO",
+              "value": 2480,
+              "sign": 1
+            },
+            {
+              "label": "Q3 2025 capex",
+              "value": 3806,
+              "sign": -1
+            },
+            {
+              "label": "Q4 2025 capex",
+              "value": 4626,
+              "sign": -1
+            },
+            {
+              "label": "Q1 2026 capex",
+              "value": 3624,
+              "sign": -1
+            },
+            {
+              "label": "Q2 2026 capex",
+              "value": 4057,
+              "sign": -1
+            }
+          ]
+        }
+      }
     },
     "EPI-A.ST": {
       "period": "2026-06-30",
@@ -389,12 +710,12 @@
       "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf",
       "auditor": "EY, review under ISRE 2410",
       "ebitdaPresented": false,
-      "cashFlowMetricLabel": "Operating cash flow (TTM, non-IFRS)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 62385,
-        "ebitda": null,
+        "ebitda": 15268,
         "netIncome": null,
-        "operatingCashFlow": 8255,
+        "operatingCashFlow": 9593,
         "eps": 7.31,
         "totalAssets": 85891,
         "bookEquity": 44597,
@@ -403,7 +724,9 @@
         "cash": 6928,
         "netDebt": 11430,
         "sharesOutstanding": 1210000000,
-        "bookValuePerShare": 36.9
+        "bookValuePerShare": 36.9,
+        "freeCashFlow": 7748,
+        "capitalExpenditures": 1845
       },
       "calculationChecks": [
         {
@@ -458,7 +781,67 @@
         "Total equity 44 597 38 596 42 272",
         "The net debt was MSEK 11 430",
         "Basic number of shares outstanding, millions 1 210"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "TTM EBIT + TTM depreciation and amortisation",
+          "result": 15268,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 12168,
+              "sign": 1
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 3100,
+              "sign": 1
+            }
+          ],
+          "note": "Derived from official FY and half-year figures; no market-data estimate is used."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 7748,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 10675,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 3628,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 4710,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 1995,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 866,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 1016,
+              "sign": 1
+            }
+          ]
+        }
+      },
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)"
     },
     "EQT.ST": {
       "period": "2026-06-30",
@@ -476,7 +859,7 @@
       "cashFlowMetricLabel": null,
       "values": {
         "totalRevenue": 2799,
-        "ebitda": 1673,
+        "ebitda": null,
         "netIncome": 1331,
         "operatingCashFlow": null,
         "freeCashFlow": null,
@@ -522,7 +905,25 @@
         "1,407",
         "837",
         "1,596"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "ERIC-B.ST": {
       "period": "2026-06-30",
@@ -536,14 +937,14 @@
       "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
       "auditor": null,
       "ebitdaPresented": false,
-      "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": "Free cash flow before M&A (TTM, company-defined)",
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 227546,
-        "ebitda": null,
+        "ebitda": 41963,
         "netIncome": null,
-        "operatingCashFlow": null,
-        "freeCashFlow": 27790,
+        "operatingCashFlow": 33781,
+        "freeCashFlow": 29584,
         "eps": null,
         "totalAssets": 287899,
         "bookEquity": 104764,
@@ -552,7 +953,8 @@
         "cash": 91297,
         "netDebt": -59839,
         "sharesOutstanding": 3306000000,
-        "bookValuePerShare": 31.472
+        "bookValuePerShare": 31.472,
+        "capitalExpenditures": 4197
       },
       "calculationChecks": [
         {
@@ -568,7 +970,47 @@
         "227.5",
         "27.8",
         "59.8"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "TTM EBIT + TTM depreciation and amortisation",
+          "result": 41963,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 33674,
+              "sign": 1
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 8289,
+              "sign": 1
+            }
+          ],
+          "note": "Derived from the four official quarterly amounts."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − PP&E, capitalised development and other intangible capex",
+          "result": 29584,
+          "components": [
+            {
+              "label": "TTM cash flow from operations",
+              "value": 33781,
+              "sign": 1
+            },
+            {
+              "label": "TTM PP&E and intangible capex",
+              "value": 4197,
+              "sign": -1
+            }
+          ],
+          "note": "Ericsson's company-defined FCF before M&A is preserved in the report, but the dashboard uses the statutory CFO-minus-capex result."
+        }
+      }
     },
     "ESSITY-B.ST": {
       "period": "2026-06-30",
@@ -589,7 +1031,7 @@
         "ebitda": null,
         "netIncome": 12176,
         "operatingCashFlow": 16837,
-        "freeCashFlow": null,
+        "freeCashFlow": 16837,
         "eps": 17.72,
         "totalAssets": 181535,
         "bookEquity": 93180,
@@ -613,7 +1055,46 @@
       "documentChecks": [
         "181,535",
         "28,462"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026 company-defined operating cash flow",
+          "result": 16837,
+          "components": [
+            {
+              "label": "Q3 2025",
+              "value": 5324,
+              "sign": 1
+            },
+            {
+              "label": "Q4 2025",
+              "value": 4369,
+              "sign": 1
+            },
+            {
+              "label": "Q1 2026",
+              "value": 4354,
+              "sign": 1
+            },
+            {
+              "label": "Q2 2026",
+              "value": 2790,
+              "sign": 1
+            }
+          ],
+          "note": "Fallback measure: the company definition is retained and not relabelled as standardized FCF."
+        }
+      }
     },
     "EVO.ST": {
       "period": "2026-06-30",
@@ -628,13 +1109,13 @@
       "auditor": "Not reviewed by the company's auditors",
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 2052.157,
         "ebitda": 1406.404,
         "netIncome": 1062.479,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 1307.429,
+        "freeCashFlow": 1169.931,
         "eps": 5.33,
         "totalAssets": 5470.585,
         "bookEquity": 4234.367,
@@ -643,7 +1124,8 @@
         "cash": 1153.539,
         "netDebt": -1046.972,
         "sharesOutstanding": 194085085,
-        "bookValuePerShare": 21.82
+        "bookValuePerShare": 21.82,
+        "capitalExpenditures": 137.498
       },
       "calculationChecks": [
         {
@@ -659,7 +1141,46 @@
         "2,052,157",
         "1,406,404",
         "5,470,585"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 1406.404,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 1406.404,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − intangible capex − tangible capex",
+          "result": 1169.931,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 1307.429,
+              "sign": 1
+            },
+            {
+              "label": "Intangible capex",
+              "value": 65.916,
+              "sign": -1
+            },
+            {
+              "label": "Tangible capex",
+              "value": 71.582,
+              "sign": -1
+            }
+          ]
+        }
+      }
     },
     "HEXA-B.ST": {
       "period": "2026-06-30",
@@ -680,7 +1201,7 @@
         "ebitda": null,
         "netIncome": null,
         "operatingCashFlow": 909.1,
-        "freeCashFlow": null,
+        "freeCashFlow": 909.1,
         "eps": 0.288,
         "totalAssets": 10319.9,
         "bookEquity": 5639.1,
@@ -724,7 +1245,41 @@
         "10,319.9",
         "531.8"
       ],
-      "sourcePageUrl": "https://hexagon.com/company/newsroom/press-releases/2026/hexagon-interim-report-1-january---30-june-2026"
+      "sourcePageUrl": "https://hexagon.com/company/newsroom/press-releases/2026/hexagon-interim-report-1-january---30-june-2026",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow before non-recurring items (TTM)",
+          "formula": "FY2025 − H1 2025 + H1 2026",
+          "result": 909.1,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 729.9,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025",
+              "value": 236.7,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026",
+              "value": 415.9,
+              "sign": 1
+            }
+          ],
+          "note": "Fallback measure: Hexagon defines and reconciles this normalized operating cash-flow measure."
+        }
+      }
     },
     "HM-B.ST": {
       "period": "2026-05-31",
@@ -738,14 +1293,14 @@
       "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf",
       "auditor": null,
       "ebitdaPresented": false,
-      "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": null,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 220673,
-        "ebitda": null,
+        "ebitda": 38856,
         "netIncome": 12211,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 33007,
+        "freeCashFlow": 23065,
         "eps": 7.68,
         "totalAssets": 165884,
         "bookEquity": 33924,
@@ -754,7 +1309,8 @@
         "cash": 18697,
         "netDebt": 1731,
         "sharesOutstanding": 1596373000,
-        "bookValuePerShare": 21.25
+        "bookValuePerShare": 21.25,
+        "capitalExpenditures": 9942
       },
       "calculationChecks": [
         {
@@ -778,7 +1334,71 @@
       "documentChecks": [
         "165,884",
         "1,731"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "FY2025 EBITDA + H1 2026 EBITDA − H1 2025 EBITDA",
+          "result": 38856,
+          "components": [
+            {
+              "label": "FY2025 EBITDA",
+              "value": 39535,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 EBITDA",
+              "value": 17128,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 EBITDA",
+              "value": 17807,
+              "sign": -1
+            }
+          ],
+          "note": "Each EBITDA component equals reported operating profit plus reported depreciation and amortisation."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "TTM cash flow from operations − tangible and intangible capex",
+          "result": 23065,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 31120,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 14616,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 12729,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 10679,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 3755,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 4492,
+              "sign": 1
+            }
+          ]
+        }
+      }
     },
     "INDU-C.ST": {
       "period": "2026-06-30",
@@ -824,7 +1444,25 @@
         "225,043",
         "521",
         "231,370"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "INVE-B.ST": {
       "period": "2026-06-30",
@@ -871,7 +1509,25 @@
         "397",
         "23,300",
         "1,086,109"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "LIFCO-B.ST": {
       "period": "2026-06-30",
@@ -886,7 +1542,7 @@
       "auditor": "Not reviewed by the company's auditors",
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM, company-defined)",
-      "cashFlowMetricLabel": "Cash flow from operating activities (TTM)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 29257,
         "ebitda": 7416,
@@ -900,7 +1556,9 @@
         "cash": 1337,
         "netDebt": 13348,
         "sharesOutstanding": 454216000,
-        "bookValuePerShare": 45.08
+        "bookValuePerShare": 45.08,
+        "freeCashFlow": 4791,
+        "capitalExpenditures": 440
       },
       "calculationChecks": [
         {
@@ -947,7 +1605,62 @@
         "Cash and cash equivalents 1,337 1,210 1,878",
         "Net debt, SEK million 13,348 12,048 12,835",
         "Number of shares, thousands 454,216 454,216 454,216"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 7416,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 7416,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "TTM cash flow from operations − net tangible and intangible capex",
+          "result": 4791,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 5124,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 1851,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 1744,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 net capex",
+              "value": 472,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 net capex",
+              "value": 186,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 net capex",
+              "value": 218,
+              "sign": 1
+            }
+          ],
+          "note": "The report presents net capex; this is explicitly identified as CFO minus net capex."
+        }
+      }
     },
     "NDA-SE.ST": {
       "period": "2026-06-30",
@@ -995,7 +1708,25 @@
         "31144",
         "9.17"
       ],
-      "documentType": "xlsx"
+      "documentType": "xlsx",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "NIBE-B.ST": {
       "period": "2026-03-31",
@@ -1010,13 +1741,13 @@
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
       "values": {
         "totalRevenue": 40818,
         "ebitda": 6397,
         "netIncome": 2571,
         "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "freeCashFlow": 3588,
         "eps": 1.27,
         "totalAssets": 66882,
         "bookEquity": 31614,
@@ -1041,7 +1772,47 @@
         "40,818",
         "6,397",
         "66,882"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 6397,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 6397,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "FY2025 + Q1 2026 − Q1 2025",
+          "result": 3588,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 2888,
+              "sign": 1
+            },
+            {
+              "label": "Q1 2026",
+              "value": 324,
+              "sign": 1
+            },
+            {
+              "label": "Q1 2025 (negative amount removed from FY bridge)",
+              "value": 376,
+              "sign": 1
+            }
+          ],
+          "note": "Fallback measure: this is NIBE's company-defined operating cash flow."
+        }
+      }
     },
     "SAAB-B.ST": {
       "period": "2026-06-30",
@@ -1087,7 +1858,37 @@
         "88,185",
         "135,605",
         "2,523"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+          "formula": "Company-reported EBITDA",
+          "result": 12881,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 12881,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Free cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 5381,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 5381,
+              "sign": 1
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation."
+        }
+      }
     },
     "SAND.ST": {
       "period": "2026-06-30",
@@ -1132,7 +1933,31 @@
       "documentChecks": [
         "186,882",
         "30.2"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Free operating cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 19520,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 19520,
+              "sign": 1
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation."
+        }
+      }
     },
     "SCA-B.ST": {
       "period": "2026-06-30",
@@ -1147,13 +1972,13 @@
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
       "values": {
         "totalRevenue": 19779,
         "ebitda": 5290,
         "netIncome": null,
         "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "freeCashFlow": 2655,
         "eps": null,
         "totalAssets": 147667,
         "bookEquity": 101194,
@@ -1177,7 +2002,47 @@
       "documentChecks": [
         "147,667",
         "10,859"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 5290,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 5290,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "FY2025 + H1 2026 − H1 2025",
+          "result": 2655,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 3078,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026",
+              "value": 1015,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025",
+              "value": 1438,
+              "sign": -1
+            }
+          ],
+          "note": "Fallback measure: SCA's definition includes current net capex and remains labelled company-defined."
+        }
+      }
     },
     "SEB-A.ST": {
       "period": "2026-06-30",
@@ -1227,7 +2092,25 @@
         "15.85"
       ],
       "sourcePageUrl": "https://sebgroup.com/our-offering/reports-and-publications",
-      "documentType": "xlsx"
+      "documentType": "xlsx",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "SHB-A.ST": {
       "period": "2026-06-30",
@@ -1255,7 +2138,8 @@
         "cash": 578352,
         "netDebt": null,
         "sharesOutstanding": 1980000000,
-        "bookValuePerShare": 93.04
+        "bookValuePerShare": 93.04,
+        "freeCashFlow": null
       },
       "calculationChecks": [
         {
@@ -1303,7 +2187,25 @@
         "3 688 045 3 553 154 3 188 211 3 607 577 3 472 218",
         "Summa eget kapital 184 395 172 228 199 355 194 690 188 548",
         "Genomsnittligt antal utestående aktier, miljoner 1 980,0"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "SKA-B.ST": {
       "period": "2026-06-30",
@@ -1318,13 +2220,13 @@
       "auditor": null,
       "ebitdaPresented": false,
       "ebitdaMetricLabel": null,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (rolling 12 months)",
       "values": {
         "totalRevenue": 174937,
         "ebitda": null,
         "netIncome": 6574,
-        "operatingCashFlow": null,
-        "freeCashFlow": null,
+        "operatingCashFlow": 11604,
+        "freeCashFlow": 8796,
         "eps": 16.02,
         "totalAssets": 166100,
         "bookEquity": 61700,
@@ -1333,7 +2235,8 @@
         "cash": 17600,
         "netDebt": -17600,
         "sharesOutstanding": 414052718,
-        "bookValuePerShare": 149.01
+        "bookValuePerShare": 149.01,
+        "capitalExpenditures": 2808
       },
       "calculationChecks": [
         {
@@ -1349,7 +2252,36 @@
         "174,937",
         "16.02",
         "166.1"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (rolling 12 months)",
+          "formula": "Statutory cash flow from operations − net investments in shares, PP&E and intangibles",
+          "result": 8796,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 11604,
+              "sign": 1
+            },
+            {
+              "label": "Net investments",
+              "value": 2808,
+              "sign": -1
+            }
+          ],
+          "note": "The report presents net investment cash flows, so this is explicitly identified as CFO minus net investments."
+        }
+      }
     },
     "SKF-B.ST": {
       "period": "2026-06-30",
@@ -1364,12 +2296,12 @@
       "auditor": "Deloitte, review under ISRE 2410",
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "values": {
         "totalRevenue": 89519,
         "ebitda": 15438,
         "netIncome": 4505,
-        "operatingCashFlow": null,
+        "operatingCashFlow": 6207,
         "eps": 9.89,
         "totalAssets": 118605,
         "bookEquity": 59871,
@@ -1378,7 +2310,9 @@
         "cash": 12461,
         "netDebt": 13629,
         "sharesOutstanding": 455351068,
-        "bookValuePerShare": 131.48
+        "bookValuePerShare": 131.48,
+        "freeCashFlow": 2742,
+        "capitalExpenditures": 3465
       },
       "calculationChecks": [
         {
@@ -1448,7 +2382,61 @@
         "Likvida medel 30 juni 12 461 10 790 12 461 10 790",
         "Nettoskuld 13 629 654 -511 903 531 12 052",
         "Totalt antal aktier: 455 351 068"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 15438,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 15438,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 2742,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 8392,
+              "sign": 1
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 1609,
+              "sign": 1
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 3794,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 3825,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 1488,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 1848,
+              "sign": 1
+            }
+          ]
+        }
+      }
     },
     "SWED-A.ST": {
       "period": "2026-06-30",
@@ -1514,7 +2502,25 @@
         "7 195 7 345",
         "14.2"
       ],
-      "documentType": "html"
+      "documentType": "html",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks."
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model."
+        }
+      }
     },
     "TEL2-B.ST": {
       "period": "2026-06-30",
@@ -1561,7 +2567,37 @@
         "67,453",
         "26,907"
       ],
-      "sourcePageUrl": "https://www.tele2.com/investors/reports-and-presentations"
+      "sourcePageUrl": "https://www.tele2.com/investors/reports-and-presentations",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Underlying EBITDAaL (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 12126,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 12126,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Equity free cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 6203,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 6203,
+              "sign": 1
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation."
+        }
+      }
     },
     "TELIA.ST": {
       "period": "2026-06-30",
@@ -1663,7 +2699,37 @@
         "Cash and cash equivalents 10,958 11,527",
         "Net debt 66,979 61,749",
         "3,932,109 3,932,063 3,932,109 3,932,063"
-      ]
+      ],
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 32472,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 32472,
+              "sign": 1
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Cash flow from operating activities (TTM)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 9388.014,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 9388.014,
+              "sign": 1
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation."
+        }
+      }
     },
     "VOLV-B.ST": {
       "period": "2026-06-30",
@@ -1710,7 +2776,31 @@
         "14.8"
       ],
       "sourcePageUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html",
-      "documentType": "html"
+      "documentType": "html",
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank."
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow, Industrial Operations (H1; TTM EPS used for valuation)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 6269,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 6269,
+              "sign": 1
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation."
+        }
+      }
     }
   }
 }
