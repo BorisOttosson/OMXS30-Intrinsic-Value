@@ -175,12 +175,39 @@ def build_official_fcf_history(
     for row in entry.get("fcfHistory", []):
         multiplier = float(row.get("unitMultiplier", base_multiplier))
         fx = float(row.get("financialToQuoteFx", base_fx))
+        reported_fcf = historical_fcf_value(ticker, row)
+        operating = row.get("operatingCashFlow")
+        capex = row.get("capitalExpenditures")
+        reported_currency = row.get("currency", entry["currency"])
+        reported_unit = row.get("unit", entry.get("unit"))
+        method = row.get("method") or (
+            "cfo-minus-capex" if row.get("freeCashFlow") is None else "company-reported"
+        )
         rows.append({
             "year": int(row["year"]),
-            "fcf": historical_fcf_value(ticker, row) * multiplier * fx,
+            "fiscalLabel": row.get("fiscalLabel", str(row["year"])),
+            "fcf": reported_fcf * multiplier * fx,
+            "operatingCashFlow": None if operating is None else float(operating) * multiplier * fx,
+            "capitalExpenditures": None if capex is None else abs(float(capex)) * multiplier * fx,
+            "reportedFreeCashFlow": reported_fcf,
+            "reportedOperatingCashFlow": None if operating is None else float(operating),
+            "reportedCapitalExpenditures": None if capex is None else abs(float(capex)),
+            "reportedCurrency": reported_currency,
+            "reportedUnit": reported_unit,
+            "financialToQuoteFx": fx,
+            "quoteCurrency": entry.get("quoteCurrency", "SEK"),
             "sourceName": row.get("sourceName", entry["sourceName"]),
             "sourceUrl": row.get("sourceUrl", entry["sourceUrl"]),
+            "sourcePage": row.get("sourcePage"),
             "verifiedAt": checked_at,
+            "method": method,
+            "methodLabel": row.get("methodLabel") or (
+                "CFO − capital expenditure" if method == "cfo-minus-capex" else "Company-reported cash-flow measure"
+            ),
+            "definition": row.get("definition") or (
+                "Statutory cash flow from operations minus capital expenditure"
+                if method == "cfo-minus-capex" else "Reported directly by the company"
+            ),
             "calculation": (
                 "operating cash flow minus capital expenditures"
                 if row.get("freeCashFlow") is None else "company-reported free cash flow"
@@ -464,10 +491,17 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
         company["ticker"], entry, checked_at
     )
     if fcf_history:
+        reported_units = {row.get("reportedUnit") for row in fcf_history if row.get("reportedUnit")}
+        history_unit = (
+            "per-share"
+            if len(reported_units) == 1 and next(iter(reported_units)).lower().endswith("/share")
+            else "base-units"
+        )
         result.update({
             "fcfHistory": fcf_history,
             "fcfSeries": [row["fcf"] for row in reversed(fcf_history[-6:])],
-            "fcfHistoryUnit": None,
+            "fcfHistoryCurrency": entry.get("quoteCurrency", "SEK"),
+            "fcfHistoryUnit": history_unit,
             "growth5y": historical_cagr,
             "growth5yYears": historical_years,
             "growth5ySource": "Official company annual reports (independently verified)",
@@ -487,7 +521,8 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
     if values.get("roe") is not None:
         result["roe"] = float(values["roe"])
     result.pop("legacySnapshot", None)
-    return validate_company_fundamentals(result)
+    validation_time = datetime.fromisoformat(checked_at.replace("Z", "+00:00"))
+    return validate_company_fundamentals(result, now=validation_time)
 
 
 def import_manifest(
@@ -544,15 +579,32 @@ def import_manifest(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", type=Path, default=ROOT / "data" / "official-fundamentals.json")
+    parser.add_argument("--fcf-history", type=Path, default=ROOT / "data" / "official-fcf-history.json")
     parser.add_argument("--data", type=Path, default=ROOT / "data" / "omxs30-data.json")
     parser.add_argument("--ticker", action="append", help="Import only one configured ticker (repeatable)")
     parser.add_argument("--verify-sources", action="store_true", help="Download and verify the official PDFs")
+    parser.add_argument("--checked-at", help="Reuse an ISO verification timestamp for reproducible generated data")
     args = parser.parse_args()
 
     payload = load_json(args.data)
     manifest = load_json(args.manifest)
+    if args.fcf_history.exists():
+        history_manifest = load_json(args.fcf_history)
+        for ticker, history in history_manifest.get("companies", {}).items():
+            if ticker not in manifest.get("companies", {}):
+                raise ValueError(f"Historical FCF manifest contains unknown ticker: {ticker}")
+            manifest["companies"][ticker] = {
+                **manifest["companies"][ticker],
+                "fcfHistory": history,
+            }
     requested = {ticker.upper() for ticker in args.ticker} if args.ticker else None
-    output = import_manifest(payload, manifest, verify_sources=args.verify_sources, tickers=requested)
+    output = import_manifest(
+        payload,
+        manifest,
+        verify_sources=args.verify_sources,
+        tickers=requested,
+        checked_at=args.checked_at,
+    )
     args.data.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     summary = output["verificationSummary"]
     print(f"Verified {summary['verified']} of {summary['total']} companies; {summary['pending']} retain visible unverified fallback values")

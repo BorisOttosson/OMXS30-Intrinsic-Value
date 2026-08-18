@@ -1066,6 +1066,17 @@ input::placeholder { color: var(--faint); }
 .cagr-table tr:last-child td { border-bottom: 0; }
 .cagr-table tr.is-muted td { opacity: 0.42; }
 
+.cagr-method {
+  min-width: 15rem;
+}
+
+.cagr-method-note {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .fcf-source-value,
 .fx-equivalent {
   display: block;

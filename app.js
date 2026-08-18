@@ -1685,8 +1685,22 @@ function validateHistoricalFcfSeries(rows, metadata = {}) {
   const latest = normalized[normalized.length - 1];
   const years = latest.year - oldest.year;
   if (years < 1) return { valid: false, reason: "The FCF history does not span a full fiscal year" };
+  const metadataResult = {
+    rows: normalized,
+    oldest,
+    latest,
+    years,
+    currency: metadata.currency ?? "SEK",
+    unit: metadata.unit ?? null,
+    source: metadata.source ?? "Source unavailable",
+    sourceUrl: metadata.sourceUrl ?? null,
+    updatedAt: metadata.updatedAt ?? null,
+    sourceKind: metadata.sourceKind ?? "unknown",
+    fx: metadata.fx ?? getFxAudit(metadata.currency ?? "SEK"),
+    currencyEvidence: metadata.currencyEvidence ?? null
+  };
   if (oldest.fcf <= 0 || latest.fcf <= 0) {
-    return { valid: false, reason: "CAGR requires positive FCF in both the first and last fiscal year" };
+    return { ...metadataResult, valid: false, reason: "CAGR requires positive FCF in both the first and last fiscal year" };
   }
 
   const cagr = (latest.fcf / oldest.fcf) ** (1 / years) - 1;
@@ -1696,20 +1710,9 @@ function validateHistoricalFcfSeries(rows, metadata = {}) {
   }
 
   return {
+    ...metadataResult,
     valid: true,
-    rows: normalized,
-    oldest,
-    latest,
-    years,
     cagr,
-    currency: metadata.currency ?? "SEK",
-    unit: metadata.unit ?? null,
-    source: metadata.source ?? "Source unavailable",
-    sourceUrl: metadata.sourceUrl ?? null,
-    updatedAt: metadata.updatedAt ?? null,
-    sourceKind: metadata.sourceKind ?? "unknown",
-    fx: metadata.fx ?? getFxAudit(metadata.currency ?? "SEK"),
-    currencyEvidence: metadata.currencyEvidence ?? null
   };
 }
 
@@ -1727,7 +1730,7 @@ function getHistoricalFcfAudit(company, fallbackRow) {
   if (officialRows.length) {
     return validateHistoricalFcfSeries(officialRows, {
       suppliedCagr: numberOrNull(company.growth5y) === null ? null : Number(company.growth5y) / 100,
-      currency: company.currency ?? "SEK",
+      currency: company.fcfHistoryCurrency ?? company.quoteCurrency ?? "SEK",
       unit: company.fcfHistoryUnit ?? null,
       source: company.growth5ySource ?? "Official company reports (independently verified)",
       sourceUrl: company.growth5ySourceUrl ?? company.officialSource?.sourceUrl ?? null,
@@ -2191,7 +2194,7 @@ function renderConsensusGrowthBreakdown(company) {
     details.open = false;
     return;
   }
-  if (!audit?.valid) {
+  if (!audit?.valid && !audit?.rows?.length) {
     container.innerHTML = `<p class="cagr-note">${escapeHtml(audit?.reason ?? "No validated MarketScreener forecast is available.")}</p>`;
     details.open = false;
     return;
@@ -2224,10 +2227,35 @@ function formatFcfAmount(value, currency = "SEK") {
 
 function formatHistoricalFcf(value, audit) {
   if (!Number.isFinite(value)) return "n/a";
+  if (audit?.unit === "per-share") {
+    return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${audit.currency ?? "SEK"}/share`;
+  }
   if (audit?.unit === "million") {
     return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} million ${audit.currency ?? "SEK"}`;
   }
   return formatFcfAmount(value, audit?.currency ?? "SEK");
+}
+
+function historicalComponent(value, audit) {
+  return Number.isFinite(Number(value)) ? formatHistoricalFcf(Number(value), audit) : "—";
+}
+
+function renderHistoricalMethod(row) {
+  const label = escapeHtml(row.methodLabel ?? row.calculation ?? "Reported cash-flow measure");
+  const definition = row.definition ? `<small class="cagr-method-note">${escapeHtml(row.definition)}</small>` : "";
+  const reportedUnit = row.reportedUnit ? ` ${row.reportedUnit}` : "";
+  const reportedFormula = row.method === "cfo-minus-capex"
+    ? `${Number(row.reportedOperatingCashFlow).toLocaleString("en-US")} − ${Number(row.reportedCapitalExpenditures).toLocaleString("en-US")} = ${Number(row.reportedFreeCashFlow).toLocaleString("en-US")}${reportedUnit}`
+    : `${Number(row.reportedFreeCashFlow).toLocaleString("en-US")}${reportedUnit}`;
+  const fxNote = Number(row.financialToQuoteFx) !== 1
+    ? ` · 1 ${row.reportedCurrency} = ${Number(row.financialToQuoteFx).toFixed(5)} ${row.quoteCurrency}`
+    : "";
+  const reported = `<small class="cagr-method-note">Reported: ${escapeHtml(reportedFormula + fxNote)}</small>`;
+  const sourcePage = row.sourcePage ? `, p. ${escapeHtml(String(row.sourcePage))}` : "";
+  const evidence = row.sourceUrl
+    ? `<a href="${escapeHtml(row.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(row.sourceName ?? "official report")}${sourcePage}</a>`
+    : "Official report";
+  return `<span>${label}</span>${definition}${reported}<small class="cagr-method-note">${evidence}</small>`;
 }
 
 function renderHistoricalFcfValue(value, audit) {
@@ -2261,14 +2289,14 @@ function renderCagrBreakdown(company) {
       const yoy = yoyValue === null
         ? '<span class="cagr-na">n/a</span>'
         : `<span class="${yoyValue >= 0 ? "cagr-up" : "cagr-down"}">${yoyValue >= 0 ? "+" : ""}${yoyValue.toFixed(1)} %</span>`;
-      const evidence = row.sourceUrl
-        ? `<a href="${escapeHtml(row.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(row.sourceName ?? "official report")}</a>`
-        : (audit.sourceKind === "official" ? "official report" : "MarketScreener");
+      const officialComponents = audit.sourceKind === "official" && row.method === "cfo-minus-capex";
       return `<tr>
-        <td>${row.year}A</td>
+        <td>${escapeHtml(row.fiscalLabel ?? `${row.year}A`)}</td>
+        <td>${officialComponents ? escapeHtml(historicalComponent(row.operatingCashFlow, audit)) : "—"}</td>
+        <td>${officialComponents ? escapeHtml(historicalComponent(row.capitalExpenditures, audit)) : "—"}</td>
         <td>${renderHistoricalFcfValue(row.fcf, audit)}</td>
         <td>${yoy}</td>
-        <td>${evidence}</td>
+        <td class="cagr-method">${audit.sourceKind === "official" ? renderHistoricalMethod(row) : "MarketScreener fallback"}</td>
       </tr>`;
     })
     .join("");
@@ -2276,7 +2304,7 @@ function renderCagrBreakdown(company) {
   const sourceLink = audit.sourceUrl
     ? `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(audit.source)}</a>`
     : escapeHtml(audit.source);
-  const percentage = audit.cagr * 100;
+  const percentage = audit.valid ? audit.cagr * 100 : null;
   const historyNote = audit.sourceKind === "official"
     ? "Independently verified annual figures from official company reports."
     : "Temporary third-party fallback because a verified official annual series is not stored yet.";
@@ -2284,19 +2312,21 @@ function renderCagrBreakdown(company) {
   host.innerHTML = `
     <div class="cagr-head">
       <div>
-        <span class="cagr-label">${audit.years}yr FCF CAGR · ${audit.oldest.year}–${audit.latest.year}</span>
-        <strong class="cagr-value">${percentage.toFixed(2)} %</strong>
+        <span class="cagr-label">${audit.rows.length} observations · ${audit.years}-year FCF CAGR (${audit.oldest.year}–${audit.latest.year})</span>
+        <strong class="cagr-value">${percentage === null ? "N/A" : `${percentage.toFixed(2)} %`}</strong>
       </div>
       <p class="cagr-note">Source: ${sourceLink} | Retrieved/verified: ${escapeHtml(formatShortDate(audit.updatedAt) ?? "n/a")}</p>
     </div>
     <table class="cagr-table">
-      <thead><tr><th>Period</th><th>Free cash flow</th><th>Growth</th><th>Evidence</th></tr></thead>
+      <thead><tr><th>Period</th><th>CFO</th><th>Capex</th><th>FCF</th><th>Growth</th><th>Method &amp; evidence</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
-    <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    ${percentage === null
+      ? `<p class="cagr-formula"><strong>CAGR: N/A.</strong> ${escapeHtml(audit.reason)}</p>`
+      : `<p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
+         <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>`}
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">${historyNote} The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and is not used by the DCF.</p>
+    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and is not used by the DCF.</p>
   `;
 }
 

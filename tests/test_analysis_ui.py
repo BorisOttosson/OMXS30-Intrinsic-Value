@@ -65,6 +65,10 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("MarketScreener reported FCF history (fallback)", self.javascript)
         self.assertIn("Temporary third-party fallback", self.javascript)
         self.assertIn("FCF<sub>${audit.latest.year}</sub>", self.javascript)
+        self.assertIn("${audit.rows.length} observations", self.javascript)
+        self.assertIn("CFO</th><th>Capex</th><th>FCF", self.javascript)
+        self.assertIn("CAGR: N/A", self.javascript)
+        self.assertIn("A company-defined row is never presented as statutory CFO − capex", self.javascript)
         self.assertNotIn("shrink until both ends are positive", self.javascript)
 
     def test_outlook_panel_is_removed_without_leaving_a_desktop_gap(self):

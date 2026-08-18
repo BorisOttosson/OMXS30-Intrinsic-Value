@@ -147,6 +147,30 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "consecutive fiscal years"):
             check_manifest_entry("ABB.ST", entry)
 
+    def test_official_history_catalog_is_reconciled_and_keeps_audit_components(self):
+        catalog = json.loads((ROOT / "data" / "official-fcf-history.json").read_text())
+        self.assertEqual(len(catalog["companies"]), 14)
+        for ticker, history in catalog["companies"].items():
+            entry = deepcopy(self.manifest["companies"][ticker])
+            entry["fcfHistory"] = history
+            check_manifest_entry(ticker, entry)
+
+        manifest = deepcopy(self.manifest)
+        manifest["companies"]["ALFA.ST"]["fcfHistory"] = catalog["companies"]["ALFA.ST"]
+        output = import_manifest(
+            self.payload,
+            manifest,
+            tickers={"ALFA.ST"},
+            checked_at="2026-08-18T10:00:00+00:00",
+        )
+        alfa = next(company for company in output["companies"] if company["ticker"] == "ALFA.ST")
+        latest = alfa["fcfHistory"][-1]
+        self.assertEqual(latest["reportedOperatingCashFlow"], 9166)
+        self.assertEqual(latest["reportedCapitalExpenditures"], 2660)
+        self.assertEqual(latest["reportedFreeCashFlow"], 6506)
+        self.assertEqual(latest["method"], "cfo-minus-capex")
+        self.assertAlmostEqual(alfa["growth5y"], ((6506 / 6922) ** (1 / 5) - 1) * 100)
+
     def test_derived_fcf_must_reconcile_to_reported_fcf(self):
         entry = deepcopy(self.manifest["companies"]["ABB.ST"])
         entry["fcfHistory"] = [
