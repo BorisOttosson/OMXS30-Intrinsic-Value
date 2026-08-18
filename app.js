@@ -287,8 +287,6 @@ const elements = {
   typeFilter: document.querySelector("#typeFilter"),
   stanceFilter: document.querySelector("#stanceFilter"),
   searchInput: document.querySelector("#searchInput"),
-  selectedGrowthInput: document.querySelector("#selectedGrowthInput"),
-  selectedGrowthMeta: document.querySelector("#selectedGrowthMeta"),
   valuationForm: document.querySelector("#valuationForm"),
   selectedTicker: document.querySelector("#selectedTicker"),
   selectedLogoImage: document.querySelector("#selectedLogoImage"),
@@ -1151,8 +1149,8 @@ function getSelectedGrowthAssumption(company) {
   const value = numberOrNull(isConsensus ? company?.consensusGrowth : company?.growth5y);
   return {
     key: isConsensus ? "consensus" : "cagr",
-    label: isConsensus ? "Consensus FCF growth" : "Historical FCF CAGR",
-    shortLabel: isConsensus ? "Consensus growth" : "CAGR",
+    label: isConsensus ? "Market consensus FCF growth" : "Historical FCF CAGR",
+    shortLabel: isConsensus ? "Market consensus" : "CAGR",
     value,
     source: isConsensus
       ? (company?.consensusGrowthSource ?? "MarketScreener analyst-consensus FCF forecast")
@@ -1883,7 +1881,7 @@ function bindEvents() {
       state.growthAssumption = button.dataset.growthAssumption === "consensus" ? "consensus" : "cagr";
       saveCompanies();
       renderAll();
-      showToast(`${state.growthAssumption === "consensus" ? "Consensus growth" : "CAGR"} selected for the page`);
+      showToast(`${state.growthAssumption === "consensus" ? "Market consensus" : "CAGR"} selected as the growth forecast`);
     });
   });
 
@@ -1990,22 +1988,11 @@ function renderDependentViews() {
 }
 
 function renderGrowthAssumptionControl() {
-  const company = getSelectedCompany();
-  const assumption = getSelectedGrowthAssumption(company);
   document.querySelectorAll("[data-growth-assumption]").forEach((button) => {
     const active = button.dataset.growthAssumption === state.growthAssumption;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-  if (elements.selectedGrowthInput) {
-    elements.selectedGrowthInput.value = assumption.value === null ? "" : roundFieldValue(assumption.value);
-    elements.selectedGrowthInput.placeholder = assumption.value === null ? "Unavailable" : "";
-  }
-  if (elements.selectedGrowthMeta) {
-    elements.selectedGrowthMeta.textContent = assumption.value === null
-      ? `${assumption.shortLabel} is unavailable for ${company?.name ?? "this company"}; no substitute is used.`
-      : `${assumption.horizon} · Source: ${assumption.source}`;
-  }
 }
 
 function renderHeader() {
@@ -2272,7 +2259,7 @@ function renderConsensusGrowthBreakdown(company) {
     </table>
     <p class="cagr-formula">(${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}) − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}. When Consensus growth is selected above, this next-FY rate is applied across all five DCF forecast years as a simplifying assumption.</p>`;
+    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}. When Market consensus is selected in Growth forecast, this next-FY rate is applied across all five DCF forecast years as a simplifying assumption.</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
@@ -2386,13 +2373,13 @@ function renderCagrBreakdown(company) {
       : `<p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
          <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>`}
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and drives the DCF only when CAGR is selected in the page-level Growth assumption control.</p>
+    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and drives the DCF only when CAGR is selected in the page-level Growth forecast control.</p>
   `;
 }
 
 
 function getScenarioExplanation(scenario = state.scenario, model = state.analysisModel) {
-  const growthLabel = state.growthAssumption === "consensus" ? "consensus FCF growth" : "historical FCF CAGR";
+  const growthLabel = state.growthAssumption === "consensus" ? "market consensus FCF growth" : "historical FCF CAGR";
   if (model === "pe") {
     if (scenario === "bull") return "Bull uses the current P/E plus 2.0x.";
     if (scenario === "bear") return "Bear uses the current P/E minus 2.0x.";

@@ -53,13 +53,15 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('data-field="growth5y" type="number" step="0.1" readonly', self.html)
         self.assertIn('data-growth-assumption="cagr"', self.html)
         self.assertIn('data-growth-assumption="consensus"', self.html)
-        self.assertIn('id="selectedGrowthInput" type="number" step="0.1" readonly', self.html)
+        self.assertIn('<span>Growth forecast</span>', self.html)
+        self.assertIn('>Market consensus</button>', self.html)
+        self.assertNotIn('id="selectedGrowthInput"', self.html)
+        self.assertLess(self.html.index('<span>View</span>'), self.html.index('<span>Growth forecast</span>'))
         dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
         self.assertIn("getSelectedGrowthAssumption(company)", dcf_function)
         self.assertNotIn("company.dcfGrowth", dcf_function)
         self.assertIn('growthAssumption: loadGrowthAssumptionPreference()', self.javascript)
         self.assertIn('state.growthAssumption = button.dataset.growthAssumption', self.javascript)
-        self.assertIn("no substitute is used", self.javascript)
         self.assertIn("drives the DCF only when CAGR is selected", self.javascript)
 
     def test_historical_cagr_is_recomputed_from_traceable_annual_fcf(self):
