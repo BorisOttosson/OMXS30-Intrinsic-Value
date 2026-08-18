@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260814-fx-audit">
+  <link rel="stylesheet" href="styles.css?v=20260814-financial-analysis">
   </head>
   <body>
     <div class="app-shell">
@@ -187,11 +187,10 @@
         </section>
 
         <section class="workspace-grid">
-          <section class="tool-panel valuation-panel" aria-label="Cash flow analysis">
+          <section class="tool-panel valuation-panel" aria-label="Financial analysis">
             <div class="analysis-heading">
               <div>
-                <h3>Cash Flow Analysis</h3>
-                <p id="valuationSubtitle">Understand the selected valuation model and its assumptions</p>
+                <h3>Financial Analysis</h3>
               </div>
               <div class="analysis-controls">
                 <div class="analysis-control-group">
@@ -394,9 +393,10 @@
               <label>
                 <span>Target P/E</span>
                 <div class="input-unit">
-                  <input data-field="targetPe" type="number" min="0" step="0.1">
+                  <input data-field="targetPe" type="number" min="0" step="0.1" readonly aria-describedby="targetPeMeta">
                   <span>x</span>
                 </div>
+                <small class="field-meta" id="targetPeMeta">Automatically equals the current trailing P/E shown next to the share price</small>
               </label>
               <label>
                 <span>Target EV/EBITDA</span>
@@ -502,6 +502,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260814-fx-audit"></script>
+  <script src="app.js?v=20260814-financial-analysis"></script>
   </body>
 </html>

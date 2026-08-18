@@ -110,7 +110,7 @@ silently replaces valuation inputs. A missing TTM basis or ambiguous balance-
 sheet date is recorded as `review-required`. It runs weekly and can also be run
 manually for `ALL`, one ticker, or batches of ten companies.
 
-The Yahoo/yfinance price workflow updates share prices 20 times during each Stockholm trading day, from 09:01 to 16:37 Europe/Stockholm on weekdays. It writes:
+The Yahoo/yfinance price workflow updates share prices every 10 minutes during each Stockholm trading day, from 09:00 to 17:30 Europe/Stockholm on weekdays. Scheduled runs reuse the last trailing EPS and refresh only prices and price-derived P/E, avoiding the slower Yahoo profile request. It writes:
 
 ```text
 data/prices.json

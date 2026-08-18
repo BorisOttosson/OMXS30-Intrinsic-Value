@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from datetime import datetime, time as day_time, timedelta, timezone
 from pathlib import Path
@@ -15,8 +16,8 @@ SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "prices.json"
 STOCKHOLM_TZ = ZoneInfo("Europe/Stockholm")
-PRICE_WINDOW_START = day_time(9, 1)
-PRICE_WINDOW_END = day_time(17, 1)
+PRICE_WINDOW_START = day_time(9, 0)
+PRICE_WINDOW_END = day_time(17, 30)
 PRICE_SLOT_TOLERANCE_MINUTES = 6
 PRICE_UPDATE_SLOTS = [
     day_time(9, 1), day_time(9, 25), day_time(9, 49),
@@ -90,7 +91,13 @@ def fast_info_value(fast_info: Any, key: str) -> Any:
             return None
 
 
-def fetch_yahoo_quote(yf: Any, ticker: str) -> dict[str, Any]:
+def fetch_yahoo_quote(
+    yf: Any,
+    ticker: str,
+    *,
+    include_pe: bool = True,
+    existing_quote: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     ticker_obj = yf.Ticker(ticker)
     fast_info = ticker_obj.fast_info
 
@@ -118,22 +125,29 @@ def fetch_yahoo_quote(yf: Any, ticker: str) -> dict[str, Any]:
         if previous_close is None and len(closes) > 1:
             previous_close = closes[-2]
 
-    trailing_eps = None
-    yahoo_trailing_pe = None
+    existing_quote = existing_quote or {}
+    trailing_eps = finite(existing_quote.get("trailingEps"))
+    yahoo_trailing_pe = finite(existing_quote.get("trailingPe"))
     pe_error = None
-    try:
-        info = ticker_obj.info or {}
-        trailing_eps = finite(info.get("trailingEps"))
-        yahoo_trailing_pe = finite(info.get("trailingPE"))
-    except Exception as exc:  # Keep the current price usable if this endpoint fails.
-        pe_error = str(exc)
+    if include_pe:
+        try:
+            info = ticker_obj.info or {}
+            trailing_eps = finite(info.get("trailingEps"))
+            yahoo_trailing_pe = finite(info.get("trailingPE"))
+        except Exception as exc:  # Keep the current price usable if this endpoint fails.
+            pe_error = str(exc)
 
     trailing_pe = price / trailing_eps if trailing_eps is not None and trailing_eps > 0 else None
     pe_calculation = "Market price / Yahoo Finance trailing EPS" if trailing_pe is not None else None
     pe_source = "Calculated from Yahoo Finance price and trailing EPS" if trailing_pe is not None else None
     if trailing_pe is None and yahoo_trailing_pe is not None and yahoo_trailing_pe > 0:
         trailing_pe = yahoo_trailing_pe
-        pe_source = "Yahoo Finance reported trailing P/E"
+        pe_source = existing_quote.get("peSource") or "Yahoo Finance reported trailing P/E"
+    pe_updated_at = (
+        datetime.now(timezone.utc).isoformat()
+        if trailing_pe is not None and (include_pe or trailing_eps is not None)
+        else existing_quote.get("peUpdatedAt")
+    )
 
     return {
         "quoteTicker": ticker,
@@ -145,7 +159,7 @@ def fetch_yahoo_quote(yf: Any, ticker: str) -> dict[str, Any]:
         "trailingPe": trailing_pe,
         "peCalculation": pe_calculation,
         "peSource": pe_source,
-        "peUpdatedAt": datetime.now(timezone.utc).isoformat() if trailing_pe is not None else None,
+        "peUpdatedAt": pe_updated_at,
         "peError": pe_error,
     }
 
@@ -154,8 +168,13 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Update OMXS30 prices from Yahoo Finance via yfinance.")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="JSON output path")
     parser.add_argument("--delay", type=float, default=0.08, help="Delay between quote requests in seconds")
-    parser.add_argument("--enforce-market-window", action="store_true", help="Only run from 09:01 to 17:01 Europe/Stockholm on weekdays")
+    parser.add_argument("--enforce-market-window", action="store_true", help="Only run from 09:00 to 17:30 Europe/Stockholm on weekdays")
     parser.add_argument("--enforce-price-slots", action="store_true", help="Only run on the 20 planned Stockholm trading-day price slots")
+    parser.add_argument(
+        "--prices-only",
+        action="store_true",
+        help="Refresh prices quickly and reuse the last trailing EPS instead of calling the slower Yahoo profile endpoint",
+    )
     args = parser.parse_args(argv)
 
     now = datetime.now(timezone.utc)
@@ -173,11 +192,23 @@ def main(argv: list[str]) -> int:
     except ImportError as exc:
         raise SystemExit("Missing dependency: yfinance. Run `python3 -m pip install -r requirements.txt` first.") from exc
 
+    existing_payload = json.loads(args.output.read_text(encoding="utf-8")) if args.output.exists() else {}
+    existing_by_ticker = {
+        str(row.get("ticker")): row
+        for row in existing_payload.get("companies", [])
+        if isinstance(row, dict) and row.get("ticker")
+    }
+
     companies = []
     for ticker, name, sector in load_omxs30_universe():
         print(f"Fetching Yahoo price for {ticker}...", flush=True)
         try:
-            quote = fetch_yahoo_quote(yf, ticker)
+            quote = fetch_yahoo_quote(
+                yf,
+                ticker,
+                include_pe=not args.prices_only,
+                existing_quote=existing_by_ticker.get(ticker),
+            )
             companies.append({
                 "id": company_id(ticker),
                 "ticker": ticker,
@@ -188,7 +219,9 @@ def main(argv: list[str]) -> int:
                 **quote,
             })
         except Exception as exc:
+            previous = existing_by_ticker.get(ticker, {})
             companies.append({
+                **previous,
                 "id": company_id(ticker),
                 "ticker": ticker,
                 "name": name,
@@ -203,7 +236,7 @@ def main(argv: list[str]) -> int:
         "provider": "Yahoo Finance via yfinance prices",
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "market": "Nasdaq Stockholm",
-        "priceWindow": "20 planned slots from 09:01 to 16:37 Europe/Stockholm weekdays",
+        "priceWindow": "Every 10 minutes from 09:00 to 17:30 Europe/Stockholm on weekdays",
         "companies": [{key: clean(value) for key, value in company.items()} for company in companies],
     }
 

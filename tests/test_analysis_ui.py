@@ -66,6 +66,21 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("1 ${escapeHtml(currency)} = ${audit.fx.rateToSek.toFixed(5)} SEK", self.javascript)
         self.assertIn("The growth percentage is calculated from the source-currency values", self.javascript)
 
+    def test_target_pe_is_anchored_to_current_pe(self):
+        self.assertIn("function getCurrentPeRatio", self.javascript)
+        self.assertIn("const currentPe = getCurrentPeRatio(company);", self.javascript)
+        self.assertIn("Equal to current P/E", self.javascript)
+        self.assertRegex(
+            self.html,
+            re.compile(r'<input[^>]*data-field="targetPe"[^>]*readonly[^>]*>')
+        )
+        self.assertIn("Automatically equals the current trailing P/E shown next to the share price", self.html)
+
+    def test_analysis_section_has_financial_title_without_dynamic_subtitle(self):
+        self.assertIn("<h3>Financial Analysis</h3>", self.html)
+        self.assertNotIn('id="valuationSubtitle"', self.html)
+        self.assertNotIn("elements.valuationSubtitle", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()
