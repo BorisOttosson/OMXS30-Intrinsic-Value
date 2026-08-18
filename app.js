@@ -257,6 +257,7 @@ let state = {
   selectedId: null,
   scenario: "base",
   analysisModel: "dcf",
+  growthAssumption: loadGrowthAssumptionPreference(),
   marketData: {
     fundamentalsLoaded: false,
     pricesLoaded: false,
@@ -286,6 +287,8 @@ const elements = {
   typeFilter: document.querySelector("#typeFilter"),
   stanceFilter: document.querySelector("#stanceFilter"),
   searchInput: document.querySelector("#searchInput"),
+  selectedGrowthInput: document.querySelector("#selectedGrowthInput"),
+  selectedGrowthMeta: document.querySelector("#selectedGrowthMeta"),
   valuationForm: document.querySelector("#valuationForm"),
   selectedTicker: document.querySelector("#selectedTicker"),
   selectedLogoImage: document.querySelector("#selectedLogoImage"),
@@ -451,6 +454,15 @@ function loadCompanies() {
   }
 }
 
+function loadGrowthAssumptionPreference() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    return parsed?.growthAssumption === "consensus" ? "consensus" : "cagr";
+  } catch {
+    return "cagr";
+  }
+}
+
 function mergeWithSeed(savedCompanies) {
   const defaults = createDefaultCompanies();
   const savedById = new Map(savedCompanies.map((company) => [company.id, company]));
@@ -473,8 +485,9 @@ function mergeWithSeed(savedCompanies) {
 
 function saveCompanies() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    version: 1,
+    version: 2,
     updatedAt: new Date().toISOString(),
+    growthAssumption: state.growthAssumption,
     companies: state.companies
   }, null, 2));
 }
@@ -1133,11 +1146,28 @@ function getDataStatusLabel(marketData = state.marketData) {
   return labels.length ? labels.join(" + ") : "Sample or saved inputs";
 }
 
+function getSelectedGrowthAssumption(company) {
+  const isConsensus = state.growthAssumption === "consensus";
+  const value = numberOrNull(isConsensus ? company?.consensusGrowth : company?.growth5y);
+  return {
+    key: isConsensus ? "consensus" : "cagr",
+    label: isConsensus ? "Consensus FCF growth" : "Historical FCF CAGR",
+    shortLabel: isConsensus ? "Consensus growth" : "CAGR",
+    value,
+    source: isConsensus
+      ? (company?.consensusGrowthSource ?? "MarketScreener analyst-consensus FCF forecast")
+      : (company?.growth5ySource ?? "Official company reports"),
+    horizon: isConsensus
+      ? "Next-fiscal-year consensus, applied as a constant rate across the five-year DCF forecast"
+      : `${company?.growth5yYears ?? "Historical"}-year FCF CAGR, applied across the five-year DCF forecast`
+  };
+}
+
 function calculateDcf(company, scenario = "base", growthOverride = null) {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const fcf = asNumber(company.fcfPerShare);
-  const manualGrowth = numberOrNull(company.dcfGrowth);
-  const selectedGrowth = growthOverride ?? (manualGrowth === null ? null : manualGrowth + adjustment.growth);
+  const assumption = getSelectedGrowthAssumption(company);
+  const selectedGrowth = growthOverride ?? (assumption.value === null ? null : assumption.value + adjustment.growth);
   const growth = selectedGrowth === null ? NaN : selectedGrowth / 100;
   const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const terminalGrowth = asNumber(company.terminalGrowth) / 100;
@@ -1146,7 +1176,7 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
     return {
       value: NaN,
       flows: [],
-      error: !Number.isFinite(growth) ? "Enter a DCF growth assumption" : "DCF input conflict"
+      error: !Number.isFinite(growth) ? `${assumption.shortLabel} is unavailable` : "DCF input conflict"
     };
   }
 
@@ -1171,6 +1201,7 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
     terminalValue,
     discountedTerminal,
     cashFlowBasis: "equity-fcf",
+    growthAssumption: assumption,
     error: ""
   };
 }
@@ -1847,6 +1878,15 @@ function bindEvents() {
     renderCompanyList();
   });
 
+  document.querySelectorAll("[data-growth-assumption]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.growthAssumption = button.dataset.growthAssumption === "consensus" ? "consensus" : "cagr";
+      saveCompanies();
+      renderAll();
+      showToast(`${state.growthAssumption === "consensus" ? "Consensus growth" : "CAGR"} selected for the page`);
+    });
+  });
+
   document.addEventListener("input", (event) => {
     const company = getSelectedCompany();
     const field = event.target.dataset.field;
@@ -1939,6 +1979,7 @@ function renderAll() {
 }
 
 function renderDependentViews() {
+  renderGrowthAssumptionControl();
   renderHeader();
   renderMetrics();
   renderRiktkurser();
@@ -1946,6 +1987,25 @@ function renderDependentViews() {
   renderFundamentals();
   renderCompanyList();
   drawDcfChart();
+}
+
+function renderGrowthAssumptionControl() {
+  const company = getSelectedCompany();
+  const assumption = getSelectedGrowthAssumption(company);
+  document.querySelectorAll("[data-growth-assumption]").forEach((button) => {
+    const active = button.dataset.growthAssumption === state.growthAssumption;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (elements.selectedGrowthInput) {
+    elements.selectedGrowthInput.value = assumption.value === null ? "" : roundFieldValue(assumption.value);
+    elements.selectedGrowthInput.placeholder = assumption.value === null ? "Unavailable" : "";
+  }
+  if (elements.selectedGrowthMeta) {
+    elements.selectedGrowthMeta.textContent = assumption.value === null
+      ? `${assumption.shortLabel} is unavailable for ${company?.name ?? "this company"}; no substitute is used.`
+      : `${assumption.horizon} · Source: ${assumption.source}`;
+  }
 }
 
 function renderHeader() {
@@ -2212,7 +2272,7 @@ function renderConsensusGrowthBreakdown(company) {
     </table>
     <p class="cagr-formula">(${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}) − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}</p>`;
+    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}. When Consensus growth is selected above, this next-FY rate is applied across all five DCF forecast years as a simplifying assumption.</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
@@ -2326,15 +2386,26 @@ function renderCagrBreakdown(company) {
       : `<p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
          <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>`}
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and is not used by the DCF.</p>
+    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and drives the DCF only when CAGR is selected in the page-level Growth assumption control.</p>
   `;
 }
 
 
-function getScenarioExplanation(scenario = state.scenario) {
-  if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, required equity return −0.7 pp and target P/E +2.0x.";
-  if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, required equity return +1.0 pp and target P/E −2.0x.";
-  return "Base uses the manual DCF growth assumption, required equity return and the current P/E as its target P/E anchor.";
+function getScenarioExplanation(scenario = state.scenario, model = state.analysisModel) {
+  const growthLabel = state.growthAssumption === "consensus" ? "consensus FCF growth" : "historical FCF CAGR";
+  if (model === "pe") {
+    if (scenario === "bull") return "Bull uses the current P/E plus 2.0x.";
+    if (scenario === "bear") return "Bear uses the current P/E minus 2.0x.";
+    return "Base uses the current trailing P/E as its target multiple.";
+  }
+  if (model === "reverse-dcf") {
+    if (scenario === "bull") return "Bull solves the market-implied growth rate using a required equity return 0.7 pp lower.";
+    if (scenario === "bear") return "Bear solves the market-implied growth rate using a required equity return 1.0 pp higher.";
+    return "Base solves the five-year growth rate implied by today’s price and the saved required equity return.";
+  }
+  if (scenario === "bull") return `Bull applies ${growthLabel} +2.0 pp and required equity return −0.7 pp.`;
+  if (scenario === "bear") return `Bear applies ${growthLabel} −2.0 pp and required equity return +1.0 pp.`;
+  return `Base uses the page-level ${growthLabel} choice and the saved required equity return.`;
 }
 
 function getAnalysisPresentation(company) {
@@ -2345,7 +2416,8 @@ function getAnalysisPresentation(company) {
   const category = normalizeCompanyType(company.companyType, company.ticker);
   const price = asNumber(company.marketPrice);
   const currentFcf = asNumber(company.fcfPerShare);
-  const baseDcfGrowth = numberOrNull(company.dcfGrowth);
+  const growthAssumption = getSelectedGrowthAssumption(company);
+  const baseDcfGrowth = growthAssumption.value;
   const growth = baseDcfGrowth === null ? NaN : baseDcfGrowth + adjustment.growth;
   const wacc = asNumber(company.wacc) + adjustment.wacc;
   const currentPe = getCurrentPeRatio(company);
@@ -2425,23 +2497,23 @@ function getAnalysisPresentation(company) {
     title: `DCF · ${scenarioLabel}`,
     note: getScenarioExplanation(scenario),
     chartTitle: "Projected free cash flow / share",
-    chartSubtitle: `${scenarioLabel} five-year forecast from the current FCF / share input`,
+    chartSubtitle: `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`,
     chartUnit: `${currency} / share`,
     modelTitle: "DCF — Discounted Cash Flow",
     modelDescription: category === "operating"
-      ? "Projects five years of equity free cash flow and discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders."
+      ? `Projects five years of equity free cash flow using the page-level ${growthAssumption.shortLabel} choice, then discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders.`
       : "DCF is not used for this company type in the dashboard’s existing category model.",
     formula: "Present value of 5yr equity FCF + present value of terminal equity FCF",
     assumptions: [
       ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
-      ["Manual FCF growth", formatPercent(growth, 1)],
+      [growthAssumption.label, formatPercent(growth, 1)],
       ["Required equity return", formatPercent(wacc, 1)],
       ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
     ],
     metrics: [
       ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
       ["Current price", formatTickerMoney(price, currency), "Market price input"],
-      ["5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? "Enter the manual assumption in Model Inputs" : `${formatPercent(baseDcfGrowth, 1)} manual input`],
+      ["5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`],
       ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
     ],
     chartValues: [{ label: "Actual", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]

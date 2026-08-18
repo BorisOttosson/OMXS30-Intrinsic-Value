@@ -49,13 +49,18 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("Currency conversion:", self.javascript)
         self.assertIn("Company-defined fallback", self.javascript)
 
-    def test_dcf_growth_is_a_separate_manual_input(self):
+    def test_page_level_growth_assumption_controls_the_dcf(self):
         self.assertIn('data-field="growth5y" type="number" step="0.1" readonly', self.html)
-        self.assertIn('data-field="dcfGrowth"', self.html)
+        self.assertIn('data-growth-assumption="cagr"', self.html)
+        self.assertIn('data-growth-assumption="consensus"', self.html)
+        self.assertIn('id="selectedGrowthInput" type="number" step="0.1" readonly', self.html)
         dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
-        self.assertIn("company.dcfGrowth", dcf_function)
-        self.assertNotIn("company.growth5y", dcf_function)
-        self.assertIn("This CAGR is read-only and is not used by the DCF", self.javascript)
+        self.assertIn("getSelectedGrowthAssumption(company)", dcf_function)
+        self.assertNotIn("company.dcfGrowth", dcf_function)
+        self.assertIn('growthAssumption: loadGrowthAssumptionPreference()', self.javascript)
+        self.assertIn('state.growthAssumption = button.dataset.growthAssumption', self.javascript)
+        self.assertIn("no substitute is used", self.javascript)
+        self.assertIn("drives the DCF only when CAGR is selected", self.javascript)
 
     def test_historical_cagr_is_recomputed_from_traceable_annual_fcf(self):
         self.assertIn("function validateHistoricalFcfSeries", self.javascript)
