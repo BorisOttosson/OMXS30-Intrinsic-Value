@@ -7,9 +7,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 159730563500.0,
       "bookValuePerShare": 85.29641301000001,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 11586673000.0,
       "cash": 57027851900.0,
-      "cashFlowMetricLabel": "Free cash flow (TTM, company-defined)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -22,26 +22,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:04.956356+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101231+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 71340800900.0,
+      "ebitdaMetricLabel": "EBITDA (TTM)",
+      "ebitdaPerShare": 39.30622639118457,
       "enterpriseValue": null,
       "eps": 26.970659,
       "equityPerShare": 85.29641301000001,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": 27.799217300275483,
+      "fcfPerShare": 25.197399393939396,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "USD",
       "financialToQuoteFx": 9.7367,
       "forwardPe": null,
-      "freeCashFlow": 50455579400.0,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 45733279900.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -59,9 +59,9 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
-        "ebitdaPresented": false,
+        "ebitdaPresented": true,
         "financialCurrency": "USD",
         "financialToQuoteFx": 9.7367
       },
@@ -83,12 +83,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "USD",
         "financialToQuoteFx": 9.7367
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 57319952900.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "USD",
@@ -105,7 +105,78 @@
       "totalLiabilities": 285587147700.0,
       "totalRevenue": 348106498400.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 71340800900.0,
+          "components": [
+            {
+              "label": "Reported EBITDA",
+              "value": 71340800900.0,
+              "sign": 1,
+              "reportedValue": 7327,
+              "sourceName": "ABB Q2 2026 Financial Information",
+              "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+            }
+          ],
+          "reportedResult": 7327,
+          "reportedCurrency": "USD",
+          "quoteCurrency": "SEK",
+          "unit": "USD million",
+          "financialToQuoteFx": 9.7367,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "ABB Q2 2026 Financial Information",
+          "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − purchases of PP&E and intangibles − discontinued-operation capex",
+          "result": 45733279900.0,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 57319952900.0,
+              "sign": 1,
+              "reportedValue": 5887,
+              "sourceName": "ABB Q2 2026 Financial Information",
+              "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+            },
+            {
+              "label": "PP&E and intangible purchases",
+              "value": 10058011100.0,
+              "sign": -1,
+              "reportedValue": 1033,
+              "sourceName": "ABB Q2 2026 Financial Information",
+              "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+            },
+            {
+              "label": "Discontinued-operation capex",
+              "value": 1528661900.0,
+              "sign": -1,
+              "reportedValue": 157,
+              "sourceName": "ABB Q2 2026 Financial Information",
+              "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+            }
+          ],
+          "note": "Asset-sale proceeds included in ABB's 5,182 USDm company-defined FCF are excluded from the standardized amount.",
+          "reportedResult": 4697,
+          "reportedCurrency": "USD",
+          "quoteCurrency": "SEK",
+          "unit": "USD million",
+          "financialToQuoteFx": 9.7367,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "ABB Q2 2026 Financial Information",
+          "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -114,9 +185,9 @@
       "balanceSheetPeriod": "2026-Q1",
       "bookEquity": 9170000000.0,
       "bookValuePerShare": 31.85,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 186000000.0,
       "cash": 1397000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (rolling 12 months)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -127,26 +198,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:05.667260+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101320+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 4218000000.0,
+      "ebitdaMetricLabel": "EBITDA (rolling 12 months)",
+      "ebitdaPerShare": 15.617651109271995,
       "enterpriseValue": null,
       "eps": 8.25,
       "equityPerShare": 31.85,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 10.878297524665983,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 2938000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -164,9 +235,9 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
-        "ebitdaPresented": false,
+        "ebitdaPresented": true,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
@@ -188,12 +259,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 3124000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -210,7 +281,70 @@
       "totalLiabilities": 12657000000.0,
       "totalRevenue": 23036000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (rolling 12 months)",
+          "formula": "Company-reported EBITDA",
+          "result": 4218000000.0,
+          "components": [
+            {
+              "label": "Reported EBITDA",
+              "value": 4218000000.0,
+              "sign": 1,
+              "reportedValue": 4218,
+              "sourceName": "Addtech Q1 2026/27 interim report",
+              "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00"
+            }
+          ],
+          "reportedResult": 4218,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Addtech Q1 2026/27 interim report",
+          "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (rolling 12 months)",
+          "formula": "Cash flow from operations − net investments in non-current assets",
+          "result": 2938000000.0,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 3124000000.0,
+              "sign": 1,
+              "reportedValue": 3124,
+              "sourceName": "Addtech Q1 2026/27 interim report",
+              "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00"
+            },
+            {
+              "label": "Net investments in non-current assets",
+              "value": 186000000.0,
+              "sign": -1,
+              "reportedValue": 186,
+              "sourceName": "Addtech Q1 2026/27 interim report",
+              "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00"
+            }
+          ],
+          "note": "The report presents net rather than gross capex, so this is explicitly identified as CFO minus net capex.",
+          "reportedResult": 2938,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Addtech Q1 2026/27 interim report",
+          "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -219,9 +353,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 45881000000.0,
       "bookValuePerShare": 109.94,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 2891000000.0,
       "cash": 7124000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -234,9 +368,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:05.911821+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101392+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 14443000000.0,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
@@ -246,14 +380,14 @@
       "equityPerShare": 109.94,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 15.38977744497105,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 6361000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -271,7 +405,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -295,12 +429,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 9252000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -317,7 +451,70 @@
       "totalLiabilities": 58886000000.0,
       "totalRevenue": 70426000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 14443000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 14443000000.0,
+              "sign": 1,
+              "reportedValue": 14443,
+              "sourceName": "Alfa Laval Q2 2026 report",
+              "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 14443,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Alfa Laval Q2 2026 report",
+          "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − gross capital expenditure",
+          "result": 6361000000.0,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 9252000000.0,
+              "sign": 1,
+              "reportedValue": 9252,
+              "sourceName": "Alfa Laval Q2 2026 report",
+              "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
+            },
+            {
+              "label": "Gross capital expenditure",
+              "value": 2891000000.0,
+              "sign": -1,
+              "reportedValue": 2891,
+              "sourceName": "Alfa Laval Q2 2026 report",
+              "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
+            }
+          ],
+          "reportedResult": 6361,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Alfa Laval Q2 2026 report",
+          "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -341,9 +538,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:06.212327+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101502+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 30995000000.0,
       "ebitdaMetricLabel": null,
@@ -353,14 +550,14 @@
       "equityPerShare": 100.1,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 21.809077617809532,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 24225000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -378,7 +575,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "EY, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -402,7 +599,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -424,7 +621,63 @@
       "totalLiabilities": 116745000000.0,
       "totalRevenue": 151463000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 30995000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 30995000000.0,
+              "sign": 1,
+              "reportedValue": 30995,
+              "sourceName": "ASSA ABLOY Q2 2026 interim report",
+              "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 30995,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "ASSA ABLOY Q2 2026 interim report",
+          "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "Company-defined operating cash flow after net capex and lease repayments",
+          "result": 24225000000.0,
+          "components": [
+            {
+              "label": "Reported operating cash flow",
+              "value": 24225000000.0,
+              "sign": 1,
+              "reportedValue": 24225,
+              "sourceName": "ASSA ABLOY Q2 2026 interim report",
+              "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf"
+            }
+          ],
+          "note": "Fallback measure: this is not a statutory CFO-minus-gross-capex calculation and remains visibly labelled company-defined.",
+          "reportedResult": 24225,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "ASSA ABLOY Q2 2026 interim report",
+          "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -433,9 +686,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 490437579000.0,
       "bookValuePerShare": 316.41159256000003,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 33883716000.0,
       "cash": 47641673100.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -448,9 +701,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:06.744786+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101595+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 197908164200.0,
       "ebitdaMetricLabel": "Reported EBITDA (TTM)",
@@ -460,14 +713,14 @@
       "equityPerShare": 316.41159256000003,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 64.19940258064516,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "USD",
       "financialToQuoteFx": 9.7367,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 99509074000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -485,7 +738,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "KPMG, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "USD",
@@ -509,12 +762,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.astrazeneca.se/aktieagare/ekonomiska-rapporter.html",
         "financialCurrency": "USD",
         "financialToQuoteFx": 9.7367
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 133392790000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "USD",
@@ -531,7 +784,102 @@
       "totalLiabilities": 637393592100.0,
       "totalRevenue": 597502332200.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Reported EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 197908164200.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 197908164200.0,
+              "sign": 1,
+              "reportedValue": 20326,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 20326,
+          "reportedCurrency": "USD",
+          "quoteCurrency": "SEK",
+          "unit": "USD million",
+          "financialToQuoteFx": 9.7367,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "AstraZeneca H1 and Q2 2026 report",
+          "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and software capex",
+          "result": 99509074000.0,
+          "components": [
+            {
+              "label": "FY2025 cash flow from operations",
+              "value": 141912402500.0,
+              "sign": 1,
+              "reportedValue": 14575,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            },
+            {
+              "label": "H1 2026 cash flow from operations",
+              "value": 60601220800.0,
+              "sign": 1,
+              "reportedValue": 6224,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            },
+            {
+              "label": "H1 2025 cash flow from operations",
+              "value": 69120833300.0,
+              "sign": -1,
+              "reportedValue": 7099,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            },
+            {
+              "label": "FY2025 tangible + software capex",
+              "value": 31839009000.0,
+              "sign": -1,
+              "reportedValue": 3270,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            },
+            {
+              "label": "H1 2026 tangible + software capex",
+              "value": 14731627100.0,
+              "sign": -1,
+              "reportedValue": 1513,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            },
+            {
+              "label": "H1 2025 tangible + software capex",
+              "value": 12686920100.0,
+              "sign": 1,
+              "reportedValue": 1303,
+              "sourceName": "AstraZeneca H1 and Q2 2026 report",
+              "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+            }
+          ],
+          "reportedResult": 10220,
+          "reportedCurrency": "USD",
+          "quoteCurrency": "SEK",
+          "unit": "USD million",
+          "financialToQuoteFx": 9.7367,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "AstraZeneca H1 and Q2 2026 report",
+          "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -540,9 +888,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 106506000000.0,
       "bookValuePerShare": 21.802,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 5458000000.0,
       "cash": 14709000000.0,
-      "cashFlowMetricLabel": "Cash flow from operating activities (TTM)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -555,9 +903,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:07.016749+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101660+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 44512000000.0,
       "ebitdaMetricLabel": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
@@ -567,14 +915,14 @@
       "equityPerShare": 21.802,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 5.1423239407735535,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 25075000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -592,7 +940,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -616,12 +964,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": 25220000000.0,
+      "operatingCashFlow": 30533000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -638,7 +986,102 @@
       "totalLiabilities": 109086000000.0,
       "totalRevenue": 169917000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+          "formula": "Company-reported EBITDA",
+          "result": 44512000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 44512000000.0,
+              "sign": 1,
+              "reportedValue": 44512,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 44512,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Atlas Copco Group Q2 2026 report",
+          "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 25075000000.0,
+          "components": [
+            {
+              "label": "FY2025 cash flow from operations",
+              "value": 32566000000.0,
+              "sign": 1,
+              "reportedValue": 32566,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            },
+            {
+              "label": "H1 2026 cash flow from operations",
+              "value": 13514000000.0,
+              "sign": 1,
+              "reportedValue": 13514,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            },
+            {
+              "label": "H1 2025 cash flow from operations",
+              "value": 15547000000.0,
+              "sign": -1,
+              "reportedValue": 15547,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            },
+            {
+              "label": "FY2025 tangible + intangible capex",
+              "value": 6187000000.0,
+              "sign": -1,
+              "reportedValue": 6187,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            },
+            {
+              "label": "H1 2026 tangible + intangible capex",
+              "value": 2496000000.0,
+              "sign": -1,
+              "reportedValue": 2496,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            },
+            {
+              "label": "H1 2025 tangible + intangible capex",
+              "value": 3225000000.0,
+              "sign": 1,
+              "reportedValue": 3225,
+              "sourceName": "Atlas Copco Group Q2 2026 report",
+              "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+            }
+          ],
+          "reportedResult": 25075,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Atlas Copco Group Q2 2026 report",
+          "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -647,9 +1090,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 80482000000.0,
       "bookValuePerShare": 294.25,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 16113000000.0,
       "cash": 4198000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -662,26 +1105,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:07.324319+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101725+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 27413000000.0,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "ebitdaPerShare": 100.22625438012734,
       "enterpriseValue": null,
       "eps": 46.36,
       "equityPerShare": 294.25,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 17.235127973878097,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 4714000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -699,7 +1142,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -723,12 +1166,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 20827000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -745,7 +1188,126 @@
       "totalLiabilities": 70650000000.0,
       "totalRevenue": 103657000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "EBIT + depreciation and amortisation",
+          "result": 27413000000.0,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 17476000000.0,
+              "sign": 1,
+              "reportedValue": 17476,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 9937000000.0,
+              "sign": 1,
+              "reportedValue": 9937,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            }
+          ],
+          "note": "Derived only from official quarterly EBIT and D&A; it is not an analyst estimate.",
+          "reportedResult": 27413,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Boliden Q2 2026 official financial workbook",
+          "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − tangible and intangible capex",
+          "result": 4714000000.0,
+          "components": [
+            {
+              "label": "Q3 2025 CFO",
+              "value": 6120000000.0,
+              "sign": 1,
+              "reportedValue": 6120,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q4 2025 CFO",
+              "value": 7343000000.0,
+              "sign": 1,
+              "reportedValue": 7343,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q1 2026 CFO",
+              "value": 4884000000.0,
+              "sign": 1,
+              "reportedValue": 4884,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q2 2026 CFO",
+              "value": 2480000000.0,
+              "sign": 1,
+              "reportedValue": 2480,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q3 2025 capex",
+              "value": 3806000000.0,
+              "sign": -1,
+              "reportedValue": 3806,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q4 2025 capex",
+              "value": 4626000000.0,
+              "sign": -1,
+              "reportedValue": 4626,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q1 2026 capex",
+              "value": 3624000000.0,
+              "sign": -1,
+              "reportedValue": 3624,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            },
+            {
+              "label": "Q2 2026 capex",
+              "value": 4057000000.0,
+              "sign": -1,
+              "reportedValue": 4057,
+              "sourceName": "Boliden Q2 2026 official financial workbook",
+              "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+            }
+          ],
+          "reportedResult": 4714,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Boliden Q2 2026 official financial workbook",
+          "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -754,9 +1316,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 44597000000.0,
       "bookValuePerShare": 36.9,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 1845000000.0,
       "cash": 6928000000.0,
-      "cashFlowMetricLabel": "Operating cash flow (TTM, non-IFRS)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -769,26 +1331,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:07.507120+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101793+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 15268000000.0,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "ebitdaPerShare": 12.618181818181819,
       "enterpriseValue": null,
       "eps": 7.31,
       "equityPerShare": 36.9,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 6.403305785123967,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 7748000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -806,7 +1368,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "EY, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -830,12 +1392,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": 8255000000.0,
+      "operatingCashFlow": 9593000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -852,7 +1414,110 @@
       "totalLiabilities": 41294000000.0,
       "totalRevenue": 62385000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "TTM EBIT + TTM depreciation and amortisation",
+          "result": 15268000000.0,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 12168000000.0,
+              "sign": 1,
+              "reportedValue": 12168,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 3100000000.0,
+              "sign": 1,
+              "reportedValue": 3100,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            }
+          ],
+          "note": "Derived from official FY and half-year figures; no market-data estimate is used.",
+          "reportedResult": 15268,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Epiroc Q2 2026 interim report",
+          "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 7748000000.0,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 10675000000.0,
+              "sign": 1,
+              "reportedValue": 10675,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 3628000000.0,
+              "sign": 1,
+              "reportedValue": 3628,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 4710000000.0,
+              "sign": -1,
+              "reportedValue": 4710,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 1995000000.0,
+              "sign": -1,
+              "reportedValue": 1995,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 866000000.0,
+              "sign": -1,
+              "reportedValue": 866,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 1016000000.0,
+              "sign": 1,
+              "reportedValue": 1016,
+              "sourceName": "Epiroc Q2 2026 interim report",
+              "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+            }
+          ],
+          "reportedResult": 7748,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Epiroc Q2 2026 interim report",
+          "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -874,13 +1539,13 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:07.885036+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101850+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": 18559425500.0,
+      "ebitda": null,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
-      "ebitdaPerShare": 15.846438243223787,
+      "ebitdaPerShare": null,
       "enterpriseValue": null,
       "eps": 12.5911225,
       "equityPerShare": 73.2171,
@@ -893,7 +1558,7 @@
       "financialToQuoteFx": 11.0935,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -911,7 +1576,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "EUR",
@@ -935,7 +1600,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "EUR",
         "financialToQuoteFx": 11.0935
@@ -957,7 +1622,45 @@
       "totalLiabilities": 44030101500.0,
       "totalRevenue": 31050706500.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies.",
+          "reportedResult": null,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "EQT H1 2026 report",
+          "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "EQT H1 2026 report",
+          "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -966,9 +1669,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 104764000000.0,
       "bookValuePerShare": 31.472,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 4197000000.0,
       "cash": 91297000000.0,
-      "cashFlowMetricLabel": "Free cash flow before M&A (TTM, company-defined)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -981,26 +1684,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:08.246699+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101909+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 41963000000.0,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "ebitdaPerShare": 12.692982456140351,
       "enterpriseValue": null,
       "eps": null,
       "equityPerShare": 31.472,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": 8.405928614640048,
+      "fcfPerShare": 8.948578342407744,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": 27790000000.0,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 29584000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1018,7 +1721,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1042,12 +1745,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 33781000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -1064,7 +1767,79 @@
       "totalLiabilities": 183135000000.0,
       "totalRevenue": 227546000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "TTM EBIT + TTM depreciation and amortisation",
+          "result": 41963000000.0,
+          "components": [
+            {
+              "label": "TTM EBIT",
+              "value": 33674000000.0,
+              "sign": 1,
+              "reportedValue": 33674,
+              "sourceName": "Ericsson Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+            },
+            {
+              "label": "TTM depreciation and amortisation",
+              "value": 8289000000.0,
+              "sign": 1,
+              "reportedValue": 8289,
+              "sourceName": "Ericsson Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+            }
+          ],
+          "note": "Derived from the four official quarterly amounts.",
+          "reportedResult": 41963,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Ericsson Q2 2026 report",
+          "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − PP&E, capitalised development and other intangible capex",
+          "result": 29584000000.0,
+          "components": [
+            {
+              "label": "TTM cash flow from operations",
+              "value": 33781000000.0,
+              "sign": 1,
+              "reportedValue": 33781,
+              "sourceName": "Ericsson Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+            },
+            {
+              "label": "TTM PP&E and intangible capex",
+              "value": 4197000000.0,
+              "sign": -1,
+              "reportedValue": 4197,
+              "sourceName": "Ericsson Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+            }
+          ],
+          "note": "Ericsson's company-defined FCF before M&A is preserved in the report, but the dashboard uses the statutory CFO-minus-capex result.",
+          "reportedResult": 29584,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Ericsson Q2 2026 report",
+          "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1088,9 +1863,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:08.524893+00:00"
+        "checkedAt": "2026-08-18T15:15:28.101967+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -1100,14 +1875,14 @@
       "equityPerShare": 136.7,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 24.811822215384755,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 16837000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1125,7 +1900,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "EY, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1149,7 +1924,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -1171,7 +1946,78 @@
       "totalLiabilities": 88355000000.0,
       "totalRevenue": 137571000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Essity Q2 2026 report",
+          "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "Q3 2025 + Q4 2025 + Q1 2026 + Q2 2026 company-defined operating cash flow",
+          "result": 16837000000.0,
+          "components": [
+            {
+              "label": "Q3 2025",
+              "value": 5324000000.0,
+              "sign": 1,
+              "reportedValue": 5324,
+              "sourceName": "Essity Q2 2026 report",
+              "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+            },
+            {
+              "label": "Q4 2025",
+              "value": 4369000000.0,
+              "sign": 1,
+              "reportedValue": 4369,
+              "sourceName": "Essity Q2 2026 report",
+              "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+            },
+            {
+              "label": "Q1 2026",
+              "value": 4354000000.0,
+              "sign": 1,
+              "reportedValue": 4354,
+              "sourceName": "Essity Q2 2026 report",
+              "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+            },
+            {
+              "label": "Q2 2026",
+              "value": 2790000000.0,
+              "sign": 1,
+              "reportedValue": 2790,
+              "sourceName": "Essity Q2 2026 report",
+              "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+            }
+          ],
+          "note": "Fallback measure: the company definition is retained and not relabelled as standardized FCF.",
+          "reportedResult": 16837,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Essity Q2 2026 report",
+          "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1180,9 +2026,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 46973950314.5,
       "bookValuePerShare": 242.06017000000003,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 1525334063.0,
       "cash": 12796784896.5,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -1195,9 +2041,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:08.661222+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102022+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 15601942774.0,
       "ebitdaMetricLabel": "EBITDA (TTM)",
@@ -1207,14 +2053,14 @@
       "equityPerShare": 242.06017000000003,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 66.87082394043829,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "EUR",
       "financialToQuoteFx": 11.0935,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 12978629548.5,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1232,7 +2078,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "Not reviewed by the company's auditors",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "EUR",
@@ -1256,12 +2102,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "EUR",
         "financialToQuoteFx": 11.0935
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 14503963611.500002,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "EUR",
@@ -1278,7 +2124,78 @@
       "totalLiabilities": 13713984383.0,
       "totalRevenue": 22765603679.5,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 15601942774.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 15601942774.0,
+              "sign": 1,
+              "reportedValue": 1406.404,
+              "sourceName": "Evolution Q2 2026 report",
+              "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 1406.404,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Evolution Q2 2026 report",
+          "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "Cash flow from operations − intangible capex − tangible capex",
+          "result": 12978629548.5,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 14503963611.500002,
+              "sign": 1,
+              "reportedValue": 1307.429,
+              "sourceName": "Evolution Q2 2026 report",
+              "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+            },
+            {
+              "label": "Intangible capex",
+              "value": 731239146.0,
+              "sign": -1,
+              "reportedValue": 65.916,
+              "sourceName": "Evolution Q2 2026 report",
+              "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+            },
+            {
+              "label": "Tangible capex",
+              "value": 794094916.9999999,
+              "sign": -1,
+              "reportedValue": 71.582,
+              "sourceName": "Evolution Q2 2026 report",
+              "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+            }
+          ],
+          "reportedResult": 1169.931,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Evolution Q2 2026 report",
+          "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1302,9 +2219,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:09.612570+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102076+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -1321,7 +2238,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1339,7 +2256,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "PwC and Deloitte, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1363,7 +2280,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.handelsbanken.com/sv/investor-relations/rapporter-och-presentationer",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -1385,7 +2302,45 @@
       "totalLiabilities": 3688045000000.0,
       "totalRevenue": 56826000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Handelsbanken interim report January-June 2026",
+          "sourceUrl": "https://vp292.alertir.com/afw/files/press/handelsbanken/202607148882-1.pdf"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Handelsbanken interim report January-June 2026",
+          "sourceUrl": "https://vp292.alertir.com/afw/files/press/handelsbanken/202607148882-1.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1394,9 +2349,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 33924000000.0,
       "bookValuePerShare": 21.25,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 9942000000.0,
       "cash": 18697000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-05-31",
       "cashFlowStatementPeriod": "TTM",
@@ -1409,26 +2364,26 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:10.014018+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102138+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
-      "ebitda": null,
-      "ebitdaMetricLabel": null,
-      "ebitdaPerShare": null,
+      "ebitda": 38856000000.0,
+      "ebitdaMetricLabel": "EBITDA (TTM, derived)",
+      "ebitdaPerShare": 24.340176136780062,
       "enterpriseValue": null,
       "eps": 7.68,
       "equityPerShare": 21.25,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 14.44837766612189,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 71,
+      "freeCashFlow": 23065000000.0,
+      "fundamentalsAgeDays": 79,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1446,7 +2401,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1470,12 +2425,12 @@
         "period": "2026-05-31",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 33007000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -1492,7 +2447,118 @@
       "totalLiabilities": 131960000000.0,
       "totalRevenue": 220673000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "derived",
+          "label": "EBITDA (TTM, derived)",
+          "formula": "FY2025 EBITDA + H1 2026 EBITDA − H1 2025 EBITDA",
+          "result": 38856000000.0,
+          "components": [
+            {
+              "label": "FY2025 EBITDA",
+              "value": 39535000000.0,
+              "sign": 1,
+              "reportedValue": 39535,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2026 EBITDA",
+              "value": 17128000000.0,
+              "sign": 1,
+              "reportedValue": 17128,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2025 EBITDA",
+              "value": 17807000000.0,
+              "sign": -1,
+              "reportedValue": 17807,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            }
+          ],
+          "note": "Each EBITDA component equals reported operating profit plus reported depreciation and amortisation.",
+          "reportedResult": 38856,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-05-31",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "H&M six-month report 2026",
+          "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "TTM cash flow from operations − tangible and intangible capex",
+          "result": 23065000000.0,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 31120000000.0,
+              "sign": 1,
+              "reportedValue": 31120,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 14616000000.0,
+              "sign": 1,
+              "reportedValue": 14616,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 12729000000.0,
+              "sign": -1,
+              "reportedValue": 12729,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 10679000000.0,
+              "sign": -1,
+              "reportedValue": 10679,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 3755000000.0,
+              "sign": -1,
+              "reportedValue": 3755,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 4492000000.0,
+              "sign": 1,
+              "reportedValue": 4492,
+              "sourceName": "H&M six-month report 2026",
+              "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+            }
+          ],
+          "reportedResult": 23065,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-05-31",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "H&M six-month report 2026",
+          "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1516,9 +2582,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:10.767696+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102198+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": "EBITDA is presented for Q2/H1; TTM omitted after the Octave distribution",
@@ -1528,14 +2594,14 @@
       "equityPerShare": 23.185415,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 3.7569600294742393,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "EUR",
       "financialToQuoteFx": 11.0935,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 10085100850.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1553,7 +2619,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "Not reviewed by the company's auditors",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "EUR",
@@ -1577,7 +2643,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://hexagon.com/company/newsroom/press-releases/2026/hexagon-interim-report-1-january---30-june-2026",
         "financialCurrency": "EUR",
         "financialToQuoteFx": 11.0935
@@ -1599,7 +2665,70 @@
       "totalLiabilities": 51926454800.0,
       "totalRevenue": 44832161550.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank.",
+          "reportedResult": null,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Hexagon Q2 2026 interim report",
+          "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow before non-recurring items (TTM)",
+          "formula": "FY2025 − H1 2025 + H1 2026",
+          "result": 10085100850.0,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 8097145650.0,
+              "sign": 1,
+              "reportedValue": 729.9,
+              "sourceName": "Hexagon Q2 2026 interim report",
+              "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf"
+            },
+            {
+              "label": "H1 2025",
+              "value": 2625831450.0,
+              "sign": -1,
+              "reportedValue": 236.7,
+              "sourceName": "Hexagon Q2 2026 interim report",
+              "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf"
+            },
+            {
+              "label": "H1 2026",
+              "value": 4613786650.0,
+              "sign": 1,
+              "reportedValue": 415.9,
+              "sourceName": "Hexagon Q2 2026 interim report",
+              "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf"
+            }
+          ],
+          "note": "Fallback measure: Hexagon defines and reconciles this normalized operating cash-flow measure.",
+          "reportedResult": 909.1,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Hexagon Q2 2026 interim report",
+          "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1621,9 +2750,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:10.866208+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102247+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -1640,7 +2769,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1658,7 +2787,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1682,7 +2811,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -1704,7 +2833,45 @@
       "totalLiabilities": 7073000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Industrivärden interim report January-June 2026",
+          "sourceUrl": "https://storage.mfn.se/50056ea1-ff68-49a1-8543-515f405f6e65/delarsrapport-6m-2026-eng.pdf"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Industrivärden interim report January-June 2026",
+          "sourceUrl": "https://storage.mfn.se/50056ea1-ff68-49a1-8543-515f405f6e65/delarsrapport-6m-2026-eng.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1728,9 +2895,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:11.133673+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102293+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -1747,7 +2914,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1765,7 +2932,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -1789,7 +2956,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -1811,7 +2978,45 @@
       "totalLiabilities": 163188000000.0,
       "totalRevenue": null,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for holding/investment companies.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Investor AB interim report January-June 2026",
+          "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for holding/investment companies; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Investor AB interim report January-June 2026",
+          "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1820,9 +3025,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 20477000000.0,
       "bookValuePerShare": 45.08,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 440000000.0,
       "cash": 1337000000.0,
-      "cashFlowMetricLabel": "Cash flow from operating activities (TTM)",
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -1833,9 +3038,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:11.301044+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102358+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 7416000000.0,
       "ebitdaMetricLabel": "EBITDA (TTM, company-defined)",
@@ -1845,14 +3050,14 @@
       "equityPerShare": 45.08,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 10.547845078112616,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 4791000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1870,7 +3075,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "Not reviewed by the company's auditors",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -1894,7 +3099,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.lifco.se/investors/mfn/interim-report-january-june-2026",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -1916,7 +3121,103 @@
       "totalLiabilities": 23196000000.0,
       "totalRevenue": 29257000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 7416000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 7416000000.0,
+              "sign": 1,
+              "reportedValue": 7416,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 7416,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Lifco interim report January-June 2026",
+          "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "TTM cash flow from operations − net tangible and intangible capex",
+          "result": 4791000000.0,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 5124000000.0,
+              "sign": 1,
+              "reportedValue": 5124,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 1851000000.0,
+              "sign": 1,
+              "reportedValue": 1851,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 1744000000.0,
+              "sign": -1,
+              "reportedValue": 1744,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            },
+            {
+              "label": "FY2025 net capex",
+              "value": 472000000.0,
+              "sign": -1,
+              "reportedValue": 472,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            },
+            {
+              "label": "H1 2026 net capex",
+              "value": 186000000.0,
+              "sign": -1,
+              "reportedValue": 186,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            },
+            {
+              "label": "H1 2025 net capex",
+              "value": 218000000.0,
+              "sign": 1,
+              "reportedValue": 218,
+              "sourceName": "Lifco interim report January-June 2026",
+              "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+            }
+          ],
+          "note": "The report presents net capex; this is explicitly identified as CFO minus net capex.",
+          "reportedResult": 4791,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Lifco interim report January-June 2026",
+          "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -1927,7 +3228,7 @@
       "bookValuePerShare": 15.68,
       "capitalExpenditures": null,
       "cash": 5507000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-03-31",
       "cashFlowStatementPeriod": "TTM",
@@ -1938,9 +3239,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:11.498239+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102414+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 6397000000.0,
       "ebitdaMetricLabel": "EBITDA (TTM)",
@@ -1950,14 +3251,14 @@
       "equityPerShare": 15.68,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 1.7797032098675507,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 132,
+      "freeCashFlow": 3588000000.0,
+      "fundamentalsAgeDays": 140,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -1975,7 +3276,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -1999,7 +3300,7 @@
         "period": "2026-03-31",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2021,7 +3322,79 @@
       "totalLiabilities": 35268000000.0,
       "totalRevenue": 40818000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 6397000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 6397000000.0,
+              "sign": 1,
+              "reportedValue": 6397,
+              "sourceName": "NIBE Q1 2026 report",
+              "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 6397,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-03-31",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "NIBE Q1 2026 report",
+          "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "FY2025 + Q1 2026 − Q1 2025",
+          "result": 3588000000.0,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 2888000000.0,
+              "sign": 1,
+              "reportedValue": 2888,
+              "sourceName": "NIBE Q1 2026 report",
+              "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+            },
+            {
+              "label": "Q1 2026",
+              "value": 324000000.0,
+              "sign": 1,
+              "reportedValue": 324,
+              "sourceName": "NIBE Q1 2026 report",
+              "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+            },
+            {
+              "label": "Q1 2025 (negative amount removed from FY bridge)",
+              "value": 376000000.0,
+              "sign": 1,
+              "reportedValue": 376,
+              "sourceName": "NIBE Q1 2026 report",
+              "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+            }
+          ],
+          "note": "Fallback measure: this is NIBE's company-defined operating cash flow.",
+          "reportedResult": 3588,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-03-31",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "NIBE Q1 2026 report",
+          "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2043,9 +3416,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:12.194866+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102463+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -2062,7 +3435,7 @@
       "financialToQuoteFx": 11.0935,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2080,7 +3453,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "EUR",
@@ -2104,7 +3477,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "EUR",
         "financialToQuoteFx": 11.0935
@@ -2126,7 +3499,45 @@
       "totalLiabilities": 7557446875000.0,
       "totalRevenue": 130903300000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks.",
+          "reportedResult": null,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Nordea Q2 2026 official financial workbook",
+          "sourceUrl": "https://www.nordea.com/en/doc/income-statement-second-quarter-2026-0.xlsx"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "EUR",
+          "quoteCurrency": "SEK",
+          "unit": "EUR million",
+          "financialToQuoteFx": 11.0935,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Nordea Q2 2026 official financial workbook",
+          "sourceUrl": "https://www.nordea.com/en/doc/income-statement-second-quarter-2026-0.xlsx"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2150,9 +3561,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:12.451527+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102518+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 12881000000.0,
       "ebitdaMetricLabel": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
@@ -2169,7 +3580,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 5381000000.0,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2187,7 +3598,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -2211,7 +3622,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2233,7 +3644,63 @@
       "totalLiabilities": 85015000000.0,
       "totalRevenue": 88185000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM, calculated from reported EBIT plus D&A)",
+          "formula": "Company-reported EBITDA",
+          "result": 12881000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 12881000000.0,
+              "sign": 1,
+              "reportedValue": 12881,
+              "sourceName": "Saab Q2 2026 report",
+              "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 12881,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Saab Q2 2026 report",
+          "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Free cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 5381000000.0,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 5381000000.0,
+              "sign": 1,
+              "reportedValue": 5381,
+              "sourceName": "Saab Q2 2026 report",
+              "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf"
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation.",
+          "reportedResult": 5381,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Saab Q2 2026 report",
+          "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2257,9 +3724,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:12.643002+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102569+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -2276,7 +3743,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 19520000000.0,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2294,7 +3761,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -2318,7 +3785,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2340,7 +3807,54 @@
       "totalLiabilities": 86389000000.0,
       "totalRevenue": 129116000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Sandvik Q2 2026 report",
+          "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Free operating cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 19520000000.0,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 19520000000.0,
+              "sign": 1,
+              "reportedValue": 19520,
+              "sourceName": "Sandvik Q2 2026 report",
+              "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf"
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation.",
+          "reportedResult": 19520,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Sandvik Q2 2026 report",
+          "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2351,7 +3865,7 @@
       "bookValuePerShare": 144.08,
       "capitalExpenditures": null,
       "cash": 4724000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -2362,9 +3876,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:12.843918+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102625+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 5290000000.0,
       "ebitdaMetricLabel": "EBITDA (TTM)",
@@ -2374,14 +3888,14 @@
       "equityPerShare": 144.08,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 3.780207009517831,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 2655000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2399,7 +3913,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -2423,7 +3937,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2445,7 +3959,79 @@
       "totalLiabilities": 46473000000.0,
       "totalRevenue": 19779000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "EBITDA (TTM)",
+          "formula": "Company-reported EBITDA",
+          "result": 5290000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 5290000000.0,
+              "sign": 1,
+              "reportedValue": 5290,
+              "sourceName": "SCA Q2 2026 report",
+              "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 5290,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SCA Q2 2026 report",
+          "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow (TTM, company-defined)",
+          "formula": "FY2025 + H1 2026 − H1 2025",
+          "result": 2655000000.0,
+          "components": [
+            {
+              "label": "FY2025",
+              "value": 3078000000.0,
+              "sign": 1,
+              "reportedValue": 3078,
+              "sourceName": "SCA Q2 2026 report",
+              "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+            },
+            {
+              "label": "H1 2026",
+              "value": 1015000000.0,
+              "sign": 1,
+              "reportedValue": 1015,
+              "sourceName": "SCA Q2 2026 report",
+              "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+            },
+            {
+              "label": "H1 2025",
+              "value": 1438000000.0,
+              "sign": -1,
+              "reportedValue": 1438,
+              "sourceName": "SCA Q2 2026 report",
+              "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+            }
+          ],
+          "note": "Fallback measure: SCA's definition includes current net capex and remains labelled company-defined.",
+          "reportedResult": 2655,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SCA Q2 2026 report",
+          "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2469,9 +4055,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:15.530786+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102677+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -2488,7 +4074,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2506,7 +4092,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -2530,7 +4116,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://sebgroup.com/our-offering/reports-and-publications",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2552,7 +4138,45 @@
       "totalLiabilities": 4128919000000.0,
       "totalRevenue": 76019000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SEB Q2 2026 Fact Book",
+          "sourceUrl": "https://webapp.sebgroup.com/mb/mblib.nsf/alldocsbyunid/A37209093393EED9C1258E350018CEF4/$FILE/Q226_FactBookfigures.xlsx"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SEB Q2 2026 Fact Book",
+          "sourceUrl": "https://webapp.sebgroup.com/mb/mblib.nsf/alldocsbyunid/A37209093393EED9C1258E350018CEF4/$FILE/Q226_FactBookfigures.xlsx"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2561,9 +4185,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 61700000000.0,
       "bookValuePerShare": 149.01,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 2808000000.0,
       "cash": 17600000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (rolling 12 months)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -2576,9 +4200,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:16.842206+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102733+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -2588,14 +4212,14 @@
       "equityPerShare": 149.01,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 21.243671681440333,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 8796000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2613,7 +4237,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -2637,12 +4261,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 11604000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -2659,7 +4283,62 @@
       "totalLiabilities": 104400000000.0,
       "totalRevenue": 174937000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Skanska Q2 2026 report",
+          "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (rolling 12 months)",
+          "formula": "Statutory cash flow from operations − net investments in shares, PP&E and intangibles",
+          "result": 8796000000.0,
+          "components": [
+            {
+              "label": "Cash flow from operations",
+              "value": 11604000000.0,
+              "sign": 1,
+              "reportedValue": 11604,
+              "sourceName": "Skanska Q2 2026 report",
+              "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf"
+            },
+            {
+              "label": "Net investments",
+              "value": 2808000000.0,
+              "sign": -1,
+              "reportedValue": 2808,
+              "sourceName": "Skanska Q2 2026 report",
+              "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf"
+            }
+          ],
+          "note": "The report presents net investment cash flows, so this is explicitly identified as CFO minus net investments.",
+          "reportedResult": 8796,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Skanska Q2 2026 report",
+          "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2668,9 +4347,9 @@
       "balanceSheetPeriod": "2026-Q2",
       "bookEquity": 59871000000.0,
       "bookValuePerShare": 131.48,
-      "capitalExpenditures": null,
+      "capitalExpenditures": 3465000000.0,
       "cash": 12461000000.0,
-      "cashFlowMetricLabel": null,
+      "cashFlowMetricLabel": "Equity free cash flow (TTM)",
       "cashFlowStatementBasis": "ttm",
       "cashFlowStatementDate": "2026-06-30",
       "cashFlowStatementPeriod": "TTM",
@@ -2683,9 +4362,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:17.108167+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102795+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 15438000000.0,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
@@ -2695,14 +4374,14 @@
       "equityPerShare": 131.48,
       "errors": [],
       "evToEbitda": null,
-      "fcfPerShare": null,
+      "fcfPerShare": 6.02172739386218,
       "fcfSeries": null,
       "fcfYield": null,
       "financialCurrency": "SEK",
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
-      "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "freeCashFlow": 2742000000.0,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2720,7 +4399,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "Deloitte, review under ISRE 2410",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -2744,12 +4423,12 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.skf.com/se/investors",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
       },
-      "operatingCashFlow": null,
+      "operatingCashFlow": 6207000000.0,
       "previousClose": null,
       "recommendationMean": null,
       "reportedCurrency": "SEK",
@@ -2766,7 +4445,102 @@
       "totalLiabilities": 58734000000.0,
       "totalRevenue": 89519000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 15438000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 15438000000.0,
+              "sign": 1,
+              "reportedValue": 15438,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 15438,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SKF Q2 2026 report",
+          "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+        },
+        "freeCashFlow": {
+          "status": "standardized",
+          "label": "Equity free cash flow (TTM)",
+          "formula": "FY2025 CFO + H1 2026 CFO − H1 2025 CFO − matching tangible and intangible capex",
+          "result": 2742000000.0,
+          "components": [
+            {
+              "label": "FY2025 CFO",
+              "value": 8392000000.0,
+              "sign": 1,
+              "reportedValue": 8392,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            },
+            {
+              "label": "H1 2026 CFO",
+              "value": 1609000000.0,
+              "sign": 1,
+              "reportedValue": 1609,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            },
+            {
+              "label": "H1 2025 CFO",
+              "value": 3794000000.0,
+              "sign": -1,
+              "reportedValue": 3794,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            },
+            {
+              "label": "FY2025 capex",
+              "value": 3825000000.0,
+              "sign": -1,
+              "reportedValue": 3825,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            },
+            {
+              "label": "H1 2026 capex",
+              "value": 1488000000.0,
+              "sign": -1,
+              "reportedValue": 1488,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            },
+            {
+              "label": "H1 2025 capex",
+              "value": 1848000000.0,
+              "sign": 1,
+              "reportedValue": 1848,
+              "sourceName": "SKF Q2 2026 report",
+              "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+            }
+          ],
+          "reportedResult": 2742,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "SKF Q2 2026 report",
+          "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2788,9 +4562,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:17.280400+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102852+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -2807,7 +4581,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": null,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2825,7 +4599,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -2849,7 +4623,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": null,
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2871,7 +4645,45 @@
       "totalLiabilities": 3099625000000.0,
       "totalRevenue": 69623000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "not-applicable",
+          "label": "EBITDA",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "EBITDA is not a meaningful primary valuation measure for banks.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Swedbank Q2 2026 official results and report",
+          "sourceUrl": "https://www.swedbank.com/newsroom/press-releases.details.swedbank%E2%80%99s-interim-report-for-the-second-quarter-2026.DA59ABC946065D11.html"
+        },
+        "freeCashFlow": {
+          "status": "not-applicable",
+          "label": "Equity free cash flow",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "Ordinary operating-company FCF is not used for banks; the dashboard uses the category-specific valuation model.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Swedbank Q2 2026 official results and report",
+          "sourceUrl": "https://www.swedbank.com/newsroom/press-releases.details.swedbank%E2%80%99s-interim-report-for-the-second-quarter-2026.DA59ABC946065D11.html"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -2893,9 +4705,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:18.484671+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102906+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 12126000000.0,
       "ebitdaMetricLabel": "Underlying EBITDAaL (TTM, company-defined)",
@@ -2912,7 +4724,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 6203000000.0,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -2930,7 +4742,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -2954,7 +4766,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.tele2.com/investors/reports-and-presentations",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -2976,7 +4788,63 @@
       "totalLiabilities": 44716000000.0,
       "totalRevenue": 30119000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Underlying EBITDAaL (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 12126000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 12126000000.0,
+              "sign": 1,
+              "reportedValue": 12126,
+              "sourceName": "Tele2 Q2 2026 report",
+              "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 12126,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Tele2 Q2 2026 report",
+          "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Equity free cash flow (TTM, company-defined)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 6203000000.0,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 6203000000.0,
+              "sign": 1,
+              "reportedValue": 6203,
+              "sourceName": "Tele2 Q2 2026 report",
+              "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf"
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation.",
+          "reportedResult": 6203,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Tele2 Q2 2026 report",
+          "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -3000,9 +4868,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:18.896616+00:00"
+        "checkedAt": "2026-08-18T15:15:28.102962+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": 32472000000.0,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
@@ -3019,7 +4887,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 9388014000.0,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -3037,7 +4905,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": "Not reviewed by the company's auditors",
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": true,
         "financialCurrency": "SEK",
@@ -3061,7 +4929,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.teliacompany.com/en/reports-and-presentations",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -3083,7 +4951,63 @@
       "totalLiabilities": 142849000000.0,
       "totalRevenue": 81834229000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "reported",
+          "label": "Adjusted EBITDA (TTM, company-defined)",
+          "formula": "Company-reported EBITDA",
+          "result": 32472000000.0,
+          "components": [
+            {
+              "label": "Company-reported EBITDA",
+              "value": 32472000000.0,
+              "sign": 1,
+              "reportedValue": 32472,
+              "sourceName": "Telia Company Q2 2026 interim report",
+              "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf"
+            }
+          ],
+          "note": "No dashboard estimate is substituted for the reported amount.",
+          "reportedResult": 32472,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Telia Company Q2 2026 interim report",
+          "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Cash flow from operating activities (TTM)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 9388014000.0,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 9388014000.0,
+              "sign": 1,
+              "reportedValue": 9388.014,
+              "sourceName": "Telia Company Q2 2026 interim report",
+              "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf"
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation.",
+          "reportedResult": 9388.014,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Telia Company Q2 2026 interim report",
+          "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     },
     {
       "analystTargetMeanPrice": null,
@@ -3107,9 +5031,9 @@
         "status": "ok",
         "valuationReady": true,
         "issues": [],
-        "checkedAt": "2026-08-10T06:47:19.287076+00:00"
+        "checkedAt": "2026-08-18T15:15:28.103011+00:00"
       },
-      "dataUpdatedAt": "2026-08-10T06:47:04.460349+00:00",
+      "dataUpdatedAt": "2026-08-18T15:15:28.100851+00:00",
       "ebit": null,
       "ebitda": null,
       "ebitdaMetricLabel": null,
@@ -3126,7 +5050,7 @@
       "financialToQuoteFx": 1.0,
       "forwardPe": null,
       "freeCashFlow": 6269000000.0,
-      "fundamentalsAgeDays": 41,
+      "fundamentalsAgeDays": 49,
       "growth5y": null,
       "growth5ySource": null,
       "growth5yUpdatedAt": null,
@@ -3144,7 +5068,7 @@
         "earningsBasis": "TTM",
         "balanceSheetBasis": "latest-quarter",
         "auditor": null,
-        "checkedAt": "2026-08-10T06:47:04.460349+00:00",
+        "checkedAt": "2026-08-18T15:15:28.100851+00:00",
         "method": "Direct official report text checks plus arithmetic and balance-sheet validation",
         "ebitdaPresented": false,
         "financialCurrency": "SEK",
@@ -3168,7 +5092,7 @@
         "period": "2026-06-30",
         "earningsBasis": "TTM",
         "auditStatus": "verified",
-        "auditCheckedAt": "2026-08-10T06:47:04.460349+00:00",
+        "auditCheckedAt": "2026-08-18T15:15:28.100851+00:00",
         "sourcePageUrl": "https://www.volvogroup.com/en/investors/reports-and-presentations.html",
         "financialCurrency": "SEK",
         "financialToQuoteFx": 1.0
@@ -3190,10 +5114,57 @@
       "totalLiabilities": 501996000000.0,
       "totalRevenue": 471533000000.0,
       "totalRevenueBasis": "TTM",
-      "trailingPe": null
+      "trailingPe": null,
+      "metricCalculations": {
+        "ebitda": {
+          "status": "unavailable",
+          "label": "EBITDA (TTM)",
+          "formula": null,
+          "result": null,
+          "components": [],
+          "note": "No exact comparable TTM EBITDA has yet been verified from the official report set; the dashboard leaves it blank.",
+          "reportedResult": null,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Volvo Group Q2 2026 report",
+          "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html"
+        },
+        "freeCashFlow": {
+          "status": "company-defined",
+          "label": "Operating cash flow, Industrial Operations (H1; TTM EPS used for valuation)",
+          "formula": "Company-reported after-capex cash-flow measure",
+          "result": 6269000000.0,
+          "components": [
+            {
+              "label": "Company-reported cash-flow measure",
+              "value": 6269000000.0,
+              "sign": 1,
+              "reportedValue": 6269,
+              "sourceName": "Volvo Group Q2 2026 report",
+              "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html"
+            }
+          ],
+          "note": "This is the company's own non-IFRS definition. Open the source to review its reconciliation.",
+          "reportedResult": 6269,
+          "reportedCurrency": "SEK",
+          "quoteCurrency": "SEK",
+          "unit": "SEK million",
+          "financialToQuoteFx": 1.0,
+          "period": "TTM to 2026-06-30",
+          "verifiedAt": "2026-08-18T15:15:28.100851+00:00",
+          "sourceName": "Volvo Group Q2 2026 report",
+          "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html"
+        }
+      },
+      "fcfHistory": null,
+      "growth5ySourceUrl": null
     }
   ],
-  "generatedAt": "2026-08-10T06:47:04.460349+00:00",
+  "generatedAt": "2026-08-18T15:15:28.100851+00:00",
   "provider": "Official reports: 30 verified; 0 legacy cached (unverified)",
   "qualityCheckedAt": "2026-08-04T22:50:10.117137+00:00",
   "universe": "OMXS30",
@@ -3202,7 +5173,7 @@
     "verified": 30,
     "pending": 0,
     "total": 30,
-    "policy": "Every company is imported from an official company report or official results page. Revenue and earnings are TTM; balance-sheet figures use the latest published quarter. EBITDA is populated only when the company presents a comparable TTM measure."
+    "policy": "DCF uses equity free cash flow: statutory cash flow from operations minus gross tangible and intangible capital expenditure. Company-defined after-capex cash-flow measures are retained only as visibly labelled fallbacks. Equity FCF is not reduced by net debt again. EV/EBITDA uses reported EBITDA or EBITDA derived from official EBIT plus depreciation and amortisation; banks and holding companies show N/A."
   },
   "version": 1
 }

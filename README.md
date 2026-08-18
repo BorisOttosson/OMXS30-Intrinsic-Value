@@ -49,7 +49,7 @@ That writes:
 data/prices.json
 ```
 
-Reload the browser app after the file is generated. The app keeps manual assumptions such as WACC, terminal growth, notes, portfolio weight, normalized FCF per share, valuation multiples, and qualitative scores editable. The last pre-removal fundamentals snapshot is retained for reference and labelled as unverified; it cannot enter a valuation model. Each company also links to the official report that must be used to replace and independently verify the cached figures.
+Reload the browser app after the file is generated. The app keeps manual assumptions such as required equity return, terminal growth, notes, portfolio weight, normalized FCF per share, valuation multiples, and qualitative scores editable. The last pre-removal fundamentals snapshot is retained for reference and labelled as unverified; it cannot enter a valuation model. Each company also links to the official report that must be used to replace and independently verify the cached figures.
 
 ### Fundamentals quality gates
 
@@ -122,14 +122,29 @@ No financial-fundamentals API key is required. GitHub Pages serves the official-
 
 ### Operating Companies
 
-DCF uses five annual FCF/share projections, discounted by WACC, plus a Gordon growth terminal value:
+The dashboard standardizes cash flow for the equity model as:
 
 ```text
-Intrinsic value = PV(FCF years 1-5) + PV(terminal value) - net debt/share
-Terminal value = year 5 FCF x (1 + terminal growth) / (WACC - terminal growth)
+Equity FCF = statutory cash flow from operations - gross tangible and intangible capex
+Equity FCF/share = equity FCF in the stock's quote currency / official shares outstanding
 ```
 
-Reverse DCF solves for the 5 year FCF CAGR required for the DCF value to match the market price.
+If an official report exposes only a company-defined after-capex measure, the
+dashboard may use it as a fallback but labels it **company-defined** rather than
+standardized. The expandable audit below Fundamentals shows the exact formula,
+signed components, period, source-report currency, FX conversion, source links,
+and verification date. No missing amount is silently estimated.
+
+DCF uses five annual equity-FCF/share projections, discounted by the required equity return, plus a Gordon growth terminal value:
+
+```text
+Intrinsic value = PV(equity FCF years 1-5) + PV(terminal equity FCF)
+Terminal value = year 5 FCF x (1 + terminal growth) / (required equity return - terminal growth)
+```
+
+Net debt is not subtracted in this DCF because statutory CFO minus capex is an
+equity cash-flow measure. Subtracting net debt again would mix an equity cash
+flow with an enterprise-value adjustment. Reverse DCF uses the same definition.
 
 P/E value uses:
 
@@ -142,6 +157,18 @@ EV/EBITDA value uses:
 ```text
 EV/EBITDA value = EBITDA/share x target EV/EBITDA - net debt/share
 ```
+
+EBITDA is taken directly from the official report when available. Otherwise it
+is derived only when official EBIT and depreciation/amortisation components are
+available and shown in the audit:
+
+```text
+EBITDA = EBIT + depreciation and amortisation
+```
+
+EV/EBITDA remains an enterprise-value model, so net debt is subtracted when
+converting the enterprise value to equity value. EBITDA and ordinary operating-
+company FCF are marked N/A for banks and holding companies.
 
 The blended value weights DCF at 45%, P/E at 25%, and EV/EBITDA at 30% when those values are available.
 

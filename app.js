@@ -361,6 +361,10 @@ const elements = {
   fundSharesLabel: document.querySelector("#fundSharesLabel"),
   fundEvEbitda: document.querySelector("#fundEvEbitda"),
   fundFcfYield: document.querySelector("#fundFcfYield"),
+  ebitdaAuditSummary: document.querySelector("#ebitdaAuditSummary"),
+  ebitdaAuditBody: document.querySelector("#ebitdaAuditBody"),
+  fcfAuditSummary: document.querySelector("#fcfAuditSummary"),
+  fcfAuditBody: document.querySelector("#fcfAuditBody"),
   footerDataNote: document.querySelector("#footerDataNote"),
   tickerSnapshot: document.querySelector("#tickerSnapshot"),
   tickerSource: document.querySelector("#tickerSource"),
@@ -635,6 +639,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       balanceSheetPeriod: market.balanceSheetPeriod ?? null,
       cashFlowStatementDate: market.cashFlowStatementDate ?? null,
       cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
+      metricCalculations: market.metricCalculations ?? null,
       independentVerification: market.independentVerification ?? null,
       officialSource: market.officialSource ?? null,
       dataQuality: market.dataQuality ?? null,
@@ -1136,7 +1141,6 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
   const growth = selectedGrowth === null ? NaN : selectedGrowth / 100;
   const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const terminalGrowth = asNumber(company.terminalGrowth) / 100;
-  const netDebt = asNumber(company.netDebtPerShare);
 
   if (fcf <= 0 || !Number.isFinite(growth) || wacc <= terminalGrowth || wacc <= 0) {
     return {
@@ -1161,10 +1165,12 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
   const discountedTerminal = terminalValue / ((1 + wacc) ** 5);
 
   return {
-    value: presentValue + discountedTerminal - netDebt,
+    value: presentValue + discountedTerminal,
     flows,
+    presentValue,
     terminalValue,
     discountedTerminal,
+    cashFlowBasis: "equity-fcf",
     error: ""
   };
 }
@@ -2296,9 +2302,9 @@ function renderCagrBreakdown(company) {
 
 
 function getScenarioExplanation(scenario = state.scenario) {
-  if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, WACC −0.7 pp and target P/E +2.0x.";
-  if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, WACC +1.0 pp and target P/E −2.0x.";
-  return "Base uses the manual DCF growth assumption, WACC and the current P/E as its target P/E anchor.";
+  if (scenario === "bull") return "Bull applies FCF growth +2.0 pp, required equity return −0.7 pp and target P/E +2.0x.";
+  if (scenario === "bear") return "Bear applies FCF growth −2.0 pp, required equity return +1.0 pp and target P/E −2.0x.";
+  return "Base uses the manual DCF growth assumption, required equity return and the current P/E as its target P/E anchor.";
 }
 
 function getAnalysisPresentation(company) {
@@ -2364,20 +2370,20 @@ function getAnalysisPresentation(company) {
       chartUnit: `${currency} / share`,
       modelTitle: "Reverse DCF — Implied Growth",
       modelDescription: category === "operating"
-        ? "Works backwards from the current share price to find the annual five-year FCF growth required by the market."
+        ? "Works backwards from the current share price to find the annual five-year equity-FCF growth required by the market. Net debt is not subtracted because the cash flow already belongs to shareholders."
         : "Reverse DCF is not used for this company type because ordinary free cash flow is not its primary valuation basis.",
-      formula: "Solve DCF growth until DCF value = current price",
+      formula: "Solve equity-FCF growth until present value of equity FCF = current price",
       assumptions: [
         ["Current price", formatTickerMoney(price, currency)],
         ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
-        ["WACC", formatPercent(wacc, 1)],
+        ["Required equity return", formatPercent(wacc, 1)],
         ["Consensus next FY", Number.isFinite(consensus) ? `${formatPercent(consensus, 1)} (different horizon)` : "N/A"]
       ],
       metrics: [
         ["Required 5yr FCF growth", reverse.label, "Annual growth implied by today’s price"],
         ["Current price", formatTickerMoney(price, currency), "The value the model solves back to"],
         ["Starting FCF / share", formatTickerMoney(currentFcf, currency), "Latest FCF input"],
-        ["WACC", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+        ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
       ],
       chartValues: [{ label: "Actual", value: currentFcf }, ...reverseFlows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
     };
@@ -2393,20 +2399,20 @@ function getAnalysisPresentation(company) {
     chartUnit: `${currency} / share`,
     modelTitle: "DCF — Discounted Cash Flow",
     modelDescription: category === "operating"
-      ? "Projects five years of free cash flow, discounts those cash flows and the terminal value back to today, then subtracts net debt."
+      ? "Projects five years of equity free cash flow and discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders."
       : "DCF is not used for this company type in the dashboard’s existing category model.",
-    formula: "Present value of 5yr FCF + terminal value − net debt",
+    formula: "Present value of 5yr equity FCF + present value of terminal equity FCF",
     assumptions: [
       ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
       ["Manual FCF growth", formatPercent(growth, 1)],
-      ["WACC", formatPercent(wacc, 1)],
+      ["Required equity return", formatPercent(wacc, 1)],
       ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
     ],
     metrics: [
       ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
       ["Current price", formatTickerMoney(price, currency), "Market price input"],
       ["5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? "Enter the manual assumption in Model Inputs" : `${formatPercent(baseDcfGrowth, 1)} manual input`],
-      ["WACC", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+      ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
     ],
     chartValues: [{ label: "Actual", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
   };
@@ -2597,6 +2603,67 @@ function renderPortfolioSection(title, subtitle, items) {
   `;
 }
 
+function formatReportedMetricAmount(value, audit) {
+  if (!Number.isFinite(numberOrNull(value))) return "-";
+  const digits = Math.abs(value) < 10 && !Number.isInteger(value) ? 3 : 0;
+  const number = Number(value).toLocaleString("sv-SE", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+  return `${number} ${audit?.unit ?? audit?.reportedCurrency ?? ""}`.trim();
+}
+
+function renderMetricAudit(audit, summaryElement, bodyElement, currency) {
+  if (!summaryElement || !bodyElement) return;
+  if (!audit) {
+    summaryElement.textContent = "Not documented";
+    bodyElement.innerHTML = `<p>No calculation audit is stored for this metric.</p>`;
+    return;
+  }
+
+  const statusLabels = {
+    reported: "Reported",
+    derived: "Derived from report",
+    standardized: "Standardized",
+    "company-defined": "Company-defined fallback",
+    unavailable: "Unavailable",
+    "not-applicable": "Not applicable"
+  };
+  const statusLabel = statusLabels[audit.status] ?? audit.status ?? "Unknown";
+  const result = numberOrNull(audit.result);
+  summaryElement.textContent = result === null ? statusLabel : formatCurrency(result, currency);
+
+  const components = Array.isArray(audit.components) ? audit.components : [];
+  const componentRows = components.map((component) => {
+    const sign = Number(component.sign ?? 1) < 0 ? "−" : "+";
+    return `<tr><td>${sign} ${escapeHtml(component.label ?? "Component")}</td><td>${escapeHtml(formatReportedMetricAmount(Math.abs(component.reportedValue ?? 0), audit))}</td></tr>`;
+  }).join("");
+  const sourceRows = [...new Map([
+    [audit.sourceUrl, audit.sourceName],
+    ...components.map((component) => [component.sourceUrl, component.sourceName])
+  ].filter(([url]) => url).map(([url, name]) => [url, name ?? "Official company report"])).entries()]
+    .map(([url, name]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(name)}</a>`)
+    .join(" · ");
+  const reportedResult = numberOrNull(audit.reportedResult);
+  const formulaResult = reportedResult === null ? null : formatReportedMetricAmount(reportedResult, audit);
+  const fx = numberOrNull(audit.financialToQuoteFx);
+  const conversion = result !== null && fx !== null && audit.reportedCurrency !== audit.quoteCurrency
+    ? `<p><strong>Currency conversion:</strong> ${escapeHtml(formulaResult)} × ${formatDecimal(fx, 4)} ${escapeHtml(audit.quoteCurrency)}/${escapeHtml(audit.reportedCurrency)} = <strong>${escapeHtml(formatCurrency(result, currency))}</strong>.</p>`
+    : "";
+
+  bodyElement.innerHTML = `
+    <div class="metric-audit-head">
+      <span class="metric-audit-status">${escapeHtml(statusLabel)}</span>
+      <span>${escapeHtml(audit.label ?? "Metric")} · ${escapeHtml(audit.period ?? "Period unavailable")}</span>
+    </div>
+    ${audit.formula ? `<p class="metric-audit-formula"><strong>Formula:</strong> ${escapeHtml(audit.formula)}${formulaResult ? ` = <strong>${escapeHtml(formulaResult)}</strong>` : ""}</p>` : ""}
+    ${componentRows ? `<table class="metric-audit-components"><tbody>${componentRows}</tbody></table>` : ""}
+    ${conversion}
+    ${audit.note ? `<p>${escapeHtml(audit.note)}</p>` : ""}
+    <p class="metric-audit-source">${sourceRows ? `Source: ${sourceRows}` : "Source unavailable"} · Verified ${escapeHtml(formatDate(audit.verifiedAt) ?? "date unavailable")}</p>
+  `;
+}
+
 function renderFundamentals() {
   const company = getSelectedCompany();
   if (!company) return;
@@ -2622,9 +2689,12 @@ function renderFundamentals() {
   const balancePeriodLabel = verification?.status === "verified" ? "latest quarter" : "cached period";
   elements.fundRevenueLabel.textContent = verification?.status === "verified" ? "Revenue (TTM)" : "Revenue (cached TTM)";
   elements.fundEbitdaLabel.textContent = verification?.status === "verified" ? "EBITDA (TTM)" : "EBITDA (cached TTM)";
-  elements.fundFcfLabel.textContent = verification?.status === "verified" && fundamentals.cashFlowMetricLabel
-    ? fundamentals.cashFlowMetricLabel
-    : verification?.status === "verified" ? "Free cash flow (TTM)" : "Free cash flow (cached TTM)";
+  const metricCalculations = fundamentals.metricCalculations ?? {};
+  const fcfAudit = metricCalculations.freeCashFlow;
+  const ebitdaAudit = metricCalculations.ebitda;
+  elements.fundFcfLabel.textContent = verification?.status === "verified"
+    ? (fcfAudit?.label ?? "Equity free cash flow (TTM)")
+    : "Free cash flow (cached TTM)";
   elements.fundAssetsLabel.textContent = `Total assets (${balancePeriodLabel})`;
   elements.fundEquityLabel.textContent = `Book equity (${balancePeriodLabel})`;
   elements.fundLiabilitiesLabel.textContent = `Liabilities (${balancePeriodLabel})`;
@@ -2654,8 +2724,10 @@ function renderFundamentals() {
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
   const isBank = normalizeCompanyType(company.companyType, company.ticker) === "bank";
   const naText = "N/A (not applicable)";
-  const naTitle = "EBITDA is not a meaningful metric for banks.";
-  if (isBank) {
+  const ebitdaNotApplicable = ebitdaAudit?.status === "not-applicable" || isBank;
+  const fcfNotApplicable = fcfAudit?.status === "not-applicable";
+  const naTitle = ebitdaAudit?.note ?? "EBITDA is not a meaningful metric for this company type.";
+  if (ebitdaNotApplicable) {
     elements.fundEbitda.textContent = naText;
     elements.fundEbitda.className = "is-na";
     elements.fundEbitda.style.color = "var(--muted)";
@@ -2668,10 +2740,10 @@ function renderFundamentals() {
     elements.fundEbitda.style.fontSize = "";
     elements.fundEbitda.title = "";
   }
-  const displayedCashFlow = verification?.status === "verified" && fundamentals.cashFlowMetricLabel
-    ? numberOrNull(fundamentals.operatingCashFlow)
-    : numberOrNull(fundamentals.freeCashFlow);
-  elements.fundFcf.textContent = formatCurrency(displayedCashFlow, currency);
+  const displayedCashFlow = numberOrNull(fundamentals.freeCashFlow);
+  elements.fundFcf.textContent = fcfNotApplicable ? naText : formatCurrency(displayedCashFlow, currency);
+  elements.fundFcf.className = fcfNotApplicable ? "is-na" : "";
+  elements.fundFcf.title = fcfNotApplicable ? (fcfAudit?.note ?? "Not used for this company type.") : "";
   elements.fundAssets.textContent = formatCurrency(numberOrNull(fundamentals.totalAssets), currency);
   elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
   elements.fundLiabilities.textContent = formatCurrency(numberOrNull(fundamentals.totalLiabilities), currency);
@@ -2684,7 +2756,7 @@ function renderFundamentals() {
   elements.fundShares.title = fundamentals.sharesOutstandingSource
     ? `Outstanding shares - ${fundamentals.sharesOutstandingSource}`
     : "Outstanding shares from Yahoo Finance";
-  if (isBank) {
+  if (ebitdaNotApplicable) {
     elements.fundEvEbitda.textContent = naText;
     elements.fundEvEbitda.className = "is-na";
     elements.fundEvEbitda.style.color = "var(--muted)";
@@ -2699,8 +2771,10 @@ function renderFundamentals() {
     elements.fundEvEbitda.style.fontSize = "";
     elements.fundEvEbitda.title = "";
   }
-  elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
-  elements.fundFcfYield.className = fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative");
+  elements.fundFcfYield.textContent = fcfNotApplicable ? naText : formatPercent(fcfYield, 1);
+  elements.fundFcfYield.className = fcfNotApplicable ? "is-na" : (fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative"));
+  renderMetricAudit(ebitdaAudit, elements.ebitdaAuditSummary, elements.ebitdaAuditBody, currency);
+  renderMetricAudit(fcfAudit, elements.fcfAuditSummary, elements.fcfAuditBody, currency);
 }
 
 function drawDcfChart() {
