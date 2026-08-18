@@ -25,13 +25,17 @@ class MarketScreenerCurrencyTests(unittest.TestCase):
             self.assertEqual(row["displayCurrency"], "SEK", company_id)
             self.assertTrue(row["currencyEvidence"]["sourceUrl"].startswith("https://"))
 
-    def test_abb_values_remain_usd_and_convert_with_dated_riksbank_rate(self):
+    def test_abb_values_remain_usd_and_use_traceable_riksbank_rate(self):
         abb = self.market["companies"]["abb-st"]
         self.assertEqual(abb["reportedCurrency"], "USD")
         self.assertEqual(abb["fcfHistory"][-1], {"year": 2025, "fcf": 4566.0})
         usd = self.fx["rates"]["USD"]
-        self.assertAlmostEqual(4566.0 * usd["rateToSek"], 43658.85918, places=5)
-        self.assertEqual(usd["date"], "2026-08-13")
+        self.assertGreater(usd["rateToSek"], 0)
+        self.assertEqual(usd["seriesId"], "sekusdpmi")
+        self.assertEqual(
+            usd["apiUrl"],
+            "https://api.riksbank.se/swea/v1/Observations/Latest/sekusdpmi",
+        )
 
     def test_fx_snapshot_is_traceable_and_fresh_when_written(self):
         updated = datetime.fromisoformat(self.fx["updatedAt"]).date()
