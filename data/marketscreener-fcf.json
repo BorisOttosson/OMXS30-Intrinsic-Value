@@ -2,6 +2,7 @@
   "updatedAt": "2026-08-17T05:08:39.861146+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
   "currencyPolicy": "FCF values stay in the company's official reporting currency; the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate",
+  "consensusFcfCagrPolicy": "CAGR from the first forecast FCF to the third forecast FCF over two fiscal-year intervals",
   "count": 25,
   "failures": [
     {
@@ -118,7 +119,7 @@
       ],
       "historicalFcfCagr": 0.161356,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.131811,
+      "consensusFcfCagr": 0.176957,
       "consensusYears": [
         2026,
         2027,
@@ -217,7 +218,7 @@
       ],
       "historicalFcfCagr": 0.294372,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.084575,
+      "consensusFcfCagr": 0.129708,
       "consensusYears": [
         2027,
         2028,
@@ -316,7 +317,7 @@
       ],
       "historicalFcfCagr": 0.126854,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.144753,
+      "consensusFcfCagr": 0.18632,
       "consensusYears": [
         2026,
         2027,
@@ -415,7 +416,7 @@
       ],
       "historicalFcfCagr": 0.148136,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.066461,
+      "consensusFcfCagr": 0.09171,
       "consensusYears": [
         2026,
         2027,
@@ -514,7 +515,7 @@
       ],
       "historicalFcfCagr": 0.246583,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.071196,
+      "consensusFcfCagr": 0.239138,
       "consensusYears": [
         2026,
         2027,
@@ -613,7 +614,7 @@
       ],
       "historicalFcfCagr": 0.074451,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.125916,
+      "consensusFcfCagr": 0.179071,
       "consensusYears": [
         2026,
         2027,
@@ -712,7 +713,7 @@
       ],
       "historicalFcfCagr": null,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": null,
+      "consensusFcfCagr": 0.678177,
       "consensusYears": [
         2026,
         2027,
@@ -811,7 +812,7 @@
       ],
       "historicalFcfCagr": 0.067627,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.133408,
+      "consensusFcfCagr": 0.213373,
       "consensusYears": [
         2026,
         2027,
@@ -910,7 +911,7 @@
       ],
       "historicalFcfCagr": -0.098106,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 1.007566,
+      "consensusFcfCagr": 0.270168,
       "consensusYears": [
         2026,
         2027,
@@ -1009,7 +1010,7 @@
       ],
       "historicalFcfCagr": -0.068251,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": -0.002998,
+      "consensusFcfCagr": 0.077217,
       "consensusYears": [
         2026,
         2027,
@@ -1108,7 +1109,7 @@
       ],
       "historicalFcfCagr": 0.034437,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.168079,
+      "consensusFcfCagr": 0.130629,
       "consensusYears": [
         2026,
         2027,
@@ -1207,7 +1208,7 @@
       ],
       "historicalFcfCagr": 0.186253,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.016396,
+      "consensusFcfCagr": 0.050328,
       "consensusYears": [
         2026,
         2027,
@@ -1306,7 +1307,7 @@
       ],
       "historicalFcfCagr": -0.160502,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.083682,
+      "consensusFcfCagr": 0.060833,
       "consensusYears": [
         2026,
         2027,
@@ -1405,7 +1406,7 @@
       ],
       "historicalFcfCagr": 0.02531,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": -0.025806,
+      "consensusFcfCagr": 0.137028,
       "consensusYears": [
         2026,
         2027,
@@ -1486,7 +1487,7 @@
       ],
       "historicalFcfCagr": null,
       "historicalFcfCagrYears": 2,
-      "consensusFcfCagr": null,
+      "consensusFcfCagr": 0.133844,
       "consensusYears": [
         2024,
         2025,
@@ -1585,7 +1586,7 @@
       ],
       "historicalFcfCagr": 0.148685,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.093338,
+      "consensusFcfCagr": 0.1162,
       "consensusYears": [
         2026,
         2027,
@@ -1684,7 +1685,7 @@
       ],
       "historicalFcfCagr": 0.001111,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.321888,
+      "consensusFcfCagr": 0.091056,
       "consensusYears": [
         2026,
         2027,
@@ -1783,7 +1784,7 @@
       ],
       "historicalFcfCagr": -0.383248,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 1.178416,
+      "consensusFcfCagr": 0.293389,
       "consensusYears": [
         2026,
         2027,
@@ -1882,7 +1883,7 @@
       ],
       "historicalFcfCagr": 0.123945,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.200269,
+      "consensusFcfCagr": 0.207503,
       "consensusYears": [
         2026,
         2027,
@@ -1981,7 +1982,7 @@
       ],
       "historicalFcfCagr": 0.032904,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.218947,
+      "consensusFcfCagr": -0.122771,
       "consensusYears": [
         2026,
         2027,
@@ -2071,7 +2072,7 @@
       ],
       "historicalFcfCagr": -0.089246,
       "historicalFcfCagrYears": 3,
-      "consensusFcfCagr": 0.262792,
+      "consensusFcfCagr": -0.106767,
       "consensusYears": [
         2025,
         2026,
@@ -2170,7 +2171,7 @@
       ],
       "historicalFcfCagr": 0.213777,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.22812,
+      "consensusFcfCagr": 0.386649,
       "consensusYears": [
         2026,
         2027,
@@ -2269,7 +2270,7 @@
       ],
       "historicalFcfCagr": 0.023546,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.062157,
+      "consensusFcfCagr": -0.049844,
       "consensusYears": [
         2026,
         2027,
@@ -2368,7 +2369,7 @@
       ],
       "historicalFcfCagr": -0.056819,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.066385,
+      "consensusFcfCagr": 0.099497,
       "consensusYears": [
         2026,
         2027,
@@ -2467,7 +2468,7 @@
       ],
       "historicalFcfCagr": 0.067075,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.298376,
+      "consensusFcfCagr": 0.134248,
       "consensusYears": [
         2026,
         2027,

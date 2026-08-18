@@ -25,8 +25,8 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
             self.javascript,
             re.compile(r'bull:\s*\{[^}]*growth:\s*2\.0[^}]*wacc:\s*-0\.7[^}]*targetPe:\s*2\.0'),
         )
-        self.assertIn("FCF growth +2.0 pp, required equity return −0.7 pp and target P/E +2.0x", self.html)
-        self.assertIn("FCF growth −2.0 pp, required equity return +1.0 pp and target P/E −2.0x", self.html)
+        self.assertIn("Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension", self.html)
+        self.assertIn("Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension", self.html)
 
     def test_analysis_keeps_existing_dcf_pe_and_reverse_calculations(self):
         self.assertIn("calculateDcf(company, scenario)", self.javascript)
@@ -63,6 +63,12 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('growthAssumption: loadGrowthAssumptionPreference()', self.javascript)
         self.assertIn('state.growthAssumption = button.dataset.growthAssumption', self.javascript)
         self.assertIn("drives the DCF only when CAGR is selected", self.javascript)
+        self.assertIn("function buildMarketConsensusDcfFlows", self.javascript)
+        self.assertIn('source: "Analyst consensus"', self.javascript)
+        self.assertIn('source: "Forecast CAGR extension"', self.javascript)
+        self.assertIn('forecastMethod: usesMarketConsensusPath ? "published-consensus-plus-cagr-extension"', self.javascript)
+        self.assertIn("Years 1–3 use the three published analyst-consensus FCF estimates", self.javascript)
+        self.assertIn("Years 4–5 extend the final estimate", self.javascript)
 
     def test_historical_cagr_is_recomputed_from_traceable_annual_fcf(self):
         self.assertIn("function validateHistoricalFcfSeries", self.javascript)

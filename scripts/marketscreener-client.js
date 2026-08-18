@@ -5,7 +5,7 @@
  *   const ms = await loadMarketScreener();
  *   const row = getFcf(ms, "ATCO-A.ST");
  *   row.historicalFcfCagr  // 0.0744  -> 7.4 %/yr reported 5y CAGR
- *   row.consensusFcfCagr   // 0.1213  -> 12.1 %/yr implied by the 2026-28 consensus
+ *   row.consensusFcfCagr   // 0.1213  -> 12.1 %/yr CAGR across the three forecast years
  *   row.sourceUrl          // citation link back to MarketScreener
  */
 const DATA_URL = new URL("../data/marketscreener-fcf.json", import.meta.url).href;
@@ -38,7 +38,7 @@ export function getHistoricalCagr(data, ticker, fallback = null) {
   return typeof v === "number" ? v : fallback;
 }
 
-/** Consensus FCF CAGR (last reported year -> final forecast year). */
+/** Consensus FCF CAGR (first forecast year -> final forecast year). */
 export function getConsensusCagr(data, ticker, fallback = null) {
   const v = getFcf(data, ticker)?.consensusFcfCagr;
   return typeof v === "number" ? v : fallback;

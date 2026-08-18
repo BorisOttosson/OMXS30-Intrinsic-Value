@@ -1149,16 +1149,87 @@ function getSelectedGrowthAssumption(company) {
   const value = numberOrNull(isConsensus ? company?.consensusGrowth : company?.growth5y);
   return {
     key: isConsensus ? "consensus" : "cagr",
-    label: isConsensus ? "Market consensus FCF growth" : "Historical FCF CAGR",
+    label: isConsensus ? "Market consensus FCF CAGR" : "Historical FCF CAGR",
     shortLabel: isConsensus ? "Market consensus" : "CAGR",
     value,
     source: isConsensus
-      ? (company?.consensusGrowthSource ?? "MarketScreener analyst-consensus FCF forecast")
+      ? (company?.consensusGrowthSource ?? "MarketScreener three-year analyst-consensus FCF forecast")
       : (company?.growth5ySource ?? "Official company reports"),
     horizon: isConsensus
-      ? "Next-fiscal-year consensus, applied as a constant rate across the five-year DCF forecast"
+      ? (company?.consensusGrowthAudit?.valid
+          ? `${company.consensusGrowthAudit.firstEstimateYear}E–${company.consensusGrowthAudit.lastEstimateYear}E FCF CAGR; published estimates fill years 1–3 and the CAGR extends years 4–5`
+          : "Three published annual FCF estimates; their CAGR extends forecast years four and five")
       : `${company?.growth5yYears ?? "Historical"}-year FCF CAGR, applied across the five-year DCF forecast`
   };
+}
+
+function getFcfUnitMultiplier(unit) {
+  const normalized = String(unit ?? "million").toLowerCase();
+  if (normalized.startsWith("billion")) return 1e9;
+  if (normalized.startsWith("thousand")) return 1e3;
+  return 1e6;
+}
+
+function getMarketConsensusPerShareRows(company, audit) {
+  if (!audit?.valid || !Array.isArray(audit.forecastRows) || audit.forecastRows.length !== 3) {
+    return { valid: false, reason: audit?.reason ?? "Three validated market-consensus estimates are required" };
+  }
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding);
+  if (shares === null || shares <= 0) {
+    return { valid: false, reason: "Outstanding shares are unavailable for the per-share conversion" };
+  }
+  if (!audit.fx?.valid) {
+    return { valid: false, reason: audit.fx?.reason ?? "A valid reporting-currency conversion is unavailable" };
+  }
+  if (String(company?.currency ?? "SEK").toUpperCase() !== "SEK") {
+    return { valid: false, reason: "Market-consensus FCF currently requires a SEK-quoted share" };
+  }
+
+  const multiplier = getFcfUnitMultiplier(audit.unit);
+  const rateToSek = numberOrNull(audit.fx.rateToSek);
+  if (rateToSek === null || rateToSek <= 0) {
+    return { valid: false, reason: "The reporting-currency conversion rate is invalid" };
+  }
+  return {
+    valid: true,
+    rows: audit.forecastRows.map((row) => ({
+      ...row,
+      cashFlowPerShare: row.fcf * multiplier * rateToSek / shares
+    })),
+    shares,
+    multiplier,
+    rateToSek
+  };
+}
+
+function buildMarketConsensusDcfFlows(company, audit, extensionGrowth) {
+  const converted = getMarketConsensusPerShareRows(company, audit);
+  if (!converted.valid) return { valid: false, reason: converted.reason, flows: [] };
+  if (!Number.isFinite(extensionGrowth) || extensionGrowth <= -1) {
+    return { valid: false, reason: "The market-consensus extension rate is invalid", flows: [] };
+  }
+
+  const flows = converted.rows.map((row, index) => ({
+    year: index + 1,
+    fiscalYear: row.year,
+    label: `${row.year}E`,
+    cashFlow: row.cashFlowPerShare,
+    source: "Analyst consensus"
+  }));
+  let cashFlow = flows[flows.length - 1].cashFlow;
+  let fiscalYear = flows[flows.length - 1].fiscalYear;
+  for (let year = 4; year <= 5; year += 1) {
+    cashFlow *= 1 + extensionGrowth;
+    fiscalYear += 1;
+    flows.push({
+      year,
+      fiscalYear,
+      label: `${fiscalYear}E`,
+      cashFlow,
+      source: "Forecast CAGR extension"
+    });
+  }
+  return { valid: true, flows };
 }
 
 function calculateDcf(company, scenario = "base", growthOverride = null) {
@@ -1169,8 +1240,9 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
   const growth = selectedGrowth === null ? NaN : selectedGrowth / 100;
   const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  const usesMarketConsensusPath = growthOverride === null && assumption.key === "consensus";
 
-  if (fcf <= 0 || !Number.isFinite(growth) || wacc <= terminalGrowth || wacc <= 0) {
+  if ((!usesMarketConsensusPath && fcf <= 0) || !Number.isFinite(growth) || wacc <= terminalGrowth || wacc <= 0) {
     return {
       value: NaN,
       flows: [],
@@ -1178,15 +1250,26 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
     };
   }
 
-  const flows = [];
-  let presentValue = 0;
-
-  for (let year = 1; year <= 5; year += 1) {
-    const cashFlow = fcf * ((1 + growth) ** year);
-    const discounted = cashFlow / ((1 + wacc) ** year);
-    presentValue += discounted;
-    flows.push({ year, cashFlow, discounted });
+  let flows = [];
+  if (usesMarketConsensusPath) {
+    const consensusForecast = buildMarketConsensusDcfFlows(company, company.consensusGrowthAudit, growth);
+    if (!consensusForecast.valid) {
+      return { value: NaN, flows: [], error: consensusForecast.reason };
+    }
+    flows = consensusForecast.flows;
+  } else {
+    for (let year = 1; year <= 5; year += 1) {
+      const cashFlow = fcf * ((1 + growth) ** year);
+      flows.push({ year, label: `Y${year}E`, cashFlow, source: assumption.shortLabel });
+    }
   }
+
+  let presentValue = 0;
+  flows = flows.map((flow) => {
+    const discounted = flow.cashFlow / ((1 + wacc) ** flow.year);
+    presentValue += discounted;
+    return { ...flow, discounted };
+  });
 
   const yearFiveCashFlow = flows[flows.length - 1].cashFlow;
   const terminalValue = (yearFiveCashFlow * (1 + terminalGrowth)) / (wacc - terminalGrowth);
@@ -1199,6 +1282,7 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
     terminalValue,
     discountedTerminal,
     cashFlowBasis: "equity-fcf",
+    forecastMethod: usesMarketConsensusPath ? "published-consensus-plus-cagr-extension" : "constant-growth",
     growthAssumption: assumption,
     error: ""
   };
@@ -1588,7 +1672,7 @@ function getFxAudit(currency) {
   };
 }
 
-function getMarketScreenerNextFyAudit(row) {
+function getMarketScreenerForecastAudit(row) {
   if (!row) return { valid: false, reason: "No MarketScreener FCF forecast is available" };
   if (!row.sourceUrl || !row.retrievedAt) {
     return { valid: false, reason: "The forecast is missing its source link or retrieval date" };
@@ -1602,48 +1686,57 @@ function getMarketScreenerNextFyAudit(row) {
     return { valid: false, reason: `The MarketScreener snapshot is stale (${ageDays} days old)` };
   }
 
-  const actual = Array.isArray(row.fcfHistory)
-    ? row.fcfHistory.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
-    : [];
   const forecast = Array.isArray(row.fcfForecast)
     ? row.fcfForecast.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
     : [];
-  actual.sort((left, right) => Number(left.year) - Number(right.year));
   forecast.sort((left, right) => Number(left.year) - Number(right.year));
-  if (!actual.length || !forecast.length) {
-    return { valid: false, reason: "Latest reported and next-year forecast FCF are both required" };
+  if (forecast.length < 3) {
+    return { valid: false, reason: "Three annual MarketScreener FCF estimates are required" };
   }
 
-  const base = actual[actual.length - 1];
-  const estimate = forecast[0];
-  const baseYear = Number(base.year);
-  const estimateYear = Number(estimate.year);
-  const baseFcf = Number(base.fcf);
-  const estimateFcf = Number(estimate.fcf);
-  if (estimateYear !== baseYear + 1) {
-    return { valid: false, reason: "The first forecast is not the fiscal year immediately after the latest actual" };
+  const forecastRows = forecast.slice(0, 3).map((item) => ({
+    year: Number(item.year),
+    fcf: Number(item.fcf)
+  }));
+  const forecastYears = forecastRows.map((item) => item.year);
+  if (!forecastYears.every((year, index) => index === 0 || year === forecastYears[index - 1] + 1)) {
+    return { valid: false, reason: "The three forecast fiscal years must be consecutive" };
   }
-  if (baseFcf <= 0 || estimateFcf <= 0) {
-    return { valid: false, reason: "Next-FY growth is not meaningful when either FCF value is zero or negative" };
+  const retrievedYear = new Date(row.retrievedAt).getUTCFullYear();
+  if (forecastYears[0] < retrievedYear) {
+    return { valid: false, reason: "The first forecast fiscal year is already in the past" };
+  }
+  if (forecastRows.some((item) => item.fcf <= 0)) {
+    return { valid: false, reason: "Forecast CAGR requires positive FCF in all three estimate years" };
   }
 
-  const growth = estimateFcf / baseFcf - 1;
-  const storedForecast = Array.isArray(row.forecastYoy)
-    ? row.forecastYoy.find((item) => Number(item?.year) === estimateYear)
-    : null;
-  const storedGrowth = numberOrNull(storedForecast?.growth);
+  const periods = forecastRows.length - 1;
+  const growth = (forecastRows[forecastRows.length - 1].fcf / forecastRows[0].fcf) ** (1 / periods) - 1;
+  const storedGrowth = numberOrNull(row.consensusFcfCagr);
   if (storedGrowth === null || Math.abs(storedGrowth - growth) > 0.00001) {
-    return { valid: false, reason: "The stored MarketScreener growth rate does not reconcile to its FCF values" };
+    return { valid: false, reason: "The stored MarketScreener forecast CAGR does not reconcile to its three FCF estimates" };
   }
 
   const reportedCurrency = row.reportedCurrency ?? row.currency;
+  const projectionRows = [];
+  let projectedFcf = forecastRows[forecastRows.length - 1].fcf;
+  for (let offset = 1; offset <= 2; offset += 1) {
+    projectedFcf *= 1 + growth;
+    projectionRows.push({
+      year: forecastRows[forecastRows.length - 1].year + offset,
+      fcf: projectedFcf
+    });
+  }
   return {
     valid: true,
     growth,
-    baseYear,
-    estimateYear,
-    baseFcf,
-    estimateFcf,
+    periods,
+    forecastRows,
+    projectionRows,
+    firstEstimateYear: forecastRows[0].year,
+    lastEstimateYear: forecastRows[forecastRows.length - 1].year,
+    firstEstimateFcf: forecastRows[0].fcf,
+    lastEstimateFcf: forecastRows[forecastRows.length - 1].fcf,
     currency: reportedCurrency,
     reportedCurrency,
     displayCurrency: "SEK",
@@ -1656,7 +1749,7 @@ function getMarketScreenerNextFyAudit(row) {
   };
 }
 
-function applyMarketScreenerNextFyGrowth(companies, rows) {
+function applyMarketScreenerForecastGrowth(companies, rows) {
   return companies.map((company) => {
     const category = normalizeCompanyType(company.companyType, company.ticker);
     if (category === "bank" || category === "investment") {
@@ -1669,11 +1762,11 @@ function applyMarketScreenerNextFyGrowth(companies, rows) {
       };
     }
 
-    const audit = getMarketScreenerNextFyAudit(rows?.[company.id]);
+    const audit = getMarketScreenerForecastAudit(rows?.[company.id]);
     return {
       ...company,
       consensusGrowth: audit.valid ? audit.growth * 100 : null,
-      consensusGrowthSource: audit.valid ? "MarketScreener analyst-consensus FCF forecast" : null,
+      consensusGrowthSource: audit.valid ? "MarketScreener three-year analyst-consensus FCF forecast" : null,
       consensusGrowthAsOf: audit.valid ? audit.retrievedAt : null,
       consensusGrowthAudit: audit
     };
@@ -1813,13 +1906,13 @@ async function loadMarketScreenerFcf() {
     const payload = await response.json();
     riksbankFx = fxResponse?.ok ? await fxResponse.json() : null;
     marketScreenerFcf = payload?.companies ?? null;
-    state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, marketScreenerFcf);
     state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
     renderAll();
   } catch (error) {
     marketScreenerFcf = null;
     riksbankFx = null;
-    state.companies = applyMarketScreenerNextFyGrowth(state.companies, null);
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, null);
     state.companies = applyHistoricalFcfGrowth(state.companies, null);
     renderAll();
   }
@@ -1967,7 +2060,7 @@ function bindEvents() {
 
 function renderAll() {
   if (marketScreenerFcf) {
-    state.companies = applyMarketScreenerNextFyGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, marketScreenerFcf);
     state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
   }
   renderDataStatus();
@@ -2174,15 +2267,15 @@ function renderGrowthMeta(company) {
 
   const consensusMeta = document.querySelector("#consensusGrowthMeta");
   if (consensusMeta) {
-    const audit = company.consensusGrowthAudit ?? getMarketScreenerNextFyAudit(marketScreenerFcf?.[company?.id]);
+    const audit = company.consensusGrowthAudit ?? getMarketScreenerForecastAudit(marketScreenerFcf?.[company?.id]);
     if (audit?.notApplicable) {
       consensusMeta.textContent = "N/A — use EPS/book-value growth for banks and NAV growth for investment companies";
     } else if (!audit?.valid) {
-      consensusMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated forecast data"}`;
+      consensusMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated three-estimate forecast"}`;
     } else {
       const asOf = formatShortDate(audit.retrievedAt);
       consensusMeta.innerHTML =
-        `${audit.baseYear}A → ${audit.estimateYear}E | ` +
+        `${audit.firstEstimateYear}E → ${audit.lastEstimateYear}E | ${audit.periods}yr forecast CAGR | ` +
         `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">MarketScreener cash-flow forecast</a>` +
         (audit.fx?.valid && !audit.fx.noConversion
           ? ` | ${escapeHtml(audit.currency)}→SEK ${audit.fx.rateToSek.toFixed(5)} (${escapeHtml(audit.fx.rateDate)})`
@@ -2235,7 +2328,7 @@ function renderConsensusGrowthBreakdown(company) {
   const details = document.querySelector("#consensusGrowthDetails");
   if (!container || !details) return;
 
-  const audit = company.consensusGrowthAudit ?? getMarketScreenerNextFyAudit(marketScreenerFcf?.[company?.id]);
+  const audit = company.consensusGrowthAudit ?? getMarketScreenerForecastAudit(marketScreenerFcf?.[company?.id]);
   if (audit?.notApplicable) {
     container.innerHTML = "<p class=\"cagr-note\">FCF growth is not used for this company type.</p>";
     details.open = false;
@@ -2248,18 +2341,21 @@ function renderConsensusGrowthBreakdown(company) {
   }
 
   const percentage = audit.growth * 100;
+  const displayedRows = [
+    ...audit.forecastRows.map((row) => ({ ...row, basis: "Analyst consensus" })),
+    ...audit.projectionRows.map((row) => ({ ...row, basis: "Dashboard CAGR extension" }))
+  ];
   details.open = true;
   container.innerHTML = `
     <table class="cagr-table">
       <thead><tr><th>Period</th><th>Free cash flow</th><th>Basis</th></tr></thead>
       <tbody>
-        <tr><td>${audit.baseYear}A</td><td>${renderFcfValue(audit.baseFcf, audit)}</td><td>Latest reported</td></tr>
-        <tr><td>${audit.estimateYear}E</td><td>${renderFcfValue(audit.estimateFcf, audit)}</td><td>Analyst consensus</td></tr>
+        ${displayedRows.map((row) => `<tr><td>${row.year}E</td><td>${renderFcfValue(row.fcf, audit)}</td><td>${escapeHtml(row.basis)}</td></tr>`).join("")}
       </tbody>
     </table>
-    <p class="cagr-formula">(${escapeHtml(formatConsensusFcf(audit.estimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.baseFcf, audit))}) − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    <p class="cagr-formula">Forecast CAGR = (${escapeHtml(formatConsensusFcf(audit.lastEstimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.firstEstimateFcf, audit))})<sup>1/${audit.periods}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
     ${renderFxDisclosure(audit)}
-    <p class="cagr-note">Calculated by this dashboard from the displayed source-currency FCF values · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}. When Market consensus is selected in Growth forecast, this next-FY rate is applied across all five DCF forecast years as a simplifying assumption.</p>`;
+    <p class="cagr-note">Years 1–3 use the three published analyst-consensus FCF estimates. Years 4–5 extend the final estimate using the displayed forecast CAGR. The DCF converts each amount to SEK per share using the disclosed FX rate and official outstanding shares · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}.</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
@@ -2379,7 +2475,8 @@ function renderCagrBreakdown(company) {
 
 
 function getScenarioExplanation(scenario = state.scenario, model = state.analysisModel) {
-  const growthLabel = state.growthAssumption === "consensus" ? "market consensus FCF growth" : "historical FCF CAGR";
+  const usesConsensus = state.growthAssumption === "consensus";
+  const growthLabel = usesConsensus ? "market-consensus FCF CAGR" : "historical FCF CAGR";
   if (model === "pe") {
     if (scenario === "bull") return "Bull uses the current P/E plus 2.0x.";
     if (scenario === "bear") return "Bear uses the current P/E minus 2.0x.";
@@ -2389,6 +2486,11 @@ function getScenarioExplanation(scenario = state.scenario, model = state.analysi
     if (scenario === "bull") return "Bull solves the market-implied growth rate using a required equity return 0.7 pp lower.";
     if (scenario === "bear") return "Bear solves the market-implied growth rate using a required equity return 1.0 pp higher.";
     return "Base solves the five-year growth rate implied by today’s price and the saved required equity return.";
+  }
+  if (usesConsensus) {
+    if (scenario === "bull") return "Bull keeps the three published FCF estimates, extends years 4–5 at forecast CAGR +2.0 pp and lowers required equity return by 0.7 pp.";
+    if (scenario === "bear") return "Bear keeps the three published FCF estimates, extends years 4–5 at forecast CAGR −2.0 pp and raises required equity return by 1.0 pp.";
+    return "Base uses the three published FCF estimates, then extends years 4–5 with their forecast CAGR.";
   }
   if (scenario === "bull") return `Bull applies ${growthLabel} +2.0 pp and required equity return −0.7 pp.`;
   if (scenario === "bear") return `Bear applies ${growthLabel} −2.0 pp and required equity return +1.0 pp.`;
@@ -2466,7 +2568,7 @@ function getAnalysisPresentation(company) {
         ["Current price", formatTickerMoney(price, currency)],
         ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
         ["Required equity return", formatPercent(wacc, 1)],
-        ["Consensus next FY", Number.isFinite(consensus) ? `${formatPercent(consensus, 1)} (different horizon)` : "N/A"]
+        ["Consensus forecast CAGR", Number.isFinite(consensus) ? `${formatPercent(consensus, 1)} (different method)` : "N/A"]
       ],
       metrics: [
         ["Required 5yr FCF growth", reverse.label, "Annual growth implied by today’s price"],
@@ -2479,31 +2581,49 @@ function getAnalysisPresentation(company) {
   }
 
   const dcf = category === "operating" ? calculateDcf(company, scenario) : { value: NaN, flows: [] };
+  const usesConsensusForecast = growthAssumption.key === "consensus";
+  const consensusPerShare = usesConsensusForecast
+    ? getMarketConsensusPerShareRows(company, company.consensusGrowthAudit)
+    : { valid: false, rows: [] };
+  const dcfAssumptions = usesConsensusForecast
+    ? [
+        ...(consensusPerShare.valid
+          ? consensusPerShare.rows.map((row) => [`${row.year}E consensus FCF / share`, formatTickerMoney(row.cashFlowPerShare, currency)])
+          : [["Published estimates", "Unavailable"]]),
+        ["Years 4–5 forecast CAGR", formatPercent(growth, 1)],
+        ["Required equity return", formatPercent(wacc, 1)],
+        ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
+      ]
+    : [
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
+        [growthAssumption.label, formatPercent(growth, 1)],
+        ["Required equity return", formatPercent(wacc, 1)],
+        ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
+      ];
   return {
     key: "dcf",
     title: `DCF · ${scenarioLabel}`,
     note: getScenarioExplanation(scenario),
     chartTitle: "Projected free cash flow / share",
-    chartSubtitle: `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`,
+    chartSubtitle: usesConsensusForecast
+      ? `${scenarioLabel}: three published estimates, then forecast CAGR for years 4–5`
+      : `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`,
     chartUnit: `${currency} / share`,
     modelTitle: "DCF — Discounted Cash Flow",
     modelDescription: category === "operating"
-      ? `Projects five years of equity free cash flow using the page-level ${growthAssumption.shortLabel} choice, then discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders.`
+      ? (usesConsensusForecast
+          ? "Uses the three published analyst-consensus FCF estimates for years 1–3. Years 4–5 extend the third estimate with the forecast CAGR. Each total FCF estimate is converted to SEK per share before discounting."
+          : `Projects five years of equity free cash flow using the page-level ${growthAssumption.shortLabel} choice, then discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders.`)
       : "DCF is not used for this company type in the dashboard’s existing category model.",
     formula: "Present value of 5yr equity FCF + present value of terminal equity FCF",
-    assumptions: [
-      ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
-      [growthAssumption.label, formatPercent(growth, 1)],
-      ["Required equity return", formatPercent(wacc, 1)],
-      ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
-    ],
+    assumptions: dcfAssumptions,
     metrics: [
       ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
       ["Current price", formatTickerMoney(price, currency), "Market price input"],
-      ["5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`],
+      [usesConsensusForecast ? "Forecast CAGR" : "5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : (usesConsensusForecast ? "Applied only to forecast years 4–5" : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`)],
       ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
     ],
-    chartValues: [{ label: "Actual", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
+    chartValues: [{ label: "Current", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: flow.label ?? `Y${flow.year}E`, value: flow.cashFlow }))]
   };
 }
 

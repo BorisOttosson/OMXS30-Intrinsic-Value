@@ -313,8 +313,12 @@ def build_record(
         history_cagr = cagr(actual[0]["fcf"], actual[-1]["fcf"], len(actual) - 1)
 
     forecast_cagr = None
-    if actual and forecast:
-        forecast_cagr = cagr(actual[-1]["fcf"], forecast[-1]["fcf"], len(forecast))
+    if len(forecast) >= 2:
+        forecast_cagr = cagr(
+            forecast[0]["fcf"],
+            forecast[-1]["fcf"],
+            len(forecast) - 1,
+        )
 
     return {
         "ticker": ticker,
@@ -377,6 +381,9 @@ def main() -> int:
         "currencyPolicy": (
             "FCF values stay in the company's official reporting currency; "
             "the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+        ),
+        "consensusFcfCagrPolicy": (
+            "CAGR from the first forecast FCF to the third forecast FCF over two fiscal-year intervals"
         ),
         "count": len(rows),
         "failures": failures,

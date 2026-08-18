@@ -63,7 +63,7 @@
             <span>Growth forecast</span>
             <div class="segmented-control" role="group" aria-label="Growth forecast">
               <button class="segment is-active" type="button" data-growth-assumption="cagr" aria-pressed="true" title="Use historical FCF CAGR">CAGR</button>
-              <button class="segment" type="button" data-growth-assumption="consensus" aria-pressed="false" title="Use next-fiscal-year market consensus FCF growth">Market consensus</button>
+              <button class="segment" type="button" data-growth-assumption="consensus" aria-pressed="false" title="Use three annual market-consensus FCF estimates and their CAGR">Market consensus</button>
             </div>
           </div>
           </div>
@@ -307,12 +307,12 @@
                 <button class="scenario-card" type="button" data-scenario="bull" data-scenario-card="bull">
                   <span class="scenario-dot bull"></span>
                   <strong>Bull · More optimistic</strong>
-                  <small>FCF growth +2.0 pp, required equity return −0.7 pp and target P/E +2.0x.</small>
+                  <small>Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.</small>
                 </button>
                 <button class="scenario-card" type="button" data-scenario="bear" data-scenario-card="bear">
                   <span class="scenario-dot bear"></span>
                   <strong>Bear · More conservative</strong>
-                  <small>FCF growth −2.0 pp, required equity return +1.0 pp and target P/E −2.0x.</small>
+                  <small>Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.</small>
                 </button>
               </div>
             </div>
@@ -380,7 +380,7 @@
               </details>
 
               <label class="field-wide">
-                <span>Consensus FCF growth (next FY)</span>
+                <span>Market consensus FCF CAGR</span>
                 <div class="input-unit">
                   <input data-field="consensusGrowth" type="number" step="0.1" readonly aria-describedby="consensusGrowthMeta">
                   <span>%</span>
@@ -388,7 +388,7 @@
                 <small class="field-meta" id="consensusGrowthMeta">Waiting for verified MarketScreener forecast data</small>
               </label>
               <details class="field-wide cagr-details" id="consensusGrowthDetails" open>
-                <summary>Next-FY FCF growth calculation</summary>
+                <summary>Three-estimate FCF CAGR calculation</summary>
                 <div id="consensusGrowthBreakdown" class="cagr-breakdown"></div>
               </details>
               <p class="group-head">Discounting &amp; multiples</p>
@@ -519,6 +519,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260819-growth-forecast"></script>
+  <script src="app.js?v=20260819-consensus-cagr"></script>
   </body>
 </html>
