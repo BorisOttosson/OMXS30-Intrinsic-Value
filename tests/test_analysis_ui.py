@@ -55,6 +55,9 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('data-growth-assumption="consensus"', self.html)
         self.assertIn('<span>Growth forecast</span>', self.html)
         self.assertIn('>Market consensus</button>', self.html)
+        self.assertEqual(self.html.count('data-growth-assumption="cagr"'), 2)
+        self.assertEqual(self.html.count('data-growth-assumption="consensus"'), 2)
+        self.assertIn('aria-label="Growth forecast in financial analysis"', self.html)
         self.assertNotIn('id="selectedGrowthInput"', self.html)
         self.assertLess(self.html.index('<span>View</span>'), self.html.index('<span>Growth forecast</span>'))
         dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
