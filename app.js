@@ -104,8 +104,8 @@ const companyCategoryDefinitions = {
   cyclical: {
     label: "Asset-heavy cyclical",
     shortLabel: "Cyclical",
-    model: "Normalized FCF + EV/EBITDA",
-    warning: "Use normalized mid-cycle earnings or FCF, not one-year FCF."
+    model: "Mid-cycle cash-flow DCF + cross-checks",
+    warning: "Use a complete-cycle cash-flow history and fade forecasts toward a mid-cycle level."
   }
 };
 
@@ -326,6 +326,24 @@ const elements = {
   analysisModelDescription: document.querySelector("#analysisModelDescription"),
   analysisFormula: document.querySelector("#analysisFormula"),
   analysisAssumptions: document.querySelector("#analysisAssumptions"),
+  cyclicalAudit: document.querySelector("#cyclicalAudit"),
+  cyclicalAuditStatus: document.querySelector("#cyclicalAuditStatus"),
+  cyclicalSteps: document.querySelector("#cyclicalSteps"),
+  cyclicalSourceLink: document.querySelector("#cyclicalSourceLink"),
+  cyclicalHistoryRows: document.querySelector("#cyclicalHistoryRows"),
+  cyclicalNormalizationFormula: document.querySelector("#cyclicalNormalizationFormula"),
+  cyclicalForecastRows: document.querySelector("#cyclicalForecastRows"),
+  cyclicalValueBridge: document.querySelector("#cyclicalValueBridge"),
+  cyclicalPrimaryValue: document.querySelector("#cyclicalPrimaryValue"),
+  cyclicalEbitdaCheck: document.querySelector("#cyclicalEbitdaCheck"),
+  cyclicalEbitdaNote: document.querySelector("#cyclicalEbitdaNote"),
+  cyclicalPeCheck: document.querySelector("#cyclicalPeCheck"),
+  cyclicalPeNote: document.querySelector("#cyclicalPeNote"),
+  cyclicalSubtype: document.querySelector("#cyclicalSubtype"),
+  cyclicalSubtypeNote: document.querySelector("#cyclicalSubtypeNote"),
+  scenarioBaseCopy: document.querySelector("#scenarioBaseCopy"),
+  scenarioBullCopy: document.querySelector("#scenarioBullCopy"),
+  scenarioBearCopy: document.querySelector("#scenarioBearCopy"),
   riktkursSummary: document.querySelector("#riktkursSummary"),
   riktkursTarget: document.querySelector("#riktkursTarget"),
   riktkursUpside: document.querySelector("#riktkursUpside"),
@@ -681,8 +699,10 @@ function applyMarketData(currentCompanies, marketCompanies) {
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
       navPerShare: numberOrFallback(market.navPerShare, current.navPerShare ?? seedCompany.navPerShare),
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
-      normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
-      normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
+      // Normalized values must be explicitly supported by the loaded report data.
+      // Never fall back to generated sample values for a real company.
+      normalizedFcfPerShare: fundamentalInput(market.normalizedFcfPerShare),
+      normalizedEbitdaPerShare: fundamentalInput(market.normalizedEbitdaPerShare),
       // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
       growth5y: fundamentalInput(market.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
@@ -960,6 +980,11 @@ function getDisplayTrailingPe(company) {
 function formatTickerMoney(value, currency = "SEK") {
   if (!Number.isFinite(value)) return "-";
   return `${formatPriceNumber(value)} ${currency}`;
+}
+
+function formatPerShareMoney(value, currency = "SEK", digits = 2) {
+  if (!Number.isFinite(value)) return "-";
+  return `${formatDecimal(value, digits)} ${currency}`;
 }
 
 function formatCurrency(value, currency = "SEK") {
@@ -1299,7 +1324,7 @@ function calculatePeValue(company, scenario = "base") {
 function calculateEbitdaValue(company, scenario = "base", useNormalized = false) {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const ebitdaPerShare = useNormalized
-    ? (numberOrNull(company.normalizedEbitdaPerShare) ?? numberOrNull(company.ebitdaPerShare))
+    ? numberOrNull(company.normalizedEbitdaPerShare)
     : numberOrNull(company.ebitdaPerShare);
   const targetMultiple = Math.max(0, asNumber(company.targetEvToEbitda) + adjustment.targetPe * 0.35);
   const netDebt = asNumber(company.netDebtPerShare);
@@ -1344,7 +1369,7 @@ function getRoe(company) {
 }
 
 function getNormalizedFcfPerShare(company) {
-  return numberOrNull(company.normalizedFcfPerShare) ?? numberOrNull(company.fcfPerShare);
+  return numberOrNull(company.normalizedFcfPerShare);
 }
 
 function getNavPerShare(company) {
@@ -1475,45 +1500,241 @@ function calculateInvestmentModel(company, scenario) {
   };
 }
 
+function median(values) {
+  const sorted = values.filter(Number.isFinite).sort((first, second) => first - second);
+  if (!sorted.length) return NaN;
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function getCyclicalSubtype(company) {
+  const ticker = company?.ticker;
+  if (ticker === "BOL.ST") {
+    return {
+      key: "commodity",
+      label: "Commodity producer",
+      note: "Boliden is normalized across reported cash-flow years so one metal-price year cannot set the valuation. A future commodity-price bridge should be shown as a separate cross-check, not hidden inside this DCF."
+    };
+  }
+  if (ticker === "SCA-B.ST") {
+    return {
+      key: "forest-assets",
+      label: "Forest assets + operations",
+      note: "The mid-cycle cash-flow DCF values the operating cash flow. A verified forest-asset NAV should be displayed separately when that dataset is available; book equity is not silently treated as forest NAV."
+    };
+  }
+  if (ticker === "SKA-B.ST") {
+    return {
+      key: "construction",
+      label: "Construction + development",
+      note: "A verified segment sum-of-the-parts is the preferred cross-check for Skanska. Until segment assets and margins are collected, the dashboard does not invent an SOTP value."
+    };
+  }
+  return {
+    key: "industrial",
+    label: "Industrial cycle",
+    note: "The forecast is allowed to follow the selected near-term path, then fades back to the company’s report-derived mid-cycle cash flow before the terminal value is calculated."
+  };
+}
+
+function getCyclicalHistoryNormalization(company) {
+  const hasFcffHistory = Array.isArray(company?.fcffHistory) && company.fcffHistory.length > 0;
+  const rawRows = hasFcffHistory ? company.fcffHistory : company?.fcfHistory;
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding);
+  if (!Array.isArray(rawRows) || rawRows.length < 5) {
+    return {
+      valid: false,
+      reason: `At least five consecutive official-report cash-flow years are required; ${Array.isArray(rawRows) ? rawRows.length : 0} are stored.`,
+      rows: [],
+      basis: hasFcffHistory ? "fcff" : "equity-fcf"
+    };
+  }
+  if (shares === null || shares <= 0) {
+    return { valid: false, reason: "Verified outstanding shares are required for the per-share conversion.", rows: [], basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const rows = rawRows
+    .map((row) => ({ ...row, year: Number(row.year), cashFlow: numberOrNull(row.fcff ?? row.fcf) }))
+    .filter((row) => Number.isInteger(row.year) && row.cashFlow !== null)
+    .sort((first, second) => first.year - second.year);
+  if (rows.length < 5) {
+    return { valid: false, reason: "Fewer than five annual cash-flow observations contain a usable value.", rows: [], basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+  for (let index = 1; index < rows.length; index += 1) {
+    if (rows[index].year !== rows[index - 1].year + 1) {
+      return { valid: false, reason: "The official cash-flow history has a missing fiscal year, so a full-cycle normalization is not shown.", rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+    }
+  }
+  const untraceableRow = rows.find((row) => !row.sourceUrl || String(row.sourceUrl).includes("marketscreener.com"));
+  if (untraceableRow) {
+    return { valid: false, reason: `${untraceableRow.year} is not linked to an official company source.`, rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+  const quoteCurrency = String(company.currency ?? "SEK").toUpperCase();
+  const mismatchedCurrencyRow = rows.find((row) => row.quoteCurrency && String(row.quoteCurrency).toUpperCase() !== quoteCurrency);
+  if (mismatchedCurrencyRow) {
+    return { valid: false, reason: `${mismatchedCurrencyRow.year} is stored in ${mismatchedCurrencyRow.quoteCurrency}, not ${quoteCurrency}.`, rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const normalizedCashFlow = median(rows.map((row) => row.cashFlow));
+  const perShare = normalizedCashFlow / shares;
+  if (!Number.isFinite(perShare) || perShare <= 0) {
+    return { valid: false, reason: "The full-cycle median cash flow is not positive, so the DCF cannot use it.", rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const basis = hasFcffHistory
+    ? "fcff"
+    : (rows.every((row) => row.method === "cfo-minus-capex") ? "equity-fcf" : "company-defined-after-capex");
+  return {
+    valid: true,
+    rows,
+    shares,
+    normalizedCashFlow,
+    perShare,
+    basis,
+    firstYear: rows[0].year,
+    lastYear: rows[rows.length - 1].year,
+    observations: rows.length,
+    sourceUrls: [...new Set(rows.map((row) => row.sourceUrl))],
+    sourceNames: [...new Set(rows.map((row) => row.sourceName).filter(Boolean))]
+  };
+}
+
+function buildCyclicalDcfFlows(company, scenario, normalization) {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const assumption = getSelectedGrowthAssumption(company);
+  const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  const scenarioGrowth = adjustment.growth / 100;
+  const targetGrowth = clamp(terminalGrowth + scenarioGrowth, -0.05, 0.08);
+  const normalizedYearFive = normalization.perShare * ((1 + targetGrowth) ** 5);
+  const flows = [];
+
+  if (assumption.key === "consensus") {
+    const consensus = getMarketConsensusPerShareRows(company, company.consensusGrowthAudit);
+    if (!consensus.valid) return { valid: false, reason: consensus.reason, flows: [] };
+    consensus.rows.forEach((row, index) => {
+      flows.push({
+        year: index + 1,
+        fiscalYear: row.year,
+        label: `${row.year}E`,
+        cashFlow: row.cashFlowPerShare,
+        source: "Published analyst consensus"
+      });
+    });
+  } else {
+    const currentFcf = numberOrNull(company.fcfPerShare);
+    const selectedGrowth = assumption.value === null ? null : (assumption.value + adjustment.growth) / 100;
+    const startingCashFlow = currentFcf !== null && currentFcf > 0 ? currentFcf : normalization.perShare;
+    for (let year = 1; year <= 3; year += 1) {
+      const cashFlow = selectedGrowth === null
+        ? startingCashFlow + (normalizedYearFive - startingCashFlow) * (year / 5)
+        : startingCashFlow * ((1 + selectedGrowth) ** year);
+      flows.push({
+        year,
+        label: `Y${year}E`,
+        cashFlow,
+        source: selectedGrowth === null ? "Mid-cycle fade; historical CAGR unavailable" : "Historical FCF CAGR"
+      });
+    }
+  }
+
+  const yearThreeCashFlow = flows[flows.length - 1].cashFlow;
+  flows.push({ year: 4, label: "Y4E", cashFlow: yearThreeCashFlow + (normalizedYearFive - yearThreeCashFlow) * 0.5, source: "50% fade to mid-cycle" });
+  flows.push({ year: 5, label: "Y5E", cashFlow: normalizedYearFive, source: "Normalized mid-cycle" });
+  return { valid: true, flows, assumption, normalizedYearFive, targetGrowth };
+}
+
+function calculateCyclicalDcf(company, scenario = "base") {
+  const normalization = getCyclicalHistoryNormalization(company);
+  if (!normalization.valid) {
+    return { value: NaN, flows: [], error: normalization.reason, normalization };
+  }
+
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const discountRate = (asNumber(company.wacc) + adjustment.wacc) / 100;
+  const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  if (discountRate <= 0 || discountRate <= terminalGrowth) {
+    return { value: NaN, flows: [], error: "The discount rate must be positive and above terminal growth.", normalization };
+  }
+
+  const forecast = buildCyclicalDcfFlows(company, scenario, normalization);
+  if (!forecast.valid) {
+    return { value: NaN, flows: [], error: forecast.reason, normalization };
+  }
+
+  let presentValue = 0;
+  const flows = forecast.flows.map((flow) => {
+    const discounted = flow.cashFlow / ((1 + discountRate) ** flow.year);
+    presentValue += discounted;
+    return { ...flow, discounted };
+  });
+  const yearFiveCashFlow = flows[flows.length - 1].cashFlow;
+  const terminalValue = (yearFiveCashFlow * (1 + terminalGrowth)) / (discountRate - terminalGrowth);
+  const discountedTerminal = terminalValue / ((1 + discountRate) ** 5);
+  const netDebtAdjustment = normalization.basis === "fcff" ? -asNumber(company.netDebtPerShare) : 0;
+
+  return {
+    value: presentValue + discountedTerminal + netDebtAdjustment,
+    flows,
+    presentValue,
+    terminalValue,
+    discountedTerminal,
+    netDebtAdjustment,
+    normalization,
+    forecastMethod: forecast.assumption?.key === "consensus" ? "consensus-then-mid-cycle-fade" : "historical-path-then-mid-cycle-fade",
+    normalizedYearFive: forecast.normalizedYearFive,
+    targetGrowth: forecast.targetGrowth,
+    cashFlowBasis: normalization.basis,
+    discountRate,
+    error: ""
+  };
+}
+
+function calculateCyclicalPeCrossCheck(company, scenario = "base") {
+  const normalizedEps = numberOrNull(company.normalizedEpsPerShare);
+  const currentPe = getCurrentPeRatio(company);
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
+  return normalizedEps !== null && normalizedEps > 0 && Number.isFinite(targetPe) && targetPe > 0
+    ? normalizedEps * targetPe
+    : NaN;
+}
+
 function calculateCyclicalModel(company, scenario) {
   const currency = company.currency ?? "SEK";
   const price = asNumber(company.marketPrice);
-  const normalizedFcf = getNormalizedFcfPerShare(company);
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const normalizedFcf = dcf.normalization?.valid ? dcf.normalization.perShare : NaN;
   const currentPe = getCurrentPeRatio(company);
-  const normalizedMultiple = clamp(asNumber(currentPe) * 0.85, 7, 16);
-  const netDebt = asNumber(company.netDebtPerShare);
-  const normalizedFcfValue = normalizedFcf && normalizedFcf > 0
-    ? normalizedFcf * normalizedMultiple - netDebt
-    : NaN;
   const ebitdaValue = calculateEbitdaValue(company, scenario, true);
-  const peValue = calculatePeValue(company, scenario);
-  const normalizedFcfYield = price > 0 && normalizedFcf && normalizedFcf > 0 ? (normalizedFcf / price) * 100 : NaN;
+  const peValue = calculateCyclicalPeCrossCheck(company, scenario);
+  const normalizedFcfYield = price > 0 && Number.isFinite(normalizedFcf) ? (normalizedFcf / price) * 100 : NaN;
+  const crossCheckText = [
+    Number.isFinite(ebitdaValue) ? `${formatCurrency(ebitdaValue, currency)} normalized EV/EBITDA` : "EV/EBITDA awaiting normalized EBITDA",
+    Number.isFinite(peValue) ? `${formatCurrency(peValue, currency)} normalized P/E` : "P/E awaiting normalized EPS"
+  ].join(" | ");
 
   return {
-    dcf: { value: NaN, flows: [], error: "" },
+    dcf,
     peValue,
     ebitdaValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: normalizedFcfValue, weight: 0.5 },
-      { value: ebitdaValue, weight: 0.3 },
-      { value: peValue, weight: 0.2 }
-    ]),
-    primaryLabel: "Norm. FCF value",
-    primaryValue: normalizedFcfValue,
-    secondaryLabel: "EV/EBITDA value",
+    // Cross-checks are deliberately not blended into the headline value.
+    blendedValue: dcf.value,
+    primaryLabel: "Mid-cycle DCF",
+    primaryValue: dcf.value,
+    secondaryLabel: "Normalized EV/EBITDA",
     secondaryValue: ebitdaValue,
-    tertiaryLabel: "Norm. FCF yield",
+    tertiaryLabel: "Normalized FCF yield",
     tertiaryValue: formatPercent(normalizedFcfYield, 1),
-    reverseLabel: "Norm. FCF yield",
+    reverseLabel: "Mid-cycle FCF yield",
     reverseValue: formatPercent(normalizedFcfYield, 1),
-    reverseSub: "Mid-cycle cash flow yield",
-    valueDescription: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue)
-      ? `${formatDecimal(normalizedMultiple, 1)}x normalized FCF | ${formatCurrency(ebitdaValue, currency)} EV/EBITDA | ${formatCurrency(peValue, currency)} P/E`
-      : "Needs normalized FCF or EBITDA per share",
-    modelSupportScore: Number.isFinite(normalizedFcfYield) ? clamp(45 + normalizedFcfYield * 5, 0, 100) : 50,
-    modelWarning: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue) ? "" : "Add normalized FCF or EBITDA per share for the cyclical model.",
-    chartTitle: "Normalized FCF model"
+    reverseSub: "Median official-report cash flow / current price",
+    valueDescription: Number.isFinite(dcf.value)
+      ? `${formatCurrency(dcf.value, currency)} mid-cycle DCF | ${crossCheckText}`
+      : `Mid-cycle DCF unavailable: ${dcf.error}`,
+    modelSupportScore: dcf.normalization?.valid ? clamp(45 + dcf.normalization.observations * 6, 0, 90) : 20,
+    modelWarning: dcf.error,
+    chartTitle: "Mid-cycle cash-flow DCF"
   };
 }
 
@@ -2218,7 +2439,15 @@ function renderForm() {
   if (!company) return;
 
   document.querySelectorAll("[data-field]").forEach((input) => {
-    input.value = roundFieldValue(company[input.dataset.field]);
+    if (input.dataset.field === "normalizedFcfPerShare" && normalizeCompanyType(company.companyType, company.ticker) === "cyclical") {
+      const normalization = getCyclicalHistoryNormalization(company);
+      input.value = roundFieldValue(normalization.valid ? normalization.perShare : null);
+      input.title = normalization.valid
+        ? `Median of ${normalization.observations} official-report years (${normalization.firstYear}–${normalization.lastYear})`
+        : normalization.reason;
+    } else {
+      input.value = roundFieldValue(company[input.dataset.field]);
+    }
   });
 
 
@@ -2519,26 +2748,35 @@ function getAnalysisPresentation(company) {
   };
 
   if (state.analysisModel === "pe") {
-    const value = calculatePeValue(company, scenario);
+    const isCyclical = category === "cyclical";
+    const normalizedEps = numberOrNull(company.normalizedEpsPerShare);
+    const value = isCyclical ? calculateCyclicalPeCrossCheck(company, scenario) : calculatePeValue(company, scenario);
     return {
       key: "pe",
-      title: `P/E · ${scenarioLabel}`,
-      note: getScenarioExplanation(scenario),
-      chartTitle: "P/E valuation compared with market price",
-      chartSubtitle: `${formatDecimal(asNumber(company.eps), 2)} ${currency} EPS × ${formatDecimal(targetPe, 1)}x target P/E`,
+      title: `${isCyclical ? "Normalized P/E check" : "P/E"} · ${scenarioLabel}`,
+      note: isCyclical
+        ? "This is a cross-check only. It stays unavailable until normalized EPS is explicitly supported; current-cycle EPS is not substituted."
+        : getScenarioExplanation(scenario),
+      chartTitle: isCyclical ? "Normalized P/E cross-check" : "P/E valuation compared with market price",
+      chartSubtitle: isCyclical
+        ? (normalizedEps === null ? "Normalized EPS has not yet been verified" : `${formatDecimal(normalizedEps, 2)} ${currency} normalized EPS × ${formatDecimal(targetPe, 1)}x target P/E`)
+        : `${formatDecimal(asNumber(company.eps), 2)} ${currency} EPS × ${formatDecimal(targetPe, 1)}x target P/E`,
       chartUnit: `${currency} / share`,
-      modelTitle: "P/E — Price / Earnings",
-      modelDescription: "Values one share using the current P/E as the base-case target multiple. Bull and bear adjust that anchor by +2.0x or −2.0x.",
-      formula: "EPS × target P/E = value per share",
+      modelTitle: isCyclical ? "Normalized P/E — Cross-check" : "P/E — Price / Earnings",
+      modelDescription: isCyclical
+        ? "For a cyclical company, current EPS may be near a peak or trough. The dashboard therefore requires an explicitly normalized EPS before showing this cross-check and never uses current EPS as a hidden replacement."
+        : "Values one share using the current P/E as the base-case target multiple. Bull and bear adjust that anchor by +2.0x or −2.0x.",
+      formula: isCyclical ? "Normalized EPS × target P/E = cross-check value" : "EPS × target P/E = value per share",
       assumptions: [
-        ["EPS", formatTickerMoney(asNumber(company.eps), currency)],
+        [isCyclical ? "Normalized EPS" : "EPS", isCyclical ? formatTickerMoney(normalizedEps, currency) : formatTickerMoney(asNumber(company.eps), currency)],
         ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-"],
-        ["Current P/E", Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-"]
+        ["Current P/E", Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-"],
+        ...(isCyclical ? [["Treatment", "Cross-check; not blended into DCF"]] : [])
       ],
       metrics: [
-        ["P/E value / share", formatTickerMoney(value, currency), differenceText(value)],
+        [isCyclical ? "Normalized P/E / share" : "P/E value / share", formatTickerMoney(value, currency), differenceText(value)],
         ["Current price", formatTickerMoney(price, currency), "Market price input"],
-        ["EPS", formatTickerMoney(asNumber(company.eps), currency), "Earnings per share input"],
+        [isCyclical ? "Normalized EPS" : "EPS", isCyclical ? formatTickerMoney(normalizedEps, currency) : formatTickerMoney(asNumber(company.eps), currency), isCyclical ? "Must be explicitly supported" : "Earnings per share input"],
         ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-", state.scenario === "base" ? "Equal to current P/E" : `${formatDecimal(adjustment.targetPe, 1)}x scenario adjustment`]
       ],
       chartValues: [
@@ -2580,12 +2818,25 @@ function getAnalysisPresentation(company) {
     };
   }
 
-  const dcf = category === "operating" ? calculateDcf(company, scenario) : { value: NaN, flows: [] };
+  const isCyclical = category === "cyclical";
+  const dcf = category === "operating"
+    ? calculateDcf(company, scenario)
+    : (isCyclical ? calculateCyclicalDcf(company, scenario) : { value: NaN, flows: [], error: "DCF is not used for this company type." });
   const usesConsensusForecast = growthAssumption.key === "consensus";
   const consensusPerShare = usesConsensusForecast
     ? getMarketConsensusPerShareRows(company, company.consensusGrowthAudit)
     : { valid: false, rows: [] };
-  const dcfAssumptions = usesConsensusForecast
+  const cyclicalNormalization = isCyclical ? dcf.normalization : null;
+  const dcfAssumptions = isCyclical
+    ? [
+        ["Official history", cyclicalNormalization?.valid ? `${cyclicalNormalization.firstYear}–${cyclicalNormalization.lastYear} · ${cyclicalNormalization.observations} years` : "Unavailable"],
+        ["Mid-cycle cash flow / share", cyclicalNormalization?.valid ? formatPerShareMoney(cyclicalNormalization.perShare, currency) : "-"],
+        ["Years 1–3", usesConsensusForecast ? "Published market consensus" : (baseDcfGrowth === null ? "Fade toward mid-cycle; CAGR unavailable" : `${formatPercent(growth, 1)} historical FCF CAGR`)],
+        ["Years 4–5", "Fade to normalized mid-cycle cash flow"],
+        [dcf.cashFlowBasis === "fcff" ? "WACC" : "Required equity return", formatPercent(wacc, 1)],
+        ["Net debt treatment", dcf.cashFlowBasis === "fcff" ? "Subtracted once after enterprise value" : "Not subtracted; cash flow is after financing"]
+      ]
+    : usesConsensusForecast
     ? [
         ...(consensusPerShare.valid
           ? consensusPerShare.rows.map((row) => [`${row.year}E consensus FCF / share`, formatTickerMoney(row.cashFlowPerShare, currency)])
@@ -2602,33 +2853,141 @@ function getAnalysisPresentation(company) {
       ];
   return {
     key: "dcf",
-    title: `DCF · ${scenarioLabel}`,
-    note: getScenarioExplanation(scenario),
-    chartTitle: "Projected free cash flow / share",
-    chartSubtitle: usesConsensusForecast
-      ? `${scenarioLabel}: three published estimates, then forecast CAGR for years 4–5`
-      : `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`,
+    title: `${isCyclical ? "Mid-cycle DCF" : "DCF"} · ${scenarioLabel}`,
+    note: isCyclical
+      ? (dcf.error || `${usesConsensusForecast ? "Consensus sets years 1–3" : "The selected historical path sets years 1–3"}; years 4–5 return to a report-derived mid-cycle level.`)
+      : getScenarioExplanation(scenario),
+    chartTitle: isCyclical ? "Forecast path and return to mid-cycle" : "Projected free cash flow / share",
+    chartSubtitle: isCyclical
+      ? (usesConsensusForecast
+          ? `${scenarioLabel}: three published estimates, then a two-year fade to mid-cycle`
+          : `${scenarioLabel}: ${baseDcfGrowth === null ? "mid-cycle fade because CAGR is unavailable" : "historical CAGR for years 1–3, then a two-year fade to mid-cycle"}`)
+      : (usesConsensusForecast
+          ? `${scenarioLabel}: three published estimates, then forecast CAGR for years 4–5`
+          : `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`),
     chartUnit: `${currency} / share`,
-    modelTitle: "DCF — Discounted Cash Flow",
-    modelDescription: category === "operating"
+    modelTitle: isCyclical ? "Mid-cycle DCF — Cyclical Cash Flow" : "DCF — Discounted Cash Flow",
+    modelDescription: isCyclical
+      ? (cyclicalNormalization?.valid
+          ? `Uses the median of ${cyclicalNormalization.observations} consecutive official-report cash-flow years as the mid-cycle anchor. The selected forecast controls years 1–3, while years 4–5 fade to that anchor before terminal value. ${dcf.cashFlowBasis === "fcff" ? "Verified FCFF is discounted at WACC and net debt is subtracted once." : "The stored history is an after-financing cash-flow measure, so it is discounted at the required equity return and net debt is not subtracted again."}`
+          : `No cyclical DCF is shown: ${dcf.error}`)
+      : category === "operating"
       ? (usesConsensusForecast
           ? "Uses the three published analyst-consensus FCF estimates for years 1–3. Years 4–5 extend the third estimate with the forecast CAGR. Each total FCF estimate is converted to SEK per share before discounting."
           : `Projects five years of equity free cash flow using the page-level ${growthAssumption.shortLabel} choice, then discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders.`)
       : "DCF is not used for this company type in the dashboard’s existing category model.",
-    formula: "Present value of 5yr equity FCF + present value of terminal equity FCF",
+    formula: isCyclical
+      ? `${dcf.cashFlowBasis === "fcff" ? "PV of 5yr FCFF + PV of terminal FCFF − net debt" : "PV of 5yr after-financing FCF + PV of terminal FCF"} = value per share`
+      : "Present value of 5yr equity FCF + present value of terminal equity FCF",
     assumptions: dcfAssumptions,
-    metrics: [
-      ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
-      ["Current price", formatTickerMoney(price, currency), "Market price input"],
-      [usesConsensusForecast ? "Forecast CAGR" : "5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : (usesConsensusForecast ? "Applied only to forecast years 4–5" : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`)],
-      ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
-    ],
+    metrics: isCyclical
+      ? [
+          ["Mid-cycle value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
+          ["Current price", formatTickerMoney(price, currency), "Market price input"],
+          ["Mid-cycle cash flow / share", cyclicalNormalization?.valid ? formatPerShareMoney(cyclicalNormalization.perShare, currency) : "-", cyclicalNormalization?.valid ? `Median of ${cyclicalNormalization.firstYear}–${cyclicalNormalization.lastYear}` : "Needs at least five official years"],
+          [dcf.cashFlowBasis === "fcff" ? "WACC" : "Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+        ]
+      : [
+          ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
+          ["Current price", formatTickerMoney(price, currency), "Market price input"],
+          [usesConsensusForecast ? "Forecast CAGR" : "5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : (usesConsensusForecast ? "Applied only to forecast years 4–5" : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`)],
+          ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+        ],
     chartValues: [{ label: "Current", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: flow.label ?? `Y${flow.year}E`, value: flow.cashFlow }))]
   };
 }
 
+function renderCyclicalAudit(company) {
+  if (!elements.cyclicalAudit) return;
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const shouldShow = category === "cyclical" && state.analysisModel === "dcf";
+  elements.cyclicalAudit.hidden = !shouldShow;
+  if (!shouldShow) return;
+
+  const currency = company.currency ?? "SEK";
+  const scenario = state.scenario;
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const normalization = dcf.normalization ?? getCyclicalHistoryNormalization(company);
+  const ebitdaValue = calculateEbitdaValue(company, scenario, true);
+  const peValue = calculateCyclicalPeCrossCheck(company, scenario);
+  const subtype = getCyclicalSubtype(company);
+  const basisLabel = normalization.basis === "fcff"
+    ? "FCFF before financing"
+    : (normalization.basis === "equity-fcf" ? "CFO − capex, after financing" : "Company-defined after-capex cash flow");
+
+  elements.cyclicalAuditStatus.textContent = normalization.valid
+    ? `${normalization.firstYear}–${normalization.lastYear} · ${normalization.observations} official years · ${basisLabel}`
+    : dcf.error;
+  elements.cyclicalSteps.innerHTML = [
+    ["1", "Normalize", normalization.valid ? `Take the median of ${normalization.observations} consecutive official-report years.` : "Wait until at least five consecutive official years are available."],
+    ["2", "Forecast", `${state.growthAssumption === "consensus" ? "Market consensus" : "Historical CAGR"} sets years 1–3; missing CAGR triggers a clearly labelled fade.`],
+    ["3", "Return to mid-cycle", "Year 4 moves halfway to the normalized level; year 5 reaches it."],
+    ["4", "Discount", normalization.basis === "fcff" ? "Discount FCFF at WACC, then subtract net debt once." : "Discount after-financing cash flow at the required equity return; do not subtract net debt again."]
+  ].map(([number, title, copy]) => `
+    <div class="cyclical-step">
+      <span>${number}</span>
+      <div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div>
+    </div>
+  `).join("");
+
+  const sourceUrl = normalization.valid ? normalization.sourceUrls[0] : null;
+  elements.cyclicalSourceLink.hidden = !sourceUrl;
+  if (sourceUrl) {
+    elements.cyclicalSourceLink.href = sourceUrl;
+    elements.cyclicalSourceLink.textContent = normalization.sourceNames[0] ? `Open ${normalization.sourceNames[0]}` : "Open official report";
+  }
+
+  elements.cyclicalHistoryRows.innerHTML = normalization.rows?.length
+    ? normalization.rows.map((row) => `
+        <tr>
+          <td>${row.year}</td>
+          <td>${escapeHtml(formatCurrency(row.cashFlow, currency))}</td>
+          <td>${escapeHtml(formatPerShareMoney(row.cashFlow / (normalization.shares || 1), currency))}</td>
+          <td><span class="audit-evidence">${escapeHtml(row.methodLabel ?? row.method ?? "Reported cash-flow measure")}</span></td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="4" class="empty-row">${escapeHtml(dcf.error || "No verified history available")}</td></tr>`;
+  elements.cyclicalNormalizationFormula.innerHTML = normalization.valid
+    ? `Mid-cycle cash flow / share = median of ${normalization.observations} annual cash flows ÷ ${escapeHtml(formatShares(normalization.shares))} shares = <strong>${escapeHtml(formatPerShareMoney(normalization.perShare, currency))}</strong>. Every year remains in the calculation; peak and trough years are not manually removed.`
+    : `<strong>Not calculated.</strong> ${escapeHtml(dcf.error || normalization.reason)}`;
+
+  elements.cyclicalForecastRows.innerHTML = dcf.flows.length
+    ? dcf.flows.map((flow) => `
+        <tr>
+          <td>${escapeHtml(flow.label)}</td>
+          <td>${escapeHtml(formatPerShareMoney(flow.cashFlow, currency))}</td>
+          <td>${escapeHtml(formatPerShareMoney(flow.discounted, currency))}</td>
+          <td><span class="audit-evidence">${escapeHtml(flow.source)}</span></td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="4" class="empty-row">${escapeHtml(dcf.error || "Forecast unavailable")}</td></tr>`;
+
+  const bridgeRows = [
+    ["Present value of years 1–5", formatTickerMoney(dcf.presentValue, currency)],
+    ["Present value of terminal cash flow", formatTickerMoney(dcf.discountedTerminal, currency)],
+    ["Net debt adjustment", Number.isFinite(dcf.netDebtAdjustment) ? formatTickerMoney(dcf.netDebtAdjustment, currency) : "-"],
+    ["Value per share", formatTickerMoney(dcf.value, currency)]
+  ];
+  elements.cyclicalValueBridge.innerHTML = bridgeRows.map(([label, value], index) => `
+    <div class="${index === bridgeRows.length - 1 ? "is-total" : ""}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
+  `).join("");
+
+  elements.cyclicalPrimaryValue.textContent = formatTickerMoney(dcf.value, currency);
+  elements.cyclicalEbitdaCheck.textContent = formatTickerMoney(ebitdaValue, currency);
+  elements.cyclicalEbitdaNote.textContent = Number.isFinite(ebitdaValue)
+    ? `${formatPerShareMoney(numberOrNull(company.normalizedEbitdaPerShare), currency)} normalized EBITDA/share × ${formatDecimal(asNumber(company.targetEvToEbitda) + (scenarioAdjustments[scenario]?.targetPe ?? 0) * 0.35, 1)}x, then net debt`
+    : "Unavailable: normalized EBITDA is not explicitly supported; current EBITDA is not substituted.";
+  elements.cyclicalPeCheck.textContent = formatTickerMoney(peValue, currency);
+  elements.cyclicalPeNote.textContent = Number.isFinite(peValue)
+    ? "Normalized EPS × scenario target P/E; shown only as a cross-check"
+    : "Unavailable: normalized EPS is not explicitly supported; current EPS is not substituted.";
+  elements.cyclicalSubtype.textContent = subtype.label;
+  elements.cyclicalSubtypeNote.textContent = subtype.note;
+}
+
 function renderAnalysis(company) {
   const presentation = getAnalysisPresentation(company);
+  const isCyclical = normalizeCompanyType(company.companyType, company.ticker) === "cyclical";
   const metricTargets = [
     [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
     [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
@@ -2652,6 +3011,16 @@ function renderAnalysis(company) {
   elements.analysisAssumptions.innerHTML = presentation.assumptions
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
+  if (isCyclical) {
+    elements.scenarioBaseCopy.textContent = "Uses the selected years 1–3 forecast and fades years 4–5 to the report-derived mid-cycle cash flow.";
+    elements.scenarioBullCopy.textContent = "Uses a stronger mid-cycle path (+2.0 pp) and a required return 0.7 pp lower; consensus years 1–3 stay unchanged.";
+    elements.scenarioBearCopy.textContent = "Uses a weaker mid-cycle path (−2.0 pp) and a required return 1.0 pp higher; consensus years 1–3 stay unchanged.";
+  } else {
+    elements.scenarioBaseCopy.textContent = "Uses the selected Growth forecast, required equity return and target P/E without adjustment.";
+    elements.scenarioBullCopy.textContent = "Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.";
+    elements.scenarioBearCopy.textContent = "Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.";
+  }
+  renderCyclicalAudit(company);
 }
 
 function renderMetrics() {

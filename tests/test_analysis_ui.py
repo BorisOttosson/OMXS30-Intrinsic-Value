@@ -116,6 +116,49 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertNotIn('id="valuationSubtitle"', self.html)
         self.assertNotIn("elements.valuationSubtitle", self.javascript)
 
+    def test_cyclical_model_uses_full_cycle_history_without_silent_fallbacks(self):
+        self.assertIn("function getCyclicalHistoryNormalization", self.javascript)
+        self.assertIn("At least five consecutive official-report cash-flow years are required", self.javascript)
+        self.assertIn("const normalizedCashFlow = median(rows.map((row) => row.cashFlow))", self.javascript)
+        self.assertIn('String(row.sourceUrl).includes("marketscreener.com")', self.javascript)
+        self.assertIn("mismatchedCurrencyRow", self.javascript)
+        self.assertIn("normalizedFcfPerShare: fundamentalInput(market.normalizedFcfPerShare)", self.javascript)
+        self.assertIn("normalizedEbitdaPerShare: fundamentalInput(market.normalizedEbitdaPerShare)", self.javascript)
+        self.assertNotIn("numberOrNull(company.normalizedFcfPerShare) ?? numberOrNull(company.fcfPerShare)", self.javascript)
+        self.assertNotIn("numberOrNull(company.normalizedEbitdaPerShare) ?? numberOrNull(company.ebitdaPerShare)", self.javascript)
+
+    def test_cyclical_dcf_fades_to_mid_cycle_and_treats_debt_once(self):
+        cyclical_dcf = self.javascript.split("function calculateCyclicalDcf", 1)[1].split("function calculateCyclicalPeCrossCheck", 1)[0]
+        cyclical_flows = self.javascript.split("function buildCyclicalDcfFlows", 1)[1].split("function calculateCyclicalDcf", 1)[0]
+        cyclical_model = self.javascript.split("function calculateCyclicalModel", 1)[1].split("function calculateCategoryModel", 1)[0]
+        self.assertIn('source: "50% fade to mid-cycle"', cyclical_flows)
+        self.assertIn('source: "Normalized mid-cycle"', cyclical_flows)
+        self.assertIn('normalization.basis === "fcff" ? -asNumber(company.netDebtPerShare) : 0', cyclical_dcf)
+        self.assertIn("presentValue + discountedTerminal + netDebtAdjustment", cyclical_dcf)
+        self.assertIn("blendedValue: dcf.value", cyclical_model)
+        self.assertNotIn("weightedAverage", cyclical_model)
+        self.assertNotIn("currentPe) * 0.85", cyclical_model)
+
+    def test_cyclical_calculation_is_explained_in_the_interface(self):
+        for element_id in (
+            "cyclicalAudit",
+            "cyclicalHistoryRows",
+            "cyclicalNormalizationFormula",
+            "cyclicalForecastRows",
+            "cyclicalValueBridge",
+            "cyclicalEbitdaCheck",
+            "cyclicalPeCheck",
+            "cyclicalSubtypeNote",
+        ):
+            self.assertIn(f'id="{element_id}"', self.html)
+        self.assertIn("How the cyclical valuation works", self.html)
+        self.assertIn("Every year remains in the calculation; peak and trough years are not manually removed", self.javascript)
+        self.assertIn("current EBITDA is not substituted", self.javascript)
+        self.assertIn("current EPS is not substituted", self.javascript)
+        self.assertRegex(self.html, re.compile(r'data-field="normalizedFcfPerShare"[^>]*readonly'))
+        self.assertIn("normalization.valid ? normalization.perShare : null", self.javascript)
+        self.assertIn("renderCyclicalAudit(company)", self.javascript)
+
 
 if __name__ == "__main__":
     unittest.main()

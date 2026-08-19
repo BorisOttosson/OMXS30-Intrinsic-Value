@@ -297,6 +297,76 @@
               </aside>
             </div>
 
+            <section class="cyclical-audit" id="cyclicalAudit" hidden aria-live="polite">
+              <div class="analysis-section-heading">
+                <div>
+                  <span class="eyebrow">Calculation walkthrough</span>
+                  <h4>How the cyclical valuation works</h4>
+                </div>
+                <p id="cyclicalAuditStatus">Official-report history → mid-cycle cash flow → DCF</p>
+              </div>
+
+              <div class="cyclical-step-grid" id="cyclicalSteps"></div>
+
+              <div class="cyclical-audit-grid">
+                <div class="cyclical-audit-card">
+                  <div class="cyclical-card-heading">
+                    <div>
+                      <span class="eyebrow">Step 1</span>
+                      <h5>Normalize the full cycle</h5>
+                    </div>
+                    <a id="cyclicalSourceLink" href="#" target="_blank" rel="noreferrer" hidden>Open official report</a>
+                  </div>
+                  <div class="table-scroll">
+                    <table class="cyclical-table">
+                      <thead><tr><th>Year</th><th>Reported cash flow</th><th>Per share</th><th>Evidence</th></tr></thead>
+                      <tbody id="cyclicalHistoryRows"></tbody>
+                    </table>
+                  </div>
+                  <p class="cyclical-formula" id="cyclicalNormalizationFormula"></p>
+                </div>
+
+                <div class="cyclical-audit-card">
+                  <div class="cyclical-card-heading">
+                    <div>
+                      <span class="eyebrow">Steps 2–3</span>
+                      <h5>Forecast, fade and discount</h5>
+                    </div>
+                  </div>
+                  <div class="table-scroll">
+                    <table class="cyclical-table">
+                      <thead><tr><th>Forecast year</th><th>Cash flow/share</th><th>Present value</th><th>How set</th></tr></thead>
+                      <tbody id="cyclicalForecastRows"></tbody>
+                    </table>
+                  </div>
+                  <dl class="cyclical-bridge" id="cyclicalValueBridge"></dl>
+                </div>
+              </div>
+
+              <div class="cyclical-crosschecks">
+                <div>
+                  <span>Primary value</span>
+                  <strong id="cyclicalPrimaryValue">-</strong>
+                  <small>Mid-cycle DCF; this is the dashboard headline</small>
+                </div>
+                <div>
+                  <span>EV/EBITDA cross-check</span>
+                  <strong id="cyclicalEbitdaCheck">-</strong>
+                  <small id="cyclicalEbitdaNote">Shown only with explicitly normalized EBITDA</small>
+                </div>
+                <div>
+                  <span>P/E cross-check</span>
+                  <strong id="cyclicalPeCheck">-</strong>
+                  <small id="cyclicalPeNote">Shown only with explicitly normalized EPS</small>
+                </div>
+                <div>
+                  <span>Company-specific check</span>
+                  <strong id="cyclicalSubtype">-</strong>
+                  <small id="cyclicalSubtypeNote">-</small>
+                </div>
+              </div>
+            </section>
+
             <div class="scenario-guide">
               <div class="analysis-section-heading">
                 <div>
@@ -309,17 +379,17 @@
                 <button class="scenario-card is-active" type="button" data-scenario="base" data-scenario-card="base">
                   <span class="scenario-dot base"></span>
                   <strong>Base · Most likely</strong>
-                  <small>Uses the selected Growth forecast, required equity return and target P/E without adjustment.</small>
+                  <small id="scenarioBaseCopy">Uses the selected Growth forecast, required equity return and target P/E without adjustment.</small>
                 </button>
                 <button class="scenario-card" type="button" data-scenario="bull" data-scenario-card="bull">
                   <span class="scenario-dot bull"></span>
                   <strong>Bull · More optimistic</strong>
-                  <small>Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.</small>
+                  <small id="scenarioBullCopy">Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.</small>
                 </button>
                 <button class="scenario-card" type="button" data-scenario="bear" data-scenario-card="bear">
                   <span class="scenario-dot bear"></span>
                   <strong>Bear · More conservative</strong>
-                  <small>Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.</small>
+                  <small id="scenarioBearCopy">Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.</small>
                 </button>
               </div>
             </div>
@@ -445,11 +515,12 @@
                 </div>
               </label>
               <label>
-                <span>Normalized FCF / share</span>
+                <span>Mid-cycle FCF / share</span>
                 <div class="input-unit">
-                  <input data-field="normalizedFcfPerShare" type="number" step="0.01">
+                  <input data-field="normalizedFcfPerShare" type="number" step="0.01" readonly aria-describedby="normalizedFcfMeta">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" id="normalizedFcfMeta">Calculated from consecutive official-report years for cyclical companies.</small>
               </label>
               <label>
                 <span>Position weight</span>
