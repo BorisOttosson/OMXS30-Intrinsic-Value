@@ -1,4 +1,5 @@
 import json
+import statistics
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -149,7 +150,7 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
 
     def test_official_history_catalog_is_reconciled_and_keeps_audit_components(self):
         catalog = json.loads((ROOT / "data" / "official-fcf-history.json").read_text())
-        self.assertEqual(len(catalog["companies"]), 14)
+        self.assertEqual(len(catalog["companies"]), 16)
         for ticker, history in catalog["companies"].items():
             entry = deepcopy(self.manifest["companies"][ticker])
             entry["fcfHistory"] = history
@@ -170,6 +171,32 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         self.assertEqual(latest["reportedFreeCashFlow"], 6506)
         self.assertEqual(latest["method"], "cfo-minus-capex")
         self.assertAlmostEqual(alfa["growth5y"], ((6506 / 6922) ** (1 / 5) - 1) * 100)
+
+    def test_skanska_and_volvo_have_traceable_five_year_cyclical_histories(self):
+        catalog = json.loads((ROOT / "data" / "official-fcf-history.json").read_text())
+        expected = {
+            "SKA-B.ST": [4185, -2263, 1148, 6745, 3575],
+            "VOLV-B.ST": [29440, 35327, 45821, 45295, 21837],
+        }
+        by_ticker = {company["ticker"]: company for company in self.payload["companies"]}
+
+        for ticker, expected_millions in expected.items():
+            source_rows = catalog["companies"][ticker]
+            imported_rows = by_ticker[ticker]["fcfHistory"]
+            self.assertEqual([row["year"] for row in source_rows], [2021, 2022, 2023, 2024, 2025])
+            self.assertEqual([row["freeCashFlow"] for row in source_rows], expected_millions)
+            self.assertTrue(all(row["method"] == "company-defined" for row in source_rows))
+            self.assertTrue(all(row["sourceUrl"].startswith("https://") for row in source_rows))
+            self.assertTrue(all(row["documentChecks"] for row in source_rows))
+            self.assertEqual([row["fcf"] / 1_000_000 for row in imported_rows], expected_millions)
+
+            company = by_ticker[ticker]
+            expected_per_share = statistics.median(expected_millions) * 1_000_000 / company["sharesOutstanding"]
+            self.assertGreater(expected_per_share, 0)
+            self.assertAlmostEqual(
+                company["growth5y"],
+                ((expected_millions[-1] / expected_millions[0]) ** (1 / 4) - 1) * 100,
+            )
 
     def test_derived_fcf_must_reconcile_to_reported_fcf(self):
         entry = deepcopy(self.manifest["companies"]["ABB.ST"])

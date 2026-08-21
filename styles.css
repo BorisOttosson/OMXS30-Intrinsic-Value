@@ -650,6 +650,8 @@ input::placeholder { color: var(--faint); }
 
 .ticker-value-block > small {
   font-size: 0.74rem;
+  line-height: 1.45;
+  text-wrap: pretty;
   color: var(--muted);
 }
 

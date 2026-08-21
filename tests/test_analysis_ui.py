@@ -34,6 +34,18 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("calculateReverseDcf(company, scenario)", self.javascript)
         self.assertIn("Projected free cash flow / share", self.html)
 
+    def test_intrinsic_value_explains_model_weights_and_sek_contributions(self):
+        self.assertIn("function buildValuationBlend", self.javascript)
+        self.assertIn("effectiveWeight = item.weight / totalWeight", self.javascript)
+        self.assertIn("contribution: item.value * effectiveWeight", self.javascript)
+        self.assertIn("function describeValuationBlend", self.javascript)
+        self.assertIn("excluded because no usable value is available", self.javascript)
+        self.assertIn("Remaining weights are rebalanced from", self.javascript)
+        self.assertIn("0% cross-checks; they do not change the intrinsic value", self.javascript)
+        self.assertIn('{ label: "DCF", value: dcf.value, weight: 0.45 }', self.javascript)
+        self.assertIn('{ label: "P/E", value: peValue, weight: 0.25 }', self.javascript)
+        self.assertIn('{ label: "EV/EBITDA", value: ebitdaValue, weight: 0.3 }', self.javascript)
+
     def test_equity_fcf_dcf_does_not_subtract_net_debt_twice(self):
         dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]
         ebitda_function = self.javascript.split("function calculateEbitdaValue", 1)[1].split("function averageValid", 1)[0]
@@ -135,7 +147,8 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('source: "Normalized mid-cycle"', cyclical_flows)
         self.assertIn('normalization.basis === "fcff" ? -asNumber(company.netDebtPerShare) : 0', cyclical_dcf)
         self.assertIn("presentValue + discountedTerminal + netDebtAdjustment", cyclical_dcf)
-        self.assertIn("blendedValue: dcf.value", cyclical_model)
+        self.assertIn('{ label: "mid-cycle DCF", value: dcf.value, weight: 1 }', cyclical_model)
+        self.assertIn("blendedValue: valuationBlend.value", cyclical_model)
         self.assertNotIn("weightedAverage", cyclical_model)
         self.assertNotIn("currentPe) * 0.85", cyclical_model)
 
