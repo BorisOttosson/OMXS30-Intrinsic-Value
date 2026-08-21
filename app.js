@@ -1338,11 +1338,62 @@ function averageValid(values) {
   return validValues.length ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length : NaN;
 }
 
-function weightedAverage(items) {
-  const validItems = items.filter((item) => Number.isFinite(item.value) && item.weight > 0);
-  const totalWeight = validItems.reduce((sum, item) => sum + item.weight, 0);
-  if (!validItems.length || totalWeight <= 0) return NaN;
-  return validItems.reduce((sum, item) => sum + item.value * item.weight, 0) / totalWeight;
+function buildValuationBlend(items, crossChecks = []) {
+  const included = items.filter((item) => Number.isFinite(item.value) && item.weight > 0);
+  const totalWeight = included.reduce((sum, item) => sum + item.weight, 0);
+  if (!included.length || totalWeight <= 0) {
+    return {
+      value: NaN,
+      components: [],
+      excluded: items.map((item) => item.label),
+      configured: items.map((item) => ({ label: item.label, weight: item.weight })),
+      crossChecks
+    };
+  }
+
+  const components = included.map((item) => {
+    const effectiveWeight = item.weight / totalWeight;
+    return {
+      ...item,
+      effectiveWeight,
+      contribution: item.value * effectiveWeight
+    };
+  });
+
+  return {
+    value: components.reduce((sum, item) => sum + item.contribution, 0),
+    components,
+    excluded: items
+      .filter((item) => !Number.isFinite(item.value) || item.weight <= 0)
+      .map((item) => item.label),
+    configured: items.map((item) => ({ label: item.label, weight: item.weight })),
+    crossChecks
+  };
+}
+
+function formatBlendWeight(weight) {
+  const percentage = weight * 100;
+  const digits = Math.abs(percentage - Math.round(percentage)) < 0.05 ? 0 : 1;
+  return `${formatDecimal(percentage, digits)}%`;
+}
+
+function describeValuationBlend(blend, currency = "SEK") {
+  if (!blend?.components?.length) return "No valuation model currently has a usable value";
+  const contributions = blend.components
+    .map((item) => `${formatBlendWeight(item.effectiveWeight)} ${item.label} = ${formatCurrency(item.contribution, currency)}`)
+    .join(" + ");
+  const exclusions = blend.excluded?.length
+    ? ` ${blend.excluded.join(" and ")}: excluded because no usable value is available.`
+    : "";
+  const configuredWeights = blend.excluded?.length && blend.configured?.length
+    ? ` Remaining weights are rebalanced from ${blend.configured
+      .map((item) => `${formatBlendWeight(item.weight)} ${item.label}`)
+      .join(", ")}.`
+    : "";
+  const crossChecks = blend.crossChecks?.length
+    ? ` ${blend.crossChecks.join(" and ")}: 0% cross-checks; they do not change the intrinsic value.`
+    : "";
+  return `${contributions}.${exclusions}${configuredWeights}${crossChecks}`;
 }
 
 function getBookValuePerShare(company) {
@@ -1389,17 +1440,20 @@ function calculateOperatingModel(company, scenario) {
   const reverseBurdenScore = Number.isFinite(reverse.value)
     ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
     : 50;
+  const currency = company.currency ?? "SEK";
+  const valuationBlend = buildValuationBlend([
+    { label: "DCF", value: dcf.value, weight: 0.45 },
+    { label: "P/E", value: peValue, weight: 0.25 },
+    { label: "EV/EBITDA", value: ebitdaValue, weight: 0.3 }
+  ]);
 
   return {
     dcf,
     peValue,
     ebitdaValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: dcf.value, weight: 0.45 },
-      { value: peValue, weight: 0.25 },
-      { value: ebitdaValue, weight: 0.3 }
-    ]),
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "DCF value",
     primaryValue: dcf.value,
     secondaryLabel: "P/E value",
@@ -1409,8 +1463,8 @@ function calculateOperatingModel(company, scenario) {
     reverseLabel: "Reverse DCF",
     reverseValue: reverse.label,
     reverseSub: `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`,
-    valueDescription: Number.isFinite(dcf.value) || Number.isFinite(peValue) || Number.isFinite(ebitdaValue)
-      ? `${formatCurrency(dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(peValue, company.currency ?? "SEK")} P/E | ${formatCurrency(ebitdaValue, company.currency ?? "SEK")} EV/EBITDA`
+    valueDescription: Number.isFinite(valuationBlend.value)
+      ? describeValuationBlend(valuationBlend, currency)
       : "Needs FCF, EPS or EBITDA inputs",
     modelSupportScore: reverseBurdenScore,
     modelWarning: "",
@@ -1436,15 +1490,17 @@ function calculateBankModel(company, scenario) {
   const currentPb = bookValuePerShare && bookValuePerShare > 0 ? price / bookValuePerShare : NaN;
   const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
   const roeSpread = Number.isFinite(roe) ? roe - costOfEquity * 100 : NaN;
+  const valuationBlend = buildValuationBlend([
+    { label: "P/B", value: pbValue, weight: 0.65 },
+    { label: "P/E", value: peValue, weight: 0.35 }
+  ]);
 
   return {
     dcf: { value: NaN, flows: [], error: "" },
     peValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: pbValue, weight: 0.65 },
-      { value: peValue, weight: 0.35 }
-    ]),
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "P/B value",
     primaryValue: pbValue,
     secondaryLabel: "P/E value",
@@ -1456,8 +1512,8 @@ function calculateBankModel(company, scenario) {
     reverseLabel: "ROE spread",
     reverseValue: formatPercent(roeSpread, 1),
     reverseSub: "Versus required return",
-    valueDescription: Number.isFinite(pbValue)
-      ? `${formatDecimal(justifiedPb, 1)}x justified P/B | ${formatCurrency(peValue, currency)} P/E`
+    valueDescription: Number.isFinite(valuationBlend.value)
+      ? describeValuationBlend(valuationBlend, currency)
       : "Needs book equity per share and ROE",
     modelSupportScore: Number.isFinite(roeSpread) ? clamp(50 + roeSpread * 5, 0, 100) : 50,
     modelWarning: Number.isFinite(pbValue) ? "" : "Add book value per share and ROE for the bank model.",
@@ -1473,15 +1529,17 @@ function calculateInvestmentModel(company, scenario) {
   const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
   const peUseful = Number.isFinite(peValue) && Number.isFinite(currentPe) && currentPe > 0 && currentPe < 45;
   const navDiscount = navPerShare && navPerShare > 0 ? ((navPerShare - price) / navPerShare) * 100 : NaN;
+  const valuationBlend = buildValuationBlend([
+    { label: "NAV", value: navPerShare, weight: 0.8 },
+    { label: "P/E", value: peUseful ? peValue : NaN, weight: 0.2 }
+  ]);
 
   return {
     dcf: { value: NaN, flows: [], error: "" },
     peValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: navPerShare, weight: 0.8 },
-      { value: peUseful ? peValue : NaN, weight: 0.2 }
-    ]),
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "NAV value",
     primaryValue: navPerShare,
     secondaryLabel: "P/E value",
@@ -1491,8 +1549,8 @@ function calculateInvestmentModel(company, scenario) {
     reverseLabel: "NAV discount",
     reverseValue: formatPercent(navDiscount, 1),
     reverseSub: "Discount/premium to NAV",
-    valueDescription: Number.isFinite(navPerShare)
-      ? `${formatCurrency(navPerShare, currency)} NAV | ${peUseful ? `${formatCurrency(peValue, currency)} P/E` : "P/E not useful"}`
+    valueDescription: Number.isFinite(valuationBlend.value)
+      ? describeValuationBlend(valuationBlend, currency)
       : "Needs NAV per share",
     modelSupportScore: Number.isFinite(navDiscount) ? clamp(50 + navDiscount * 1.2, 0, 100) : 50,
     modelWarning: Number.isFinite(navPerShare) ? "" : "Add NAV per share for the investment-company model.",
@@ -1708,10 +1766,10 @@ function calculateCyclicalModel(company, scenario) {
   const ebitdaValue = calculateEbitdaValue(company, scenario, true);
   const peValue = calculateCyclicalPeCrossCheck(company, scenario);
   const normalizedFcfYield = price > 0 && Number.isFinite(normalizedFcf) ? (normalizedFcf / price) * 100 : NaN;
-  const crossCheckText = [
-    Number.isFinite(ebitdaValue) ? `${formatCurrency(ebitdaValue, currency)} normalized EV/EBITDA` : "EV/EBITDA awaiting normalized EBITDA",
-    Number.isFinite(peValue) ? `${formatCurrency(peValue, currency)} normalized P/E` : "P/E awaiting normalized EPS"
-  ].join(" | ");
+  const valuationBlend = buildValuationBlend(
+    [{ label: "mid-cycle DCF", value: dcf.value, weight: 1 }],
+    ["normalized EV/EBITDA", "normalized P/E"]
+  );
 
   return {
     dcf,
@@ -1719,7 +1777,8 @@ function calculateCyclicalModel(company, scenario) {
     ebitdaValue,
     currentPe,
     // Cross-checks are deliberately not blended into the headline value.
-    blendedValue: dcf.value,
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "Mid-cycle DCF",
     primaryValue: dcf.value,
     secondaryLabel: "Normalized EV/EBITDA",
@@ -1730,7 +1789,7 @@ function calculateCyclicalModel(company, scenario) {
     reverseValue: formatPercent(normalizedFcfYield, 1),
     reverseSub: "Median official-report cash flow / current price",
     valueDescription: Number.isFinite(dcf.value)
-      ? `${formatCurrency(dcf.value, currency)} mid-cycle DCF | ${crossCheckText}`
+      ? describeValuationBlend(valuationBlend, currency)
       : `Mid-cycle DCF unavailable: ${dcf.error}`,
     modelSupportScore: dcf.normalization?.valid ? clamp(45 + dcf.normalization.observations * 6, 0, 90) : 20,
     modelWarning: dcf.error,
