@@ -45,6 +45,13 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('{ label: "DCF", value: dcf.value, weight: 0.45 }', self.javascript)
         self.assertIn('{ label: "P/E", value: peValue, weight: 0.25 }', self.javascript)
         self.assertIn('{ label: "EV/EBITDA", value: ebitdaValue, weight: 0.3 }', self.javascript)
+        self.assertIn("function renderValuationBreakdown", self.javascript)
+        self.assertIn('class="valuation-model-name"', self.javascript)
+        self.assertIn('class="valuation-model-weight"', self.javascript)
+        self.assertIn('class="valuation-model-contribution"', self.javascript)
+        self.assertIn('component ? formatBlendWeight(component.effectiveWeight) : "0%"', self.javascript)
+        self.assertIn('component ? formatCurrency(component.contribution, currency) : "–"', self.javascript)
+        self.assertIn('class="valuation-breakdown"', self.html)
 
     def test_equity_fcf_dcf_does_not_subtract_net_debt_twice(self):
         dcf_function = self.javascript.split("function calculateDcf", 1)[1].split("function calculatePeValue", 1)[0]

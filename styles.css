@@ -655,6 +655,63 @@ input::placeholder { color: var(--faint); }
   color: var(--muted);
 }
 
+.valuation-breakdown {
+  display: grid;
+  gap: 5px;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.valuation-model-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(66px, auto);
+  align-items: baseline;
+  gap: 8px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(134, 163, 204, 0.14);
+}
+
+.valuation-model-row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.valuation-model-name {
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.valuation-model-weight {
+  color: var(--accent);
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.valuation-model-contribution {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.valuation-model-row.is-excluded .valuation-model-name,
+.valuation-model-row.is-excluded .valuation-model-weight,
+.valuation-model-row.is-excluded .valuation-model-contribution {
+  color: var(--faint);
+}
+
+.valuation-breakdown.is-message {
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
 .ticker-card-foot {
   display: flex;
   flex-wrap: wrap;

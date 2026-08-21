@@ -1396,6 +1396,35 @@ function describeValuationBlend(blend, currency = "SEK") {
   return `${contributions}.${exclusions}${configuredWeights}${crossChecks}`;
 }
 
+function renderValuationBreakdown(model, currency = "SEK") {
+  const blend = model?.valuationBlend;
+  const configured = Array.isArray(blend?.configured) ? blend.configured : [];
+  if (!configured.length) {
+    elements.metricValueSub.className = "valuation-breakdown is-message";
+    elements.metricValueSub.textContent = model?.valueDescription ?? "No valuation available";
+    return;
+  }
+
+  const componentsByLabel = new Map(blend.components.map((item) => [item.label, item]));
+  elements.metricValueSub.className = "valuation-breakdown";
+  elements.metricValueSub.innerHTML = configured.map((item) => {
+    const component = componentsByLabel.get(item.label);
+    const weight = component ? formatBlendWeight(component.effectiveWeight) : "0%";
+    const contribution = component ? formatCurrency(component.contribution, currency) : "–";
+    const rowClass = component ? "valuation-model-row" : "valuation-model-row is-excluded";
+    const explanation = component
+      ? `${item.label}: ${weight} effective weight contributes ${contribution} to intrinsic value`
+      : `${item.label}: excluded because no usable value is available`;
+    return `
+      <div class="${rowClass}" title="${escapeHtml(explanation)}" aria-label="${escapeHtml(explanation)}">
+        <span class="valuation-model-name">${escapeHtml(item.label)}</span>
+        <span class="valuation-model-weight">${escapeHtml(weight)}</span>
+        <strong class="valuation-model-contribution">${escapeHtml(contribution)}</strong>
+      </div>
+    `;
+  }).join("");
+}
+
 function getBookValuePerShare(company) {
   return numberOrNull(company.bookValuePerShare) ?? numberOrNull(company.fundamentals?.equityPerShare);
 }
@@ -3088,7 +3117,7 @@ function renderMetrics() {
 
   const calc = calculateCompany(company);
   elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
-  elements.metricValueSub.textContent = calc.model.valueDescription;
+  renderValuationBreakdown(calc.model, company.currency ?? "SEK");
   elements.heroCurrentPrice.textContent = formatTickerMoney(asNumber(company.marketPrice), company.currency ?? "SEK");
   elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
   elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
