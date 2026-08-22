@@ -68,6 +68,40 @@ class MarketScreenerCurrencyTests(unittest.TestCase):
         self.assertEqual(parsed["currency"], "USD")
         self.assertEqual(parsed["unit"], "million")
 
+    def test_parser_reads_three_separate_eps_estimates_and_currency(self):
+        markdown = """
+| Fiscal Period: December | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 | 2027 | 2028 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Free Cash Flow (FCF) | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 |
+1 USD in Million
+| Fiscal Period: December | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 | 2027 | 2028 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| EPS | 1.0 | 1.1 | 1.2 | 1.3 | 1.4 | 1.6 | 1.8 | 2.0 |
+1 USD
+"""
+        parsed = parse_finances(markdown)
+        self.assertEqual(parsed["epsCurrency"], "USD")
+        self.assertEqual(
+            parsed["epsSeries"][-3:],
+            [
+                {"year": 2026, "eps": 1.6},
+                {"year": 2027, "eps": 1.8},
+                {"year": 2028, "eps": 2.0},
+            ],
+        )
+
+    def test_parser_accepts_eps_when_fcf_is_not_published(self):
+        markdown = """
+| Fiscal Period: December | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 | 2027 | 2028 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| EPS | 1.0 | 1.1 | 1.2 | 1.3 | 1.4 | 1.6 | 1.8 | 2.0 |
+1 SEK
+"""
+        parsed = parse_finances(markdown)
+        self.assertEqual(parsed["series"], [])
+        self.assertEqual(parsed["epsCurrency"], "SEK")
+        self.assertEqual(len(parsed["epsSeries"]), 8)
+
 
 if __name__ == "__main__":
     unittest.main()

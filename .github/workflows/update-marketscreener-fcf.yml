@@ -1,4 +1,4 @@
-name: Update MarketScreener FCF
+name: Update MarketScreener forecasts
 
 on:
   schedule:
@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Scrape MarketScreener free cash flow
+      - name: Scrape MarketScreener FCF and EPS forecasts
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}

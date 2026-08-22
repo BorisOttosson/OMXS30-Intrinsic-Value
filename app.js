@@ -438,6 +438,7 @@ function createDefaultCompanies() {
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
       consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" },
       growth5yYears: null,
       fcfSeries: null,
       growth5ySource: null,
@@ -494,7 +495,8 @@ function mergeWithSeed(savedCompanies) {
       consensusGrowth: null,
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
-      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" }
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" }
     };
     merged.targetPe = getCurrentPeRatio(merged);
     return merged;
@@ -721,6 +723,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       consensusGrowthSource: null,
       consensusGrowthAsOf: null,
       consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" },
       // Base-case target P/E is always anchored to the current trailing P/E
       // displayed beside the share price.
       targetPe: currentPe,
@@ -1317,79 +1320,67 @@ function calculateDcf(company, scenario = "base", growthOverride = null) {
   };
 }
 
-function getPeEarningsInput(company) {
+function getPeSuitability(company, audit) {
   const category = normalizeCompanyType(company.companyType, company.ticker);
   if (category === "investment") {
-    return {
-      value: null,
-      label: "Not applicable",
-      suitability: "P/E is not used for investment companies because NAV is the more representative equity measure."
-    };
+    return "P/E is not used for investment companies because NAV is the more representative equity measure.";
   }
   if (category === "cyclical") {
-    const normalizedEps = numberOrNull(company.normalizedEpsPerShare);
-    return normalizedEps !== null && normalizedEps > 0
-      ? {
-          value: normalizedEps,
-          label: "Normalized mid-cycle EPS",
-          suitability: "Suitable only because an explicit normalized mid-cycle EPS is available."
-        }
-      : {
-          value: null,
-          label: "Normalized mid-cycle EPS unavailable",
-          suitability: "P/E is not shown for this cyclical company until normalized mid-cycle EPS is supported by report evidence."
-        };
+    return audit?.valid
+      ? "For this cyclical company, analyst EPS estimates are shown only as a 0%-weight cross-check; the cycle-normalized model remains primary."
+      : "P/E is unavailable until three positive, traceable analyst EPS estimates are present.";
   }
-  const eps = numberOrNull(company.eps);
-  if (eps === null || eps <= 0) {
-    return {
-      value: null,
-      label: "Positive EPS unavailable",
-      suitability: "P/E is not meaningful when earnings per share are zero, negative or unavailable."
-    };
+  if (!audit?.valid) {
+    return "P/E is unavailable until three positive, traceable analyst EPS estimates are present.";
   }
-  return {
-    value: eps,
-    label: "Official trailing EPS",
-    suitability: category === "bank"
-      ? "P/E can be informative for a profitable bank, but the dashboard keeps P/B as the primary bank model."
-      : "Suitable as a secondary valuation model when current earnings are representative."
-  };
+  if (category === "bank") {
+    return "Forward P/E can be informative for a bank, but the dashboard keeps P/B as the primary bank model.";
+  }
+  return numberOrNull(company.eps) !== null && Number(company.eps) <= 0
+    ? "This is a higher-risk turnaround valuation because current EPS is non-positive; the model uses only the three positive analyst estimates."
+    : "Suitable as a secondary valuation model because three positive analyst EPS estimates are available.";
 }
 
 function calculateForwardPeModel(company, scenario = "base") {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
-  const earnings = getPeEarningsInput(company);
-  const eps = earnings.value;
-  const assumption = getSelectedGrowthAssumption(company);
-  const baseGrowth = assumption.value;
-  const growth = baseGrowth === null ? NaN : baseGrowth + adjustment.growth;
+  const audit = company.consensusEpsAudit ?? getMarketScreenerEpsForecastAudit(marketScreenerFcf?.[company.id]);
+  const suitability = getPeSuitability(company, audit);
   const currentPe = getCurrentPeRatio(company);
   const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
   const requiredReturn = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const years = 5;
 
-  if (eps === null || eps <= 0) {
-    return { value: NaN, flows: [], error: earnings.suitability, earnings, assumption };
-  }
-  if (!Number.isFinite(growth) || growth <= -100) {
-    return { value: NaN, flows: [], error: `${assumption.shortLabel} is unavailable as the EPS-growth assumption.`, earnings, assumption };
+  if (!audit?.valid) {
+    return { value: NaN, flows: [], error: audit?.reason ?? suitability, audit, suitability };
   }
   if (!Number.isFinite(targetPe) || targetPe <= 0) {
-    return { value: NaN, flows: [], error: "A positive current P/E is required as the terminal multiple anchor.", earnings, assumption };
+    return { value: NaN, flows: [], error: "A positive current P/E is required as the terminal multiple anchor.", audit, suitability };
   }
   if (!Number.isFinite(requiredReturn) || requiredReturn <= -1) {
-    return { value: NaN, flows: [], error: "A valid required equity return is required.", earnings, assumption };
+    return { value: NaN, flows: [], error: "A valid required equity return is required.", audit, suitability };
   }
 
-  const growthRate = growth / 100;
-  const flows = [];
-  for (let year = 1; year <= years; year += 1) {
+  const extensionGrowth = audit.growth + adjustment.growth / 100;
+  if (!Number.isFinite(extensionGrowth) || extensionGrowth <= -1) {
+    return { value: NaN, flows: [], error: "The EPS CAGR extension is invalid.", audit, suitability };
+  }
+
+  const flows = audit.forecastRows.map((row) => ({
+    year: row.year,
+    label: `${row.year}E`,
+    eps: row.epsSek,
+    sourceEps: row.eps,
+    source: "Published analyst consensus EPS"
+  }));
+  let extendedEps = flows.at(-1).eps;
+  for (let offset = 1; offset <= 2; offset += 1) {
+    extendedEps *= 1 + extensionGrowth;
     flows.push({
-      year,
-      label: `Y${year}E`,
-      eps: eps * ((1 + growthRate) ** year),
-      source: `${assumption.shortLabel} used as EPS-growth assumption`
+      year: audit.lastEstimateYear + offset,
+      label: `${audit.lastEstimateYear + offset}E`,
+      eps: extendedEps,
+      sourceEps: extendedEps / audit.fx.rateToSek,
+      source: "EPS forecast CAGR extension"
     });
   }
   const forecastEps = flows.at(-1).eps;
@@ -1400,17 +1391,18 @@ function calculateForwardPeModel(company, scenario = "base") {
   return {
     value,
     flows,
-    startingEps: eps,
     forecastEps,
     terminalPrice,
     discountFactor,
     targetPe,
     currentPe,
-    growth,
+    publishedGrowth: audit.growth * 100,
+    extensionGrowth: extensionGrowth * 100,
     requiredReturn,
     years,
-    earnings,
-    assumption,
+    startingEps: numberOrNull(company.eps),
+    audit,
+    suitability,
     error: ""
   };
 }
@@ -2336,16 +2328,94 @@ function getMarketScreenerForecastAudit(row) {
   };
 }
 
+function getMarketScreenerEpsForecastAudit(row) {
+  if (!row) return { valid: false, reason: "No MarketScreener EPS estimates are available" };
+  if (!row.sourceUrl || !row.retrievedAt) {
+    return { valid: false, reason: "The EPS estimates are missing their source link or retrieval date" };
+  }
+
+  const ageDays = daysSince(row.retrievedAt);
+  if (ageDays === null || ageDays < -1) {
+    return { valid: false, reason: "The EPS estimates have an invalid retrieval date" };
+  }
+  if (ageDays > 21) {
+    return { valid: false, reason: `The MarketScreener EPS snapshot is stale (${ageDays} days old)` };
+  }
+
+  const forecast = Array.isArray(row.epsForecast)
+    ? row.epsForecast.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.eps) !== null)
+    : [];
+  forecast.sort((left, right) => Number(left.year) - Number(right.year));
+  if (forecast.length < 3) {
+    return { valid: false, reason: "Three annual MarketScreener EPS estimates are required" };
+  }
+
+  const sourceRows = forecast.slice(0, 3).map((item) => ({
+    year: Number(item.year),
+    eps: Number(item.eps)
+  }));
+  const forecastYears = sourceRows.map((item) => item.year);
+  if (!forecastYears.every((year, index) => index === 0 || year === forecastYears[index - 1] + 1)) {
+    return { valid: false, reason: "The three EPS estimate years must be consecutive" };
+  }
+  const retrievedYear = new Date(row.retrievedAt).getUTCFullYear();
+  if (forecastYears[0] < retrievedYear) {
+    return { valid: false, reason: "The first EPS estimate year is already in the past" };
+  }
+  if (sourceRows.some((item) => item.eps <= 0)) {
+    return { valid: false, reason: "The forward P/E model requires positive EPS in all three estimate years" };
+  }
+
+  const periods = sourceRows.length - 1;
+  const growth = (sourceRows[sourceRows.length - 1].eps / sourceRows[0].eps) ** (1 / periods) - 1;
+  const storedGrowth = numberOrNull(row.consensusEpsCagr);
+  if (storedGrowth === null || Math.abs(storedGrowth - growth) > 0.00001) {
+    return { valid: false, reason: "The stored EPS forecast CAGR does not reconcile to the three published EPS estimates" };
+  }
+
+  const reportedCurrency = row.reportedCurrency ?? row.currency;
+  const fx = getFxAudit(reportedCurrency);
+  if (!fx.valid) {
+    return { valid: false, reason: `EPS currency conversion unavailable: ${fx.reason}`, fx };
+  }
+  const rateToSek = fx.rateToSek;
+  const forecastRows = sourceRows.map((item) => ({
+    ...item,
+    epsSek: item.eps * rateToSek
+  }));
+
+  return {
+    valid: true,
+    growth,
+    periods,
+    sourceRows,
+    forecastRows,
+    firstEstimateYear: forecastRows[0].year,
+    lastEstimateYear: forecastRows[forecastRows.length - 1].year,
+    reportedCurrency,
+    displayCurrency: "SEK",
+    fx,
+    currencyEvidence: row.currencyEvidence ?? null,
+    sourceUrl: row.sourceUrl,
+    retrievedAt: row.retrievedAt,
+    ageDays
+  };
+}
+
 function applyMarketScreenerForecastGrowth(companies, rows) {
   return companies.map((company) => {
     const category = normalizeCompanyType(company.companyType, company.ticker);
+    const epsAudit = category === "investment"
+      ? { valid: false, notApplicable: true, reason: "NAV is used instead of P/E for investment companies" }
+      : getMarketScreenerEpsForecastAudit(rows?.[company.id]);
     if (category === "bank" || category === "investment") {
       return {
         ...company,
         consensusGrowth: null,
         consensusGrowthSource: "Not applicable for this company type",
         consensusGrowthAsOf: null,
-        consensusGrowthAudit: { valid: false, notApplicable: true }
+        consensusGrowthAudit: { valid: false, notApplicable: true },
+        consensusEpsAudit: epsAudit
       };
     }
 
@@ -2355,7 +2425,8 @@ function applyMarketScreenerForecastGrowth(companies, rows) {
       consensusGrowth: audit.valid ? audit.growth * 100 : null,
       consensusGrowthSource: audit.valid ? "MarketScreener three-year analyst-consensus FCF forecast" : null,
       consensusGrowthAsOf: audit.valid ? audit.retrievedAt : null,
-      consensusGrowthAudit: audit
+      consensusGrowthAudit: audit,
+      consensusEpsAudit: epsAudit
     };
   });
 }
@@ -3083,9 +3154,9 @@ function getScenarioExplanation(scenario = state.scenario, model = state.analysi
     return "Base solves the five-year growth rate implied by today’s price and the saved required equity return.";
   }
   if (model === "pe") {
-    if (scenario === "bull") return `Bull uses ${growthLabel} +2.0 pp as the EPS-growth assumption, current P/E +2.0x and a required equity return 0.7 pp lower.`;
-    if (scenario === "bear") return `Bear uses ${growthLabel} -2.0 pp as the EPS-growth assumption, current P/E -2.0x and a required equity return 1.0 pp higher.`;
-    return `Base projects EPS for five years using ${growthLabel}, applies the current P/E as the year-five multiple and discounts the result at the saved required equity return.`;
+    if (scenario === "bull") return "Bull keeps the three published EPS estimates, extends years 4–5 at their EPS CAGR +2.0 pp, uses current P/E +2.0x and lowers required equity return by 0.7 pp.";
+    if (scenario === "bear") return "Bear keeps the three published EPS estimates, extends years 4–5 at their EPS CAGR −2.0 pp, uses current P/E −2.0x and raises required equity return by 1.0 pp.";
+    return "Base uses three separately sourced analyst EPS estimates, extends years 4–5 at their EPS CAGR, applies the current P/E in year 5 and discounts the terminal price to today.";
   }
   if (usesConsensus) {
     if (scenario === "bull") return "Bull keeps the three published FCF estimates, extends years 4–5 at forecast CAGR +2.0 pp and lowers required equity return by 0.7 pp.";
@@ -3127,9 +3198,20 @@ function getAnalysisPresentation(company) {
 
   if (state.analysisModel === "pe") {
     const pe = calculateForwardPeModel(company, scenario);
-    const suitability = pe.earnings?.suitability ?? "P/E suitability cannot be assessed from current inputs.";
-    const growthSource = pe.assumption?.label ?? growthAssumption.label;
-    const growthProxyNote = "The selected dashboard growth forecast is used as an explicit EPS-growth assumption. It is not presented as a separately sourced analyst EPS forecast. The P/E multiple is applied only in year 5, and that terminal price is discounted back to today.";
+    const suitability = pe.suitability ?? "P/E suitability cannot be assessed from current inputs.";
+    const audit = pe.audit;
+    const publishedEstimates = audit?.valid
+      ? audit.forecastRows.map((row) => {
+          const source = `${formatDecimal(row.eps, 3)} ${audit.reportedCurrency}/share`;
+          const sek = `${formatDecimal(row.epsSek, 2)} SEK/share`;
+          return `${row.year}E ${audit.reportedCurrency === "SEK" ? sek : `${source} = ${sek}`}`;
+        }).join(" · ")
+      : "Unavailable";
+    const fxDescription = audit?.valid
+      ? (audit.fx.noConversion
+          ? "No conversion — estimates and share price are in SEK"
+          : `1 ${audit.reportedCurrency} = ${formatDecimal(audit.fx.rateToSek, 5)} SEK · Sveriges Riksbank ${audit.fx.rateDate}`)
+      : "Unavailable";
     return {
       key: "pe",
       title: `Forward P/E · ${scenarioLabel}`,
@@ -3140,12 +3222,15 @@ function getAnalysisPresentation(company) {
         : pe.error,
       chartUnit: `${currency} EPS`,
       modelTitle: "P/E — Forward Earnings Value",
-      modelDescription: `${suitability} ${growthProxyNote}`,
-      formula: "EPS₅ = EPS₀ × (1 + growth)⁵; value today = EPS₅ × target P/E ÷ (1 + required equity return)⁵",
+      modelDescription: `${suitability} Years 1–3 come directly from the displayed analyst EPS estimates. Years 4–5 extend their EPS CAGR. FCF growth is never used in this model.`,
+      sourceUrl: audit?.valid ? audit.sourceUrl : null,
+      sourceLabel: audit?.valid ? `MarketScreener EPS estimates · retrieved ${formatShortDate(audit.retrievedAt)}` : null,
+      formula: "EPS₄–₅ = final published EPS × (1 + EPS forecast CAGR); value today = EPS₅ × target P/E ÷ (1 + required equity return)⁵",
       assumptions: [
-        ["Starting earnings", pe.startingEps ? `${formatPerShareMoney(pe.startingEps, currency)} · ${pe.earnings.label}` : pe.earnings?.label ?? "Unavailable"],
-        ["EPS-growth assumption", Number.isFinite(pe.growth) ? `${formatPercent(pe.growth, 1)} · ${growthSource}` : "Unavailable"],
-        ["Forecast period", "5 years"],
+        ["Published EPS estimates", publishedEstimates],
+        ["Published EPS CAGR", Number.isFinite(pe.publishedGrowth) ? formatPercent(pe.publishedGrowth, 1) : "Unavailable"],
+        ["Years 4–5 extension", Number.isFinite(pe.extensionGrowth) ? `${formatPercent(pe.extensionGrowth, 1)} EPS CAGR` : "Unavailable"],
+        ["Currency conversion", fxDescription],
         ["Target P/E in year 5", Number.isFinite(pe.targetPe) ? `${formatDecimal(pe.targetPe, 1)}x` : "Unavailable"],
         ["Required equity return", Number.isFinite(pe.requiredReturn) ? formatPercent(pe.requiredReturn * 100, 1) : "Unavailable"],
         ["Suitability", suitability]
@@ -3153,7 +3238,7 @@ function getAnalysisPresentation(company) {
       metrics: [
         ["Present value / share", formatTickerMoney(pe.value, currency), differenceText(pe.value)],
         ["Current price", formatTickerMoney(price, currency), "Market price input"],
-        ["Forecast EPS · Year 5", Number.isFinite(pe.forecastEps) ? formatPerShareMoney(pe.forecastEps, currency) : "-", Number.isFinite(pe.startingEps) ? `From ${formatPerShareMoney(pe.startingEps, currency)} starting EPS` : "Needs representative EPS"],
+        ["Forecast EPS · Year 5", Number.isFinite(pe.forecastEps) ? formatPerShareMoney(pe.forecastEps, currency) : "-", Number.isFinite(pe.extensionGrowth) ? `Years 4–5 extended at ${formatPercent(pe.extensionGrowth, 1)} EPS CAGR` : "Needs three EPS estimates"],
         ["Year-5 target P/E", Number.isFinite(pe.targetPe) ? `${formatDecimal(pe.targetPe, 1)}x` : "-", state.scenario === "base" ? "Current trailing P/E anchor" : `${formatDecimal(adjustment.targetPe, 1)}x scenario adjustment`]
       ],
       chartValues: [
@@ -3615,8 +3700,8 @@ function renderCyclicalAudit(company) {
     : "Unavailable: normalized EBITDA is not explicitly supported; current EBITDA is not substituted.";
   elements.cyclicalPeCheck.textContent = formatTickerMoney(peValue, currency);
   elements.cyclicalPeNote.textContent = Number.isFinite(peValue)
-    ? "Normalized EPS is projected for five years, valued at the terminal P/E and discounted to today; shown only as a cross-check."
-    : "Unavailable: normalized EPS is not explicitly supported; current EPS is not substituted.";
+    ? "Three published analyst EPS estimates plus a two-year EPS-CAGR extension; valued at the terminal P/E and discounted to today. This is a 0%-weight cross-check."
+    : "Unavailable: three positive, traceable analyst EPS estimates are required; FCF growth is never substituted.";
   elements.cyclicalSubtype.textContent = subtype.label;
   elements.cyclicalSubtypeNote.textContent = subtype.note;
 }
@@ -3642,15 +3727,17 @@ function renderAnalysis(company) {
   elements.analysisChartSubtitle.textContent = presentation.chartSubtitle;
   elements.analysisChartUnit.textContent = presentation.chartUnit;
   elements.analysisModelTitle.textContent = presentation.modelTitle;
-  elements.analysisModelDescription.textContent = presentation.modelDescription;
+  elements.analysisModelDescription.innerHTML = `${escapeHtml(presentation.modelDescription)}${presentation.sourceUrl
+    ? ` <a href="${escapeHtml(presentation.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(presentation.sourceLabel ?? "Open source")}</a>`
+    : ""}`;
   elements.analysisFormula.textContent = presentation.formula;
   elements.analysisAssumptions.innerHTML = presentation.assumptions
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
   if (state.analysisModel === "pe") {
-    elements.scenarioBaseCopy.textContent = "Projects EPS for five years using the selected Growth forecast, applies the current P/E in year 5 and discounts the terminal price at the saved required equity return.";
-    elements.scenarioBullCopy.textContent = "EPS growth +2.0 pp, year-5 P/E +2.0x and required equity return −0.7 pp.";
-    elements.scenarioBearCopy.textContent = "EPS growth −2.0 pp, year-5 P/E −2.0x and required equity return +1.0 pp.";
+    elements.scenarioBaseCopy.textContent = "Uses the three published analyst EPS estimates, extends years 4–5 at their EPS CAGR, applies the current P/E in year 5 and discounts the result.";
+    elements.scenarioBullCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR +2.0 pp, year-5 P/E +2.0x and required return −0.7 pp.";
+    elements.scenarioBearCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR −2.0 pp, year-5 P/E −2.0x and required return +1.0 pp.";
   } else if (getSpecializedValuation(company, "boliden-commodity-cycle")) {
     elements.scenarioBaseCopy.textContent = "Uses Boliden’s long-term prices, a 7.5x normalized EV/EBITDA assumption and the selected years 1–3 forecast; years 4–5 fade to full-cycle cash flow.";
     elements.scenarioBullCopy.textContent = "Uses an 8.0x normalized EV/EBITDA assumption, FCF growth +2.0 pp and required return −0.7 pp.";

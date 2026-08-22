@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Scrape MarketScreener free-cash-flow history and analyst forecasts for OMXS30.
+"""Scrape MarketScreener FCF and EPS history and analyst forecasts for OMXS30.
 
-MarketScreener's /finances/ page carries, in one table, the reported annual FCF
-(typically 5 fiscal years) plus the analyst consensus for the next three years.
+MarketScreener's /finances/ page carries reported annual FCF and EPS plus the
+analyst consensus for the next three fiscal years.
 The site sits behind Akamai bot protection, so plain requests from a datacenter
 IP get a 403; the fetch therefore goes through Firecrawl.
 
@@ -162,13 +162,18 @@ def parse_number(cell: str) -> float | None:
 
 
 def parse_finances(markdown: str) -> dict[str, Any]:
-    """Pull the annual Free Cash Flow row and its fiscal-year header."""
+    """Pull annual FCF and EPS rows with their own fiscal-year headers."""
     lines = markdown.split("\n")
-    years: list[str] = []
+    current_years: list[str] = []
+    fcf_years: list[str] = []
+    eps_years: list[str] = []
     fcf_row: list[str] | None = None
-    currency: str | None = None
+    eps_row: list[str] | None = None
+    fcf_currency: str | None = None
+    eps_currency: str | None = None
     unit: str | None = None
     fcf_line_index: int | None = None
+    eps_line_index: int | None = None
 
     for line_index, line in enumerate(lines):
         if not line.lstrip().startswith("|"):
@@ -182,17 +187,25 @@ def parse_finances(markdown: str) -> dict[str, Any]:
         if "Fiscal Period" in label:
             candidate = [c for c in cells[1:] if re.fullmatch(r"(19|20)\d{2}", c)]
             if len(candidate) >= 4:  # annual header, not the quarterly one
-                years = candidate
+                current_years = candidate
             continue
 
-        if re.match(r"^Free Cash Flow", label, re.I) and years:
+        if re.match(r"^Free Cash Flow", label, re.I) and current_years:
             values = [c for c in cells[1:] if c not in {"", "1"}]
-            if len(values) >= len(years):
-                fcf_row = values[: len(years)]
+            if len(values) >= len(current_years):
+                fcf_years = list(current_years)
+                fcf_row = values[: len(current_years)]
                 fcf_line_index = line_index
 
-    if not years or not fcf_row:
-        raise RuntimeError("free cash flow row not found")
+        if re.match(r"^EPS(?:\s|\^|$)", label, re.I) and current_years:
+            values = [c for c in cells[1:] if c not in {"", "1"}]
+            if len(values) >= len(current_years):
+                eps_years = list(current_years)
+                eps_row = values[: len(current_years)]
+                eps_line_index = line_index
+
+    if not fcf_row and not eps_row:
+        raise RuntimeError("neither free cash flow nor EPS row was found")
 
     # MarketScreener puts the unit footnote immediately below the relevant
     # table. Search locally around the FCF row so an unrelated page currency
@@ -205,23 +218,46 @@ def parse_finances(markdown: str) -> dict[str, Any]:
             re.I,
         )
         if match:
-            currency = match.group(1).upper()
+            fcf_currency = match.group(1).upper()
             unit = match.group(2).lower()
 
-    series = []
-    for year, cell in zip(years, fcf_row):
-        series.append({"year": int(year), "fcf": parse_number(cell)})
+    # EPS is a per-share figure and has its own nearby currency footnote, such
+    # as "1 USD". Do not infer that currency from the FCF table.
+    if eps_line_index is not None:
+        nearby = "\n".join(lines[eps_line_index: eps_line_index + 10])
+        match = re.search(r"\b(SEK|EUR|USD|GBP|DKK|NOK|CHF)\b", nearby, re.I)
+        if match:
+            eps_currency = match.group(1).upper()
+
+    series = [
+        {"year": int(year), "fcf": parse_number(cell)}
+        for year, cell in zip(fcf_years, fcf_row or [])
+    ]
+    eps_series = [
+        {"year": int(year), "eps": parse_number(cell)}
+        for year, cell in zip(eps_years, eps_row or [])
+    ]
 
     return {
-        "currency": currency,
+        "currency": fcf_currency,
+        "epsCurrency": eps_currency,
         "unit": unit or "million",
         "series": series,
+        "epsSeries": eps_series,
     }
 
 
 def split_actual_forecast(series: list[dict[str, Any]], announcements: int | None = None) -> tuple[list, list]:
     """Reported years come first; MarketScreener appends 3 forecast years."""
     known = [row for row in series if row["fcf"] is not None]
+    if len(known) <= 3:
+        return known, []
+    return known[:-3], known[-3:]
+
+
+def split_eps_actual_forecast(series: list[dict[str, Any]]) -> tuple[list, list]:
+    """Reported EPS years come first; MarketScreener appends 3 estimates."""
+    known = [row for row in series if row["eps"] is not None]
     if len(known) <= 3:
         return known, []
     return known[:-3], known[-3:]
@@ -279,10 +315,13 @@ def apply_currency_evidence(
             "marketScreenerDetectedCurrency": existing_evidence.get(
                 "marketScreenerDetectedCurrency"
             ),
+            "marketScreenerDetectedEpsCurrency": existing_evidence.get(
+                "marketScreenerDetectedEpsCurrency"
+            ),
         }
     payload["currencyPolicy"] = (
-        "FCF values stay in the company's official reporting currency; "
-        "the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+        "FCF and EPS values stay in the company's official reporting currency; "
+        "the dashboard converts SEK display equivalents with a dated Sveriges Riksbank rate"
     )
     return payload
 
@@ -301,10 +340,15 @@ def build_record(
             f"MarketScreener FCF currency {parsed['currency']} conflicts with "
             f"official-report currency {reporting_currency}"
         )
+    if parsed["epsCurrency"] and parsed["epsCurrency"] != reporting_currency:
+        raise RuntimeError(
+            f"MarketScreener EPS currency {parsed['epsCurrency']} conflicts with "
+            f"official-report currency {reporting_currency}"
+        )
     actual, forecast = split_actual_forecast(parsed["series"])
-    if not actual and not forecast:
-        # Banks and other financials publish no free cash flow line on MarketScreener.
-        raise RuntimeError("no free cash flow values published for this company")
+    eps_actual, eps_forecast = split_eps_actual_forecast(parsed["epsSeries"])
+    if not actual and not forecast and not eps_actual and not eps_forecast:
+        raise RuntimeError("no FCF or EPS values published for this company")
 
 
 
@@ -318,6 +362,14 @@ def build_record(
             forecast[0]["fcf"],
             forecast[-1]["fcf"],
             len(forecast) - 1,
+        )
+
+    forecast_eps_cagr = None
+    if len(eps_forecast) >= 2:
+        forecast_eps_cagr = cagr(
+            eps_forecast[0]["eps"],
+            eps_forecast[-1]["eps"],
+            len(eps_forecast) - 1,
         )
 
     return {
@@ -336,6 +388,7 @@ def build_record(
             "sourceName": reporting_currency_evidence["sourceName"],
             "sourceUrl": reporting_currency_evidence["sourceUrl"],
             "marketScreenerDetectedCurrency": parsed["currency"],
+            "marketScreenerDetectedEpsCurrency": parsed["epsCurrency"],
         },
         "unit": parsed["unit"],
         "fcfHistory": actual,
@@ -346,6 +399,10 @@ def build_record(
         "historicalFcfCagrYears": max(len(actual) - 1, 0),
         "consensusFcfCagr": forecast_cagr,
         "consensusYears": [row["year"] for row in forecast],
+        "epsHistory": eps_actual,
+        "epsForecast": eps_forecast,
+        "consensusEpsCagr": forecast_eps_cagr,
+        "consensusEpsYears": [row["year"] for row in eps_forecast],
     }
 
 
@@ -365,10 +422,13 @@ def main() -> int:
             rows.append(record)
             hist = record["historicalFcfCagr"]
             cons = record["consensusFcfCagr"]
+            eps_cons = record["consensusEpsCagr"]
             print(
                 f"v {ticker:<12} history {'n/a' if hist is None else f'{hist * 100:6.1f}%'}"
                 f"  consensus {'n/a' if cons is None else f'{cons * 100:6.1f}%'}"
-                f"  ({len(record['fcfHistory'])}y + {len(record['fcfForecast'])}f)"
+                f"  EPS {'n/a' if eps_cons is None else f'{eps_cons * 100:6.1f}%'}"
+                f"  ({len(record['fcfHistory'])}y + {len(record['fcfForecast'])} FCF; "
+                f"{len(record['epsForecast'])} EPS estimates)"
             )
         except Exception as exc:  # noqa: BLE001 - collect and continue
             failures.append({"ticker": ticker, "error": str(exc)})
@@ -379,11 +439,15 @@ def main() -> int:
         "updatedAt": datetime.now(timezone.utc).isoformat(),
         "source": "MarketScreener (financials page) via Firecrawl",
         "currencyPolicy": (
-            "FCF values stay in the company's official reporting currency; "
-            "the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate"
+            "FCF and EPS values stay in the company's official reporting currency; "
+            "the dashboard converts SEK display equivalents with a dated Sveriges Riksbank rate"
         ),
         "consensusFcfCagrPolicy": (
             "CAGR from the first forecast FCF to the third forecast FCF over two fiscal-year intervals"
+        ),
+        "consensusEpsPolicy": (
+            "Three published annual EPS estimates in official reporting currency per share; "
+            "their CAGR may extend years four and five in the P/E model"
         ),
         "count": len(rows),
         "failures": failures,
