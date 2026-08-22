@@ -1765,88 +1765,116 @@
       }
     },
     "NIBE-B.ST": {
-      "period": "2026-03-31",
-      "fiscalPeriod": "2026-Q1",
-      "reportPublishedAt": "2026-05-19",
+      "period": "2026-06-30",
+      "fiscalPeriod": "2026-Q2",
+      "reportPublishedAt": "2026-08-21",
       "currency": "SEK",
       "unit": "SEK million",
       "unitMultiplier": 1000000,
       "financialToQuoteFx": 1.0,
-      "sourceName": "NIBE Q1 2026 report",
-      "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
+      "sourceName": "NIBE Q2 2026 report",
+      "sourceUrl": "https://storage.mfn.se/2de10e82-345e-4a61-a2d0-934a1652c6e9/nibe-q2-report-2026-en.pdf",
+      "sourcePageUrl": "https://www.nibegroup.com/investors/calendar-2025-2026/q3-2026/2026-08-21-interim-report-q2-january---june-2026",
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "EBITDA (TTM)",
-      "cashFlowMetricLabel": "Operating cash flow (TTM, company-defined)",
+      "cashFlowMetricLabel": "Free cash flow (TTM, CFO minus investments in existing operations)",
       "values": {
-        "totalRevenue": 40818,
-        "ebitda": 6397,
-        "netIncome": 2571,
-        "operatingCashFlow": null,
-        "freeCashFlow": 3588,
-        "eps": 1.27,
-        "totalAssets": 66882,
-        "bookEquity": 31614,
-        "totalLiabilities": 35268,
-        "totalDebt": 22758,
-        "cash": 5507,
-        "netDebt": 17251,
+        "totalRevenue": 41585,
+        "ebitda": 6778,
+        "netIncome": 2652,
+        "operatingCashFlow": 5944,
+        "capitalExpenditures": 1444,
+        "freeCashFlow": 4500,
+        "eps": 1.31,
+        "totalAssets": 69105,
+        "bookEquity": 32326,
+        "totalLiabilities": 36779,
+        "totalDebt": 23341,
+        "cash": 5363,
+        "netDebt": 17978,
         "sharesOutstanding": 2016066488,
-        "bookValuePerShare": 15.68
+        "bookValuePerShare": 16.034193411978386
       },
       "calculationChecks": [
         {
           "label": "Liabilities = assets - equity",
           "terms": [
-            66882,
-            -31614
+            69105,
+            -32326
           ],
-          "expected": 35268
+          "expected": 36779
+        },
+        {
+          "label": "Net debt = interest-bearing debt - cash and securities",
+          "terms": [
+            23341,
+            -5363
+          ],
+          "expected": 17978
         }
       ],
       "documentChecks": [
-        "40,818",
-        "6,397",
-        "66,882"
+        "41,585",
+        "6,778",
+        "69,105",
+        "1,665",
+        "1,120",
+        "17,978"
       ],
       "metricCalculations": {
         "ebitda": {
           "status": "reported",
           "label": "EBITDA (TTM)",
           "formula": "Company-reported EBITDA",
-          "result": 6397,
+          "result": 6778,
           "components": [
             {
               "label": "Company-reported EBITDA",
-              "value": 6397,
+              "value": 6778,
               "sign": 1
             }
           ],
           "note": "No dashboard estimate is substituted for the reported amount."
         },
         "freeCashFlow": {
-          "status": "company-defined",
-          "label": "Operating cash flow (TTM, company-defined)",
-          "formula": "FY2025 + Q1 2026 − Q1 2025",
-          "result": 3588,
+          "status": "standardized",
+          "label": "Free cash flow (TTM)",
+          "formula": "TTM cash flow from operating activities minus TTM investments in existing operations",
+          "result": 4500,
           "components": [
             {
-              "label": "FY2025",
-              "value": 2888,
+              "label": "FY2025 cash flow from operating activities",
+              "value": 4888,
               "sign": 1
             },
             {
-              "label": "Q1 2026",
-              "value": 324,
+              "label": "H1 2026 cash flow from operating activities",
+              "value": 1665,
               "sign": 1
             },
             {
-              "label": "Q1 2025 (negative amount removed from FY bridge)",
-              "value": 376,
+              "label": "H1 2025 cash flow from operating activities removed from FY bridge",
+              "value": 609,
+              "sign": -1
+            },
+            {
+              "label": "FY2025 investments in existing operations",
+              "value": 2000,
+              "sign": -1
+            },
+            {
+              "label": "H1 2026 investments in existing operations",
+              "value": 545,
+              "sign": -1
+            },
+            {
+              "label": "H1 2025 investments in existing operations removed from FY bridge",
+              "value": 1101,
               "sign": 1
             }
           ],
-          "note": "Fallback measure: this is NIBE's company-defined operating cash flow."
+          "note": "TTM CFO is 4,888 + 1,665 - 609 = 5,944. TTM investments in existing operations are 2,000 + 545 - 1,101 = 1,444. Free cash flow is therefore 5,944 - 1,444 = 4,500."
         }
       }
     },

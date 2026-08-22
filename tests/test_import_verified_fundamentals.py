@@ -43,6 +43,17 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         self.assertEqual(output["verificationSummary"]["verified"], 30)
         self.assertEqual(output["verificationSummary"]["pending"], 0)
 
+    def test_single_company_refresh_preserves_the_full_verification_summary(self):
+        output = import_manifest(
+            self.payload,
+            self.manifest,
+            tickers={"NIBE-B.ST"},
+            checked_at="2026-08-22T10:00:00+00:00",
+        )
+        self.assertEqual(output["verificationSummary"]["verified"], 30)
+        self.assertEqual(output["verificationSummary"]["pending"], 0)
+        self.assertIn("30 verified", output["provider"])
+
     def test_foreign_report_values_are_converted_to_the_stock_quote_currency(self):
         output = import_manifest(self.payload, self.manifest, checked_at="2026-08-05T10:00:00+00:00")
         abb = next(company for company in output["companies"] if company["ticker"] == "ABB.ST")

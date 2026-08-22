@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T06:44:40.794440+00:00",
+  "generatedAt": "2026-08-22T11:19:34.244070+00:00",
   "method": "Direct retrieval from official company investor-relations pages; no financial-data API",
   "verificationPolicy": "Extracted snippets are candidates for human or independent-source verification. This file never makes a company valuation-ready by itself.",
   "companies": [
@@ -8827,11 +8827,11 @@
     },
     {
       "ticker": "NIBE-B.ST",
-      "sourceName": "NIBE Q1 2026 interim report",
-      "sourceUrl": "https://www.nibegroup.com/investors/pm-news-reports/2026---news-reports/2026-05-19-interim-report-1-2026-q1",
-      "expectedPeriod": "2026-03-31",
+      "sourceName": "NIBE Q2 2026 interim report",
+      "sourceUrl": "https://www.mfn.se/a/nibe-industrier/nibe-industrier-ab-publ-interim-report-2-2026.iframe",
+      "expectedPeriod": "2026-06-30",
       "earningsBasisRequired": "TTM",
-      "directReportUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
+      "directReportUrl": "https://storage.mfn.se/2de10e82-345e-4a61-a2d0-934a1652c6e9/nibe-q2-report-2026-en.pdf",
       "documentType": "pdf",
       "status": "review-required",
       "autoVerificationEligible": false,
@@ -8843,63 +8843,48 @@
               "label": "net sales",
               "basisDetected": "unknown",
               "numbers": [
-                " 2026",
-                " 2025",
-                " 2025",
-                "9,650",
-                " 9,673",
-                " 40,818",
-                " 40,841",
-                "9,650",
-                "9,673",
-                "-0.2",
-                " 1.9",
-                " 0.3"
+                "10,849",
+                "10,082"
               ],
-              "snippet": "Q1 Q1 FY | 2026 2025 LTM* 2025* |  NET SALES Net sales SEK m 9,650 9,673 40,818 40,841 | Net sales amounted to SEK 9,650 (9,673) million Growth % -0.2 1.9 0.3 0.8 | Operating profit SEK m 868 782 4,389 4,303"
+              "snippet": "AND FURTHER IMPROVEMENT | IN PROFITABILITY |  NET SALES | Net sales amounted to SEK 10,849 (10,082) million |  GROWTH"
             },
             {
               "label": "net sales",
               "basisDetected": "unknown",
               "numbers": [
-                "2026",
-                " 2025",
-                " 2025",
-                "9,650",
-                " 9,673",
-                " 40,818",
-                " 40,841",
-                "9,650",
-                "9,673",
-                "-0.2",
-                " 1.9",
-                " 0.3"
+                "10,849",
+                "10,082",
+                "7.6%",
+                "8.7%"
               ],
-              "snippet": "2026 2025 LTM* 2025* |  NET SALES Net sales SEK m 9,650 9,673 40,818 40,841 | Net sales amounted to SEK 9,650 (9,673) million Growth % -0.2 1.9 0.3 0.8 | Operating profit SEK m 868 782 4,389 4,303 |  GROWTH"
-            },
-            {
-              "label": "sales",
-              "basisDetected": "unknown",
-              "numbers": [
-                "13",
-                "–15%"
-              ],
-              "snippet": "shift away from fossil fuel-based heating towards more sustainable alternatives. will achieve an operating margin well within the 13–15% range, which reflects the | business area’s historically demonstrated operating margin capacity. It should | The positive earnings performance was primarily due to organic sales growth, | also be noted that depreciation and amortization will be significantly higher than | based on a strong product offering, a broad international presence, good cost"
+              "snippet": "IN PROFITABILITY |  NET SALES | Net sales amounted to SEK 10,849 (10,082) million |  GROWTH | Growth amounted to 7.6% (8.7% at fixed exchange rates)"
             },
             {
               "label": "net sales",
               "basisDetected": "unknown",
               "numbers": [
-                "1 202",
-                "6",
-                " 4",
-                "9.65",
-                "9.67",
-                " 2026",
                 " 2025",
-                " 2025"
+                "10,849",
+                " 10,082",
+                " 20,499",
+                " 19,755",
+                " 41,585",
+                " 40,841",
+                " 7.6",
+                " 0.5",
+                " 3.8",
+                " 1.2",
+                " 2.1"
               ],
-              "snippet": "only a minor part of NIBE Group. | INTERIM REPORT 1 2026 • NIBE INDUSTRIER AB  4 | NET SALES AND PROFIT GROUP | NET SALES AND GROWTH Q1 Q1 FY | The Group’s net sales amounted to SEK 9.65 (SEK 9.67) billion. 2026 2025 LTM* 2025*"
+              "snippet": "FY* | 2025 | Net sales SEK m 10,849 10,082 20,499 19,755 41,585 40,841 | Growth % 7.6 0.5 3.8 1.2 2.1 0.8 | Operating profit SEK m 1,232 944 2,100 1,726 4,677 4,303"
+            },
+            {
+              "label": "net sales",
+              "basisDetected": "quarter",
+              "numbers": [
+                "2026"
+              ],
+              "snippet": "“ | SECOND QUARTER 2026 | During the quarter, net sales, profitability and operating margin continued to | show good growth. | For the sixth consecutive quarter, we reported good underlying organic growth"
             }
           ]
         },
@@ -8910,66 +8895,54 @@
               "label": "ebitda",
               "basisDetected": "unknown",
               "numbers": [
-                " 2026",
-                " 2025",
-                " 2025"
+                "0.37",
+                "0.24",
+                " 2.7",
+                " 2026"
               ],
-              "snippet": "I M P R O V E D O P E R AT I N G M A R G I N times | Growth at fixed | exchange rates Operating margin Net debt/EBITDA | Q1 Q1 FY | 2026 2025 LTM* 2025*"
+              "snippet": "Earnings per share before and after dilution amounted to SEK 0.37 (0.24) | 2.7 times | Net debt/EBITDA | Q2 | 2026"
+            },
+            {
+              "label": "ebitda",
+              "basisDetected": "unknown",
+              "numbers": [
+                "753 494",
+                " 1,257 885",
+                " 2,830",
+                " 2,458",
+                "0.37",
+                " 0.24",
+                " 0.62",
+                " 0.44",
+                " 1.40",
+                " 1.20",
+                "2.7",
+                " 3.2"
+              ],
+              "snippet": "Profit for the period SEK m 753 494 1,257 885 2,830 2,458 | Earnings per share SEK 0.37 0.24 0.62 0.44 1.40 1.20 | Net debt/EBITDA times 2.7 3.2 2.7 3.2 2.7 2.7 | Equity/assets ratio % 46.8 44.0 46.8 44.0 46.8 46.6 | Return on equity % 9.2 8.4 9.2 8.4 9.2 8.0"
             },
             {
               "label": "ebitda",
               "basisDetected": "quarter",
               "numbers": [
-                " 2024",
-                " 2025",
-                " 2026",
-                "328",
-                "349",
-                "17.1",
-                "2.7",
-                "3.1",
-                "216",
-                "619"
+                "11,000",
+                " 22,000",
+                " 2.5"
               ],
-              "snippet": "in the previous year and increased compared with the preceding quarter Quarter Q1 Q1 Q3 Q4 Q1 Q2 Q3 Q4 Q1 LTM | 2024 2025 2026 | During the year, the Group invested SEK 328 (349) million in intangible (17.1). Net debt/EBITDA amounted to 2.7 (3.1), unchanged compared with | assets and property, plant and equipment. The total effect on cash flow the preceding quarter. | including changes in financial assets was SEK 216 (619) million. Of the in-"
+              "snippet": "11,000 | 22,000 | NET DEBT/EBITDA | last nine quarters (times) | 2.5"
             },
             {
               "label": "ebitda",
-              "basisDetected": "unknown",
+              "basisDetected": "quarter",
               "numbers": [
-                " 8.5",
-                " 7.6",
-                " 8.0",
-                " 9.0",
-                " 6.2",
-                " 8.5",
+                "18",
+                "20.2",
+                "725",
                 "2.7",
-                " 3.1",
-                " 2.7",
-                "2.7",
-                " 3.1",
-                " 2.7"
+                "3.2",
+                "5.7"
               ],
-              "snippet": "Return on equity % 8.5 7.6 8.0 | Return on equity excl. items affecting comparability % 9.0 6.2 8.5 | Net debt/EBITDA times 2.7 3.1 2.7 | Net debt/EBITDA excl. action plan times 2.7 3.1 2.7 | Net debt/EBITDA excl. items affecting comparability times 2.7 3.4 2.7"
-            },
-            {
-              "label": "ebitda",
-              "basisDetected": "unknown",
-              "numbers": [
-                " 9.0",
-                " 6.2",
-                " 8.5",
-                "2.7",
-                " 3.1",
-                " 2.7",
-                "2.7",
-                " 3.1",
-                " 2.7",
-                "2.7",
-                " 3.4",
-                " 2.7"
-              ],
-              "snippet": "Return on equity excl. items affecting comparability % 9.0 6.2 8.5 | Net debt/EBITDA times 2.7 3.1 2.7 | Net debt/EBITDA excl. action plan times 2.7 3.1 2.7 | Net debt/EBITDA excl. items affecting comparability times 2.7 3.4 2.7 | Interest coverage ratio times 3.2 2.2 3.4"
+              "snippet": "Net debt decreased to SEK 18 (20.2) billion compared with the same | period of the previous year. Compared with the previous quarter, net debt | increased by SEK 725 million. Net debt/EBITDA was 2.7 (3.2), unchanged | from the previous quarter. | The Group’s available cash and cash equivalents amounted to SEK 5.7 bil -"
             }
           ]
         },
@@ -8980,20 +8953,20 @@
               "label": "profit for the period",
               "basisDetected": "unknown",
               "numbers": [
-                " 7.0",
-                " 5.3",
-                " 8.6",
+                "1,025 700",
+                " 1,700",
+                " 1,214",
+                " 3,819",
+                " 3,333",
+                " 9.4",
+                " 6.9",
+                " 8.3",
+                " 6.1",
+                " 9.2",
                 " 8.2",
-                "868",
-                "782",
-                "504 391",
-                " 2,571",
-                " 2,458",
-                "9.0%",
-                "8.1%",
-                "0.25"
+                "753 494"
               ],
-              "snippet": " OPERATING PROFIT Profit margin % 7.0 5.3 8.6 8.2 | Operating profit amounted to SEK 868 (782) million, | Profit for the period SEK m 504 391 2,571 2,458 | corresponding to an operating margin of 9.0% (8.1%) | Earnings per share SEK 0.25 0.19 1.27 1.20"
+              "snippet": "items SEK m 1,025 700 1,700 1,214 3,819 3,333 | Profit margin % 9.4 6.9 8.3 6.1 9.2 8.2 | Profit for the period SEK m 753 494 1,257 885 2,830 2,458 | Earnings per share SEK 0.37 0.24 0.62 0.44 1.40 1.20 | Net debt/EBITDA times 2.7 3.2 2.7 3.2 2.7 2.7"
             }
           ]
         },
@@ -9004,64 +8977,55 @@
               "label": "earnings per share",
               "basisDetected": "unknown",
               "numbers": [
-                "504 391",
-                " 2,571",
+                "753",
+                "494",
+                "0.37",
+                "0.24",
+                " 2.7"
+              ],
+              "snippet": " NET PROFIT | Net profit amounted to SEK 753 (494) million |  EARNINGS PER SHARE | Earnings per share before and after dilution amounted to SEK 0.37 (0.24) | 2.7 times"
+            },
+            {
+              "label": "earnings per share",
+              "basisDetected": "unknown",
+              "numbers": [
+                "753",
+                "494",
+                "0.37",
+                "0.24",
+                " 2.7"
+              ],
+              "snippet": "Net profit amounted to SEK 753 (494) million |  EARNINGS PER SHARE | Earnings per share before and after dilution amounted to SEK 0.37 (0.24) | 2.7 times | Net debt/EBITDA"
+            },
+            {
+              "label": "earnings per share",
+              "basisDetected": "unknown",
+              "numbers": [
+                " 9.4",
+                " 6.9",
+                " 8.3",
+                " 6.1",
+                " 9.2",
+                " 8.2",
+                "753 494",
+                " 1,257 885",
+                " 2,830",
                 " 2,458",
-                "9.0%",
-                "8.1%",
-                "0.25",
-                " 0.19",
-                " 1.27",
-                " 1.20",
-                " 47.3",
-                " 45.4",
-                " 47.3"
+                "0.37",
+                " 0.24"
               ],
-              "snippet": "Profit for the period SEK m 504 391 2,571 2,458 | corresponding to an operating margin of 9.0% (8.1%) | Earnings per share SEK 0.25 0.19 1.27 1.20 |  PROFIT AFTER NET FINANCIAL ITEMS Equity/assets ratio % 47.3 45.4 47.3 46.6 | Profit after net financial items amounted to amounted to Return on equity % 8.5 7.6 8.5 8.0"
+              "snippet": "Profit margin % 9.4 6.9 8.3 6.1 9.2 8.2 | Profit for the period SEK m 753 494 1,257 885 2,830 2,458 | Earnings per share SEK 0.37 0.24 0.62 0.44 1.40 1.20 | Net debt/EBITDA times 2.7 3.2 2.7 3.2 2.7 2.7 | Equity/assets ratio % 46.8 44.0 46.8 44.0 46.8 46.6"
             },
             {
               "label": "earnings per share",
-              "basisDetected": "unknown",
+              "basisDetected": "quarter",
               "numbers": [
-                "504",
-                "391",
-                "0.25",
-                "0.19"
+                "2024",
+                " 2025",
+                " 2026",
+                " 0.00"
               ],
-              "snippet": " NET PROFIT | Net profit amounted to SEK 504 (391) million |  EARNINGS PER SHARE | Earnings per share before and after dilution amounted to | SEK 0.25 (0.19)"
-            },
-            {
-              "label": "earnings per share",
-              "basisDetected": "unknown",
-              "numbers": [
-                "504",
-                "391",
-                "0.25",
-                "0.19",
-                "1 202",
-                "6",
-                " 2"
-              ],
-              "snippet": "Net profit amounted to SEK 504 (391) million |  EARNINGS PER SHARE | Earnings per share before and after dilution amounted to | SEK 0.25 (0.19) | INTERIM REPORT 1 2026 • NIBE INDUSTRIER AB  2"
-            },
-            {
-              "label": "earnings per share",
-              "basisDetected": "unknown",
-              "numbers": [
-                "504 391",
-                " 2,393",
-                " 2,280",
-                " 567 527",
-                " 2,178",
-                " 2,138",
-                "0.25",
-                " 0.19",
-                " 1.19",
-                " 1.13",
-                "504 391",
-                " 2,393"
-              ],
-              "snippet": "NET PROFIT 504 391 2,393 2,280 | Includes depreciation/amortization as follows: 567 527 2,178 2,138 | Earnings per share before and after dilution, SEK 0.25 0.19 1.19 1.13 | STATEMENT OF COMPREHENSIVE INCOME | NET PROFIT 504 391 2,393 2,280"
+              "snippet": "2024 2025 2026 | Quarter Q2Q1Q4Q3Q2Q1Q4Q3Q2 | ADJUSTED EARNINGS PER SHARE | after dilution last nine quarters (SEK) | 0.00"
             }
           ]
         },
@@ -9076,20 +9040,20 @@
               "label": "total assets",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "4,668",
-                " 4,256",
+                "4,793",
+                " 5,207",
                 " 4,783",
-                "22,442",
-                " 21,750",
+                "23,783",
+                " 23,422",
                 " 21,651",
-                "66,882",
-                " 65,983",
+                "69,105",
+                " 67,884",
                 " 65,055",
-                "31,614",
-                " 29 946",
+                "32,326",
+                " 29,863",
                 " 30,290"
               ],
-              "snippet": "Cash and cash equivalents 4,668 4,256 4,783 | TOTAL CURRENT ASSETS 22,442 21,750 21,651 | TOTAL ASSETS 66,882 65,983 65,055 | Equity 31,614 29 946 30,290 | Non-current liabilities and provisions"
+              "snippet": "Cash and cash equivalents 4,793 5,207 4,783 | TOTAL CURRENT ASSETS 23,783 23,422 21,651 | TOTAL ASSETS 69,105 67,884 65,055 | Equity 32,326 29,863 30,290 | Non-current liabilities and provisions"
             },
             {
               "label": "total assets",
@@ -9098,15 +9062,15 @@
                 "1",
                 " 1",
                 " 19",
-                "99 495 126",
-                "24,959",
-                " 26,465",
+                "167 362 126",
+                "24,767",
+                " 28,524",
                 " 25,288",
-                "8,243",
-                " 8,299",
+                "7,800",
+                " 8,761",
                 " 8,422"
               ],
-              "snippet": "Cash and cash equivalents 1 1 19 | TOTAL CURRENT ASSETS 99 495 126 | TOTAL ASSETS 24,959 26,465 25,288 | Equity 8,243 8,299 8,422 | Non-current liabilities and provisions"
+              "snippet": "Cash and cash equivalents 1 1 19 | TOTAL CURRENT ASSETS 167 362 126 | TOTAL ASSETS 24,767 28,524 25,288 | Equity 7,800 8,761 8,422 | Non-current liabilities and provisions"
             }
           ]
         },
@@ -9117,38 +9081,36 @@
               "label": "total equity",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "7,775",
-                " 7,859",
+                "8,624",
+                " 7,886",
                 " 7,523",
-                "6,293",
-                " 6,610",
+                "5,230",
+                " 8,613",
                 " 6,428",
-                "66,882",
-                " 65,983",
+                "69,105",
+                " 67,884",
                 " 65,055",
-                "2026",
-                " 2025",
-                " 2025"
+                " 2026"
               ],
-              "snippet": "– non-interest-bearing 7,775 7,859 7,523 | – interest-bearing 6,293 6,610 6,428 | TOTAL EQUITY AND LIABILITIES 66,882 65,983 65,055 | Q1 Q1 FY | C A S H F L O W S TAT E M E N T, S E K m i l l i o n 2026 2025 2025"
+              "snippet": "– non-interest-bearing 8,624 7,886 7,523 | – interest-bearing 5,230 8,613 6,428 | TOTAL EQUITY AND LIABILITIES 69,105 67,884 65,055 | CASH FLOW STATEMENT, SEK million Q2 | 2026"
             },
             {
               "label": "total equity",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "479",
-                " 1,165 518",
-                "3,648",
-                " 3,800",
+                "482",
+                " 88 518",
+                "2,448",
+                " 5,800",
                 " 3,798",
-                "24,959",
-                " 26,465",
+                "24,767",
+                " 28,524",
                 " 25,288",
-                "1 202",
+                "2 202",
                 "6",
                 " 18"
               ],
-              "snippet": "– non-interest-bearing 479 1,165 518 | – interest-bearing 3,648 3,800 3,798 | TOTAL EQUITY AND LIABILITIES 24,959 26,465 25,288 | INTERIM REPORT 1 2026 • NIBE INDUSTRIER AB  18 | ACCOUNTING POLICIES B O A R D A P P R O VA L O F I N T E R I M R E P O R T"
+              "snippet": "– non-interest-bearing 482 88 518 | – interest-bearing 2,448 5,800 3,798 | TOTAL EQUITY AND LIABILITIES 24,767 28,524 25,288 | INTERIM REPORT 2 2026 • NIBE INDUSTRIER AB  18 | ACCOUNTING POLICIES"
             }
           ]
         },
@@ -9163,20 +9125,20 @@
               "label": "interest-bearing liabilities",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "14,667",
-                " 13,891",
-                " 14,128",
-                " 35.9",
-                " 34.1",
-                " 34.6",
-                " 72.0",
-                " 78.8",
-                " 74.5",
-                " 47.3",
-                " 45.4",
-                " 46.6"
+                "391 482 607",
+                " 1,101",
+                " 2,262",
+                "5,744",
+                " 6,033",
+                " 5,744",
+                " 6,033",
+                " 5,877",
+                " 72.2",
+                " 86.4",
+                " 72.2",
+                " 86.4"
               ],
-              "snippet": "Working capital incl. cash and bank balances relative to net sales SEK m 14,667 13,891 14,128 | Working capital incl. cash and bank balances relative to net sales % 35.9 34.1 34.6 | Interest-bearing liabilities/Equity % 72.0 78.8 74.5 | Equity/assets ratio % 47.3 45.4 46.6 | Return on capital employed % 8.4 8.3 8.2"
+              "snippet": "Investments in non-current assets SEK m 391 482 607 1,101 2,262 | Available cash and cash equivalents SEK m 5,744 6,033 5,744 6,033 5,877 | Interest-bearing liabilities/Equity % 72.2 86.4 72.2 86.4 74.5 | Equity/assets ratio % 46.8 44.0 46.8 44.0 46.6 | Interest coverage ratio times 3.4 3.5 3.8 2.7 3.4"
             }
           ]
         },
@@ -9187,71 +9149,71 @@
               "label": "cash and cash equivalents",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "216",
-                "619",
-                "5,882",
-                "0",
-                "0",
-                "800"
+                "725",
+                "2.7",
+                "3.2",
+                "5.7",
+                "289",
+                "138"
               ],
-              "snippet": "assets and property, plant and equipment. The total effect on cash flow the preceding quarter. | including changes in financial assets was SEK 216 (619) million. Of the in- | The Group’s available cash and cash equivalents increased to SEK 5,882 | vestments, SEK 0 (0) million related to acquisitions of shares and interests CAS H FLOW FRO M O P ERAT I NG AC T I VI T I ES | million, which was SEK 800 million higher than in the same period in the"
+              "snippet": "increased by SEK 725 million. Net debt/EBITDA was 2.7 (3.2), unchanged | from the previous quarter. | The Group’s available cash and cash equivalents amounted to SEK 5.7 bil - | lion, a decrease of SEK 289 million compared with the same quarter of the | previous year and SEK 138 million compared with the previous quarter."
             },
             {
               "label": "cash and cash equivalents",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "7,437",
-                " 7,245",
+                "8,594",
+                " 7,868",
                 " 7,026",
-                " 839 383 675",
-                "4,668",
-                " 4,256",
+                " 571 416 675",
+                "4,793",
+                " 5,207",
                 " 4,783",
-                "22,442",
-                " 21,750",
+                "23,783",
+                " 23,422",
                 " 21,651",
-                "66,882",
-                " 65,983"
+                "69,105",
+                " 67,884"
               ],
-              "snippet": "Current receivables 7,437 7,245 7,026 | Investments in securities, etc. 839 383 675 | Cash and cash equivalents 4,668 4,256 4,783 | TOTAL CURRENT ASSETS 22,442 21,750 21,651 | TOTAL ASSETS 66,882 65,983 65,055"
+              "snippet": "Current receivables 8,594 7,868 7,026 | Investments in securities, etc. 571 416 675 | Cash and cash equivalents 4,793 5,207 4,783 | TOTAL CURRENT ASSETS 23,783 23,422 21,651 | TOTAL ASSETS 69,105 67,884 65,055"
             },
             {
               "label": "cash and cash equivalents",
               "basisDetected": "latest-quarter-candidate",
               "numbers": [
-                "– 606",
-                "- 65",
-                "- 621 453",
-                "5,458",
-                " 5,607",
-                " 5,607",
-                "113",
-                "- 346",
-                "-602",
-                "5,506",
-                " 4,639",
-                " 5,458"
-              ],
-              "snippet": "Dividend – – – 606 | CASH FLOW FOR THE YEAR - 65 - 621 453 | Cash and cash equivalents at beginning of year 5,458 5,607 5,607 | Exchange difference in cash and cash equivalents 113 - 346 -602 | CASH AND CASH EQUIVALENTS AT END OF YEAR 5,506 4,639 5,458"
-            },
-            {
-              "label": "cash and cash equivalents",
-              "basisDetected": "latest-quarter-candidate",
-              "numbers": [
-                "- 65",
-                "- 621 453",
-                "5,458",
-                " 5,607",
-                " 5,607",
-                "113",
-                "- 346",
-                "-602",
+                "- 706",
+                "- 606",
+                "- 706",
+                "- 606",
+                "- 606",
+                "- 207",
+                " 1,063",
+                "- 272 441 453",
                 "5,506",
                 " 4,639",
                 " 5,458",
-                "1 202"
+                " 5,607"
               ],
-              "snippet": "CASH FLOW FOR THE YEAR - 65 - 621 453 | Cash and cash equivalents at beginning of year 5,458 5,607 5,607 | Exchange difference in cash and cash equivalents 113 - 346 -602 | CASH AND CASH EQUIVALENTS AT END OF YEAR 5,506 4,639 5,458 | INTERIM REPORT 1 2026 • NIBE INDUSTRIER AB  12"
+              "snippet": "Dividends paid - 706 - 606 - 706 - 606 - 606 | CASH FLOW FOR THE PERIOD - 207 1,063 - 272 441 453 | Cash and cash equivalents at beginning of period 5,506 4,639 5,458 5,607 5,607 | Exchange difference in cash and cash equivalents 65 - 79 + 178 - 425 - 602 | CASH AND CASH EQUIVALENTS AT END OF PERIOD 5,364 5,623 5,364 5,623 5,458"
+            },
+            {
+              "label": "cash and cash equivalents",
+              "basisDetected": "latest-quarter-candidate",
+              "numbers": [
+                "- 207",
+                " 1,063",
+                "- 272 441 453",
+                "5,506",
+                " 4,639",
+                " 5,458",
+                " 5,607",
+                " 5,607",
+                "65",
+                "- 79",
+                " 178",
+                "- 425"
+              ],
+              "snippet": "CASH FLOW FOR THE PERIOD - 207 1,063 - 272 441 453 | Cash and cash equivalents at beginning of period 5,506 4,639 5,458 5,607 5,607 | Exchange difference in cash and cash equivalents 65 - 79 + 178 - 425 - 602 | CASH AND CASH EQUIVALENTS AT END OF PERIOD 5,364 5,623 5,364 5,623 5,458 | INTERIM REPORT 2 2026 • NIBE INDUSTRIER AB  12"
             }
           ]
         }
@@ -9278,7 +9240,7 @@
       "errors": [
         "TTM revenue was not unambiguously identified"
       ],
-      "checkedAt": "2026-08-10T06:44:40.794440+00:00"
+      "checkedAt": "2026-08-22T11:19:34.244070+00:00"
     },
     {
       "ticker": "SAAB-B.ST",

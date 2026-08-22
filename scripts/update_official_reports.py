@@ -90,6 +90,13 @@ NEGATIVE_LINK_WORDS = (
     "sustainability",
 )
 
+SOCIAL_SHARE_DOMAINS = (
+    "facebook.com",
+    "linkedin.com",
+    "twitter.com",
+    "x.com",
+)
+
 
 @dataclass(frozen=True)
 class Link:
@@ -196,7 +203,12 @@ def document_kind(url: str, content_type: str) -> str:
 def extract_pdf_text(content: bytes) -> str:
     executable = shutil.which("pdftotext")
     if not executable:
-        raise RuntimeError("pdftotext is unavailable; install poppler-utils")
+        try:
+            from pypdf import PdfReader  # type: ignore
+        except ModuleNotFoundError as error:
+            raise RuntimeError("pdftotext is unavailable; install poppler-utils") from error
+        reader = PdfReader(io.BytesIO(content))
+        return normalize_document_text("\n".join(page.extract_text() or "" for page in reader.pages))
     with tempfile.TemporaryDirectory(prefix="official-report-") as directory:
         pdf_path = Path(directory) / "report.pdf"
         text_path = Path(directory) / "report.txt"
@@ -316,6 +328,8 @@ def score_link(link: Link, period: str) -> int:
     combined = urllib.parse.unquote(f"{link.text} {parsed.path} {parsed.query}").lower()
     score = 0
     if parsed.scheme not in {"http", "https"}:
+        return -10_000
+    if any(domain in parsed.netloc.lower() for domain in SOCIAL_SHARE_DOMAINS):
         return -10_000
     if parsed.path.lower().endswith((".pdf", ".xlsx", ".xlsm")):
         score += 35
