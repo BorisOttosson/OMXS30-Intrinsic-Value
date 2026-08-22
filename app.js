@@ -98,8 +98,8 @@ const companyCategoryDefinitions = {
   investment: {
     label: "Investment company",
     shortLabel: "Investment",
-    model: "NAV discount/premium + P/E",
-    warning: "Use NAV discount/premium as the primary model; DCF is not reliable here."
+    model: "NAV discount/premium",
+    warning: "Use reported NAV per share and the market discount or premium; operating-company valuation models are not used."
   },
   cyclical: {
     label: "Asset-heavy cyclical",
@@ -317,6 +317,10 @@ const elements = {
   dcfValue: document.querySelector("#dcfValue"),
   peValue: document.querySelector("#peValue"),
   currentPe: document.querySelector("#currentPe"),
+  analysisPanel: document.querySelector("#analysisPanel"),
+  analysisPanelTitle: document.querySelector("#analysisPanelTitle"),
+  analysisControls: document.querySelector("#analysisControls"),
+  scenarioGuide: document.querySelector("#scenarioGuide"),
   analysisMetricsTitle: document.querySelector("#analysisMetricsTitle"),
   analysisMetricsNote: document.querySelector("#analysisMetricsNote"),
   analysisChartTitle: document.querySelector("#analysisChartTitle"),
@@ -1545,8 +1549,38 @@ function getNormalizedFcfPerShare(company) {
 function getNavPerShare(company) {
   return numberOrNull(company.navPerShare)
     ?? numberOrNull(company.bookValuePerShare)
-    ?? numberOrNull(company.fundamentals?.analystTargetMeanPrice)
+    ?? numberOrNull(company.fundamentals?.bookValuePerShare)
     ?? numberOrNull(company.fundamentals?.equityPerShare);
+}
+
+function getInvestmentNavAudit(company) {
+  const explicitNav = numberOrNull(company.navPerShare);
+  const bookValue = numberOrNull(company.bookValuePerShare)
+    ?? numberOrNull(company.fundamentals?.bookValuePerShare)
+    ?? numberOrNull(company.fundamentals?.equityPerShare);
+  const navPerShare = explicitNav ?? bookValue;
+  const marketPrice = numberOrNull(company.marketPrice);
+  const discountToNav = navPerShare !== null && navPerShare > 0 && marketPrice !== null
+    ? ((navPerShare - marketPrice) / navPerShare) * 100
+    : NaN;
+  const priceToNav = navPerShare !== null && navPerShare > 0 && marketPrice !== null
+    ? marketPrice / navPerShare
+    : NaN;
+  const officialSource = company.officialSource ?? company.fundamentals?.officialSource ?? null;
+  const sourceUrl = officialSource?.sourceUrl ?? officialSource?.directReportUrl ?? null;
+  const sourceName = officialSource?.sourceName ?? "Official company report";
+  const period = officialSource?.period ?? company.balanceSheetDate ?? company.fundamentals?.balanceSheetDate ?? null;
+
+  return {
+    navPerShare,
+    marketPrice,
+    discountToNav,
+    priceToNav,
+    basis: explicitNav !== null ? "Reported NAV per share" : "Reported book equity per share",
+    sourceUrl,
+    sourceName,
+    period
+  };
 }
 
 function calculateOperatingModel(company, scenario) {
@@ -1642,34 +1676,32 @@ function calculateBankModel(company, scenario) {
 
 function calculateInvestmentModel(company, scenario) {
   const currency = company.currency ?? "SEK";
-  const price = asNumber(company.marketPrice);
-  const navPerShare = getNavPerShare(company);
-  const peValue = calculatePeValue(company, scenario);
-  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
-  const peUseful = Number.isFinite(peValue) && Number.isFinite(currentPe) && currentPe > 0 && currentPe < 45;
-  const navDiscount = navPerShare && navPerShare > 0 ? ((navPerShare - price) / navPerShare) * 100 : NaN;
+  const navAudit = getInvestmentNavAudit(company);
+  const navPerShare = navAudit.navPerShare;
+  const navDiscount = navAudit.discountToNav;
+  const hasDiscount = Number.isFinite(navDiscount) && navDiscount >= 0;
+  const navPositionValue = Number.isFinite(navDiscount) ? formatPercent(Math.abs(navDiscount), 1) : "-";
   const valuationBlend = buildValuationBlend([
-    { label: "NAV", value: navPerShare, weight: 0.8 },
-    { label: "P/E", value: peUseful ? peValue : NaN, weight: 0.2 }
+    { label: "NAV", value: navPerShare, weight: 1 }
   ]);
 
   return {
     dcf: { value: NaN, flows: [], error: "" },
-    peValue,
-    currentPe,
+    peValue: NaN,
+    currentPe: NaN,
     blendedValue: valuationBlend.value,
     valuationBlend,
     primaryLabel: "NAV value",
     primaryValue: navPerShare,
-    secondaryLabel: "P/E value",
-    secondaryValue: peUseful ? peValue : NaN,
-    tertiaryLabel: "NAV discount",
-    tertiaryValue: formatPercent(navDiscount, 1),
-    reverseLabel: "NAV discount",
-    reverseValue: formatPercent(navDiscount, 1),
+    secondaryLabel: "Current price",
+    secondaryValue: navAudit.marketPrice,
+    tertiaryLabel: hasDiscount ? "NAV discount" : "NAV premium",
+    tertiaryValue: navPositionValue,
+    reverseLabel: hasDiscount ? "NAV discount" : "NAV premium",
+    reverseValue: navPositionValue,
     reverseSub: "Discount/premium to NAV",
-    valueDescription: Number.isFinite(valuationBlend.value)
-      ? describeValuationBlend(valuationBlend, currency)
+    valueDescription: Number.isFinite(navPerShare)
+      ? `100% NAV = ${formatCurrency(navPerShare, currency)}. The market trades at a ${navPositionValue} ${hasDiscount ? "discount" : "premium"} to that value.`
       : "Needs NAV per share",
     modelSupportScore: Number.isFinite(navDiscount) ? clamp(50 + navDiscount * 1.2, 0, 100) : 50,
     modelWarning: Number.isFinite(navPerShare) ? "" : "Add NAV per share for the investment-company model.",
@@ -3196,6 +3228,46 @@ function getAnalysisPresentation(company) {
     ? calculateSkanskaSotp(company, scenario)
     : null;
 
+  if (category === "investment") {
+    const nav = getInvestmentNavAudit(company);
+    const hasDiscount = Number.isFinite(nav.discountToNav) && nav.discountToNav >= 0;
+    const discountPremiumLabel = hasDiscount ? "Discount to NAV" : "Premium to NAV";
+    const discountPremiumValue = Number.isFinite(nav.discountToNav)
+      ? formatPercent(Math.abs(nav.discountToNav), 1)
+      : "-";
+    const sourcePeriod = nav.period ? formatShortDate(nav.period) : "latest reported period";
+    return {
+      key: "nav",
+      title: "NAV discount / premium",
+      note: "Investment companies are valued from their latest reported NAV or equity per share. DCF, Reverse DCF, P/E, EV/EBITDA, growth forecasts and scenarios are not used.",
+      chartTitle: "Market price compared with reported NAV",
+      chartSubtitle: `${nav.basis} from ${sourcePeriod}`,
+      chartUnit: `${currency} / share`,
+      modelTitle: "NAV — Net Asset Value",
+      modelDescription: "NAV represents the reported value of the investment portfolio and other assets after liabilities. The dashboard compares the current share price with that value per share. A lower market price is a discount; a higher market price is a premium.",
+      sourceUrl: nav.sourceUrl,
+      sourceLabel: nav.sourceUrl ? `${nav.sourceName} · ${sourcePeriod}` : null,
+      formula: "Discount / premium = (reported NAV per share − current share price) ÷ reported NAV per share",
+      assumptions: [
+        ["NAV basis", nav.basis],
+        ["Reported period", sourcePeriod],
+        ["Valuation weight", "100% reported NAV · 0% P/E · 0% DCF · 0% EV/EBITDA"],
+        ["Target prices", "0% weight"],
+        ["Interpretation", hasDiscount ? "The share trades below reported NAV" : "The share trades above reported NAV"]
+      ],
+      metrics: [
+        ["Reported NAV / equity per share", formatTickerMoney(nav.navPerShare, currency), nav.basis],
+        ["Current price", formatTickerMoney(nav.marketPrice, currency), "Latest market price"],
+        [discountPremiumLabel, discountPremiumValue, "Compared directly with reported NAV"],
+        ["Price / NAV", Number.isFinite(nav.priceToNav) ? `${formatDecimal(nav.priceToNav, 2)}x` : "-", "1.00x means price equals NAV"]
+      ],
+      chartValues: [
+        { label: "Market price", value: nav.marketPrice },
+        { label: "Reported NAV", value: nav.navPerShare }
+      ]
+    };
+  }
+
   if (state.analysisModel === "pe") {
     const pe = calculateForwardPeModel(company, scenario);
     const suitability = pe.suitability ?? "P/E suitability cannot be assessed from current inputs.";
@@ -3708,7 +3780,14 @@ function renderCyclicalAudit(company) {
 
 function renderAnalysis(company) {
   const presentation = getAnalysisPresentation(company);
-  const isCyclical = normalizeCompanyType(company.companyType, company.ticker) === "cyclical";
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const isCyclical = category === "cyclical";
+  const isInvestment = category === "investment";
+  elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis";
+  elements.analysisPanel.setAttribute("aria-label", isInvestment ? "NAV analysis" : "Financial analysis");
+  elements.analysisControls.hidden = isInvestment;
+  elements.scenarioGuide.hidden = isInvestment;
+  elements.analysisPanel.classList.toggle("is-investment-nav", isInvestment);
   const metricTargets = [
     [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
     [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
@@ -3734,7 +3813,11 @@ function renderAnalysis(company) {
   elements.analysisAssumptions.innerHTML = presentation.assumptions
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
-  if (state.analysisModel === "pe") {
+  if (isInvestment) {
+    elements.scenarioBaseCopy.textContent = "Investment companies use the latest reported NAV or equity per share without a scenario adjustment.";
+    elements.scenarioBullCopy.textContent = "Not used for NAV analysis.";
+    elements.scenarioBearCopy.textContent = "Not used for NAV analysis.";
+  } else if (state.analysisModel === "pe") {
     elements.scenarioBaseCopy.textContent = "Uses the three published analyst EPS estimates, extends years 4–5 at their EPS CAGR, applies the current P/E in year 5 and discounts the result.";
     elements.scenarioBullCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR +2.0 pp, year-5 P/E +2.0x and required return −0.7 pp.";
     elements.scenarioBearCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR −2.0 pp, year-5 P/E −2.0x and required return +1.0 pp.";
