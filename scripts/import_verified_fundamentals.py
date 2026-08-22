@@ -547,7 +547,6 @@ def import_manifest(
         raise ValueError(f"No verified manifest entry for: {', '.join(missing)}")
 
     timestamp = checked_at or datetime.now(timezone.utc).isoformat()
-    verified_count = 0
     companies = []
     for company in payload.get("companies", []):
         ticker = company.get("ticker")
@@ -562,9 +561,12 @@ def import_manifest(
         if not merged["dataQuality"]["valuationReady"]:
             raise ValueError(f"{ticker}: validator rejected verified figures: {merged['dataQuality']['issues']}")
         companies.append(merged)
-        verified_count += 1
 
     total = len(companies)
+    verified_count = sum(
+        company.get("independentVerification", {}).get("status") == "verified"
+        for company in companies
+    )
     output = dict(payload)
     output["companies"] = companies
     output["generatedAt"] = timestamp

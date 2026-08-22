@@ -20,6 +20,17 @@ class ReportDiscoveryTests(unittest.TestCase):
         ranked = ranked_links(links, "2026-06-30")
         self.assertEqual(ranked[0].url, "https://example.com/q2-2026-report.pdf")
 
+    def test_ignores_social_share_links_that_repeat_the_report_title(self):
+        links = [
+            Link(
+                "https://www.linkedin.com/shareArticle?url=https://example.com/q2-2026-report",
+                "Share Q2 2026 report",
+            ),
+            Link("https://example.com/q2-2026-report.pdf", "Q2 2026 report"),
+        ]
+        ranked = ranked_links(links, "2026-06-30")
+        self.assertEqual(ranked[0].url, "https://example.com/q2-2026-report.pdf")
+
     def test_batch_selection_is_stable_and_sorted(self):
         companies = {"C.ST": {}, "A.ST": {}, "B.ST": {}}
         self.assertEqual(selected_tickers(companies, None, 2, 2), ["C.ST"])

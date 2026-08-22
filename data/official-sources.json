@@ -20,7 +20,7 @@
     "INDU-C.ST": {"sourceName": "Industrivärden 2026 reports", "sourceUrl": "https://www.industrivarden.se/en-gb/media/press-releases/2026/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "INVE-B.ST": {"sourceName": "Investor reports and presentations", "sourceUrl": "https://www.investorab.com/investors-media/reports-presentations/", "period": "2026-06-30", "earningsBasis": "TTM"},
     "LIFCO-B.ST": {"sourceName": "Lifco interim report January-June 2026", "sourceUrl": "https://www.lifco.se/investors/mfn/interim-report-january-june-2026", "period": "2026-06-30", "earningsBasis": "TTM"},
-    "NIBE-B.ST": {"sourceName": "NIBE Q1 2026 interim report", "sourceUrl": "https://www.nibegroup.com/investors/pm-news-reports/2026---news-reports/2026-05-19-interim-report-1-2026-q1", "period": "2026-03-31", "earningsBasis": "TTM"},
+    "NIBE-B.ST": {"sourceName": "NIBE Q2 2026 interim report", "sourceUrl": "https://www.mfn.se/a/nibe-industrier/nibe-industrier-ab-publ-interim-report-2-2026.iframe", "period": "2026-06-30", "earningsBasis": "TTM"},
     "NDA-SE.ST": {"sourceName": "Nordea Q2 2026 interim results", "sourceUrl": "https://www.nordea.com/en/investors/latest-interim-results", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SAAB-B.ST": {"sourceName": "Saab reports and presentations", "sourceUrl": "https://www.saab.com/investors/financials/reports-and-presentations", "period": "2026-06-30", "earningsBasis": "TTM"},
     "SAND.ST": {"sourceName": "Sandvik interim reports", "sourceUrl": "https://www.home.sandvik/en/investors/reports-presentations/interim-reports/", "period": "2026-06-30", "earningsBasis": "TTM"},
