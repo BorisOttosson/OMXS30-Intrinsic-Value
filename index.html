@@ -222,7 +222,7 @@
                   <div class="segmented-control model-selector" aria-label="Financial model">
                     <button class="segment is-active" type="button" data-model-view="dcf">DCF</button>
                     <button class="segment" type="button" data-model-view="reverse-dcf">Reverse DCF</button>
-                    <button class="segment" type="button" data-model-view="pe">P/E</button>
+                    <button class="segment" type="button" data-model-view="ev-ebitda">EV/EBITDA</button>
                   </div>
                 </div>
                 <div class="analysis-control-group">
@@ -306,6 +306,9 @@
                 <p id="cyclicalAuditStatus">Official-report history → mid-cycle cash flow → DCF</p>
               </div>
 
+              <div id="specializedCyclicalAudit" class="specialized-cyclical-audit" hidden></div>
+
+              <div id="genericCyclicalAudit">
               <div class="cyclical-step-grid" id="cyclicalSteps"></div>
 
               <div class="cyclical-audit-grid">
@@ -365,6 +368,7 @@
                   <small id="cyclicalSubtypeNote">-</small>
                 </div>
               </div>
+              </div>
             </section>
 
             <div class="scenario-guide">
@@ -379,17 +383,17 @@
                 <button class="scenario-card is-active" type="button" data-scenario="base" data-scenario-card="base">
                   <span class="scenario-dot base"></span>
                   <strong>Base · Most likely</strong>
-                  <small id="scenarioBaseCopy">Uses the selected Growth forecast, required equity return and target P/E without adjustment.</small>
+                  <small id="scenarioBaseCopy">Uses the selected Growth forecast, required return and EV/EBITDA assumption without adjustment.</small>
                 </button>
                 <button class="scenario-card" type="button" data-scenario="bull" data-scenario-card="bull">
                   <span class="scenario-dot bull"></span>
                   <strong>Bull · More optimistic</strong>
-                  <small id="scenarioBullCopy">Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.</small>
+                  <small id="scenarioBullCopy">Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and EV/EBITDA +0.7x.</small>
                 </button>
                 <button class="scenario-card" type="button" data-scenario="bear" data-scenario-card="bear">
                   <span class="scenario-dot bear"></span>
                   <strong>Bear · More conservative</strong>
-                  <small id="scenarioBearCopy">Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.</small>
+                  <small id="scenarioBearCopy">Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and EV/EBITDA −0.7x.</small>
                 </button>
               </div>
             </div>

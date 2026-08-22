@@ -520,6 +520,8 @@ def merge_verified_company(company: dict[str, Any], entry: dict[str, Any], check
         })
     if values.get("roe") is not None:
         result["roe"] = float(values["roe"])
+    if entry.get("specializedValuation"):
+        result["specializedValuation"] = entry["specializedValuation"]
     result.pop("legacySnapshot", None)
     validation_time = datetime.fromisoformat(checked_at.replace("Z", "+00:00"))
     return validate_company_fundamentals(result, now=validation_time)
