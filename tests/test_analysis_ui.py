@@ -1,3 +1,4 @@
+import json
 import re
 import unittest
 from pathlib import Path
@@ -134,7 +135,7 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
 
     def test_analysis_section_has_financial_title_without_dynamic_subtitle(self):
         self.assertIn('<h3 id="analysisPanelTitle">Financial Analysis</h3>', self.html)
-        self.assertIn('elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis"', self.javascript)
+        self.assertIn('isEqtSotp ? "EQT Sum-of-the-Parts" : (isNavInvestment ? "NAV Analysis" : "Financial Analysis")', self.javascript)
         self.assertNotIn('id="valuationSubtitle"', self.html)
         self.assertNotIn("elements.valuationSubtitle", self.javascript)
 
@@ -230,9 +231,9 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn('id="analysisPanelTitle">Financial Analysis</h3>', self.html)
         self.assertIn('id="analysisControls"', self.html)
         self.assertIn('id="scenarioGuide"', self.html)
-        self.assertIn('elements.analysisControls.hidden = isInvestment', self.javascript)
-        self.assertIn('elements.scenarioGuide.hidden = isInvestment', self.javascript)
-        self.assertIn('elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis"', self.javascript)
+        self.assertIn('elements.analysisControls.hidden = isNavInvestment', self.javascript)
+        self.assertIn('elements.scenarioGuide.hidden = isNavInvestment', self.javascript)
+        self.assertIn('isEqtSotp ? "EQT Sum-of-the-Parts" : (isNavInvestment ? "NAV Analysis" : "Financial Analysis")', self.javascript)
         self.assertIn('if (category === "investment") {', self.javascript)
         self.assertIn('title: "NAV discount / premium"', self.javascript)
         self.assertIn('"100% reported NAV · 0% P/E · 0% DCF · 0% EV/EBITDA"', self.javascript)
@@ -246,6 +247,25 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn(".analysis-controls[hidden]", styles)
         self.assertIn(".scenario-guide[hidden]", styles)
         self.assertIn("display: none !important", styles)
+
+    def test_eqt_uses_a_dedicated_traceable_sum_of_the_parts_page(self):
+        payload = json.loads((ROOT / "data" / "omxs30-data.json").read_text(encoding="utf-8"))
+        eqt = next(company for company in payload["companies"] if company["ticker"] == "EQT.ST")
+        config = eqt["specializedValuation"]
+        self.assertEqual(config["type"], "eqt-sotp")
+        self.assertEqual(config["feeBusiness"]["ebitdaMultiple"], {"base": 22, "bull": 25, "bear": 18})
+        self.assertEqual(config["carriedInterest"]["realizationFactor"], {"base": 0.75, "bull": 1, "bear": 0.5})
+        self.assertIn("function calculateEqtSotp", self.javascript)
+        self.assertIn("feeRelatedEbitdaFy2025", self.javascript)
+        self.assertIn("feeBusinessValueEurm + netAssetBlockEurm", self.javascript)
+        self.assertIn('{ label: "EQT SOTP", value, weight: 1 }', self.javascript)
+        self.assertIn('id="eqtSotpAudit"', self.html)
+        self.assertIn("How the EQT sum-of-the-parts works", self.html)
+        self.assertIn('elements.modelControlGroup.hidden = isEqtSotp', self.javascript)
+        self.assertIn('elements.growthControlGroup.hidden = isEqtSotp', self.javascript)
+        self.assertIn('elements.scenarioControlGroup.hidden = false', self.javascript)
+        self.assertIn("Analyst target prices: 0% weight", self.javascript)
+        self.assertIn('getFxAudit(config?.reportedCurrency ?? "EUR")', self.javascript)
 
     def test_ev_ebitda_remains_an_analysis_tab(self):
         self.assertIn('data-model-view="ev-ebitda">EV/EBITDA</button>', self.html)

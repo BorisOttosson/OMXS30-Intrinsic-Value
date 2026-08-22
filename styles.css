@@ -1617,7 +1617,8 @@ input::placeholder { color: var(--faint); }
 }
 
 .analysis-controls[hidden],
-.scenario-guide[hidden] {
+.scenario-guide[hidden],
+.analysis-control-group[hidden] {
   display: none !important;
 }
 

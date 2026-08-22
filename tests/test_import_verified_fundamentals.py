@@ -115,6 +115,19 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
             self.assertEqual(audits["ebitda"]["status"], "not-applicable")
             self.assertEqual(audits["freeCashFlow"]["status"], "not-applicable")
 
+    def test_eqt_sotp_inputs_survive_the_verified_import(self):
+        output = import_manifest(self.payload, self.manifest, checked_at="2026-08-22T10:00:00+00:00")
+        eqt = next(company for company in output["companies"] if company["ticker"] == "EQT.ST")
+        config = eqt["specializedValuation"]
+        self.assertEqual(config["type"], "eqt-sotp")
+        self.assertEqual(config["sourceName"], "EQT H1 2026 report")
+        self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaFy2025"], 1194)
+        self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaH12026"], 571)
+        self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaH12025"], 615)
+        self.assertEqual(config["strategicAndFundInvestments"]["reportedFairValue"], 2835)
+        self.assertEqual(config["carriedInterest"]["reportedFairValue"], 2794)
+        self.assertEqual(config["netDebt"], 1596)
+
     def test_official_annual_fcf_history_calculates_cagr_from_displayed_values(self):
         manifest = deepcopy(self.manifest)
         entry = manifest["companies"]["ABB.ST"]
