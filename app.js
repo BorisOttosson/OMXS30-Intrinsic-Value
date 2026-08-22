@@ -329,6 +329,11 @@ const elements = {
   analysisChartTitle: document.querySelector("#analysisChartTitle"),
   analysisChartSubtitle: document.querySelector("#analysisChartSubtitle"),
   analysisChartUnit: document.querySelector("#analysisChartUnit"),
+  eqtForecastEditor: document.querySelector("#eqtForecastEditor"),
+  eqtFeeEbitdaGrowth: document.querySelector("#eqtFeeEbitdaGrowth"),
+  eqtTerminalMultiple: document.querySelector("#eqtTerminalMultiple"),
+  eqtGrowthScenarioNote: document.querySelector("#eqtGrowthScenarioNote"),
+  eqtMultipleScenarioNote: document.querySelector("#eqtMultipleScenarioNote"),
   analysisModelTitle: document.querySelector("#analysisModelTitle"),
   analysisModelDescription: document.querySelector("#analysisModelDescription"),
   analysisFormula: document.querySelector("#analysisFormula"),
@@ -457,6 +462,8 @@ function createDefaultCompanies() {
       terminalGrowth: defaults.terminalGrowth,
       targetPe: round(price / eps, 2),
       targetEvToEbitda,
+      eqtFeeEbitdaGrowth: ticker === "EQT.ST" ? 8 : null,
+      eqtTerminalMultiple: ticker === "EQT.ST" ? 22 : null,
       portfolioWeight: 0,
       industryScore,
       companyScore: clamp(companyScore + ((index % 3) - 1), 1, 5),
@@ -738,6 +745,14 @@ function applyMarketData(currentCompanies, marketCompanies) {
       // displayed beside the share price.
       targetPe: currentPe,
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
+      eqtFeeEbitdaGrowth: numberOrFallback(
+        current.eqtFeeEbitdaGrowth,
+        market.specializedValuation?.feeBusiness?.defaultGrowth ?? seedCompany.eqtFeeEbitdaGrowth
+      ),
+      eqtTerminalMultiple: numberOrFallback(
+        current.eqtTerminalMultiple,
+        market.specializedValuation?.feeBusiness?.ebitdaMultiple?.base ?? seedCompany.eqtTerminalMultiple
+      ),
       currency: market.currency ?? current.currency ?? "SEK",
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
       fundamentalsUsable,
@@ -1033,6 +1048,12 @@ function formatPercent(value, digits = 1) {
   if (!Number.isFinite(value)) return "-";
   const sign = value > 0 ? "+" : "";
   return `${sign}${formatDecimal(value, digits)}%`;
+}
+
+function formatSignedNumber(value, digits = 1) {
+  if (!Number.isFinite(value)) return "-";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${formatDecimal(value, digits)}`;
 }
 
 function formatDateTime(value) {
@@ -1695,7 +1716,7 @@ function calculateInvestmentModel(company, scenario) {
       secondaryValue: eqt.feeBusinessPerShare,
       tertiaryLabel: "Net asset block",
       tertiaryValue: formatTickerMoney(eqt.netAssetBlockPerShare, company.currency ?? "SEK"),
-      reverseLabel: "Fee EBITDA multiple",
+      reverseLabel: "Terminal EBITDA multiple",
       reverseValue: Number.isFinite(eqt.feeMultiple) ? `${formatDecimal(eqt.feeMultiple, 1)}x` : "-",
       reverseSub: `${scenarioAdjustments[scenario]?.label ?? "Base case"} assumption`,
       valueDescription: Number.isFinite(eqt.value)
@@ -1962,7 +1983,25 @@ function calculateEqtSotp(company, scenario = "base") {
   const feeRelatedEbitdaFy2025 = numberOrNull(fee.feeRelatedEbitdaFy2025);
   const feeRelatedEbitdaH12026 = numberOrNull(fee.feeRelatedEbitdaH12026);
   const feeRelatedEbitdaH12025 = numberOrNull(fee.feeRelatedEbitdaH12025);
-  const feeMultiple = numberOrNull(fee.ebitdaMultiple?.[scenario]);
+  const forecastYears = Number(fee.forecastYears ?? 5);
+  const configuredBaseMultiple = numberOrNull(fee.ebitdaMultiple?.base);
+  const configuredScenarioMultiple = numberOrNull(fee.ebitdaMultiple?.[scenario]);
+  const baseTerminalMultiple = numberOrNull(company.eqtTerminalMultiple) ?? configuredBaseMultiple;
+  const multipleAdjustment = configuredBaseMultiple !== null && configuredScenarioMultiple !== null
+    ? configuredScenarioMultiple - configuredBaseMultiple
+    : null;
+  const feeMultiple = baseTerminalMultiple !== null && multipleAdjustment !== null
+    ? baseTerminalMultiple + multipleAdjustment
+    : null;
+  const baseFeeGrowth = numberOrNull(company.eqtFeeEbitdaGrowth) ?? numberOrNull(fee.defaultGrowth);
+  const growthAdjustment = numberOrNull(fee.growthAdjustment?.[scenario]);
+  const feeGrowth = baseFeeGrowth !== null && growthAdjustment !== null
+    ? baseFeeGrowth + growthAdjustment
+    : null;
+  const baseDiscountRate = numberOrNull(company.wacc);
+  const discountRate = baseDiscountRate !== null
+    ? baseDiscountRate + (scenarioAdjustments[scenario]?.wacc ?? 0)
+    : null;
   const investments = config.strategicAndFundInvestments ?? {};
   const investmentFactor = numberOrNull(investments.valueFactor?.[scenario]);
   const carried = config.carriedInterest ?? {};
@@ -1974,7 +2013,12 @@ function calculateEqtSotp(company, scenario = "base") {
     feeRelatedEbitdaFy2025,
     feeRelatedEbitdaH12026,
     feeRelatedEbitdaH12025,
+    Number.isInteger(forecastYears) && forecastYears > 0 ? forecastYears : null,
+    baseTerminalMultiple,
     feeMultiple,
+    baseFeeGrowth,
+    feeGrowth,
+    discountRate,
     reportedInvestmentsEurm,
     investmentFactor,
     reportedCarriedInterestEurm,
@@ -1992,8 +2036,30 @@ function calculateEqtSotp(company, scenario = "base") {
     };
   }
 
+  if (feeGrowth <= -100 || feeMultiple <= 0 || discountRate <= 0) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: "EQT growth must be above −100%, while the terminal multiple and discount rate must be positive."
+    };
+  }
+
   const ltmFeeRelatedEbitda = feeRelatedEbitdaFy2025 + feeRelatedEbitdaH12026 - feeRelatedEbitdaH12025;
-  const feeBusinessValueEurm = ltmFeeRelatedEbitda * feeMultiple;
+  const forecastRows = Array.from({ length: forecastYears }, (_, index) => {
+    const year = index + 1;
+    return {
+      year,
+      ebitdaEurm: ltmFeeRelatedEbitda * ((1 + feeGrowth / 100) ** year)
+    };
+  });
+  const terminalEbitdaEurm = forecastRows.at(-1)?.ebitdaEurm ?? NaN;
+  const terminalFeeBusinessValueEurm = terminalEbitdaEurm * feeMultiple;
+  const discountFactor = (1 + discountRate / 100) ** forecastYears;
+  const feeBusinessValueEurm = terminalFeeBusinessValueEurm / discountFactor;
   const investmentValueEurm = reportedInvestmentsEurm * investmentFactor;
   const carriedInterestValueEurm = reportedCarriedInterestEurm * carriedFactor;
   const netAssetBlockEurm = investmentValueEurm + carriedInterestValueEurm - netDebtEurm;
@@ -2002,7 +2068,7 @@ function calculateEqtSotp(company, scenario = "base") {
   const value = totalEquityValueSek / shares;
   const perShare = (valueEurm) => valueEurm * 1e6 * fx.rateToSek / shares;
   const components = [
-    { label: "Fee-related earnings franchise", valueEurm: feeBusinessValueEurm, perShare: perShare(feeBusinessValueEurm), treatment: `${formatDecimal(feeMultiple, 1)}x LTM fee-related EBITDA` },
+    { label: "Fee-related earnings franchise", valueEurm: feeBusinessValueEurm, perShare: perShare(feeBusinessValueEurm), treatment: `Year ${forecastYears} EBITDA × ${formatDecimal(feeMultiple, 1)}x, discounted at ${formatDecimal(discountRate, 1)}%` },
     { label: "Strategic and fund investments", valueEurm: investmentValueEurm, perShare: perShare(investmentValueEurm), treatment: `${formatPercent(investmentFactor * 100, 0)} of reported fair value` },
     { label: "Accrued carried interest", valueEurm: carriedInterestValueEurm, perShare: perShare(carriedInterestValueEurm), treatment: `${formatPercent(carriedFactor * 100, 0)} of reported fair value` },
     { label: "Less net debt", valueEurm: -netDebtEurm, perShare: perShare(-netDebtEurm), treatment: "Subtracted once" }
@@ -2017,7 +2083,19 @@ function calculateEqtSotp(company, scenario = "base") {
     shares,
     fx,
     ltmFeeRelatedEbitda,
+    forecastYears,
+    forecastRows,
+    baseFeeGrowth,
+    growthAdjustment,
+    feeGrowth,
+    baseTerminalMultiple,
+    multipleAdjustment,
     feeMultiple,
+    baseDiscountRate,
+    discountRate,
+    terminalEbitdaEurm,
+    terminalFeeBusinessValueEurm,
+    discountFactor,
     feeBusinessValueEurm,
     feeBusinessPerShare: perShare(feeBusinessValueEurm),
     investmentFactor,
@@ -2796,9 +2874,16 @@ function bindEvents() {
   document.addEventListener("input", (event) => {
     const company = getSelectedCompany();
     const field = event.target.dataset.field;
+    const eqtField = event.target.dataset.eqtField;
     const quality = event.target.dataset.quality;
     const meta = event.target.dataset.meta;
-    if (!field && !quality && !meta) return;
+    if (!field && !eqtField && !quality && !meta) return;
+    if (eqtField && company) {
+      company[eqtField] = numberOrNull(event.target.value);
+      saveCompanies();
+      renderDependentViews();
+      return;
+    }
     if (meta && company) {
       company[meta] = event.target.value;
       saveCompanies();
@@ -3369,18 +3454,22 @@ function getAnalysisPresentation(company) {
     return {
       key: "eqt-sotp",
       title: `EQT sum-of-the-parts · ${scenarioLabel}`,
-      note: "The recurring fee franchise, balance-sheet investments and accrued carried interest are valued separately; net debt is subtracted once. Analyst target prices have 0% weight.",
-      chartTitle: "Value contributed by each EQT component",
-      chartSubtitle: "Net debt is shown as the amount subtracted before reaching the SOTP equity value",
-      chartUnit: `${currency} / share`,
+      note: "The recurring fee franchise now uses an explicit five-year EBITDA forecast and discounted terminal value. Financial assets are added separately and net debt is subtracted once. Analyst target prices have 0% weight.",
+      chartTitle: "Five-year fee-related EBITDA forecast",
+      chartSubtitle: `${formatPercent(m.feeGrowth, 1)} annual growth in the ${scenarioLabel.toLowerCase()} · official LTM starting value`,
+      chartUnit: "EUR million",
       modelTitle: "EQT — Alternative Asset Manager SOTP",
-      modelDescription: "EQT is an alternative-asset manager, not a conventional holding company. The model capitalizes its recurring fee-related earnings, adds reported financial investments and a scenario-adjusted portion of accrued carried interest, then subtracts net debt.",
+      modelDescription: "EQT is an alternative-asset manager, not a conventional holding company. The model forecasts fee-related EBITDA for five years, applies an exit multiple to year-five EBITDA and discounts that franchise value to today. It then adds reported financial investments and scenario-adjusted accrued carry before subtracting net debt.",
       sourceUrl: config.sourcePageUrl ?? config.sourceUrl,
       sourceLabel: `${config.sourceName ?? "EQT H1 2026 report"} · ${sourcePeriod}`,
-      formula: "Fee-related EBITDA × scenario multiple + investments at fair value + scenario-adjusted carried interest − net debt",
+      formula: "[Year-5 fee-related EBITDA × terminal EV/EBITDA] ÷ discount factor + investments + carried interest − net debt",
       assumptions: [
         ["LTM fee-related EBITDA", `${formatDecimal(m.ltmFeeRelatedEbitda, 0)} EUR million`],
-        ["Fee-related EBITDA multiple", Number.isFinite(m.feeMultiple) ? `${formatDecimal(m.feeMultiple, 1)}x` : "Unavailable"],
+        ["Base growth input", Number.isFinite(m.baseFeeGrowth) ? `${formatPercent(m.baseFeeGrowth, 1)} manual assumption` : "Unavailable"],
+        ["Scenario growth", Number.isFinite(m.feeGrowth) ? `${formatPercent(m.feeGrowth, 1)} for years 1–5` : "Unavailable"],
+        ["Year-5 fee-related EBITDA", Number.isFinite(m.terminalEbitdaEurm) ? `${formatDecimal(m.terminalEbitdaEurm, 0)} EUR million` : "Unavailable"],
+        ["Terminal EV/EBITDA", Number.isFinite(m.feeMultiple) ? `${formatDecimal(m.feeMultiple, 1)}x in year 5` : "Unavailable"],
+        ["Fee-franchise discount rate", Number.isFinite(m.discountRate) ? `${formatDecimal(m.discountRate, 1)}%` : "Unavailable"],
         ["Strategic/fund investment factor", Number.isFinite(m.investmentFactor) ? formatPercent(m.investmentFactor * 100, 0) : "Unavailable"],
         ["Carried-interest realization factor", Number.isFinite(m.carriedFactor) ? formatPercent(m.carriedFactor * 100, 0) : "Unavailable"],
         ["EUR/SEK conversion", m.fx?.valid ? `1 EUR = ${formatDecimal(m.fx.rateToSek, 5)} SEK · Sveriges Riksbank ${m.fx.rateDate}` : (m.fx?.reason ?? "Unavailable")],
@@ -3390,15 +3479,12 @@ function getAnalysisPresentation(company) {
       metrics: [
         ["SOTP value / share", formatTickerMoney(m.value, currency), differenceText(m.value)],
         ["Current price", formatTickerMoney(price, currency), "Latest market price"],
-        ["Fee franchise / share", formatTickerMoney(m.feeBusinessPerShare, currency), `${formatDecimal(m.ltmFeeRelatedEbitda, 0)} EURm × ${formatDecimal(m.feeMultiple, 1)}x`],
+        ["Fee franchise / share", formatTickerMoney(m.feeBusinessPerShare, currency), `Year-5 EBITDA × ${formatDecimal(m.feeMultiple, 1)}x, discounted ${m.forecastYears} years`],
         ["Net asset block / share", formatTickerMoney(m.netAssetBlockPerShare, currency), "Investments + carried interest − net debt"]
       ],
       chartValues: [
-        { label: "Fee franchise", value: m.feeBusinessPerShare },
-        { label: "Investments", value: m.components?.[1]?.perShare },
-        { label: "Carried interest", value: m.components?.[2]?.perShare },
-        { label: "Net debt", value: Math.abs(m.components?.[3]?.perShare ?? NaN) },
-        { label: "SOTP value", value: m.value }
+        { label: "LTM", value: m.ltmFeeRelatedEbitda },
+        ...(m.forecastRows ?? []).map((row) => ({ label: `Y${row.year}E`, value: row.ebitdaEurm }))
       ]
     };
   }
@@ -3979,15 +4065,23 @@ function renderEqtSotpAudit(company) {
       <td><span class="audit-evidence">${escapeHtml(component.treatment)}</span></td>
     </tr>
   `).join("");
+  const forecastRows = (model.forecastRows ?? []).map((row) => `
+    <tr>
+      <td>Year ${row.year}</td>
+      <td>${escapeHtml(`${formatDecimal(row.ebitdaEurm, 0)} EUR m`)}</td>
+      <td><span class="audit-evidence">Prior year × ${escapeHtml(formatDecimal(1 + model.feeGrowth / 100, 3))}</span></td>
+    </tr>
+  `).join("");
   const omissions = (config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
   elements.eqtSotpAuditBody.innerHTML = `
     <div class="cyclical-step-grid">
       ${[
         ["1", "Normalize fee earnings", `LTM fee-related EBITDA = FY2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaFy2025, 0)} + H1 2026 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} − H1 2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} = ${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR million.`],
-        ["2", "Value the recurring franchise", `Apply the visible ${formatDecimal(model.feeMultiple, 1)}x ${scenarioLabel.toLowerCase()} multiple to LTM fee-related EBITDA.`],
-        ["3", "Value financial assets", `Include ${formatPercent(model.investmentFactor * 100, 0)} of strategic/fund investments and ${formatPercent(model.carriedFactor * 100, 0)} of accrued carried interest.`],
-        ["4", "Reach SEK per share", `Subtract ${formatDecimal(model.netDebtEurm, 0)} EUR million net debt once, translate at the Riksbank rate and divide by ${formatShares(model.shares)} shares.`]
+        ["2", "Forecast five years", `Grow the official LTM starting value by the visible ${formatPercent(model.feeGrowth, 1)} ${scenarioLabel.toLowerCase()} assumption each year.`],
+        ["3", "Calculate terminal value", `Multiply year-${model.forecastYears} EBITDA by ${formatDecimal(model.feeMultiple, 1)}x, then discount the result back ${model.forecastYears} years at ${formatDecimal(model.discountRate, 1)}%.`],
+        ["4", "Add financial assets", `Include ${formatPercent(model.investmentFactor * 100, 0)} of strategic/fund investments and ${formatPercent(model.carriedFactor * 100, 0)} of accrued carried interest.`],
+        ["5", "Reach SEK per share", `Subtract ${formatDecimal(model.netDebtEurm, 0)} EUR million net debt once, translate at the Riksbank rate and divide by ${formatShares(model.shares)} shares.`]
       ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
     </div>
     <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>Period ${escapeHtml(config.period)} · reported in EUR million</small></div>${sourceLink}</div>
@@ -4000,9 +4094,17 @@ function renderEqtSotpAudit(company) {
           <div><dt>Plus H1 2026 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} EUR m`)}</dd></div>
           <div><dt>Less H1 2025 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} EUR m`)}</dd></div>
           <div><dt>LTM fee-related EBITDA <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR m`)}</dd></div>
-          <div><dt>${scenarioLabel} multiple <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(model.feeMultiple, 1)}x`)}</dd></div>
-          <div class="is-total"><dt>Fee franchise value</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m · ${formatTickerMoney(model.feeBusinessPerShare, currency)}`)}</dd></div>
+          <div><dt>Base growth input <span class="audit-badge is-assumption">editable</span></dt><dd>${escapeHtml(formatPercent(model.baseFeeGrowth, 1))}</dd></div>
+          <div><dt>${scenarioLabel} growth <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(formatPercent(model.feeGrowth, 1))}</dd></div>
         </dl>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Forecast</th><th>Fee-related EBITDA</th><th>Calculation</th></tr></thead><tbody>${forecastRows}</tbody></table></div>
+        <dl class="cyclical-bridge">
+          <div><dt>Year-${model.forecastYears} terminal multiple <span class="audit-badge is-assumption">editable base</span></dt><dd>${escapeHtml(`${formatDecimal(model.feeMultiple, 1)}x`)}</dd></div>
+          <div><dt>Terminal franchise value <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(model.terminalFeeBusinessValueEurm, 0)} EUR m`)}</dd></div>
+          <div><dt>Discount factor at ${escapeHtml(`${formatDecimal(model.discountRate, 1)}%`)}</dt><dd>${escapeHtml(`${formatDecimal(model.discountFactor, 3)}x`)}</dd></div>
+          <div class="is-total"><dt>Present value of fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m · ${formatTickerMoney(model.feeBusinessPerShare, currency)}`)}</dd></div>
+        </dl>
+        <p class="audit-note">No interim EBITDA is added as cash flow. This is a discounted exit-multiple model; treating EBITDA itself as distributable cash would overstate value.</p>
       </div>
       <div class="cyclical-audit-card">
         <div class="cyclical-card-heading"><div><span class="eyebrow">Balance sheet</span><h5>Financial assets and debt</h5></div></div>
@@ -4012,7 +4114,7 @@ function renderEqtSotpAudit(company) {
     <div class="cyclical-audit-card">
       <div class="cyclical-card-heading"><div><span class="eyebrow">Valuation bridge</span><h5>EUR enterprise components → SEK equity value per share</h5></div></div>
       <dl class="cyclical-bridge">
-        <div><dt>Fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Present value of fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m`)}</dd></div>
         <div><dt>Net asset block</dt><dd>${escapeHtml(`${formatDecimal(model.netAssetBlockEurm, 0)} EUR m`)}</dd></div>
         <div><dt>Total equity value</dt><dd>${escapeHtml(`${formatDecimal(model.totalEquityValueEurm, 0)} EUR m`)}</dd></div>
         <div><dt>Riksbank FX <span class="audit-badge is-calculated">current reference</span></dt><dd>${escapeHtml(`1 EUR = ${formatDecimal(model.fx.rateToSek, 5)} SEK · ${model.fx.rateDate}`)}</dd></div>
@@ -4039,6 +4141,18 @@ function renderAnalysis(company) {
   elements.scenarioControlGroup.hidden = false;
   elements.scenarioGuide.hidden = isNavInvestment;
   elements.analysisPanel.classList.toggle("is-investment-nav", isNavInvestment);
+  elements.eqtForecastEditor.hidden = !isEqtSotp;
+  const eqtModel = isEqtSotp ? calculateEqtSotp(company, state.scenario) : null;
+  if (isEqtSotp && eqtModel) {
+    elements.eqtFeeEbitdaGrowth.value = roundFieldValue(eqtModel.baseFeeGrowth);
+    elements.eqtTerminalMultiple.value = roundFieldValue(eqtModel.baseTerminalMultiple);
+    elements.eqtGrowthScenarioNote.textContent = state.scenario === "base"
+      ? `Base uses ${formatPercent(eqtModel.feeGrowth, 1)}`
+      : `${scenarioAdjustments[state.scenario]?.label}: ${formatPercent(eqtModel.baseFeeGrowth, 1)} ${formatSignedNumber(eqtModel.growthAdjustment, 1)} pp = ${formatPercent(eqtModel.feeGrowth, 1)}`;
+    elements.eqtMultipleScenarioNote.textContent = state.scenario === "base"
+      ? `Applied to year-${eqtModel.forecastYears} EBITDA`
+      : `${scenarioAdjustments[state.scenario]?.label}: ${formatDecimal(eqtModel.baseTerminalMultiple, 1)}x ${formatSignedNumber(eqtModel.multipleAdjustment, 1)}x = ${formatDecimal(eqtModel.feeMultiple, 1)}x`;
+  }
   const metricTargets = [
     [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
     [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
@@ -4065,9 +4179,11 @@ function renderAnalysis(company) {
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
   if (isEqtSotp) {
-    elements.scenarioBaseCopy.textContent = `22.0x fee-related EBITDA; 100% of strategic/fund investments; 75% of reported carried interest.`;
-    elements.scenarioBullCopy.textContent = `25.0x fee-related EBITDA; 105% of strategic/fund investments; 100% of reported carried interest.`;
-    elements.scenarioBearCopy.textContent = `18.0x fee-related EBITDA; 90% of strategic/fund investments; 50% of reported carried interest.`;
+    const bullModel = calculateEqtSotp(company, "bull");
+    const bearModel = calculateEqtSotp(company, "bear");
+    elements.scenarioBaseCopy.textContent = `${formatPercent(eqtModel?.feeGrowth, 1)} annual fee-EBITDA growth; ${formatDecimal(eqtModel?.feeMultiple, 1)}x year-5 terminal multiple; 100% of investments; 75% of accrued carry.`;
+    elements.scenarioBullCopy.textContent = `${formatPercent(bullModel.feeGrowth, 1)} growth; ${formatDecimal(bullModel.feeMultiple, 1)}x terminal multiple; discount rate −0.7 pp; 105% of investments; 100% of accrued carry.`;
+    elements.scenarioBearCopy.textContent = `${formatPercent(bearModel.feeGrowth, 1)} growth; ${formatDecimal(bearModel.feeMultiple, 1)}x terminal multiple; discount rate +1.0 pp; 90% of investments; 50% of accrued carry.`;
   } else if (isInvestment) {
     elements.scenarioBaseCopy.textContent = "Investment companies use the latest reported NAV or equity per share without a scenario adjustment.";
     elements.scenarioBullCopy.textContent = "Not used for NAV analysis.";

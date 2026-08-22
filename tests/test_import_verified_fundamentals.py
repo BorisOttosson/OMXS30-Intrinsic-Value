@@ -124,6 +124,8 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
         self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaFy2025"], 1194)
         self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaH12026"], 571)
         self.assertEqual(config["feeBusiness"]["feeRelatedEbitdaH12025"], 615)
+        self.assertEqual(config["feeBusiness"]["forecastYears"], 5)
+        self.assertEqual(config["feeBusiness"]["defaultGrowth"], 8)
         self.assertEqual(config["strategicAndFundInvestments"]["reportedFairValue"], 2835)
         self.assertEqual(config["carriedInterest"]["reportedFairValue"], 2794)
         self.assertEqual(config["netDebt"], 1596)

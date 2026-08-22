@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=20260822-eqt-sotp">
+  <link rel="stylesheet" href="styles.css?v=20260822-eqt-growth">
   </head>
   <body>
     <div class="app-shell">
@@ -274,6 +274,30 @@
                 <small id="valuationFourthSub">-</small>
               </div>
             </div>
+
+            <section class="eqt-forecast-editor" id="eqtForecastEditor" hidden aria-live="polite">
+              <div>
+                <span class="eyebrow">Editable base assumptions</span>
+                <h4>Build the fee-business forecast</h4>
+                <p>The selected scenario adjusts these two base inputs. The initial 8% growth is a manual starting assumption—not analyst consensus—and official reported values remain locked.</p>
+              </div>
+              <label>
+                <span>Annual fee-related EBITDA growth</span>
+                <div class="input-unit">
+                  <input id="eqtFeeEbitdaGrowth" data-eqt-field="eqtFeeEbitdaGrowth" type="number" min="-50" max="50" step="0.1">
+                  <span>%</span>
+                </div>
+                <small id="eqtGrowthScenarioNote">Base uses the entered rate</small>
+              </label>
+              <label>
+                <span>Year-5 terminal EV/EBITDA</span>
+                <div class="input-unit">
+                  <input id="eqtTerminalMultiple" data-eqt-field="eqtTerminalMultiple" type="number" min="0" max="60" step="0.1">
+                  <span>x</span>
+                </div>
+                <small id="eqtMultipleScenarioNote">Applied after the fifth forecast year</small>
+              </label>
+            </section>
 
             <div class="analysis-body">
               <div class="analysis-chart-card">
@@ -613,6 +637,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260822-eqt-sotp"></script>
+  <script src="app.js?v=20260822-eqt-growth"></script>
   </body>
 </html>

@@ -1314,6 +1314,44 @@ input::placeholder { color: var(--faint); }
   line-height: 1.45;
 }
 
+.eqt-forecast-editor {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.35fr) repeat(2, minmax(190px, 0.8fr));
+  gap: 14px;
+  align-items: end;
+  padding: 16px 18px;
+  border: 1px solid rgba(79, 146, 216, 0.3);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(79, 146, 216, 0.11), rgba(6, 11, 22, 0.4));
+}
+
+.eqt-forecast-editor[hidden] { display: none !important; }
+
+.eqt-forecast-editor h4 {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.eqt-forecast-editor p,
+.eqt-forecast-editor small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.eqt-forecast-editor label > span:first-child {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--faint);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .analysis-body {
   display: grid;
   grid-template-columns: minmax(0, 2.35fr) minmax(245px, 0.85fr);
@@ -1943,6 +1981,7 @@ input::placeholder { color: var(--faint); }
   .analysis-control-group .segment { flex: 1; min-width: 0; padding-inline: 8px; }
   .analysis-section-heading { align-items: start; flex-direction: column; gap: 5px; }
   .analysis-value-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eqt-forecast-editor { grid-template-columns: minmax(0, 1fr); }
   .analysis-body { grid-template-columns: minmax(0, 1fr); }
   .cyclical-step-grid,
   .cyclical-audit-grid,
@@ -1955,6 +1994,8 @@ input::placeholder { color: var(--faint); }
   .analysis-heading { grid-template-columns: minmax(0, 1fr); }
   .analysis-controls { justify-content: flex-start; }
   .analysis-value-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eqt-forecast-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eqt-forecast-editor > div:first-child { grid-column: 1 / -1; }
   .analysis-body { grid-template-columns: minmax(0, 1fr); }
   .cyclical-step-grid,
   .cyclical-crosschecks { grid-template-columns: repeat(2, minmax(0, 1fr)); }

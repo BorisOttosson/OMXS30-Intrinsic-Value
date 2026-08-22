@@ -902,6 +902,13 @@
           "fy2025SourceUrl": "https://eqtgroup.com/news/eqt-ab-publ-year-end-report-2025-2026-01-22",
           "feeRelatedEbitdaH12025": 615,
           "feeRelatedEbitdaH12026": 571,
+          "forecastYears": 5,
+          "defaultGrowth": 8,
+          "growthAdjustment": {
+            "base": 0,
+            "bull": 2,
+            "bear": -2
+          },
           "ebitdaMultiple": {
             "base": 22,
             "bull": 25,
