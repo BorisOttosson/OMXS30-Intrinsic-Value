@@ -1616,6 +1616,15 @@ input::placeholder { color: var(--faint); }
   padding-top: 4px;
 }
 
+.analysis-controls[hidden],
+.scenario-guide[hidden] {
+  display: none !important;
+}
+
+.valuation-panel.is-investment-nav .analysis-heading {
+  grid-template-columns: 1fr;
+}
+
 .scenario-card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

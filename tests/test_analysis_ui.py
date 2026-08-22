@@ -133,7 +133,8 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("Automatically equals the current trailing P/E shown next to the share price", self.html)
 
     def test_analysis_section_has_financial_title_without_dynamic_subtitle(self):
-        self.assertIn("<h3>Financial Analysis</h3>", self.html)
+        self.assertIn('<h3 id="analysisPanelTitle">Financial Analysis</h3>', self.html)
+        self.assertIn('elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis"', self.javascript)
         self.assertNotIn('id="valuationSubtitle"', self.html)
         self.assertNotIn("elements.valuationSubtitle", self.javascript)
 
@@ -223,6 +224,28 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         pe_scenario_index = self.javascript.index('if (state.analysisModel === "pe")', self.javascript.index("function renderAnalysis"))
         cyclical_scenario_index = self.javascript.index('getSpecializedValuation(company, "boliden-commodity-cycle")', pe_scenario_index)
         self.assertLess(pe_scenario_index, cyclical_scenario_index)
+
+    def test_investment_companies_use_a_dedicated_nav_page(self):
+        styles = (ROOT / "styles.css").read_text(encoding="utf-8")
+        self.assertIn('id="analysisPanelTitle">Financial Analysis</h3>', self.html)
+        self.assertIn('id="analysisControls"', self.html)
+        self.assertIn('id="scenarioGuide"', self.html)
+        self.assertIn('elements.analysisControls.hidden = isInvestment', self.javascript)
+        self.assertIn('elements.scenarioGuide.hidden = isInvestment', self.javascript)
+        self.assertIn('elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis"', self.javascript)
+        self.assertIn('if (category === "investment") {', self.javascript)
+        self.assertIn('title: "NAV discount / premium"', self.javascript)
+        self.assertIn('"100% reported NAV · 0% P/E · 0% DCF · 0% EV/EBITDA"', self.javascript)
+        self.assertIn('{ label: "NAV", value: navPerShare, weight: 1 }', self.javascript)
+        investment_model = self.javascript.split("function calculateInvestmentModel", 1)[1].split("function median", 1)[0]
+        self.assertNotIn('calculatePeValue', investment_model)
+        self.assertNotIn('label: "P/E"', investment_model)
+        nav_helper = self.javascript.split("function getNavPerShare", 1)[1].split("function getInvestmentNavAudit", 1)[0]
+        self.assertNotIn("analystTargetMeanPrice", nav_helper)
+        self.assertIn("Discount / premium = (reported NAV per share − current share price) ÷ reported NAV per share", self.javascript)
+        self.assertIn(".analysis-controls[hidden]", styles)
+        self.assertIn(".scenario-guide[hidden]", styles)
+        self.assertIn("display: none !important", styles)
 
     def test_ev_ebitda_remains_an_analysis_tab(self):
         self.assertIn('data-model-view="ev-ebitda">EV/EBITDA</button>', self.html)
