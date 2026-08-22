@@ -1,29 +1,14 @@
 {
-  "updatedAt": "2026-08-17T05:08:39.861146+00:00",
+  "updatedAt": "2026-08-22T12:48:30.943279+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
-  "currencyPolicy": "FCF values stay in the company's official reporting currency; the dashboard converts display equivalents to SEK with a dated Sveriges Riksbank rate",
+  "currencyPolicy": "FCF and EPS values stay in the company's official reporting currency; the dashboard converts SEK display equivalents with a dated Sveriges Riksbank rate",
   "consensusFcfCagrPolicy": "CAGR from the first forecast FCF to the third forecast FCF over two fiscal-year intervals",
-  "count": 25,
+  "consensusEpsPolicy": "Three published annual EPS estimates in official reporting currency per share; their CAGR may extend years four and five in the P/E model",
+  "count": 29,
   "failures": [
     {
-      "ticker": "SHB-A.ST",
-      "error": "no free cash flow values published for this company"
-    },
-    {
       "ticker": "INDU-C.ST",
-      "error": "free cash flow row not found"
-    },
-    {
-      "ticker": "NDA-SE.ST",
-      "error": "no free cash flow values published for this company"
-    },
-    {
-      "ticker": "SEB-A.ST",
-      "error": "no free cash flow values published for this company"
-    },
-    {
-      "ticker": "SWED-A.ST",
-      "error": "no free cash flow values published for this company"
+      "error": "neither free cash flow nor EPS row was found"
     }
   ],
   "companies": {
@@ -31,7 +16,7 @@
       "ticker": "ABB.ST",
       "id": "abb-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
-      "retrievedAt": "2026-08-17T05:03:56.703849+00:00",
+      "retrievedAt": "2026-08-22T12:43:41.996660+00:00",
       "currency": "USD",
       "reportedCurrency": "USD",
       "displayCurrency": "SEK",
@@ -39,7 +24,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "ABB Q2 2026 Financial Information",
         "sourceUrl": "https://library.e.abb.com/public/a15cd116ef994addbaa55c542d490d18/ABB%20Q2%202026%20Financial%20Information.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -124,13 +110,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 2.25
+        },
+        {
+          "year": 2022,
+          "eps": 1.3
+        },
+        {
+          "year": 2023,
+          "eps": 2.01
+        },
+        {
+          "year": 2024,
+          "eps": 2.13
+        },
+        {
+          "year": 2025,
+          "eps": 2.59
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 3.847
+        },
+        {
+          "year": 2027,
+          "eps": 3.48
+        },
+        {
+          "year": 2028,
+          "eps": 3.973
+        }
+      ],
+      "consensusEpsCagr": 0.016244,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "addt-b-st": {
       "ticker": "ADDT-B.ST",
       "id": "addt-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
-      "retrievedAt": "2026-08-17T05:04:06.178750+00:00",
+      "retrievedAt": "2026-08-22T12:43:51.433144+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -138,7 +166,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Addtech Q1 2026/27 interim report",
         "sourceUrl": "https://q12026.reports.addtech.com/index.php?eID=dumpFile&t=f&f=6769&token=c097c9ccda1b62d10ed11b18ea7bfb9299471a00",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -223,13 +252,55 @@
         2027,
         2028,
         2029
+      ],
+      "epsHistory": [
+        {
+          "year": 2022,
+          "eps": 3.95
+        },
+        {
+          "year": 2023,
+          "eps": 5.55
+        },
+        {
+          "year": 2024,
+          "eps": 6.05
+        },
+        {
+          "year": 2025,
+          "eps": 7.0
+        },
+        {
+          "year": 2026,
+          "eps": 7.95
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2027,
+          "eps": 9.229
+        },
+        {
+          "year": 2028,
+          "eps": 10.42
+        },
+        {
+          "year": 2029,
+          "eps": 11.38
+        }
+      ],
+      "consensusEpsCagr": 0.110437,
+      "consensusEpsYears": [
+        2027,
+        2028,
+        2029
       ]
     },
     "alfa-st": {
       "ticker": "ALFA.ST",
       "id": "alfa-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
-      "retrievedAt": "2026-08-17T05:04:15.682644+00:00",
+      "retrievedAt": "2026-08-22T12:44:00.291305+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -237,7 +308,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Alfa Laval Q2 2026 report",
         "sourceUrl": "https://www.alfalaval.com/contentassets/d17d9f898dbd4387b3ee7cf206c2af19/wkr0006.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -265,15 +337,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 6935.0
+          "fcf": 6934.0
         },
         {
           "year": 2027,
-          "fcf": 8523.0
+          "fcf": 8534.0
         },
         {
           "year": 2028,
-          "fcf": 9760.0
+          "fcf": 9820.0
         }
       ],
       "historyYoy": [
@@ -301,24 +373,66 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 6935.0,
-          "growth": 0.065939
+          "fcf": 6934.0,
+          "growth": 0.065785
         },
         {
           "year": 2027,
-          "fcf": 8523.0,
-          "growth": 0.228983
+          "fcf": 8534.0,
+          "growth": 0.230747
         },
         {
           "year": 2028,
-          "fcf": 9760.0,
-          "growth": 0.145137
+          "fcf": 9820.0,
+          "growth": 0.150691
         }
       ],
       "historicalFcfCagr": 0.126854,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.18632,
+      "consensusFcfCagr": 0.190046,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 11.38
+        },
+        {
+          "year": 2022,
+          "eps": 10.89
+        },
+        {
+          "year": 2023,
+          "eps": 15.31
+        },
+        {
+          "year": 2024,
+          "eps": 17.88
+        },
+        {
+          "year": 2025,
+          "eps": 20.01
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 21.48
+        },
+        {
+          "year": 2027,
+          "eps": 24.87
+        },
+        {
+          "year": 2028,
+          "eps": 27.23
+        }
+      ],
+      "consensusEpsCagr": 0.125918,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
@@ -328,7 +442,7 @@
       "ticker": "ASSA-B.ST",
       "id": "assa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
-      "retrievedAt": "2026-08-17T05:04:26.240169+00:00",
+      "retrievedAt": "2026-08-22T12:44:12.168753+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -336,7 +450,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "ASSA ABLOY Q2 2026 interim report",
         "sourceUrl": "https://www.assaabloy.com/group/en/documents/investors/interim-reports/2026/Q2%20Report%202026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -421,13 +536,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 9.81
+        },
+        {
+          "year": 2022,
+          "eps": 11.97
+        },
+        {
+          "year": 2023,
+          "eps": 12.27
+        },
+        {
+          "year": 2024,
+          "eps": 14.08
+        },
+        {
+          "year": 2025,
+          "eps": 13.23
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 15.61
+        },
+        {
+          "year": 2027,
+          "eps": 17.56
+        },
+        {
+          "year": 2028,
+          "eps": 19.18
+        }
+      ],
+      "consensusEpsCagr": 0.108467,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "azn-st": {
       "ticker": "AZN.ST",
       "id": "azn-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
-      "retrievedAt": "2026-08-17T05:04:35.402925+00:00",
+      "retrievedAt": "2026-08-22T12:44:22.417688+00:00",
       "currency": "USD",
       "reportedCurrency": "USD",
       "displayCurrency": "SEK",
@@ -435,7 +592,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "AstraZeneca H1 and Q2 2026 report",
         "sourceUrl": "https://www.astrazeneca.se/content/dam/az-se/dokument/ekonomiska-rapporter-2026/ENG%20AZN%20H1%20and%20Q2%202026_FINAL.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -520,13 +678,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 0.08
+        },
+        {
+          "year": 2022,
+          "eps": 2.11
+        },
+        {
+          "year": 2023,
+          "eps": 3.81
+        },
+        {
+          "year": 2024,
+          "eps": 4.5
+        },
+        {
+          "year": 2025,
+          "eps": 6.54
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 7.807
+        },
+        {
+          "year": 2027,
+          "eps": 8.959
+        },
+        {
+          "year": 2028,
+          "eps": 10.31
+        }
+      ],
+      "consensusEpsCagr": 0.149178,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "atco-a-st": {
       "ticker": "ATCO-A.ST",
       "id": "atco-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
-      "retrievedAt": "2026-08-17T05:04:44.534286+00:00",
+      "retrievedAt": "2026-08-22T12:44:31.319958+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -534,7 +734,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Atlas Copco Group Q2 2026 report",
         "sourceUrl": "https://www.atlascopcogroup.com/content/dam/atlas-copco/group/documents/investors/financial-publications/english/20260716-en-q2-2026-fl.pdf.coredownload.inline.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -619,13 +820,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 3.712
+        },
+        {
+          "year": 2022,
+          "eps": 4.81
+        },
+        {
+          "year": 2023,
+          "eps": 5.75
+        },
+        {
+          "year": 2024,
+          "eps": 6.1
+        },
+        {
+          "year": 2025,
+          "eps": 5.42
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 5.993
+        },
+        {
+          "year": 2027,
+          "eps": 7.186
+        },
+        {
+          "year": 2028,
+          "eps": 8.04
+        }
+      ],
+      "consensusEpsCagr": 0.15826,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "bol-st": {
       "ticker": "BOL.ST",
       "id": "bol-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
-      "retrievedAt": "2026-08-17T05:04:55.639422+00:00",
+      "retrievedAt": "2026-08-22T12:44:41.640099+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -633,7 +876,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Boliden Q2 2026 official financial workbook",
         "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/boliden_Q2_2026_eng.xlsx",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -718,13 +962,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 31.81
+        },
+        {
+          "year": 2022,
+          "eps": 45.37
+        },
+        {
+          "year": 2023,
+          "eps": 22.21
+        },
+        {
+          "year": 2024,
+          "eps": 36.65
+        },
+        {
+          "year": 2025,
+          "eps": 33.39
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 41.42
+        },
+        {
+          "year": 2027,
+          "eps": 50.98
+        },
+        {
+          "year": 2028,
+          "eps": 55.84
+        }
+      ],
+      "consensusEpsCagr": 0.161095,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "epi-a-st": {
       "ticker": "EPI-A.ST",
       "id": "epi-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
-      "retrievedAt": "2026-08-17T05:05:05.342262+00:00",
+      "retrievedAt": "2026-08-22T12:44:52.146173+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -732,7 +1018,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Epiroc Q2 2026 interim report",
         "sourceUrl": "https://www.epirocgroup.com/content/dam/epiroc/corporate/documents/quarterly-results-presentations-/2026-q2/Epiroc%20Interim%20Report%20Q2%202026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -817,13 +1104,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 5.84
+        },
+        {
+          "year": 2022,
+          "eps": 6.95
+        },
+        {
+          "year": 2023,
+          "eps": 7.81
+        },
+        {
+          "year": 2024,
+          "eps": 7.23
+        },
+        {
+          "year": 2025,
+          "eps": 7.11
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 8.167
+        },
+        {
+          "year": 2027,
+          "eps": 9.853
+        },
+        {
+          "year": 2028,
+          "eps": 10.89
+        }
+      ],
+      "consensusEpsCagr": 0.154736,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "eqt-st": {
       "ticker": "EQT.ST",
       "id": "eqt-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
-      "retrievedAt": "2026-08-17T05:05:15.339741+00:00",
+      "retrievedAt": "2026-08-22T12:45:01.358305+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -831,7 +1160,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "EQT H1 2026 report",
         "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -916,13 +1246,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 0.929
+        },
+        {
+          "year": 2022,
+          "eps": 0.171
+        },
+        {
+          "year": 2023,
+          "eps": 0.117
+        },
+        {
+          "year": 2024,
+          "eps": 0.656
+        },
+        {
+          "year": 2025,
+          "eps": 0.618
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 0.9795
+        },
+        {
+          "year": 2027,
+          "eps": 1.431
+        },
+        {
+          "year": 2028,
+          "eps": 1.678
+        }
+      ],
+      "consensusEpsCagr": 0.308862,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "eric-b-st": {
       "ticker": "ERIC-B.ST",
       "id": "eric-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
-      "retrievedAt": "2026-08-17T05:05:24.117464+00:00",
+      "retrievedAt": "2026-08-22T12:45:10.868673+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -930,7 +1302,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Ericsson Q2 2026 report",
         "sourceUrl": "https://mb.cision.com/Main/15448/4374341/4191838.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1015,13 +1388,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 6.81
+        },
+        {
+          "year": 2022,
+          "eps": 5.62
+        },
+        {
+          "year": 2023,
+          "eps": -7.94
+        },
+        {
+          "year": 2024,
+          "eps": 0.01
+        },
+        {
+          "year": 2025,
+          "eps": 8.51
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 5.306
+        },
+        {
+          "year": 2027,
+          "eps": 6.248
+        },
+        {
+          "year": 2028,
+          "eps": 6.882
+        }
+      ],
+      "consensusEpsCagr": 0.138869,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "essity-b-st": {
       "ticker": "ESSITY-B.ST",
       "id": "essity-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
-      "retrievedAt": "2026-08-17T05:05:32.750240+00:00",
+      "retrievedAt": "2026-08-22T12:45:19.719163+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1029,7 +1444,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Essity Q2 2026 report",
         "sourceUrl": "https://assets.www.essity.com/essity/Q2%20Report%20ENG.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1057,15 +1473,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 10434.0
+          "fcf": 10677.0
         },
         {
           "year": 2027,
-          "fcf": 12299.0
+          "fcf": 12028.0
         },
         {
           "year": 2028,
-          "fcf": 13338.0
+          "fcf": 13109.0
         }
       ],
       "historyYoy": [
@@ -1093,24 +1509,66 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 10434.0,
-          "growth": 0.246744
+          "fcf": 10677.0,
+          "growth": 0.27578
         },
         {
           "year": 2027,
-          "fcf": 12299.0,
-          "growth": 0.178743
+          "fcf": 12028.0,
+          "growth": 0.126534
         },
         {
           "year": 2028,
-          "fcf": 13338.0,
-          "growth": 0.084478
+          "fcf": 13109.0,
+          "growth": 0.089874
         }
       ],
       "historicalFcfCagr": 0.034437,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.130629,
+      "consensusFcfCagr": 0.108052,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 12.27
+        },
+        {
+          "year": 2022,
+          "eps": 7.93
+        },
+        {
+          "year": 2023,
+          "eps": 13.6
+        },
+        {
+          "year": 2024,
+          "eps": 29.83
+        },
+        {
+          "year": 2025,
+          "eps": 18.37
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 17.33
+        },
+        {
+          "year": 2027,
+          "eps": 19.85
+        },
+        {
+          "year": 2028,
+          "eps": 21.43
+        }
+      ],
+      "consensusEpsCagr": 0.112018,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
@@ -1120,7 +1578,7 @@
       "ticker": "EVO.ST",
       "id": "evo-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
-      "retrievedAt": "2026-08-17T05:05:41.529073+00:00",
+      "retrievedAt": "2026-08-22T12:45:29.586557+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -1128,7 +1586,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Evolution Q2 2026 report",
         "sourceUrl": "https://storage.mfn.se/bbf67910-dce3-4b0c-8228-de12e62c78f6/evo-q2-2026-07-17-eng.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1160,11 +1619,11 @@
         },
         {
           "year": 2027,
-          "fcf": 1105.0
+          "fcf": 1106.0
         },
         {
           "year": 2028,
-          "fcf": 1176.0
+          "fcf": 1177.0
         }
       ],
       "historyYoy": [
@@ -1197,19 +1656,128 @@
         },
         {
           "year": 2027,
-          "fcf": 1105.0,
-          "growth": 0.036585
+          "fcf": 1106.0,
+          "growth": 0.037523
         },
         {
           "year": 2028,
-          "fcf": 1176.0,
-          "growth": 0.064253
+          "fcf": 1177.0,
+          "growth": 0.064195
         }
       ],
       "historicalFcfCagr": 0.186253,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.050328,
+      "consensusFcfCagr": 0.050775,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 2.73
+        },
+        {
+          "year": 2022,
+          "eps": 3.88
+        },
+        {
+          "year": 2023,
+          "eps": 4.93
+        },
+        {
+          "year": 2024,
+          "eps": 5.91
+        },
+        {
+          "year": 2025,
+          "eps": 5.23
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 5.376
+        },
+        {
+          "year": 2027,
+          "eps": 6.09
+        },
+        {
+          "year": 2028,
+          "eps": 6.623
+        }
+      ],
+      "consensusEpsCagr": 0.109936,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "shb-a-st": {
+      "ticker": "SHB-A.ST",
+      "id": "shb-a-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-HANDELSBANKEN-AB-22252916/finances/",
+      "retrievedAt": "2026-08-22T12:45:41.155294+00:00",
+      "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Handelsbanken interim report January-June 2026",
+        "sourceUrl": "https://vp292.alertir.com/afw/files/press/handelsbanken/202607148882-1.pdf",
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
+      },
+      "unit": "million",
+      "fcfHistory": [],
+      "fcfForecast": [],
+      "historyYoy": [],
+      "forecastYoy": [],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 0,
+      "consensusFcfCagr": null,
+      "consensusYears": [],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 9.86
+        },
+        {
+          "year": 2022,
+          "eps": 10.84
+        },
+        {
+          "year": 2023,
+          "eps": 14.7
+        },
+        {
+          "year": 2024,
+          "eps": 13.86
+        },
+        {
+          "year": 2025,
+          "eps": 11.98
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 11.56
+        },
+        {
+          "year": 2027,
+          "eps": 11.94
+        },
+        {
+          "year": 2028,
+          "eps": 12.4
+        }
+      ],
+      "consensusEpsCagr": 0.035695,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
@@ -1219,7 +1787,7 @@
       "ticker": "HM-B.ST",
       "id": "hm-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
-      "retrievedAt": "2026-08-17T05:06:00.338691+00:00",
+      "retrievedAt": "2026-08-22T12:45:50.811577+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1227,7 +1795,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "H&M six-month report 2026",
         "sourceUrl": "https://hmgroup.com/wp-content/uploads/2026/06/H-M-Hennes-Mauritz-AB-Six-month-report-2026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1312,13 +1881,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 6.65
+        },
+        {
+          "year": 2022,
+          "eps": 2.16
+        },
+        {
+          "year": 2023,
+          "eps": 5.35
+        },
+        {
+          "year": 2024,
+          "eps": 7.21
+        },
+        {
+          "year": 2025,
+          "eps": 7.58
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 7.774
+        },
+        {
+          "year": 2027,
+          "eps": 8.365
+        },
+        {
+          "year": 2028,
+          "eps": 8.958
+        }
+      ],
+      "consensusEpsCagr": 0.073454,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "hexa-b-st": {
       "ticker": "HEXA-B.ST",
       "id": "hexa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
-      "retrievedAt": "2026-08-17T05:06:10.419686+00:00",
+      "retrievedAt": "2026-08-22T12:45:59.925144+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -1326,7 +1937,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Hexagon Q2 2026 interim report",
         "sourceUrl": "https://api.alertir.com/files/press/hexagon/202607282482-1.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1411,13 +2023,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 0.308
+        },
+        {
+          "year": 2022,
+          "eps": 0.372
+        },
+        {
+          "year": 2023,
+          "eps": 0.317
+        },
+        {
+          "year": 2024,
+          "eps": 0.378
+        },
+        {
+          "year": 2025,
+          "eps": 0.228
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 0.8068
+        },
+        {
+          "year": 2027,
+          "eps": 0.3085
+        },
+        {
+          "year": 2028,
+          "eps": 0.3374
+        }
+      ],
+      "consensusEpsCagr": -0.35332,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "inve-b-st": {
       "ticker": "INVE-B.ST",
       "id": "inve-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
-      "retrievedAt": "2026-08-17T05:06:29.793256+00:00",
+      "retrievedAt": "2026-08-22T12:46:19.048543+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1425,62 +2079,63 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Investor AB interim report January-June 2026",
         "sourceUrl": "https://www.investorab.com/media/12jpon2s/interim-report-january-june-2026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
         {
-          "year": 2021,
+          "year": 2020,
           "fcf": 31624.0
         },
         {
-          "year": 2022,
+          "year": 2021,
           "fcf": 140257.0
         },
         {
-          "year": 2023,
+          "year": 2022,
           "fcf": -44446.0
         }
       ],
       "fcfForecast": [
         {
-          "year": 2024,
+          "year": 2023,
           "fcf": 79768.0
         },
         {
-          "year": 2025,
+          "year": 2024,
           "fcf": 78539.0
         },
         {
-          "year": 2026,
+          "year": 2025,
           "fcf": 102550.0
         }
       ],
       "historyYoy": [
         {
-          "year": 2022,
+          "year": 2021,
           "fcf": 140257.0,
           "growth": 3.435144
         },
         {
-          "year": 2023,
+          "year": 2022,
           "fcf": -44446.0,
           "growth": -1.31689
         }
       ],
       "forecastYoy": [
         {
-          "year": 2024,
+          "year": 2023,
           "fcf": 79768.0,
           "growth": null
         },
         {
-          "year": 2025,
+          "year": 2024,
           "fcf": 78539.0,
           "growth": -0.015407
         },
         {
-          "year": 2026,
+          "year": 2025,
           "fcf": 102550.0,
           "growth": 0.305721
         }
@@ -1489,16 +2144,25 @@
       "historicalFcfCagrYears": 2,
       "consensusFcfCagr": 0.133844,
       "consensusYears": [
+        2023,
         2024,
-        2025,
-        2026
-      ]
+        2025
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 74.41
+        }
+      ],
+      "epsForecast": [],
+      "consensusEpsCagr": null,
+      "consensusEpsYears": []
     },
     "lifco-b-st": {
       "ticker": "LIFCO-B.ST",
       "id": "lifco-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
-      "retrievedAt": "2026-08-17T05:06:38.572534+00:00",
+      "retrievedAt": "2026-08-22T12:46:28.125702+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1506,7 +2170,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Lifco interim report January-June 2026",
         "sourceUrl": "https://storage.mfn.se/c053d827-05c0-4a5d-b6df-fef28e11fa69/interim-report-january-june-2026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1591,21 +2256,64 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 5.26
+        },
+        {
+          "year": 2022,
+          "eps": 6.13
+        },
+        {
+          "year": 2023,
+          "eps": 7.21
+        },
+        {
+          "year": 2024,
+          "eps": 7.27
+        },
+        {
+          "year": 2025,
+          "eps": 8.0
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 8.82
+        },
+        {
+          "year": 2027,
+          "eps": 9.914
+        },
+        {
+          "year": 2028,
+          "eps": 10.76
+        }
+      ],
+      "consensusEpsCagr": 0.104516,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "nibe-b-st": {
       "ticker": "NIBE-B.ST",
       "id": "nibe-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
-      "retrievedAt": "2026-08-17T05:06:47.166941+00:00",
+      "retrievedAt": "2026-08-22T12:46:37.188137+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
       "currencyEvidence": {
         "method": "Official company report currency cross-check",
-        "sourceName": "NIBE Q1 2026 report",
-        "sourceUrl": "https://www.nibegroup.com/download/18.39edb3519e022fddbd637/1779172899766/GB-NIBE-Q1-report-2026-F1.pdf",
-        "marketScreenerDetectedCurrency": null
+        "sourceName": "NIBE Q2 2026 report",
+        "sourceUrl": "https://storage.mfn.se/2de10e82-345e-4a61-a2d0-934a1652c6e9/nibe-q2-report-2026-en.pdf",
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1633,15 +2341,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 3939.0
+          "fcf": 4256.0
         },
         {
           "year": 2027,
-          "fcf": 4212.0
+          "fcf": 4348.0
         },
         {
           "year": 2028,
-          "fcf": 4689.0
+          "fcf": 4706.0
         }
       ],
       "historyYoy": [
@@ -1669,24 +2377,129 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 3939.0,
-          "growth": 0.940394
+          "fcf": 4256.0,
+          "growth": 1.096552
         },
         {
           "year": 2027,
-          "fcf": 4212.0,
-          "growth": 0.069307
+          "fcf": 4348.0,
+          "growth": 0.021617
         },
         {
           "year": 2028,
-          "fcf": 4689.0,
-          "growth": 0.113248
+          "fcf": 4706.0,
+          "growth": 0.082337
         }
       ],
       "historicalFcfCagr": 0.001111,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.091056,
+      "consensusFcfCagr": 0.051538,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 1.65
+        },
+        {
+          "year": 2022,
+          "eps": 2.16
+        },
+        {
+          "year": 2023,
+          "eps": 2.37
+        },
+        {
+          "year": 2024,
+          "eps": 0.58
+        },
+        {
+          "year": 2025,
+          "eps": 1.13
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 1.622
+        },
+        {
+          "year": 2027,
+          "eps": 1.883
+        },
+        {
+          "year": 2028,
+          "eps": 2.085
+        }
+      ],
+      "consensusEpsCagr": 0.133777,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "nda-se-st": {
+      "ticker": "NDA-SE.ST",
+      "id": "nda-se-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/NORDEA-BANK-ABP-46475558/finances/",
+      "retrievedAt": "2026-08-22T12:46:47.256382+00:00",
+      "currency": "EUR",
+      "reportedCurrency": "EUR",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Nordea Q2 2026 official financial workbook",
+        "sourceUrl": "https://www.nordea.com/en/doc/income-statement-second-quarter-2026-0.xlsx",
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
+      },
+      "unit": "million",
+      "fcfHistory": [],
+      "fcfForecast": [],
+      "historyYoy": [],
+      "forecastYoy": [],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 0,
+      "consensusFcfCagr": null,
+      "consensusYears": [],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 0.95
+        },
+        {
+          "year": 2023,
+          "eps": 1.37
+        },
+        {
+          "year": 2024,
+          "eps": 1.44
+        },
+        {
+          "year": 2025,
+          "eps": 1.39
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 1.421
+        },
+        {
+          "year": 2027,
+          "eps": 1.568
+        },
+        {
+          "year": 2028,
+          "eps": 1.677
+        }
+      ],
+      "consensusEpsCagr": 0.086349,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
@@ -1696,7 +2509,7 @@
       "ticker": "SAAB-B.ST",
       "id": "saab-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
-      "retrievedAt": "2026-08-17T05:07:05.317683+00:00",
+      "retrievedAt": "2026-08-22T12:46:54.668814+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1704,7 +2517,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Saab Q2 2026 report",
         "sourceUrl": "https://www.saab.com/globalassets/cision/documents/2026/20260717-saab-q2-results-2026-strong-order-bookings-reinforce-market-position-en-0-5398923.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1789,13 +2603,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 3.612
+        },
+        {
+          "year": 2022,
+          "eps": 4.102
+        },
+        {
+          "year": 2023,
+          "eps": 6.29
+        },
+        {
+          "year": 2024,
+          "eps": 7.74
+        },
+        {
+          "year": 2025,
+          "eps": 11.7
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 15.02
+        },
+        {
+          "year": 2027,
+          "eps": 18.94
+        },
+        {
+          "year": 2028,
+          "eps": 23.01
+        }
+      ],
+      "consensusEpsCagr": 0.237723,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "sand-st": {
       "ticker": "SAND.ST",
       "id": "sand-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
-      "retrievedAt": "2026-08-17T05:07:16.926885+00:00",
+      "retrievedAt": "2026-08-22T12:47:04.849477+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1803,7 +2659,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Sandvik Q2 2026 report",
         "sourceUrl": "https://www.home.sandvik/siteassets/investors/reports--presentations/interim-reports/2026/interim-report-second-quarter-2026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1888,13 +2745,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 11.52
+        },
+        {
+          "year": 2022,
+          "eps": 8.94
+        },
+        {
+          "year": 2023,
+          "eps": 12.18
+        },
+        {
+          "year": 2024,
+          "eps": 9.75
+        },
+        {
+          "year": 2025,
+          "eps": 11.7
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 16.8
+        },
+        {
+          "year": 2027,
+          "eps": 19.42
+        },
+        {
+          "year": 2028,
+          "eps": 20.59
+        }
+      ],
+      "consensusEpsCagr": 0.107066,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "sca-b-st": {
       "ticker": "SCA-B.ST",
       "id": "sca-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
-      "retrievedAt": "2026-08-17T05:07:27.467396+00:00",
+      "retrievedAt": "2026-08-22T12:47:14.342559+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1902,7 +2801,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "SCA Q2 2026 report",
         "sourceUrl": "https://www.sca.com/siteassets/media/press-releases-and-reports/documents/2026/20260722-half-year-report-q2-2026-en-0-5400552.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -1987,13 +2887,122 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 8.69
+        },
+        {
+          "year": 2022,
+          "eps": 9.712
+        },
+        {
+          "year": 2023,
+          "eps": 5.23
+        },
+        {
+          "year": 2024,
+          "eps": 5.18
+        },
+        {
+          "year": 2025,
+          "eps": 4.56
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 3.355
+        },
+        {
+          "year": 2027,
+          "eps": 4.548
+        },
+        {
+          "year": 2028,
+          "eps": 4.998
+        }
+      ],
+      "consensusEpsCagr": 0.22054,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "seb-a-st": {
+      "ticker": "SEB-A.ST",
+      "id": "seb-a-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/ENSKILDA-BANKEN-6491107/finances/",
+      "retrievedAt": "2026-08-22T12:47:25.875595+00:00",
+      "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "SEB Q2 2026 Fact Book",
+        "sourceUrl": "https://webapp.sebgroup.com/mb/mblib.nsf/alldocsbyunid/A37209093393EED9C1258E350018CEF4/$FILE/Q226_FactBookfigures.xlsx",
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
+      },
+      "unit": "million",
+      "fcfHistory": [],
+      "fcfForecast": [],
+      "historyYoy": [],
+      "forecastYoy": [],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 0,
+      "consensusFcfCagr": null,
+      "consensusYears": [],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 11.67
+        },
+        {
+          "year": 2022,
+          "eps": 12.53
+        },
+        {
+          "year": 2023,
+          "eps": 18.06
+        },
+        {
+          "year": 2024,
+          "eps": 17.33
+        },
+        {
+          "year": 2025,
+          "eps": 15.43
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 16.33
+        },
+        {
+          "year": 2027,
+          "eps": 18.08
+        },
+        {
+          "year": 2028,
+          "eps": 19.51
+        }
+      ],
+      "consensusEpsCagr": 0.093039,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "ska-b-st": {
       "ticker": "SKA-B.ST",
       "id": "ska-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
-      "retrievedAt": "2026-08-17T05:07:46.288160+00:00",
+      "retrievedAt": "2026-08-22T12:47:33.389580+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2001,7 +3010,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Skanska Q2 2026 report",
         "sourceUrl": "https://edit.skanska.com/siteassets/group/investors/financial-reports/interim-reports/2026/q2/skanska-q2-2026-en.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -2010,62 +3020,62 @@
           "fcf": 5602.0
         },
         {
-          "year": 2022,
+          "year": 2023,
           "fcf": 632.0
         },
         {
-          "year": 2023,
+          "year": 2024,
           "fcf": 6447.0
         },
         {
-          "year": 2024,
+          "year": 2025,
           "fcf": 4232.0
         }
       ],
       "fcfForecast": [
         {
-          "year": 2025,
+          "year": 2026,
           "fcf": 10681.0
         },
         {
-          "year": 2026,
+          "year": 2027,
           "fcf": 8426.0
         },
         {
-          "year": 2027,
+          "year": 2028,
           "fcf": 8522.0
         }
       ],
       "historyYoy": [
         {
-          "year": 2022,
+          "year": 2023,
           "fcf": 632.0,
           "growth": -0.887183
         },
         {
-          "year": 2023,
+          "year": 2024,
           "fcf": 6447.0,
           "growth": 9.200949
         },
         {
-          "year": 2024,
+          "year": 2025,
           "fcf": 4232.0,
           "growth": -0.343571
         }
       ],
       "forecastYoy": [
         {
-          "year": 2025,
+          "year": 2026,
           "fcf": 10681.0,
           "growth": 1.523866
         },
         {
-          "year": 2026,
+          "year": 2027,
           "fcf": 8426.0,
           "growth": -0.211123
         },
         {
-          "year": 2027,
+          "year": 2028,
           "fcf": 8522.0,
           "growth": 0.011393
         }
@@ -2074,16 +3084,58 @@
       "historicalFcfCagrYears": 3,
       "consensusFcfCagr": -0.106767,
       "consensusYears": [
-        2025,
         2026,
-        2027
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 19.8
+        },
+        {
+          "year": 2022,
+          "eps": 18.62
+        },
+        {
+          "year": 2023,
+          "eps": 7.89
+        },
+        {
+          "year": 2024,
+          "eps": 14.12
+        },
+        {
+          "year": 2025,
+          "eps": 15.09
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 17.51
+        },
+        {
+          "year": 2027,
+          "eps": 19.14
+        },
+        {
+          "year": 2028,
+          "eps": 20.8
+        }
+      ],
+      "consensusEpsCagr": 0.089905,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "skf-b-st": {
       "ticker": "SKF-B.ST",
       "id": "skf-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
-      "retrievedAt": "2026-08-17T05:07:54.954113+00:00",
+      "retrievedAt": "2026-08-22T12:47:42.753680+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2091,7 +3143,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "SKF Q2 2026 report",
         "sourceUrl": "https://mb.cision.com/Main/637/4375540/4195147.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -2119,15 +3172,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 4391.0
+          "fcf": 4129.0
         },
         {
           "year": 2027,
-          "fcf": 7268.0
+          "fcf": 7489.0
         },
         {
           "year": 2028,
-          "fcf": 8443.0
+          "fcf": 8704.0
         }
       ],
       "historyYoy": [
@@ -2155,24 +3208,133 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 4391.0,
-          "growth": -0.036639
+          "fcf": 4129.0,
+          "growth": -0.09412
         },
         {
           "year": 2027,
-          "fcf": 7268.0,
-          "growth": 0.655204
+          "fcf": 7489.0,
+          "growth": 0.813756
         },
         {
           "year": 2028,
-          "fcf": 8443.0,
-          "growth": 0.161668
+          "fcf": 8704.0,
+          "growth": 0.162238
         }
       ],
       "historicalFcfCagr": 0.213777,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.386649,
+      "consensusFcfCagr": 0.451901,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 16.09
+        },
+        {
+          "year": 2022,
+          "eps": 9.81
+        },
+        {
+          "year": 2023,
+          "eps": 14.04
+        },
+        {
+          "year": 2024,
+          "eps": 14.22
+        },
+        {
+          "year": 2025,
+          "eps": 8.62
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 13.49
+        },
+        {
+          "year": 2027,
+          "eps": 16.8
+        },
+        {
+          "year": 2028,
+          "eps": 19.09
+        }
+      ],
+      "consensusEpsCagr": 0.189589,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "swed-a-st": {
+      "ticker": "SWED-A.ST",
+      "id": "swed-a-st",
+      "sourceUrl": "https://www.marketscreener.com/quote/stock/SWEDBANK-AB-6496651/finances/",
+      "retrievedAt": "2026-08-22T12:47:53.093717+00:00",
+      "currency": "SEK",
+      "reportedCurrency": "SEK",
+      "displayCurrency": "SEK",
+      "currencyEvidence": {
+        "method": "Official company report currency cross-check",
+        "sourceName": "Swedbank Q2 2026 official results and report",
+        "sourceUrl": "https://www.swedbank.com/newsroom/press-releases.details.swedbank%E2%80%99s-interim-report-for-the-second-quarter-2026.DA59ABC946065D11.html",
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
+      },
+      "unit": "million",
+      "fcfHistory": [],
+      "fcfForecast": [],
+      "historyYoy": [],
+      "forecastYoy": [],
+      "historicalFcfCagr": null,
+      "historicalFcfCagrYears": 0,
+      "consensusFcfCagr": null,
+      "consensusYears": [],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 18.56
+        },
+        {
+          "year": 2022,
+          "eps": 19.43
+        },
+        {
+          "year": 2023,
+          "eps": 30.27
+        },
+        {
+          "year": 2024,
+          "eps": 30.86
+        },
+        {
+          "year": 2025,
+          "eps": 28.98
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 27.05
+        },
+        {
+          "year": 2027,
+          "eps": 29.98
+        },
+        {
+          "year": 2028,
+          "eps": 31.62
+        }
+      ],
+      "consensusEpsCagr": 0.081178,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
@@ -2182,7 +3344,7 @@
       "ticker": "TEL2-B.ST",
       "id": "tel2-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
-      "retrievedAt": "2026-08-17T05:08:13.950340+00:00",
+      "retrievedAt": "2026-08-22T12:48:03.454974+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2190,7 +3352,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Tele2 Q2 2026 report",
         "sourceUrl": "https://www.tele2.com/files/Main/3372/4374673/interim-report-q2-2026.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -2275,13 +3438,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 6.21
+        },
+        {
+          "year": 2022,
+          "eps": 8.03
+        },
+        {
+          "year": 2023,
+          "eps": 5.37
+        },
+        {
+          "year": 2024,
+          "eps": 5.56
+        },
+        {
+          "year": 2025,
+          "eps": 6.58
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 15.01
+        },
+        {
+          "year": 2027,
+          "eps": 8.252
+        },
+        {
+          "year": 2028,
+          "eps": 9.086
+        }
+      ],
+      "consensusEpsCagr": -0.221971,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "telia-st": {
       "ticker": "TELIA.ST",
       "id": "telia-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
-      "retrievedAt": "2026-08-17T05:08:22.814611+00:00",
+      "retrievedAt": "2026-08-22T12:48:14.032794+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2289,7 +3494,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Telia Company Q2 2026 interim report",
         "sourceUrl": "https://www.teliacompany.com/assets/u5c1v3pt22v8/4viAaFQ4qjq2aHsnQ7db19/f02c7d9a831389dbea22e10388bd2033/Telia_Company_Q2_2026_Eng.pdf",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -2374,13 +3580,55 @@
         2026,
         2027,
         2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 2.86
+        },
+        {
+          "year": 2022,
+          "eps": -3.63
+        },
+        {
+          "year": 2023,
+          "eps": 0.08
+        },
+        {
+          "year": 2024,
+          "eps": 0.97
+        },
+        {
+          "year": 2025,
+          "eps": 0.9
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 2.162
+        },
+        {
+          "year": 2027,
+          "eps": 2.452
+        },
+        {
+          "year": 2028,
+          "eps": 2.657
+        }
+      ],
+      "consensusEpsCagr": 0.108582,
+      "consensusEpsYears": [
+        2026,
+        2027,
+        2028
       ]
     },
     "volv-b-st": {
       "ticker": "VOLV-B.ST",
       "id": "volv-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
-      "retrievedAt": "2026-08-17T05:08:32.860983+00:00",
+      "retrievedAt": "2026-08-22T12:48:23.943103+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2388,7 +3636,8 @@
         "method": "Official company report currency cross-check",
         "sourceName": "Volvo Group Q2 2026 report",
         "sourceUrl": "https://www.volvogroup.com/en/news-and-media/events/2026/jul/second-quarter-2026.html",
-        "marketScreenerDetectedCurrency": null
+        "marketScreenerDetectedCurrency": null,
+        "marketScreenerDetectedEpsCurrency": null
       },
       "unit": "million",
       "fcfHistory": [
@@ -2470,6 +3719,48 @@
       "historicalFcfCagrYears": 4,
       "consensusFcfCagr": 0.134248,
       "consensusYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "epsHistory": [
+        {
+          "year": 2021,
+          "eps": 16.12
+        },
+        {
+          "year": 2022,
+          "eps": 16.09
+        },
+        {
+          "year": 2023,
+          "eps": 24.5
+        },
+        {
+          "year": 2024,
+          "eps": 24.78
+        },
+        {
+          "year": 2025,
+          "eps": 16.94
+        }
+      ],
+      "epsForecast": [
+        {
+          "year": 2026,
+          "eps": 20.59
+        },
+        {
+          "year": 2027,
+          "eps": 24.96
+        },
+        {
+          "year": 2028,
+          "eps": 26.99
+        }
+      ],
+      "consensusEpsCagr": 0.144915,
+      "consensusEpsYears": [
         2026,
         2027,
         2028
