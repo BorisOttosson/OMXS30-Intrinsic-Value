@@ -320,6 +320,9 @@ const elements = {
   analysisPanel: document.querySelector("#analysisPanel"),
   analysisPanelTitle: document.querySelector("#analysisPanelTitle"),
   analysisControls: document.querySelector("#analysisControls"),
+  modelControlGroup: document.querySelector("#modelControlGroup"),
+  growthControlGroup: document.querySelector("#growthControlGroup"),
+  scenarioControlGroup: document.querySelector("#scenarioControlGroup"),
   scenarioGuide: document.querySelector("#scenarioGuide"),
   analysisMetricsTitle: document.querySelector("#analysisMetricsTitle"),
   analysisMetricsNote: document.querySelector("#analysisMetricsNote"),
@@ -347,6 +350,9 @@ const elements = {
   cyclicalPeNote: document.querySelector("#cyclicalPeNote"),
   cyclicalSubtype: document.querySelector("#cyclicalSubtype"),
   cyclicalSubtypeNote: document.querySelector("#cyclicalSubtypeNote"),
+  eqtSotpAudit: document.querySelector("#eqtSotpAudit"),
+  eqtSotpAuditStatus: document.querySelector("#eqtSotpAuditStatus"),
+  eqtSotpAuditBody: document.querySelector("#eqtSotpAuditBody"),
   scenarioBaseCopy: document.querySelector("#scenarioBaseCopy"),
   scenarioBullCopy: document.querySelector("#scenarioBullCopy"),
   scenarioBearCopy: document.querySelector("#scenarioBearCopy"),
@@ -1675,6 +1681,32 @@ function calculateBankModel(company, scenario) {
 }
 
 function calculateInvestmentModel(company, scenario) {
+  if (getSpecializedValuation(company, "eqt-sotp")) {
+    const eqt = calculateEqtSotp(company, scenario);
+    return {
+      ...eqt,
+      dcf: { value: NaN, flows: [], error: eqt.error },
+      peValue: NaN,
+      currentPe: NaN,
+      blendedValue: eqt.value,
+      primaryLabel: "EQT SOTP value",
+      primaryValue: eqt.value,
+      secondaryLabel: "Fee franchise",
+      secondaryValue: eqt.feeBusinessPerShare,
+      tertiaryLabel: "Net asset block",
+      tertiaryValue: formatTickerMoney(eqt.netAssetBlockPerShare, company.currency ?? "SEK"),
+      reverseLabel: "Fee EBITDA multiple",
+      reverseValue: Number.isFinite(eqt.feeMultiple) ? `${formatDecimal(eqt.feeMultiple, 1)}x` : "-",
+      reverseSub: `${scenarioAdjustments[scenario]?.label ?? "Base case"} assumption`,
+      valueDescription: Number.isFinite(eqt.value)
+        ? `100% EQT SOTP = ${formatCurrency(eqt.value, company.currency ?? "SEK")}. Analyst target prices have 0% weight.`
+        : eqt.error,
+      modelSupportScore: eqt.valid ? 70 : 45,
+      modelWarning: eqt.error,
+      chartTitle: "EQT sum-of-the-parts"
+    };
+  }
+
   const currency = company.currency ?? "SEK";
   const navAudit = getInvestmentNavAudit(company);
   const navPerShare = navAudit.navPerShare;
@@ -1906,6 +1938,99 @@ function getSpecializedValuation(company, type = null) {
   const config = company?.specializedValuation;
   if (!config || (type && config.type !== type)) return null;
   return config;
+}
+
+function calculateEqtSotp(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "eqt-sotp");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  const fx = getFxAudit(config?.reportedCurrency ?? "EUR");
+  if (!config || !shares || shares <= 0 || !fx.valid) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: !config
+        ? "EQT needs its official SOTP inputs."
+        : (!shares || shares <= 0 ? "EQT needs a valid official share count." : fx.reason)
+    };
+  }
+
+  const fee = config.feeBusiness ?? {};
+  const feeRelatedEbitdaFy2025 = numberOrNull(fee.feeRelatedEbitdaFy2025);
+  const feeRelatedEbitdaH12026 = numberOrNull(fee.feeRelatedEbitdaH12026);
+  const feeRelatedEbitdaH12025 = numberOrNull(fee.feeRelatedEbitdaH12025);
+  const feeMultiple = numberOrNull(fee.ebitdaMultiple?.[scenario]);
+  const investments = config.strategicAndFundInvestments ?? {};
+  const investmentFactor = numberOrNull(investments.valueFactor?.[scenario]);
+  const carried = config.carriedInterest ?? {};
+  const carriedFactor = numberOrNull(carried.realizationFactor?.[scenario]);
+  const reportedInvestmentsEurm = numberOrNull(investments.reportedFairValue);
+  const reportedCarriedInterestEurm = numberOrNull(carried.reportedFairValue);
+  const netDebtEurm = numberOrNull(config.netDebt);
+  if ([
+    feeRelatedEbitdaFy2025,
+    feeRelatedEbitdaH12026,
+    feeRelatedEbitdaH12025,
+    feeMultiple,
+    reportedInvestmentsEurm,
+    investmentFactor,
+    reportedCarriedInterestEurm,
+    carriedFactor,
+    netDebtEurm
+  ].some((value) => value === null)) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: `The EQT ${scenario} SOTP needs every official input and scenario assumption; missing values are never treated as zero.`
+    };
+  }
+
+  const ltmFeeRelatedEbitda = feeRelatedEbitdaFy2025 + feeRelatedEbitdaH12026 - feeRelatedEbitdaH12025;
+  const feeBusinessValueEurm = ltmFeeRelatedEbitda * feeMultiple;
+  const investmentValueEurm = reportedInvestmentsEurm * investmentFactor;
+  const carriedInterestValueEurm = reportedCarriedInterestEurm * carriedFactor;
+  const netAssetBlockEurm = investmentValueEurm + carriedInterestValueEurm - netDebtEurm;
+  const totalEquityValueEurm = feeBusinessValueEurm + netAssetBlockEurm;
+  const totalEquityValueSek = totalEquityValueEurm * 1e6 * fx.rateToSek;
+  const value = totalEquityValueSek / shares;
+  const perShare = (valueEurm) => valueEurm * 1e6 * fx.rateToSek / shares;
+  const components = [
+    { label: "Fee-related earnings franchise", valueEurm: feeBusinessValueEurm, perShare: perShare(feeBusinessValueEurm), treatment: `${formatDecimal(feeMultiple, 1)}x LTM fee-related EBITDA` },
+    { label: "Strategic and fund investments", valueEurm: investmentValueEurm, perShare: perShare(investmentValueEurm), treatment: `${formatPercent(investmentFactor * 100, 0)} of reported fair value` },
+    { label: "Accrued carried interest", valueEurm: carriedInterestValueEurm, perShare: perShare(carriedInterestValueEurm), treatment: `${formatPercent(carriedFactor * 100, 0)} of reported fair value` },
+    { label: "Less net debt", valueEurm: -netDebtEurm, perShare: perShare(-netDebtEurm), treatment: "Subtracted once" }
+  ];
+  const valuationBlend = buildValuationBlend([{ label: "EQT SOTP", value, weight: 1 }]);
+
+  return {
+    valid: Number.isFinite(value),
+    value,
+    valuationBlend,
+    config,
+    shares,
+    fx,
+    ltmFeeRelatedEbitda,
+    feeMultiple,
+    feeBusinessValueEurm,
+    feeBusinessPerShare: perShare(feeBusinessValueEurm),
+    investmentFactor,
+    investmentValueEurm,
+    carriedFactor,
+    carriedInterestValueEurm,
+    netDebtEurm,
+    netAssetBlockEurm,
+    netAssetBlockPerShare: perShare(netAssetBlockEurm),
+    totalEquityValueEurm,
+    components,
+    error: Number.isFinite(value) ? "" : "The EQT SOTP inputs are incomplete."
+  };
 }
 
 function calculateBolidenCommodityCycle(company, scenario = "base") {
@@ -2799,9 +2924,14 @@ function renderHeader() {
   elements.selectedLogoImage.src = logoUrl;
   elements.selectedName.textContent = company.name;
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
+  const specializedModelLabel = getSpecializedValuation(company, "eqt-sotp")
+    ? "EQT sum-of-the-parts"
+    : null;
   elements.inputBadge.textContent = company.fundamentalsUsable === false
     ? (company.dataQuality?.status === "unverified" ? "Not independently verified" : "Fundamentals rejected")
-    : (category !== "operating"
+    : (specializedModelLabel
+      ? specializedModelLabel
+      : category !== "operating"
       ? getCompanyModelLabel(category)
       : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
   elements.stanceBadge.textContent = calc.stance.label;
@@ -3227,6 +3357,51 @@ function getAnalysisPresentation(company) {
   const skanskaModel = getSpecializedValuation(company, "skanska-sotp")
     ? calculateSkanskaSotp(company, scenario)
     : null;
+  const eqtSotpModel = getSpecializedValuation(company, "eqt-sotp")
+    ? calculateEqtSotp(company, scenario)
+    : null;
+
+  if (eqtSotpModel) {
+    const m = eqtSotpModel;
+    const config = m.config ?? {};
+    const context = config.operatingContext ?? {};
+    const sourcePeriod = config.period ? formatShortDate(config.period) : "latest reported period";
+    return {
+      key: "eqt-sotp",
+      title: `EQT sum-of-the-parts · ${scenarioLabel}`,
+      note: "The recurring fee franchise, balance-sheet investments and accrued carried interest are valued separately; net debt is subtracted once. Analyst target prices have 0% weight.",
+      chartTitle: "Value contributed by each EQT component",
+      chartSubtitle: "Net debt is shown as the amount subtracted before reaching the SOTP equity value",
+      chartUnit: `${currency} / share`,
+      modelTitle: "EQT — Alternative Asset Manager SOTP",
+      modelDescription: "EQT is an alternative-asset manager, not a conventional holding company. The model capitalizes its recurring fee-related earnings, adds reported financial investments and a scenario-adjusted portion of accrued carried interest, then subtracts net debt.",
+      sourceUrl: config.sourcePageUrl ?? config.sourceUrl,
+      sourceLabel: `${config.sourceName ?? "EQT H1 2026 report"} · ${sourcePeriod}`,
+      formula: "Fee-related EBITDA × scenario multiple + investments at fair value + scenario-adjusted carried interest − net debt",
+      assumptions: [
+        ["LTM fee-related EBITDA", `${formatDecimal(m.ltmFeeRelatedEbitda, 0)} EUR million`],
+        ["Fee-related EBITDA multiple", Number.isFinite(m.feeMultiple) ? `${formatDecimal(m.feeMultiple, 1)}x` : "Unavailable"],
+        ["Strategic/fund investment factor", Number.isFinite(m.investmentFactor) ? formatPercent(m.investmentFactor * 100, 0) : "Unavailable"],
+        ["Carried-interest realization factor", Number.isFinite(m.carriedFactor) ? formatPercent(m.carriedFactor * 100, 0) : "Unavailable"],
+        ["EUR/SEK conversion", m.fx?.valid ? `1 EUR = ${formatDecimal(m.fx.rateToSek, 5)} SEK · Sveriges Riksbank ${m.fx.rateDate}` : (m.fx?.reason ?? "Unavailable")],
+        ["Operating context", `${formatDecimal(asNumber(context.feeGeneratingAum) / 1000, 0)}bn EUR fee-generating AUM · ${formatPercent(asNumber(context.h12026FeeRelatedEbitdaMargin) * 100, 0)} H1 fee-related EBITDA margin`],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["SOTP value / share", formatTickerMoney(m.value, currency), differenceText(m.value)],
+        ["Current price", formatTickerMoney(price, currency), "Latest market price"],
+        ["Fee franchise / share", formatTickerMoney(m.feeBusinessPerShare, currency), `${formatDecimal(m.ltmFeeRelatedEbitda, 0)} EURm × ${formatDecimal(m.feeMultiple, 1)}x`],
+        ["Net asset block / share", formatTickerMoney(m.netAssetBlockPerShare, currency), "Investments + carried interest − net debt"]
+      ],
+      chartValues: [
+        { label: "Fee franchise", value: m.feeBusinessPerShare },
+        { label: "Investments", value: m.components?.[1]?.perShare },
+        { label: "Carried interest", value: m.components?.[2]?.perShare },
+        { label: "Net debt", value: Math.abs(m.components?.[3]?.perShare ?? NaN) },
+        { label: "SOTP value", value: m.value }
+      ]
+    };
+  }
 
   if (category === "investment") {
     const nav = getInvestmentNavAudit(company);
@@ -3778,16 +3953,92 @@ function renderCyclicalAudit(company) {
   elements.cyclicalSubtypeNote.textContent = subtype.note;
 }
 
+function renderEqtSotpAudit(company) {
+  if (!elements.eqtSotpAudit || !elements.eqtSotpAuditBody) return;
+  const config = getSpecializedValuation(company, "eqt-sotp");
+  const model = config ? calculateEqtSotp(company, state.scenario) : null;
+  elements.eqtSotpAudit.hidden = !model;
+  if (!model) {
+    elements.eqtSotpAuditBody.innerHTML = "";
+    return;
+  }
+
+  const scenarioLabel = scenarioAdjustments[state.scenario]?.label ?? "Base case";
+  const currency = company.currency ?? "SEK";
+  const sourceUrl = config.sourcePageUrl ?? config.sourceUrl;
+  const fy2025SourceUrl = config.feeBusiness?.fy2025SourceUrl;
+  elements.eqtSotpAuditStatus.textContent = `${scenarioLabel} · report period ${config.period} · values translated from EUR to SEK`;
+  const sourceLink = sourceUrl
+    ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Open official EQT report</a>`
+    : "";
+  const componentRows = (model.components ?? []).map((component) => `
+    <tr>
+      <td>${escapeHtml(component.label)}</td>
+      <td>${escapeHtml(`${formatDecimal(component.valueEurm, 0)} EUR m`)}</td>
+      <td>${escapeHtml(formatTickerMoney(component.perShare, currency))}</td>
+      <td><span class="audit-evidence">${escapeHtml(component.treatment)}</span></td>
+    </tr>
+  `).join("");
+  const omissions = (config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  elements.eqtSotpAuditBody.innerHTML = `
+    <div class="cyclical-step-grid">
+      ${[
+        ["1", "Normalize fee earnings", `LTM fee-related EBITDA = FY2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaFy2025, 0)} + H1 2026 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} − H1 2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} = ${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR million.`],
+        ["2", "Value the recurring franchise", `Apply the visible ${formatDecimal(model.feeMultiple, 1)}x ${scenarioLabel.toLowerCase()} multiple to LTM fee-related EBITDA.`],
+        ["3", "Value financial assets", `Include ${formatPercent(model.investmentFactor * 100, 0)} of strategic/fund investments and ${formatPercent(model.carriedFactor * 100, 0)} of accrued carried interest.`],
+        ["4", "Reach SEK per share", `Subtract ${formatDecimal(model.netDebtEurm, 0)} EUR million net debt once, translate at the Riksbank rate and divide by ${formatShares(model.shares)} shares.`]
+      ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+    </div>
+    <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>Period ${escapeHtml(config.period)} · reported in EUR million</small></div>${sourceLink}</div>
+    <div class="cyclical-audit-grid">
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Recurring business</span><h5>Fee-related earnings franchise</h5></div></div>
+        ${fy2025SourceUrl ? `<p class="audit-note"><a href="${escapeHtml(fy2025SourceUrl)}" target="_blank" rel="noopener">Open official FY2025 source</a> for the full-year starting value; H1 values come from the H1 2026 report above.</p>` : ""}
+        <dl class="cyclical-bridge">
+          <div><dt>FY2025 fee-related EBITDA <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaFy2025, 0)} EUR m`)}</dd></div>
+          <div><dt>Plus H1 2026 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} EUR m`)}</dd></div>
+          <div><dt>Less H1 2025 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} EUR m`)}</dd></div>
+          <div><dt>LTM fee-related EBITDA <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR m`)}</dd></div>
+          <div><dt>${scenarioLabel} multiple <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(model.feeMultiple, 1)}x`)}</dd></div>
+          <div class="is-total"><dt>Fee franchise value</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m · ${formatTickerMoney(model.feeBusinessPerShare, currency)}`)}</dd></div>
+        </dl>
+      </div>
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Balance sheet</span><h5>Financial assets and debt</h5></div></div>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Component</th><th>Scenario value</th><th>Per share</th><th>Treatment</th></tr></thead><tbody>${componentRows}</tbody></table></div>
+      </div>
+    </div>
+    <div class="cyclical-audit-card">
+      <div class="cyclical-card-heading"><div><span class="eyebrow">Valuation bridge</span><h5>EUR enterprise components → SEK equity value per share</h5></div></div>
+      <dl class="cyclical-bridge">
+        <div><dt>Fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Net asset block</dt><dd>${escapeHtml(`${formatDecimal(model.netAssetBlockEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Total equity value</dt><dd>${escapeHtml(`${formatDecimal(model.totalEquityValueEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Riksbank FX <span class="audit-badge is-calculated">current reference</span></dt><dd>${escapeHtml(`1 EUR = ${formatDecimal(model.fx.rateToSek, 5)} SEK · ${model.fx.rateDate}`)}</dd></div>
+        <div><dt>Shares <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatShares(model.shares))}</dd></div>
+        <div class="is-total"><dt>EQT SOTP value per share</dt><dd>${escapeHtml(formatTickerMoney(model.value, currency))}</dd></div>
+      </dl>
+    </div>
+    <div class="specialized-caveats"><strong>What is deliberately excluded</strong><ul>${omissions}<li>Analyst target prices: 0% weight.</li></ul></div>
+  `;
+}
+
 function renderAnalysis(company) {
   const presentation = getAnalysisPresentation(company);
   const category = normalizeCompanyType(company.companyType, company.ticker);
   const isCyclical = category === "cyclical";
   const isInvestment = category === "investment";
-  elements.analysisPanelTitle.textContent = isInvestment ? "NAV Analysis" : "Financial Analysis";
-  elements.analysisPanel.setAttribute("aria-label", isInvestment ? "NAV analysis" : "Financial analysis");
-  elements.analysisControls.hidden = isInvestment;
-  elements.scenarioGuide.hidden = isInvestment;
-  elements.analysisPanel.classList.toggle("is-investment-nav", isInvestment);
+  const isEqtSotp = Boolean(getSpecializedValuation(company, "eqt-sotp"));
+  const isNavInvestment = isInvestment && !isEqtSotp;
+  elements.analysisPanelTitle.textContent = isEqtSotp ? "EQT Sum-of-the-Parts" : (isNavInvestment ? "NAV Analysis" : "Financial Analysis");
+  elements.analysisPanel.setAttribute("aria-label", isEqtSotp ? "EQT sum-of-the-parts analysis" : (isNavInvestment ? "NAV analysis" : "Financial analysis"));
+  elements.analysisControls.hidden = isNavInvestment;
+  elements.modelControlGroup.hidden = isEqtSotp;
+  elements.growthControlGroup.hidden = isEqtSotp;
+  elements.scenarioControlGroup.hidden = false;
+  elements.scenarioGuide.hidden = isNavInvestment;
+  elements.analysisPanel.classList.toggle("is-investment-nav", isNavInvestment);
   const metricTargets = [
     [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
     [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
@@ -3813,7 +4064,11 @@ function renderAnalysis(company) {
   elements.analysisAssumptions.innerHTML = presentation.assumptions
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
-  if (isInvestment) {
+  if (isEqtSotp) {
+    elements.scenarioBaseCopy.textContent = `22.0x fee-related EBITDA; 100% of strategic/fund investments; 75% of reported carried interest.`;
+    elements.scenarioBullCopy.textContent = `25.0x fee-related EBITDA; 105% of strategic/fund investments; 100% of reported carried interest.`;
+    elements.scenarioBearCopy.textContent = `18.0x fee-related EBITDA; 90% of strategic/fund investments; 50% of reported carried interest.`;
+  } else if (isInvestment) {
     elements.scenarioBaseCopy.textContent = "Investment companies use the latest reported NAV or equity per share without a scenario adjustment.";
     elements.scenarioBullCopy.textContent = "Not used for NAV analysis.";
     elements.scenarioBearCopy.textContent = "Not used for NAV analysis.";
@@ -3839,6 +4094,7 @@ function renderAnalysis(company) {
     elements.scenarioBearCopy.textContent = "Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and EV/EBITDA −0.7x.";
   }
   renderCyclicalAudit(company);
+  renderEqtSotpAudit(company);
 }
 
 function renderMetrics() {
@@ -3928,7 +4184,7 @@ function renderSyntheticPortfolio() {
     ${renderPortfolioSection("Best 12 Across Fit Models", "Equal-weight synthetic portfolio candidates", topPortfolio)}
     ${renderPortfolioSection("Operating Companies", getCompanyModelLabel("operating"), rankedByCategory.operating)}
     ${renderPortfolioSection("Banks", getCompanyModelLabel("bank"), rankedByCategory.bank)}
-    ${renderPortfolioSection("Investment Companies", getCompanyModelLabel("investment"), rankedByCategory.investment)}
+    ${renderPortfolioSection("Investment Companies", "Reported NAV for Investor/Industrivärden · dedicated SOTP for EQT", rankedByCategory.investment)}
     ${renderPortfolioSection("Asset-heavy Cyclicals", getCompanyModelLabel("cyclical"), rankedByCategory.cyclical)}
   `;
 }

@@ -889,6 +889,53 @@
       "financialToQuoteFx": 11.0935,
       "sourceName": "EQT H1 2026 report",
       "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
+      "specializedValuation": {
+        "type": "eqt-sotp",
+        "sourceName": "EQT H1 2026 report",
+        "sourceUrl": "https://cdn.sanity.io/files/30p7so6x/eqt-public-web-prod/aa8d4bd44276e9895939b757cf9c63d6728f201f.pdf",
+        "sourcePageUrl": "https://eqtgroup.com/news/eqt-ab-publ-half-year-report-2026-2026-07-17",
+        "period": "2026-06-30",
+        "reportedCurrency": "EUR",
+        "feeBusiness": {
+          "feeRelatedEbitdaFy2025": 1194,
+          "fy2025SourceName": "EQT FY 2025 report",
+          "fy2025SourceUrl": "https://eqtgroup.com/news/eqt-ab-publ-year-end-report-2025-2026-01-22",
+          "feeRelatedEbitdaH12025": 615,
+          "feeRelatedEbitdaH12026": 571,
+          "ebitdaMultiple": {
+            "base": 22,
+            "bull": 25,
+            "bear": 18
+          }
+        },
+        "strategicAndFundInvestments": {
+          "reportedFairValue": 2835,
+          "valueFactor": {
+            "base": 1,
+            "bull": 1.05,
+            "bear": 0.9
+          }
+        },
+        "carriedInterest": {
+          "reportedFairValue": 2794,
+          "realizationFactor": {
+            "base": 0.75,
+            "bull": 1,
+            "bear": 0.5
+          }
+        },
+        "netDebt": 1596,
+        "operatingContext": {
+          "feeGeneratingAum": 155000,
+          "totalAum": 291000,
+          "h12026FeeRelatedEbitdaMargin": 0.5
+        },
+        "omissions": [
+          "The pending Coller Capital acquisition is excluded until it has closed and its financing and acquired earnings are reported comparably.",
+          "No analyst target price or current market price is used to set the SOTP assumptions.",
+          "No separate value is assigned to future carried interest that is not already recognized at fair value."
+        ]
+      },
       "auditor": null,
       "ebitdaPresented": true,
       "ebitdaMetricLabel": "Adjusted EBITDA (TTM, company-defined)",
