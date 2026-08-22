@@ -13,9 +13,8 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         cls.javascript = (ROOT / "app.js").read_text(encoding="utf-8")
 
     def test_all_existing_model_choices_are_available(self):
-        for model in ("dcf", "reverse-dcf", "ev-ebitda"):
+        for model in ("dcf", "reverse-dcf", "pe", "ev-ebitda"):
             self.assertIn(f'data-model-view="{model}"', self.html)
-        self.assertNotIn('data-model-view="pe"', self.html)
 
     def test_scenario_explanations_match_model_adjustments(self):
         self.assertRegex(
@@ -202,13 +201,28 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertIn("Construction franchise + development NAV + properties + PPP surplus + adjusted net cash", self.javascript)
         self.assertIn("Analyst target prices: 0% weight", self.javascript)
 
-    def test_ev_ebitda_replaces_the_pe_analysis_tab(self):
+    def test_forward_pe_is_available_beside_the_other_analysis_models(self):
+        self.assertIn('data-model-view="pe">P/E</button>', self.html)
+        self.assertIn('state.analysisModel === "pe"', self.javascript)
+        self.assertIn("function calculateForwardPeModel", self.javascript)
+        self.assertIn("forecastEps * targetPe", self.javascript)
+        self.assertIn("terminalPrice / discountFactor", self.javascript)
+        self.assertIn("The selected dashboard growth forecast is used as an explicit EPS-growth assumption", self.javascript)
+        self.assertIn("P/E is not meaningful when earnings per share are zero, negative or unavailable", self.javascript)
+        self.assertIn("P/E is not used for investment companies because NAV is the more representative equity measure", self.javascript)
+        self.assertIn("normalized mid-cycle EPS", self.javascript)
+        self.assertIn("Projects EPS for five years using the selected Growth forecast", self.javascript)
+        self.assertIn("The P/E multiple is applied only in year 5", self.javascript)
+        pe_scenario_index = self.javascript.index('if (state.analysisModel === "pe")', self.javascript.index("function renderAnalysis"))
+        cyclical_scenario_index = self.javascript.index('getSpecializedValuation(company, "boliden-commodity-cycle")', pe_scenario_index)
+        self.assertLess(pe_scenario_index, cyclical_scenario_index)
+
+    def test_ev_ebitda_remains_an_analysis_tab(self):
         self.assertIn('data-model-view="ev-ebitda">EV/EBITDA</button>', self.html)
         self.assertIn('state.analysisModel === "ev-ebitda"', self.javascript)
         self.assertIn("EBITDA / share × target EV/EBITDA − net debt / share", self.javascript)
         self.assertIn("Skanska is valued with a construction and development SOTP", self.javascript)
         self.assertIn("Current-cycle EBITDA is never substituted silently", self.javascript)
-        self.assertNotIn('state.analysisModel === "pe"', self.javascript)
 
 
 if __name__ == "__main__":
