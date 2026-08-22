@@ -13,8 +13,9 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         cls.javascript = (ROOT / "app.js").read_text(encoding="utf-8")
 
     def test_all_existing_model_choices_are_available(self):
-        for model in ("dcf", "reverse-dcf", "pe"):
+        for model in ("dcf", "reverse-dcf", "ev-ebitda"):
             self.assertIn(f'data-model-view="{model}"', self.html)
+        self.assertNotIn('data-model-view="pe"', self.html)
 
     def test_scenario_explanations_match_model_adjustments(self):
         self.assertRegex(
@@ -27,6 +28,8 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         )
         self.assertIn("Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension", self.html)
         self.assertIn("Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension", self.html)
+        self.assertIn("EV/EBITDA +0.7x", self.html)
+        self.assertIn("EV/EBITDA −0.7x", self.html)
 
     def test_analysis_keeps_existing_dcf_pe_and_reverse_calculations(self):
         self.assertIn("calculateDcf(company, scenario)", self.javascript)
@@ -123,7 +126,7 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
     def test_target_pe_is_anchored_to_current_pe(self):
         self.assertIn("function getCurrentPeRatio", self.javascript)
         self.assertIn("const currentPe = getCurrentPeRatio(company);", self.javascript)
-        self.assertIn("Equal to current P/E", self.javascript)
+        self.assertIn("targetPe: currentPe", self.javascript)
         self.assertRegex(
             self.html,
             re.compile(r'<input[^>]*data-field="targetPe"[^>]*readonly[^>]*>')
@@ -178,6 +181,34 @@ class CashFlowAnalysisUiTests(unittest.TestCase):
         self.assertRegex(self.html, re.compile(r'data-field="normalizedFcfPerShare"[^>]*readonly'))
         self.assertIn("normalization.valid ? normalization.perShare : null", self.javascript)
         self.assertIn("renderCyclicalAudit(company)", self.javascript)
+
+    def test_boliden_uses_traceable_commodity_cycle_normalization(self):
+        self.assertIn("function calculateBolidenCommodityCycle", self.javascript)
+        self.assertIn("operatingProfitSensitivityAt10Pct", self.javascript)
+        self.assertIn("relativeChange / 0.10", self.javascript)
+        self.assertIn('{ label: "Commodity EV/EBITDA", value: evEbitdaValue', self.javascript)
+        self.assertIn('{ label: "Mid-cycle FCF DCF", value: dcf.value', self.javascript)
+        self.assertIn("Analyst target prices have 0% weight", self.javascript)
+        self.assertIn("Official sensitivity bridge", self.javascript)
+        self.assertIn("config.omissions", self.javascript)
+
+    def test_skanska_uses_a_construction_and_development_sotp(self):
+        self.assertIn("function calculateSkanskaSotp", self.javascript)
+        self.assertIn("attributableConstructionEbit", self.javascript)
+        self.assertIn("residentialDevelopment?.capitalEmployed", self.javascript)
+        self.assertIn("commercialPropertyDevelopment?.capitalEmployed", self.javascript)
+        self.assertIn("adjustedNetCashSekm", self.javascript)
+        self.assertIn('{ label: "Skanska SOTP", value, weight: 1 }', self.javascript)
+        self.assertIn("Construction franchise + development NAV + properties + PPP surplus + adjusted net cash", self.javascript)
+        self.assertIn("Analyst target prices: 0% weight", self.javascript)
+
+    def test_ev_ebitda_replaces_the_pe_analysis_tab(self):
+        self.assertIn('data-model-view="ev-ebitda">EV/EBITDA</button>', self.html)
+        self.assertIn('state.analysisModel === "ev-ebitda"', self.javascript)
+        self.assertIn("EBITDA / share × target EV/EBITDA − net debt / share", self.javascript)
+        self.assertIn("Skanska is valued with a construction and development SOTP", self.javascript)
+        self.assertIn("Current-cycle EBITDA is never substituted silently", self.javascript)
+        self.assertNotIn('state.analysisModel === "pe"', self.javascript)
 
 
 if __name__ == "__main__":

@@ -1401,6 +1401,52 @@ input::placeholder { color: var(--faint); }
 }
 
 .cyclical-audit[hidden] { display: none; }
+.specialized-cyclical-audit { display: grid; gap: 12px; }
+.specialized-cyclical-audit[hidden],
+#genericCyclicalAudit[hidden] { display: none; }
+
+.specialized-source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 15px;
+  border: 1px solid rgba(79, 146, 216, 0.24);
+  border-radius: var(--radius-sm);
+  background: rgba(79, 146, 216, 0.07);
+}
+
+.specialized-source > div { display: grid; gap: 5px; }
+.specialized-source strong { font-size: 0.78rem; }
+.specialized-source small { max-width: 880px; color: var(--muted); font-size: 0.66rem; line-height: 1.45; }
+.specialized-source a { flex: 0 0 auto; color: var(--accent); font-size: 0.7rem; text-underline-offset: 3px; }
+
+.audit-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.52rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.audit-badge.is-official { border-color: rgba(78, 224, 163, 0.32); color: var(--positive); }
+.audit-badge.is-calculated { border-color: rgba(79, 146, 216, 0.35); color: var(--accent); }
+.audit-badge.is-assumption { border-color: rgba(255, 192, 82, 0.36); color: #ffc052; }
+
+.specialized-caveats {
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 192, 82, 0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 192, 82, 0.045);
+}
+
+.specialized-caveats strong { font-size: 0.72rem; }
+.specialized-caveats ul { margin: 7px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.67rem; line-height: 1.55; }
 
 .cyclical-step-grid {
   display: grid;
@@ -1493,6 +1539,8 @@ input::placeholder { color: var(--faint); }
   color: var(--ink-dim);
   vertical-align: top;
 }
+
+.cyclical-table td small { color: var(--faint); }
 
 .cyclical-table tr:last-child td { border-bottom: 0; }
 .audit-evidence { color: var(--muted); line-height: 1.4; }
@@ -1889,6 +1937,7 @@ input::placeholder { color: var(--faint); }
   .cyclical-step-grid,
   .cyclical-audit-grid,
   .cyclical-crosschecks { grid-template-columns: minmax(0, 1fr); }
+  .specialized-source { align-items: flex-start; flex-direction: column; }
   .scenario-card-grid { grid-template-columns: minmax(0, 1fr); }
 }
 

@@ -629,6 +629,42 @@
         "19145"
       ],
       "documentType": "xlsx",
+      "specializedValuation": {
+        "type": "boliden-commodity-cycle",
+        "asOf": "2026-06-30",
+        "currency": "SEK",
+        "unit": "SEK million",
+        "sourceName": "Boliden Annual and Sustainability Report 2025",
+        "sourceUrl": "https://investors.boliden.com/sites/boliden-ir/files/pr/Boliden_AR_2025_ENG_Print.pdf",
+        "sourcePages": [145, 159],
+        "sourceExplanation": "Page 145 supplies Boliden's 2026 planning prices and 2029 long-term prices. Page 159 supplies the estimated operating-profit effect of a 10% change in each metal price and exchange rate, based on planned production volumes.",
+        "modelWeights": {
+          "commodityCycleEvEbitda": 0.7,
+          "forwardFcfDcf": 0.3
+        },
+        "normalizedEvEbitdaMultiple": {
+          "base": 7.5,
+          "bull": 8.0,
+          "bear": 7.0,
+          "basis": "Explicit valuation assumption; not an analyst target price and not fitted to the market price."
+        },
+        "metalPrices": [
+          {"label": "Copper", "unit": "USD/tonne", "nearTerm": 10013, "longTerm": 8900, "operatingProfitSensitivityAt10Pct": 1500},
+          {"label": "Zinc", "unit": "USD/tonne", "nearTerm": 2824, "longTerm": 2800, "operatingProfitSensitivityAt10Pct": 1350},
+          {"label": "Silver", "unit": "USD/oz", "nearTerm": 39.9, "longTerm": 27.0, "operatingProfitSensitivityAt10Pct": 900},
+          {"label": "Gold", "unit": "USD/oz", "nearTerm": 3535, "longTerm": 2200, "operatingProfitSensitivityAt10Pct": 800},
+          {"label": "Lead", "unit": "USD/tonne", "nearTerm": 2042, "longTerm": 2000, "operatingProfitSensitivityAt10Pct": 200},
+          {"label": "Nickel", "unit": "USD/tonne", "nearTerm": 15824, "longTerm": 18000, "operatingProfitSensitivityAt10Pct": 175}
+        ],
+        "exchangeRates": [
+          {"label": "USD/SEK", "nearTerm": 9.3, "longTerm": 9.7, "operatingProfitSensitivityAt10Pct": 3000},
+          {"label": "USD/NOK", "nearTerm": 10.05, "longTerm": 9.25, "operatingProfitSensitivityAt10Pct": 320}
+        ],
+        "omissions": [
+          "TC/RC is disclosed but not linearly extrapolated because the 2026 copper charge is negative; a percentage bridge from a negative base would be misleading.",
+          "The sensitivity bridge is an approximation: Boliden states that it excludes hedging, contracted treatment charges and process-inventory revaluation."
+        ]
+      },
       "metricCalculations": {
         "ebitda": {
           "status": "derived",
@@ -2253,6 +2289,58 @@
         "16.02",
         "166.1"
       ],
+      "specializedValuation": {
+        "type": "skanska-sotp",
+        "asOf": "2025-12-31",
+        "currency": "SEK",
+        "unit": "SEK million",
+        "sourceName": "Skanska Annual and Sustainability Report 2025",
+        "sourceUrl": "https://group.skanska.com/493a91/siteassets/investors/reports-publications/annual-reports/2025/skanska-s-annual-and-sustainability-report-2025-pdf-.pdf",
+        "sourcePages": [112, 114, 115, 138],
+        "sourceExplanation": "Pages 112-115 supply segment earnings, adjusted net cash, project-development capital and disclosed surplus values. Page 138 reconciles segment operating income and capital employed.",
+        "construction": {
+          "operatingIncome2025": 7094,
+          "operatingIncome2024": 5854,
+          "normalization": "Two-year average operating income",
+          "ebitMultiple": {
+            "base": 8.0,
+            "bull": 9.0,
+            "bear": 7.0,
+            "basis": "Explicit valuation assumption applied to normalized Construction operating income."
+          }
+        },
+        "residentialDevelopment": {
+          "capitalEmployed": 13720,
+          "unrealizedSurplus": 3200
+        },
+        "commercialPropertyDevelopment": {
+          "capitalEmployed": 41700,
+          "unrealizedSurplus": 4700
+        },
+        "investmentProperties": {
+          "capitalEmployed": 8348
+        },
+        "pppPortfolio": {
+          "unrealizedSurplus": 700
+        },
+        "central": {
+          "operatingCost2025": 712,
+          "operatingCost2024": 440,
+          "normalization": "Two-year average central operating cost"
+        },
+        "adjustedNetCash": 11505,
+        "standardTaxRate": 0.21,
+        "developmentValueFactor": {
+          "base": 1.0,
+          "bull": 1.05,
+          "bear": 0.9,
+          "basis": "Scenario factor applied to project-development capital plus after-tax disclosed surplus values."
+        },
+        "omissions": [
+          "Analyst target prices are not used in any SOTP component.",
+          "Eliminations and accounting-principle differences are not assigned invented standalone values; the recurring central cost is capitalized and deducted explicitly."
+        ]
+      },
       "metricCalculations": {
         "ebitda": {
           "status": "unavailable",

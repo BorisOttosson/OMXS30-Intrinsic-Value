@@ -328,6 +328,8 @@ const elements = {
   analysisAssumptions: document.querySelector("#analysisAssumptions"),
   cyclicalAudit: document.querySelector("#cyclicalAudit"),
   cyclicalAuditStatus: document.querySelector("#cyclicalAuditStatus"),
+  specializedCyclicalAudit: document.querySelector("#specializedCyclicalAudit"),
+  genericCyclicalAudit: document.querySelector("#genericCyclicalAudit"),
   cyclicalSteps: document.querySelector("#cyclicalSteps"),
   cyclicalSourceLink: document.querySelector("#cyclicalSourceLink"),
   cyclicalHistoryRows: document.querySelector("#cyclicalHistoryRows"),
@@ -703,6 +705,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       // Never fall back to generated sample values for a real company.
       normalizedFcfPerShare: fundamentalInput(market.normalizedFcfPerShare),
       normalizedEbitdaPerShare: fundamentalInput(market.normalizedEbitdaPerShare),
+      specializedValuation: market.specializedValuation ?? current.specializedValuation ?? null,
       // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
       growth5y: fundamentalInput(market.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
@@ -1786,7 +1789,193 @@ function calculateCyclicalPeCrossCheck(company, scenario = "base") {
     : NaN;
 }
 
+function getSpecializedValuation(company, type = null) {
+  const config = company?.specializedValuation;
+  if (!config || (type && config.type !== type)) return null;
+  return config;
+}
+
+function calculateBolidenCommodityCycle(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "boliden-commodity-cycle");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  const currentEbitda = numberOrNull(company?.fundamentals?.ebitda)
+    ?? (shares && numberOrNull(company?.ebitdaPerShare) !== null ? shares * numberOrNull(company.ebitdaPerShare) : null);
+  if (!config || !shares || shares <= 0 || currentEbitda === null || currentEbitda <= 0) {
+    return { valid: false, value: NaN, error: "Boliden needs the official commodity-cycle inputs, shares and EBITDA." };
+  }
+
+  const drivers = [...(config.metalPrices ?? []), ...(config.exchangeRates ?? [])].map((driver) => {
+    const nearTerm = asNumber(driver.nearTerm);
+    const longTerm = asNumber(driver.longTerm);
+    const relativeChange = nearTerm !== 0 ? longTerm / nearTerm - 1 : NaN;
+    const operatingProfitAdjustment = Number.isFinite(relativeChange)
+      ? asNumber(driver.operatingProfitSensitivityAt10Pct) * (relativeChange / 0.10)
+      : NaN;
+    return { ...driver, relativeChange, operatingProfitAdjustment };
+  });
+  const operatingProfitAdjustmentSekm = drivers.reduce(
+    (sum, driver) => sum + (Number.isFinite(driver.operatingProfitAdjustment) ? driver.operatingProfitAdjustment : 0),
+    0
+  );
+  const normalizedEbitda = currentEbitda + operatingProfitAdjustmentSekm * 1e6;
+  const multiple = numberOrNull(config.normalizedEvEbitdaMultiple?.[scenario]);
+  const netDebt = asNumber(company.netDebtPerShare) * shares;
+  const enterpriseValue = multiple !== null && multiple > 0 ? normalizedEbitda * multiple : NaN;
+  const evEbitdaValue = Number.isFinite(enterpriseValue) ? (enterpriseValue - netDebt) / shares : NaN;
+  // The cash-flow component follows the same visible Growth forecast choice as
+  // the page. Consensus can set years 1–3, but years 4–5 always fade to the
+  // official-report mid-cycle median instead of extending a commodity spike.
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const valuationBlend = buildValuationBlend([
+    { label: "Commodity EV/EBITDA", value: evEbitdaValue, weight: asNumber(config.modelWeights?.commodityCycleEvEbitda) },
+    { label: "Mid-cycle FCF DCF", value: dcf.value, weight: asNumber(config.modelWeights?.forwardFcfDcf) }
+  ]);
+
+  return {
+    valid: Number.isFinite(valuationBlend.value),
+    value: valuationBlend.value,
+    valuationBlend,
+    config,
+    drivers,
+    currentEbitda,
+    operatingProfitAdjustmentSekm,
+    normalizedEbitda,
+    normalizedEbitdaPerShare: normalizedEbitda / shares,
+    multiple,
+    netDebt,
+    enterpriseValue,
+    evEbitdaValue,
+    dcf,
+    shares,
+    error: Number.isFinite(valuationBlend.value) ? "" : "The commodity-cycle valuation has no usable component."
+  };
+}
+
+function calculateSkanskaSotp(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "skanska-sotp");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  if (!config || !shares || shares <= 0) {
+    return { valid: false, value: NaN, error: "Skanska needs the official SOTP inputs and outstanding shares." };
+  }
+
+  const construction = config.construction ?? {};
+  const central = config.central ?? {};
+  const normalizedConstructionEbit = averageValid([
+    numberOrNull(construction.operatingIncome2025),
+    numberOrNull(construction.operatingIncome2024)
+  ]);
+  const normalizedCentralCost = averageValid([
+    numberOrNull(central.operatingCost2025),
+    numberOrNull(central.operatingCost2024)
+  ]);
+  const attributableConstructionEbit = normalizedConstructionEbit - normalizedCentralCost;
+  const constructionMultiple = numberOrNull(construction.ebitMultiple?.[scenario]);
+  const constructionValueSekm = attributableConstructionEbit * constructionMultiple;
+  const taxRate = asNumber(config.standardTaxRate);
+  const afterTax = (value) => asNumber(value) * (1 - taxRate);
+  const developmentFactor = asNumber(config.developmentValueFactor?.[scenario], 1);
+  const residentialSekm = (asNumber(config.residentialDevelopment?.capitalEmployed)
+    + afterTax(config.residentialDevelopment?.unrealizedSurplus)) * developmentFactor;
+  const commercialSekm = (asNumber(config.commercialPropertyDevelopment?.capitalEmployed)
+    + afterTax(config.commercialPropertyDevelopment?.unrealizedSurplus)) * developmentFactor;
+  const investmentPropertiesSekm = asNumber(config.investmentProperties?.capitalEmployed) * developmentFactor;
+  const pppSekm = afterTax(config.pppPortfolio?.unrealizedSurplus) * developmentFactor;
+  const adjustedNetCashSekm = asNumber(config.adjustedNetCash);
+  const totalEquityValueSekm = constructionValueSekm + residentialSekm + commercialSekm
+    + investmentPropertiesSekm + pppSekm + adjustedNetCashSekm;
+  const value = totalEquityValueSekm * 1e6 / shares;
+  const components = [
+    { label: "Construction franchise", valueSekm: constructionValueSekm },
+    { label: "Residential development", valueSekm: residentialSekm },
+    { label: "Commercial development", valueSekm: commercialSekm },
+    { label: "Investment properties", valueSekm: investmentPropertiesSekm },
+    { label: "PPP portfolio", valueSekm: pppSekm },
+    { label: "Adjusted net cash", valueSekm: adjustedNetCashSekm }
+  ].map((component) => ({ ...component, perShare: component.valueSekm * 1e6 / shares }));
+  const valuationBlend = buildValuationBlend([{ label: "Skanska SOTP", value, weight: 1 }]);
+
+  return {
+    valid: Number.isFinite(value),
+    value,
+    valuationBlend,
+    config,
+    shares,
+    normalizedConstructionEbit,
+    normalizedCentralCost,
+    attributableConstructionEbit,
+    constructionMultiple,
+    constructionValueSekm,
+    taxRate,
+    developmentFactor,
+    components,
+    totalEquityValueSekm,
+    error: Number.isFinite(value) ? "" : "The Skanska SOTP inputs are incomplete."
+  };
+}
+
 function calculateCyclicalModel(company, scenario) {
+  const boliden = calculateBolidenCommodityCycle(company, scenario);
+  if (getSpecializedValuation(company, "boliden-commodity-cycle")) {
+    const currency = company.currency ?? "SEK";
+    const normalizedFcfYield = asNumber(company.marketPrice) > 0 && Number.isFinite(boliden.dcf?.value)
+      ? (asNumber(company.fcfPerShare) / asNumber(company.marketPrice)) * 100
+      : NaN;
+    return {
+      ...boliden,
+      dcf: boliden.dcf ?? { value: NaN, flows: [], error: boliden.error },
+      peValue: NaN,
+      ebitdaValue: boliden.evEbitdaValue,
+      currentPe: getCurrentPeRatio(company),
+      blendedValue: boliden.value,
+      primaryLabel: "Commodity-cycle value",
+      primaryValue: boliden.value,
+      secondaryLabel: "Normalized EV/EBITDA",
+      secondaryValue: boliden.evEbitdaValue,
+      tertiaryLabel: "Normalized EBITDA/share",
+      tertiaryValue: formatTickerMoney(boliden.normalizedEbitdaPerShare, currency),
+      reverseLabel: "Current FCF yield",
+      reverseValue: formatPercent(normalizedFcfYield, 1),
+      reverseSub: "Current equity FCF / current price",
+      valueDescription: Number.isFinite(boliden.value)
+        ? describeValuationBlend(boliden.valuationBlend, currency)
+        : `Commodity-cycle valuation unavailable: ${boliden.error}`,
+      modelSupportScore: boliden.valid ? 90 : 20,
+      modelWarning: boliden.error,
+      chartTitle: "Boliden commodity-cycle normalization"
+    };
+  }
+
+  const skanska = calculateSkanskaSotp(company, scenario);
+  if (getSpecializedValuation(company, "skanska-sotp")) {
+    const currency = company.currency ?? "SEK";
+    const developmentPerShare = skanska.components
+      ?.filter((component) => !["Construction franchise", "Adjusted net cash"].includes(component.label))
+      .reduce((sum, component) => sum + component.perShare, 0);
+    return {
+      ...skanska,
+      dcf: { value: NaN, flows: [], error: "Skanska is valued with SOTP, not a single-company DCF." },
+      peValue: NaN,
+      ebitdaValue: NaN,
+      currentPe: getCurrentPeRatio(company),
+      blendedValue: skanska.value,
+      primaryLabel: "Sum of the parts",
+      primaryValue: skanska.value,
+      secondaryLabel: "Construction value",
+      secondaryValue: skanska.components?.[0]?.perShare,
+      tertiaryLabel: "Development NAV / share",
+      tertiaryValue: formatTickerMoney(developmentPerShare, currency),
+      reverseLabel: "Adjusted net cash / share",
+      reverseValue: formatTickerMoney(skanska.components?.at(-1)?.perShare, currency),
+      reverseSub: "Added once after the operating and asset values",
+      valueDescription: Number.isFinite(skanska.value)
+        ? describeValuationBlend(skanska.valuationBlend, currency)
+        : `Skanska SOTP unavailable: ${skanska.error}`,
+      modelSupportScore: skanska.valid ? 92 : 20,
+      modelWarning: skanska.error,
+      chartTitle: "Skanska construction and development SOTP"
+    };
+  }
+
   const currency = company.currency ?? "SEK";
   const price = asNumber(company.marketPrice);
   const dcf = calculateCyclicalDcf(company, scenario);
@@ -2794,10 +2983,10 @@ function renderCagrBreakdown(company) {
 function getScenarioExplanation(scenario = state.scenario, model = state.analysisModel) {
   const usesConsensus = state.growthAssumption === "consensus";
   const growthLabel = usesConsensus ? "market-consensus FCF CAGR" : "historical FCF CAGR";
-  if (model === "pe") {
-    if (scenario === "bull") return "Bull uses the current P/E plus 2.0x.";
-    if (scenario === "bear") return "Bear uses the current P/E minus 2.0x.";
-    return "Base uses the current trailing P/E as its target multiple.";
+  if (model === "ev-ebitda") {
+    if (scenario === "bull") return "Bull uses the saved EV/EBITDA multiple plus 0.7x.";
+    if (scenario === "bear") return "Bear uses the saved EV/EBITDA multiple minus 0.7x.";
+    return "Base uses the saved EV/EBITDA multiple without adjustment.";
   }
   if (model === "reverse-dcf") {
     if (scenario === "bull") return "Bull solves the market-implied growth rate using a required equity return 0.7 pp lower.";
@@ -2835,42 +3024,139 @@ function getAnalysisPresentation(company) {
     return `${formatPercent(result, 1)} ${result >= 0 ? "upside" : "downside"} vs current price`;
   };
 
-  if (state.analysisModel === "pe") {
+  const bolidenModel = getSpecializedValuation(company, "boliden-commodity-cycle")
+    ? calculateBolidenCommodityCycle(company, scenario)
+    : null;
+  const skanskaModel = getSpecializedValuation(company, "skanska-sotp")
+    ? calculateSkanskaSotp(company, scenario)
+    : null;
+
+  if (state.analysisModel === "ev-ebitda") {
     const isCyclical = category === "cyclical";
-    const normalizedEps = numberOrNull(company.normalizedEpsPerShare);
-    const value = isCyclical ? calculateCyclicalPeCrossCheck(company, scenario) : calculatePeValue(company, scenario);
+    const normalizedEbitda = bolidenModel?.normalizedEbitdaPerShare
+      ?? (isCyclical ? numberOrNull(company.normalizedEbitdaPerShare) : numberOrNull(company.ebitdaPerShare));
+    const targetMultiple = bolidenModel?.multiple
+      ?? Math.max(0, asNumber(company.targetEvToEbitda) + adjustment.targetPe * 0.35);
+    const value = skanskaModel
+      ? NaN
+      : (bolidenModel?.evEbitdaValue ?? calculateEbitdaValue(company, scenario, isCyclical));
+    const currentMultiple = numberOrNull(company.fundamentals?.evToEbitda);
+    const netDebtPerShare = numberOrNull(company.netDebtPerShare);
+    const unavailableReason = skanskaModel
+      ? "Skanska is valued with a construction and development SOTP. Consolidated EV/EBITDA would mix unlike businesses, so no number is fabricated here."
+      : (isCyclical && normalizedEbitda === null
+          ? "Normalized EBITDA has not been explicitly supported. Current-cycle EBITDA is never substituted silently."
+          : "Cannot calculate from current inputs");
     return {
-      key: "pe",
-      title: `${isCyclical ? "Normalized P/E check" : "P/E"} · ${scenarioLabel}`,
-      note: isCyclical
-        ? "This is a cross-check only. It stays unavailable until normalized EPS is explicitly supported; current-cycle EPS is not substituted."
-        : getScenarioExplanation(scenario),
-      chartTitle: isCyclical ? "Normalized P/E cross-check" : "P/E valuation compared with market price",
-      chartSubtitle: isCyclical
-        ? (normalizedEps === null ? "Normalized EPS has not yet been verified" : `${formatDecimal(normalizedEps, 2)} ${currency} normalized EPS × ${formatDecimal(targetPe, 1)}x target P/E`)
-        : `${formatDecimal(asNumber(company.eps), 2)} ${currency} EPS × ${formatDecimal(targetPe, 1)}x target P/E`,
+      key: "ev-ebitda",
+      title: `${isCyclical ? "Normalized EV/EBITDA" : "EV/EBITDA"} · ${scenarioLabel}`,
+      note: Number.isFinite(value) ? getScenarioExplanation(scenario, "ev-ebitda") : unavailableReason,
+      chartTitle: "EV/EBITDA valuation compared with market price",
+      chartSubtitle: Number.isFinite(value)
+        ? `${formatDecimal(normalizedEbitda, 2)} ${currency} EBITDA/share × ${formatDecimal(targetMultiple, 1)}x − net debt/share`
+        : unavailableReason,
       chartUnit: `${currency} / share`,
-      modelTitle: isCyclical ? "Normalized P/E — Cross-check" : "P/E — Price / Earnings",
-      modelDescription: isCyclical
-        ? "For a cyclical company, current EPS may be near a peak or trough. The dashboard therefore requires an explicitly normalized EPS before showing this cross-check and never uses current EPS as a hidden replacement."
-        : "Values one share using the current P/E as the base-case target multiple. Bull and bear adjust that anchor by +2.0x or −2.0x.",
-      formula: isCyclical ? "Normalized EPS × target P/E = cross-check value" : "EPS × target P/E = value per share",
+      modelTitle: "EV/EBITDA — Enterprise Value Multiple",
+      modelDescription: skanskaModel
+        ? unavailableReason
+        : bolidenModel
+          ? "Uses Boliden’s commodity-normalized EBITDA, applies the explicit scenario multiple, then subtracts net debt to reach equity value per share."
+          : isCyclical
+            ? "Uses explicitly normalized EBITDA for a full-cycle cross-check. It remains unavailable when normalized EBITDA has not been verified."
+            : "Values the operating business before financing, then subtracts net debt to reach the value attributable to shareholders.",
+      formula: "EBITDA / share × target EV/EBITDA − net debt / share = equity value / share",
       assumptions: [
-        [isCyclical ? "Normalized EPS" : "EPS", isCyclical ? formatTickerMoney(normalizedEps, currency) : formatTickerMoney(asNumber(company.eps), currency)],
-        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-"],
-        ["Current P/E", Number.isFinite(currentPe) ? `${formatDecimal(currentPe, 1)}x` : "-"],
-        ...(isCyclical ? [["Treatment", "Cross-check; not blended into DCF"]] : [])
+        [isCyclical ? "Normalized EBITDA / share" : "EBITDA / share", formatTickerMoney(normalizedEbitda, currency)],
+        ["Target EV/EBITDA", Number.isFinite(targetMultiple) ? `${formatDecimal(targetMultiple, 1)}x` : "-"],
+        ["Net debt / share", formatTickerMoney(netDebtPerShare, currency)],
+        ["Current EV/EBITDA", currentMultiple !== null ? `${formatDecimal(currentMultiple, 1)}x` : "N/A"]
       ],
       metrics: [
-        [isCyclical ? "Normalized P/E / share" : "P/E value / share", formatTickerMoney(value, currency), differenceText(value)],
+        ["EV/EBITDA value / share", formatTickerMoney(value, currency), Number.isFinite(value) ? differenceText(value) : unavailableReason],
         ["Current price", formatTickerMoney(price, currency), "Market price input"],
-        [isCyclical ? "Normalized EPS" : "EPS", isCyclical ? formatTickerMoney(normalizedEps, currency) : formatTickerMoney(asNumber(company.eps), currency), isCyclical ? "Must be explicitly supported" : "Earnings per share input"],
-        ["Target P/E", Number.isFinite(targetPe) ? `${formatDecimal(targetPe, 1)}x` : "-", state.scenario === "base" ? "Equal to current P/E" : `${formatDecimal(adjustment.targetPe, 1)}x scenario adjustment`]
+        [isCyclical ? "Normalized EBITDA / share" : "EBITDA / share", formatTickerMoney(normalizedEbitda, currency), isCyclical ? "Cycle-normalized input" : "Operating earnings before D&A"],
+        ["Target EV/EBITDA", Number.isFinite(targetMultiple) ? `${formatDecimal(targetMultiple, 1)}x` : "-", state.scenario === "base" ? "Saved base assumption" : `${formatDecimal(adjustment.targetPe * 0.35, 1)}x scenario adjustment`]
       ],
       chartValues: [
         { label: "Current price", value: price },
         { label: `${scenarioLabel} value`, value }
       ]
+    };
+  }
+
+  if (state.analysisModel === "dcf" && bolidenModel) {
+    return {
+      key: "dcf",
+      title: `Boliden commodity-cycle valuation · ${scenarioLabel}`,
+      note: "70% commodity-normalized EV/EBITDA + 30% mid-cycle FCF DCF. Analyst target prices have 0% weight.",
+      chartTitle: "Two independent valuation components",
+      chartSubtitle: "The displayed intrinsic value is the weighted result, not a target-price fit",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Boliden — Commodity-cycle normalization",
+      modelDescription: "Starts with reported EBITDA, adjusts it from near-term planning prices to Boliden’s long-term metal prices and exchange rates using the company’s published sensitivities, then applies an explicit EV/EBITDA assumption. The second component uses the selected forecast for years 1–3 and fades years 4–5 to the median official-report cash flow across the full cycle.",
+      formula: "70% × commodity EV/EBITDA value + 30% × mid-cycle FCF DCF value",
+      assumptions: [
+        ["Reported EBITDA / share", formatTickerMoney(bolidenModel.currentEbitda / bolidenModel.shares, currency)],
+        ["Commodity-cycle adjustment", formatTickerMoney(bolidenModel.operatingProfitAdjustmentSekm * 1e6 / bolidenModel.shares, currency)],
+        ["Normalized EBITDA / share", formatTickerMoney(bolidenModel.normalizedEbitdaPerShare, currency)],
+        ["Scenario EV/EBITDA", `${formatDecimal(bolidenModel.multiple, 1)}x`],
+        ["Valuation weights", "70% EV/EBITDA · 30% DCF"],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["Intrinsic value / share", formatTickerMoney(bolidenModel.value, currency), differenceText(bolidenModel.value)],
+        ["Commodity EV/EBITDA", formatTickerMoney(bolidenModel.evEbitdaValue, currency), "70% configured weight"],
+        ["Mid-cycle FCF DCF", formatTickerMoney(bolidenModel.dcf?.value, currency), "30% configured weight; years 4–5 return to normal"],
+        ["Normalized EBITDA / share", formatTickerMoney(bolidenModel.normalizedEbitdaPerShare, currency), "Reported EBITDA plus the official sensitivity bridge"]
+      ],
+      chartValues: [
+        { label: "Current price", value: price },
+        { label: "EV/EBITDA", value: bolidenModel.evEbitdaValue },
+        { label: "Mid-cycle DCF", value: bolidenModel.dcf?.value },
+        { label: "Weighted value", value: bolidenModel.value }
+      ]
+    };
+  }
+
+  if (state.analysisModel === "dcf" && skanskaModel) {
+    const chartComponents = skanskaModel.components.map((component) => ({
+      label: component.label
+        .replace("Construction franchise", "Construction")
+        .replace("Residential development", "Residential")
+        .replace("Commercial development", "Commercial")
+        .replace("Investment properties", "Properties")
+        .replace("PPP portfolio", "PPP")
+        .replace("Adjusted net cash", "Net cash"),
+      value: component.perShare
+    }));
+    const developmentPerShare = skanskaModel.components
+      .filter((component) => !["Construction franchise", "Adjusted net cash"].includes(component.label))
+      .reduce((sum, component) => sum + component.perShare, 0);
+    return {
+      key: "dcf",
+      title: `Skanska sum of the parts · ${scenarioLabel}`,
+      note: "Construction earnings, development assets, investment properties, PPP surplus and adjusted net cash are valued separately. Analyst target prices have 0% weight.",
+      chartTitle: "Value contributed by each Skanska business",
+      chartSubtitle: "Every bar is additive; together they equal the SOTP equity value",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Skanska — Construction and development SOTP",
+      modelDescription: "Skanska contains unlike businesses. The model values normalized Construction earnings with an EBIT multiple, values development and property assets from reported capital employed plus after-tax disclosed surplus values, and then adds adjusted net cash once.",
+      formula: "Construction franchise + development NAV + properties + PPP surplus + adjusted net cash",
+      assumptions: [
+        ["Normalized Construction EBIT", `${formatDecimal(skanskaModel.normalizedConstructionEbit, 0)} SEK million`],
+        ["Normalized central cost", `−${formatDecimal(skanskaModel.normalizedCentralCost, 0)} SEK million`],
+        ["Construction EBIT multiple", `${formatDecimal(skanskaModel.constructionMultiple, 1)}x`],
+        ["Development scenario factor", `${formatPercent((skanskaModel.developmentFactor - 1) * 100, 0)}`],
+        ["Tax on disclosed surplus", `${formatPercent(skanskaModel.taxRate * 100, 0)}`],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["SOTP value / share", formatTickerMoney(skanskaModel.value, currency), differenceText(skanskaModel.value)],
+        ["Construction franchise", formatTickerMoney(skanskaModel.components[0]?.perShare, currency), "Normalized Construction EBIT after central cost"],
+        ["Development and property NAV", formatTickerMoney(developmentPerShare, currency), "Reported capital plus after-tax disclosed surplus"],
+        ["Adjusted net cash", formatTickerMoney(skanskaModel.components.at(-1)?.perShare, currency), "Added once at the end"]
+      ],
+      chartValues: [...chartComponents, { label: "Total SOTP", value: skanskaModel.value }]
     };
   }
 
@@ -2985,12 +3271,142 @@ function getAnalysisPresentation(company) {
   };
 }
 
+function renderSpecializedCyclicalAudit(company, scenario) {
+  const boliden = getSpecializedValuation(company, "boliden-commodity-cycle")
+    ? calculateBolidenCommodityCycle(company, scenario)
+    : null;
+  const skanska = getSpecializedValuation(company, "skanska-sotp")
+    ? calculateSkanskaSotp(company, scenario)
+    : null;
+  const model = boliden ?? skanska;
+  if (!model || !elements.specializedCyclicalAudit) return false;
+
+  const config = model.config;
+  const sourcePages = (config.sourcePages ?? []).map((page) => `p. ${page}`).join(", ");
+  const sourceLink = `<a href="${escapeHtml(config.sourceUrl)}" target="_blank" rel="noreferrer">Open official report · ${escapeHtml(sourcePages)}</a>`;
+  elements.cyclicalAuditStatus.textContent = boliden
+    ? "Official planning prices + published sensitivities → normalized EBITDA → weighted valuation"
+    : "Official segment earnings + development assets + surplus values + net cash → equity value";
+
+  if (boliden) {
+    const driverRows = boliden.drivers.map((driver) => `
+      <tr>
+        <td><strong>${escapeHtml(driver.label)}</strong><br><small>${escapeHtml(driver.unit ?? "rate")}</small></td>
+        <td>${escapeHtml(formatDecimal(driver.nearTerm, driver.nearTerm < 100 ? 2 : 0))}</td>
+        <td>${escapeHtml(formatDecimal(driver.longTerm, driver.longTerm < 100 ? 2 : 0))}</td>
+        <td>${escapeHtml(formatPercent(driver.relativeChange * 100, 1))}</td>
+        <td>${escapeHtml(`${formatDecimal(driver.operatingProfitAdjustment, 0)} SEK m`)}</td>
+      </tr>
+    `).join("");
+    const blendRows = boliden.valuationBlend.components.map((component) => `
+      <div><dt>${escapeHtml(component.label)} · ${escapeHtml(formatBlendWeight(component.effectiveWeight))}</dt><dd>${escapeHtml(formatTickerMoney(component.contribution, "SEK"))}</dd></div>
+    `).join("");
+    const flowRows = boliden.dcf?.flows?.length
+      ? boliden.dcf.flows.map((flow) => `
+          <tr><td>${escapeHtml(flow.label ?? `Y${flow.year}E`)}</td><td>${escapeHtml(formatPerShareMoney(flow.cashFlow, "SEK"))}</td><td>${escapeHtml(formatPerShareMoney(flow.discounted, "SEK"))}</td><td><span class="audit-evidence">${escapeHtml(flow.source)}</span></td></tr>
+        `).join("")
+      : `<tr><td colspan="4" class="empty-row">${escapeHtml(boliden.dcf?.error ?? "Forward FCF DCF unavailable")}</td></tr>`;
+    elements.specializedCyclicalAudit.innerHTML = `
+      <div class="cyclical-step-grid">
+        ${[
+          ["1", "Set a normal cycle", "Use Boliden’s 2029 long-term metal prices and exchange rates instead of assuming today’s cycle lasts forever."],
+          ["2", "Bridge EBITDA", "Scale each published 10% operating-profit sensitivity by the actual move from the near-term planning value to the long-term value."],
+          ["3", "Value operations", "Apply the explicit scenario EV/EBITDA multiple to normalized EBITDA, then subtract net debt once."],
+          ["4", "Cross-check and weight", "Blend 70% commodity EV/EBITDA with 30% mid-cycle FCF DCF. Years 4–5 return to the full-cycle median instead of extending a commodity spike; analyst target prices have 0% weight."]
+        ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+      </div>
+      <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>${escapeHtml(config.sourceExplanation)}</small></div>${sourceLink}</div>
+      <div class="cyclical-audit-grid">
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Official sensitivity bridge</span><h5>Near-term planning values → long-term cycle</h5></div></div>
+          <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Driver</th><th>Near term</th><th>Long term</th><th>Change</th><th>EBIT effect</th></tr></thead><tbody>${driverRows}</tbody></table></div>
+          <p class="cyclical-formula">Effect for each driver = published operating-profit sensitivity at +10% × ((long-term value ÷ near-term value − 1) ÷ 10%).<br><strong>Total commodity and FX adjustment: ${escapeHtml(`${formatDecimal(boliden.operatingProfitAdjustmentSekm, 0)} SEK million`)}</strong></p>
+        </div>
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Valuation bridge</span><h5>Normalized operations → equity value per share</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Reported TTM EBITDA <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatCurrency(boliden.currentEbitda, "SEK"))}</dd></div>
+            <div><dt>Commodity and FX adjustment <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(boliden.operatingProfitAdjustmentSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Normalized EBITDA <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(formatCurrency(boliden.normalizedEbitda, "SEK"))}</dd></div>
+            <div><dt>Scenario EV/EBITDA <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(boliden.multiple, 1)}x`)}</dd></div>
+            <div><dt>Less net debt <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatCurrency(boliden.netDebt, "SEK"))}</dd></div>
+            <div class="is-total"><dt>Commodity EV/EBITDA value</dt><dd>${escapeHtml(formatTickerMoney(boliden.evEbitdaValue, "SEK"))}</dd></div>
+          </dl>
+          <p class="cyclical-formula"><strong>The ${escapeHtml(`${formatDecimal(boliden.multiple, 1)}x`)} multiple is a visible dashboard assumption.</strong> It is not taken from an analyst target price and is not calibrated to today’s share price.</p>
+        </div>
+      </div>
+      <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Independent cash-flow component</span><h5>Selected forecast → mid-cycle FCF DCF</h5></div></div>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Forecast year</th><th>FCF/share</th><th>Present value</th><th>Basis</th></tr></thead><tbody>${flowRows}</tbody></table></div>
+        <dl class="cyclical-bridge">${blendRows}<div class="is-total"><dt>Weighted intrinsic value</dt><dd>${escapeHtml(formatTickerMoney(boliden.value, "SEK"))}</dd></div></dl>
+      </div>
+      <div class="specialized-caveats"><strong>What is deliberately not assumed</strong><ul>${(config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}<li>Analyst target prices: 0% weight in every component.</li></ul></div>
+    `;
+  } else {
+    const componentRows = skanska.components.map((component) => `
+      <div><dt>${escapeHtml(component.label)}</dt><dd>${escapeHtml(`${formatDecimal(component.valueSekm, 0)} SEK m · ${formatPerShareMoney(component.perShare, "SEK")}`)}</dd></div>
+    `).join("");
+    const c = config;
+    elements.specializedCyclicalAudit.innerHTML = `
+      <div class="cyclical-step-grid">
+        ${[
+          ["1", "Normalize Construction", "Average 2024 and 2025 Construction operating income, then deduct the average recurring central cost."],
+          ["2", "Value the franchise", "Apply the explicit scenario EBIT multiple to normalized Construction earnings after central cost."],
+          ["3", "Value development assets", "Add reported capital employed and after-tax disclosed surplus values for each development and property business."],
+          ["4", "Reach equity value", "Add adjusted net cash once, sum every component and divide by reported shares. Analyst target prices have 0% weight."]
+        ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+      </div>
+      <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>${escapeHtml(config.sourceExplanation)}</small></div>${sourceLink}</div>
+      <div class="cyclical-audit-grid">
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Construction franchise</span><h5>Normalize earnings before applying a multiple</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Construction operating income 2025 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(c.construction.operatingIncome2025, 0)} SEK m`)}</dd></div>
+            <div><dt>Construction operating income 2024 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(c.construction.operatingIncome2024, 0)} SEK m`)}</dd></div>
+            <div><dt>Two-year average</dt><dd>${escapeHtml(`${formatDecimal(skanska.normalizedConstructionEbit, 0)} SEK m`)}</dd></div>
+            <div><dt>Less normalized central cost</dt><dd>${escapeHtml(`${formatDecimal(skanska.normalizedCentralCost, 0)} SEK m`)}</dd></div>
+            <div><dt>Scenario EBIT multiple <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(skanska.constructionMultiple, 1)}x`)}</dd></div>
+            <div class="is-total"><dt>Construction franchise value</dt><dd>${escapeHtml(`${formatDecimal(skanska.constructionValueSekm, 0)} SEK m`)}</dd></div>
+          </dl>
+          <p class="cyclical-formula">Construction value = ((7,094 + 5,854) ÷ 2 − (712 + 440) ÷ 2) × ${escapeHtml(formatDecimal(skanska.constructionMultiple, 1))} = <strong>${escapeHtml(`${formatDecimal(skanska.constructionValueSekm, 0)} SEK million`)}</strong>.</p>
+        </div>
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Development and property assets</span><h5>Reported capital + after-tax disclosed surplus</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Residential capital + after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[1].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Commercial capital + after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[2].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Investment properties</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[3].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>PPP after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[4].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Scenario factor <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(formatPercent((skanska.developmentFactor - 1) * 100, 0))}</dd></div>
+          </dl>
+          <p class="cyclical-formula">Disclosed surplus is reduced by Skanska’s ${escapeHtml(formatPercent(skanska.taxRate * 100, 0))} standard tax rate before it is added. The scenario factor applies only to the development and property block.</p>
+        </div>
+      </div>
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Sum of the parts</span><h5>Every component’s contribution</h5></div></div>
+        <dl class="cyclical-bridge">${componentRows}<div class="is-total"><dt>Total equity value ÷ ${escapeHtml(formatShares(skanska.shares))} shares</dt><dd>${escapeHtml(formatTickerMoney(skanska.value, "SEK"))}</dd></div></dl>
+      </div>
+      <div class="specialized-caveats"><strong>What is deliberately not assumed</strong><ul>${(config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}<li>Analyst target prices: 0% weight in every SOTP component.</li></ul></div>
+    `;
+  }
+  elements.specializedCyclicalAudit.hidden = false;
+  return true;
+}
+
 function renderCyclicalAudit(company) {
   if (!elements.cyclicalAudit) return;
   const category = normalizeCompanyType(company.companyType, company.ticker);
   const shouldShow = category === "cyclical" && state.analysisModel === "dcf";
   elements.cyclicalAudit.hidden = !shouldShow;
   if (!shouldShow) return;
+
+  const specialized = renderSpecializedCyclicalAudit(company, state.scenario);
+  if (elements.genericCyclicalAudit) elements.genericCyclicalAudit.hidden = specialized;
+  if (specialized) return;
+  if (elements.specializedCyclicalAudit) {
+    elements.specializedCyclicalAudit.hidden = true;
+    elements.specializedCyclicalAudit.innerHTML = "";
+  }
 
   const currency = company.currency ?? "SEK";
   const scenario = state.scenario;
@@ -3099,14 +3515,22 @@ function renderAnalysis(company) {
   elements.analysisAssumptions.innerHTML = presentation.assumptions
     .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
-  if (isCyclical) {
+  if (getSpecializedValuation(company, "boliden-commodity-cycle")) {
+    elements.scenarioBaseCopy.textContent = "Uses Boliden’s long-term prices, a 7.5x normalized EV/EBITDA assumption and the selected years 1–3 forecast; years 4–5 fade to full-cycle cash flow.";
+    elements.scenarioBullCopy.textContent = "Uses an 8.0x normalized EV/EBITDA assumption, FCF growth +2.0 pp and required return −0.7 pp.";
+    elements.scenarioBearCopy.textContent = "Uses a 7.0x normalized EV/EBITDA assumption, FCF growth −2.0 pp and required return +1.0 pp.";
+  } else if (getSpecializedValuation(company, "skanska-sotp")) {
+    elements.scenarioBaseCopy.textContent = "Uses an 8.0x Construction EBIT multiple and 100% of the calculated development and property NAV.";
+    elements.scenarioBullCopy.textContent = "Uses a 9.0x Construction EBIT multiple and 105% of the calculated development and property NAV.";
+    elements.scenarioBearCopy.textContent = "Uses a 7.0x Construction EBIT multiple and 90% of the calculated development and property NAV.";
+  } else if (isCyclical) {
     elements.scenarioBaseCopy.textContent = "Uses the selected years 1–3 forecast and fades years 4–5 to the report-derived mid-cycle cash flow.";
     elements.scenarioBullCopy.textContent = "Uses a stronger mid-cycle path (+2.0 pp) and a required return 0.7 pp lower; consensus years 1–3 stay unchanged.";
     elements.scenarioBearCopy.textContent = "Uses a weaker mid-cycle path (−2.0 pp) and a required return 1.0 pp higher; consensus years 1–3 stay unchanged.";
   } else {
-    elements.scenarioBaseCopy.textContent = "Uses the selected Growth forecast, required equity return and target P/E without adjustment.";
-    elements.scenarioBullCopy.textContent = "Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and target P/E +2.0x.";
-    elements.scenarioBearCopy.textContent = "Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and target P/E −2.0x.";
+    elements.scenarioBaseCopy.textContent = "Uses the selected Growth forecast, required return and EV/EBITDA assumption without adjustment.";
+    elements.scenarioBullCopy.textContent = "Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and EV/EBITDA +0.7x.";
+    elements.scenarioBearCopy.textContent = "Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and EV/EBITDA −0.7x.";
   }
   renderCyclicalAudit(company);
 }

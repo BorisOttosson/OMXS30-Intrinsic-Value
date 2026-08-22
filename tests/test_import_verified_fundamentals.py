@@ -198,6 +198,25 @@ class OfficialFundamentalsImportTests(unittest.TestCase):
                 ((expected_millions[-1] / expected_millions[0]) ** (1 / 4) - 1) * 100,
             )
 
+    def test_specialized_cyclical_models_survive_the_verified_import(self):
+        output = import_manifest(self.payload, self.manifest, checked_at="2026-08-18T10:00:00+00:00")
+        by_ticker = {company["ticker"]: company for company in output["companies"]}
+
+        boliden = by_ticker["BOL.ST"]["specializedValuation"]
+        self.assertEqual(boliden["type"], "boliden-commodity-cycle")
+        self.assertEqual(boliden["sourcePages"], [145, 159])
+        self.assertEqual(boliden["modelWeights"], {"commodityCycleEvEbitda": 0.7, "forwardFcfDcf": 0.3})
+        self.assertEqual(next(row for row in boliden["metalPrices"] if row["label"] == "Copper")["longTerm"], 8900)
+        self.assertIn("not fitted", boliden["normalizedEvEbitdaMultiple"]["basis"])
+
+        skanska = by_ticker["SKA-B.ST"]["specializedValuation"]
+        self.assertEqual(skanska["type"], "skanska-sotp")
+        self.assertEqual(skanska["sourcePages"], [112, 114, 115, 138])
+        self.assertEqual(skanska["construction"]["operatingIncome2025"], 7094)
+        self.assertEqual(skanska["commercialPropertyDevelopment"]["capitalEmployed"], 41700)
+        self.assertEqual(skanska["adjustedNetCash"], 11505)
+        self.assertEqual(skanska["standardTaxRate"], 0.21)
+
     def test_derived_fcf_must_reconcile_to_reported_fcf(self):
         entry = deepcopy(self.manifest["companies"]["ABB.ST"])
         entry["fcfHistory"] = [
