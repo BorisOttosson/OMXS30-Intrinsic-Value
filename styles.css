@@ -133,8 +133,11 @@ button { font: inherit; }
   padding: clamp(14px, 2vw, 20px) var(--pad);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  background: linear-gradient(160deg, rgba(23, 40, 76, 0.85), rgba(13, 23, 48, 0.9));
-  box-shadow: var(--shadow-1);
+  background:
+    radial-gradient(circle at 13% 48%, rgba(79, 148, 224, 0.18), transparent 31%),
+    linear-gradient(145deg, rgba(29, 66, 121, 0.97), rgba(18, 43, 84, 0.97));
+  border-color: rgba(83, 137, 205, 0.34);
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(135, 183, 235, 0.08);
   backdrop-filter: blur(8px);
 }
 
