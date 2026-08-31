@@ -21,13 +21,6 @@
             <img class="brand-logo" src="assets/brand/intrinsic-omxs30-logo-lockup-v4.png" alt="Intrinsic OMXS30">
           </div>
 
-          <div class="header-actions">
-            <div class="data-status" aria-label="Market data status">
-              <span>Data</span>
-              <strong id="dataStatus">Sample inputs</strong>
-              <small id="dataTimestamp">Run the updaters to load market data</small>
-            </div>
-          </div>
         </header>
 
         <section class="discovery-section" aria-label="Company universe">
@@ -62,13 +55,6 @@
               <option value="model-needed">Model needed</option>
             </select>
           </label>
-          <div class="filter-control growth-forecast-control">
-            <span>Growth forecast</span>
-            <div class="segmented-control" role="group" aria-label="Growth forecast">
-              <button class="segment is-active" type="button" data-growth-assumption="cagr" aria-pressed="true" title="Use historical FCF CAGR">CAGR</button>
-              <button class="segment" type="button" data-growth-assumption="consensus" aria-pressed="false" title="Use three annual market-consensus FCF estimates and their CAGR">Market consensus</button>
-            </div>
-          </div>
           </div>
 
           <nav class="company-list" id="companyList" aria-label="OMXS30 companies"></nav>
@@ -114,7 +100,7 @@
             <div class="ticker-value-block">
               <span>Intrinsic Value</span>
               <strong id="metricValue">-</strong>
-              <div id="metricValueSub" class="valuation-breakdown" aria-label="Valuation model contributions">DCF and P/E</div>
+              <small id="metricValueSub">DCF and P/E</small>
             </div>
             <div class="ticker-value-block">
               <span id="metricReverseLabel">Reverse DCF</span>
@@ -150,39 +136,39 @@
               <strong id="fundMarketCap">-</strong>
             </div>
             <div>
-              <span id="fundRevenueLabel">Revenue (TTM)</span>
+              <span>Revenue (TTM)</span>
               <strong id="fundRevenue">-</strong>
             </div>
             <div>
-              <span id="fundEbitdaLabel">EBITDA (TTM)</span>
+              <span>EBITDA (TTM)</span>
               <strong id="fundEbitda">-</strong>
             </div>
             <div>
-              <span id="fundFcfLabel">Free cash flow</span>
+              <span>Free cash flow</span>
               <strong id="fundFcf">-</strong>
             </div>
             <div>
-              <span id="fundAssetsLabel">Total assets (latest quarter)</span>
+              <span>Total assets (latest quarter)</span>
               <strong id="fundAssets">-</strong>
             </div>
             <div>
-              <span id="fundEquityLabel">Book equity (latest quarter)</span>
+              <span>Book equity (latest quarter)</span>
               <strong id="fundEquity">-</strong>
             </div>
             <div>
-              <span id="fundLiabilitiesLabel">Liabilities (latest quarter)</span>
+              <span>Liabilities (latest quarter)</span>
               <strong id="fundLiabilities">-</strong>
             </div>
             <div>
-              <span id="fundDebtLabel">Total debt (latest quarter)</span>
+              <span>Total debt (latest quarter)</span>
               <strong id="fundDebt">-</strong>
             </div>
             <div>
-              <span id="fundCashLabel">Cash (latest quarter)</span>
+              <span>Cash (latest quarter)</span>
               <strong id="fundCash">-</strong>
             </div>
             <div>
-              <span id="fundSharesLabel">Outstanding shares</span>
+              <span>Outstanding shares (Yahoo)</span>
               <strong id="fundShares">-</strong>
             </div>
             <div>
@@ -194,250 +180,9 @@
               <strong id="fundFcfYield">-</strong>
             </div>
           </div>
-
-          <div class="fundamental-audit" aria-label="Fundamental calculation details">
-            <details class="metric-audit-card" id="ebitdaAuditDetails">
-              <summary>
-                <span>How EBITDA is calculated</span>
-                <strong id="ebitdaAuditSummary">-</strong>
-              </summary>
-              <div id="ebitdaAuditBody" class="metric-audit-body"></div>
-            </details>
-            <details class="metric-audit-card" id="fcfAuditDetails" open>
-              <summary>
-                <span>How equity FCF is calculated</span>
-                <strong id="fcfAuditSummary">-</strong>
-              </summary>
-              <div id="fcfAuditBody" class="metric-audit-body"></div>
-            </details>
-          </div>
         </section>
 
         <section class="workspace-grid">
-          <section class="tool-panel valuation-panel" id="analysisPanel" aria-label="Financial analysis">
-            <div class="analysis-heading">
-              <div>
-                <h3 id="analysisPanelTitle">Financial Analysis</h3>
-              </div>
-              <div class="analysis-controls" id="analysisControls">
-                <div class="analysis-control-group" id="modelControlGroup">
-                  <span>Financial model</span>
-                  <div class="segmented-control model-selector" aria-label="Financial model">
-                    <button class="segment is-active" type="button" data-model-view="dcf">DCF</button>
-                    <button class="segment" type="button" data-model-view="reverse-dcf">Reverse DCF</button>
-                    <button class="segment" type="button" data-model-view="pe">P/E</button>
-                    <button class="segment" type="button" data-model-view="ev-ebitda">EV/EBITDA</button>
-                  </div>
-                </div>
-                <div class="analysis-control-group" id="growthControlGroup">
-                  <span>Growth forecast</span>
-                  <div class="segmented-control" role="group" aria-label="Growth forecast in financial analysis">
-                    <button class="segment is-active" type="button" data-growth-assumption="cagr" aria-pressed="true">CAGR</button>
-                    <button class="segment" type="button" data-growth-assumption="consensus" aria-pressed="false">Market consensus</button>
-                  </div>
-                </div>
-                <div class="analysis-control-group" id="scenarioControlGroup">
-                  <span>Scenario</span>
-                  <div class="segmented-control" aria-label="Scenario">
-                    <button class="segment is-active" type="button" data-scenario="base">Base</button>
-                    <button class="segment" type="button" data-scenario="bull">Bull</button>
-                    <button class="segment" type="button" data-scenario="bear">Bear</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="analysis-section-heading">
-              <div>
-                <span class="eyebrow">Key numbers</span>
-                <h4 id="analysisMetricsTitle">DCF · Base case</h4>
-              </div>
-              <p id="analysisMetricsNote">Values use the inputs already shown in Model Inputs.</p>
-            </div>
-
-            <div class="value-grid analysis-value-grid">
-              <div>
-                <span id="valuationPrimaryLabel">Intrinsic value / share</span>
-                <strong id="dcfValue">-</strong>
-                <small id="valuationPrimarySub">-</small>
-              </div>
-              <div>
-                <span id="valuationSecondaryLabel">Current price</span>
-                <strong id="peValue">-</strong>
-                <small id="valuationSecondarySub">-</small>
-              </div>
-              <div>
-                <span id="valuationTertiaryLabel">FCF growth</span>
-                <strong id="currentPe">-</strong>
-                <small id="valuationTertiarySub">-</small>
-              </div>
-              <div>
-                <span id="valuationFourthLabel">Required equity return</span>
-                <strong id="valuationFourthValue">-</strong>
-                <small id="valuationFourthSub">-</small>
-              </div>
-            </div>
-
-            <section class="eqt-forecast-editor" id="eqtForecastEditor" hidden aria-live="polite">
-              <div>
-                <span class="eyebrow">Editable base assumptions</span>
-                <h4>Build the fee-business forecast</h4>
-                <p>The selected scenario adjusts these two base inputs. The initial 8% growth is a manual starting assumption—not analyst consensus—and official reported values remain locked.</p>
-              </div>
-              <label>
-                <span>Annual fee-related EBITDA growth</span>
-                <div class="input-unit">
-                  <input id="eqtFeeEbitdaGrowth" data-eqt-field="eqtFeeEbitdaGrowth" type="number" min="-50" max="50" step="0.1">
-                  <span>%</span>
-                </div>
-                <small id="eqtGrowthScenarioNote">Base uses the entered rate</small>
-              </label>
-              <label>
-                <span>Year-5 terminal EV/EBITDA</span>
-                <div class="input-unit">
-                  <input id="eqtTerminalMultiple" data-eqt-field="eqtTerminalMultiple" type="number" min="0" max="60" step="0.1">
-                  <span>x</span>
-                </div>
-                <small id="eqtMultipleScenarioNote">Applied after the fifth forecast year</small>
-              </label>
-            </section>
-
-            <div class="analysis-body">
-              <div class="analysis-chart-card">
-                <div class="analysis-chart-heading">
-                  <div>
-                    <h4 id="analysisChartTitle">Projected free cash flow / share</h4>
-                    <p id="analysisChartSubtitle">Base-case five-year forecast</p>
-                  </div>
-                  <span id="analysisChartUnit">SEK / share</span>
-                </div>
-                <div class="chart-wrap">
-                  <canvas id="dcfChart" width="960" height="390" aria-label="Valuation model chart"></canvas>
-                </div>
-              </div>
-
-              <aside class="analysis-explainer" aria-live="polite">
-                <span class="eyebrow">About the selected model</span>
-                <h4 id="analysisModelTitle">DCF — Discounted Cash Flow</h4>
-                <p id="analysisModelDescription">Projects free cash flow and discounts it back to today.</p>
-                <div class="analysis-formula" id="analysisFormula">FCF forecast + terminal value − net debt</div>
-                <dl class="analysis-assumptions" id="analysisAssumptions"></dl>
-              </aside>
-            </div>
-
-            <section class="cyclical-audit" id="cyclicalAudit" hidden aria-live="polite">
-              <div class="analysis-section-heading">
-                <div>
-                  <span class="eyebrow">Calculation walkthrough</span>
-                  <h4>How the cyclical valuation works</h4>
-                </div>
-                <p id="cyclicalAuditStatus">Official-report history → mid-cycle cash flow → DCF</p>
-              </div>
-
-              <div id="specializedCyclicalAudit" class="specialized-cyclical-audit" hidden></div>
-
-              <div id="genericCyclicalAudit">
-              <div class="cyclical-step-grid" id="cyclicalSteps"></div>
-
-              <div class="cyclical-audit-grid">
-                <div class="cyclical-audit-card">
-                  <div class="cyclical-card-heading">
-                    <div>
-                      <span class="eyebrow">Step 1</span>
-                      <h5>Normalize the full cycle</h5>
-                    </div>
-                    <a id="cyclicalSourceLink" href="#" target="_blank" rel="noreferrer" hidden>Open official report</a>
-                  </div>
-                  <div class="table-scroll">
-                    <table class="cyclical-table">
-                      <thead><tr><th>Year</th><th>Reported cash flow</th><th>Per share</th><th>Evidence</th></tr></thead>
-                      <tbody id="cyclicalHistoryRows"></tbody>
-                    </table>
-                  </div>
-                  <p class="cyclical-formula" id="cyclicalNormalizationFormula"></p>
-                </div>
-
-                <div class="cyclical-audit-card">
-                  <div class="cyclical-card-heading">
-                    <div>
-                      <span class="eyebrow">Steps 2–3</span>
-                      <h5>Forecast, fade and discount</h5>
-                    </div>
-                  </div>
-                  <div class="table-scroll">
-                    <table class="cyclical-table">
-                      <thead><tr><th>Forecast year</th><th>Cash flow/share</th><th>Present value</th><th>How set</th></tr></thead>
-                      <tbody id="cyclicalForecastRows"></tbody>
-                    </table>
-                  </div>
-                  <dl class="cyclical-bridge" id="cyclicalValueBridge"></dl>
-                </div>
-              </div>
-
-              <div class="cyclical-crosschecks">
-                <div>
-                  <span>Primary value</span>
-                  <strong id="cyclicalPrimaryValue">-</strong>
-                  <small>Mid-cycle DCF; this is the dashboard headline</small>
-                </div>
-                <div>
-                  <span>EV/EBITDA cross-check</span>
-                  <strong id="cyclicalEbitdaCheck">-</strong>
-                  <small id="cyclicalEbitdaNote">Shown only with explicitly normalized EBITDA</small>
-                </div>
-                <div>
-                  <span>P/E cross-check</span>
-                  <strong id="cyclicalPeCheck">-</strong>
-                  <small id="cyclicalPeNote">Shown only with explicitly normalized EPS</small>
-                </div>
-                <div>
-                  <span>Company-specific check</span>
-                  <strong id="cyclicalSubtype">-</strong>
-                  <small id="cyclicalSubtypeNote">-</small>
-                </div>
-              </div>
-              </div>
-            </section>
-
-            <section class="cyclical-audit" id="eqtSotpAudit" hidden aria-live="polite">
-              <div class="analysis-section-heading">
-                <div>
-                  <span class="eyebrow">Calculation walkthrough</span>
-                  <h4>How the EQT sum-of-the-parts works</h4>
-                </div>
-                <p id="eqtSotpAuditStatus">Official report → fee franchise + financial assets − net debt</p>
-              </div>
-              <div id="eqtSotpAuditBody" class="specialized-cyclical-audit"></div>
-            </section>
-
-            <div class="scenario-guide" id="scenarioGuide">
-              <div class="analysis-section-heading">
-                <div>
-                  <span class="eyebrow">What changes?</span>
-                  <h4>Scenario assumptions</h4>
-                </div>
-                <p>Each case starts from the same company inputs.</p>
-              </div>
-              <div class="scenario-card-grid">
-                <button class="scenario-card is-active" type="button" data-scenario="base" data-scenario-card="base">
-                  <span class="scenario-dot base"></span>
-                  <strong>Base · Most likely</strong>
-                  <small id="scenarioBaseCopy">Uses the selected Growth forecast, required return and EV/EBITDA assumption without adjustment.</small>
-                </button>
-                <button class="scenario-card" type="button" data-scenario="bull" data-scenario-card="bull">
-                  <span class="scenario-dot bull"></span>
-                  <strong>Bull · More optimistic</strong>
-                  <small id="scenarioBullCopy">Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and EV/EBITDA +0.7x.</small>
-                </button>
-                <button class="scenario-card" type="button" data-scenario="bear" data-scenario-card="bear">
-                  <span class="scenario-dot bear"></span>
-                  <strong>Bear · More conservative</strong>
-                  <small id="scenarioBearCopy">Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and EV/EBITDA −0.7x.</small>
-                </button>
-              </div>
-            </div>
-          </section>
-
           <form class="tool-panel model-panel" id="valuationForm">
             <div class="panel-title">
               <div>
@@ -463,6 +208,7 @@
                   <input data-field="fcfPerShare" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="fcfPerShare"></small>
               </label>
               <label>
                 <span>EPS</span>
@@ -470,6 +216,7 @@
                   <input data-field="eps" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="eps"></small>
               </label>
               <label>
                 <span>EBITDA / share</span>
@@ -477,6 +224,7 @@
                   <input data-field="ebitdaPerShare" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="ebitdaPerShare"></small>
               </label>
               <label>
                 <span>Net debt / share</span>
@@ -484,15 +232,16 @@
                   <input data-field="netDebtPerShare" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="netDebtPerShare"></small>
               </label>
               <p class="group-head">Growth assumptions</p>
               <label class="field-wide">
-                <span>Historical FCF CAGR</span>
+                <span>Historical 5yr FCF CAGR</span>
                 <div class="input-unit">
-                  <input data-field="growth5y" type="number" step="0.1" readonly aria-describedby="growth5yMeta">
+                  <input data-field="growth5y" type="number" step="0.1">
                   <span>%</span>
                 </div>
-                <small class="field-meta" id="growth5yMeta">Source: Official company reports | Updated: -</small>
+                <small class="field-meta" id="growth5yMeta">Source: BorsAPI | Updated: -</small>
               </label>
               <details class="field-wide cagr-details" id="cagrDetails" open>
                 <summary>Yearly FCF growth &amp; CAGR calculation</summary>
@@ -500,25 +249,24 @@
               </details>
 
               <label class="field-wide">
-                <span>Market consensus FCF CAGR</span>
+                <span>Consensus FCF CAGR</span>
                 <div class="input-unit">
-                  <input data-field="consensusGrowth" type="number" step="0.1" readonly aria-describedby="consensusGrowthMeta">
+                  <input data-field="consensusGrowth" type="number" step="0.1" readonly aria-describedby="consensusGrowthMeta consensusGrowthDetails">
                   <span>%</span>
                 </div>
                 <small class="field-meta" id="consensusGrowthMeta">Waiting for verified MarketScreener forecast data</small>
               </label>
-              <details class="field-wide cagr-details" id="consensusGrowthDetails" open>
-                <summary>Three-estimate FCF CAGR calculation</summary>
+              <details class="field-wide cagr-details" id="consensusGrowthDetails">
+                <summary>Consensus FCF calculation &amp; source trail</summary>
                 <div id="consensusGrowthBreakdown" class="cagr-breakdown"></div>
               </details>
               <p class="group-head">Discounting &amp; multiples</p>
               <label>
-                <span>Required equity return</span>
+                <span>WACC</span>
                 <div class="input-unit">
                   <input data-field="wacc" type="number" min="0" step="0.1">
                   <span>%</span>
                 </div>
-                <small class="field-meta">Discount rate for equity FCF · Existing saved percentage retained</small>
               </label>
               <label>
                 <span>Terminal growth</span>
@@ -530,10 +278,9 @@
               <label>
                 <span>Target P/E</span>
                 <div class="input-unit">
-                  <input data-field="targetPe" type="number" min="0" step="0.1" readonly aria-describedby="targetPeMeta">
+                  <input data-field="targetPe" type="number" min="0" step="0.1">
                   <span>x</span>
                 </div>
-                <small class="field-meta" id="targetPeMeta">Automatically equals the current trailing P/E shown next to the share price</small>
               </label>
               <label>
                 <span>Target EV/EBITDA</span>
@@ -544,11 +291,12 @@
               </label>
               <p class="group-head">Balance sheet &amp; position</p>
               <label>
-                <span>Book / NAV per share</span>
+                <span>Book equity / NAV per share</span>
                 <div class="input-unit">
                   <input data-field="bookValuePerShare" type="number" min="0" step="0.01">
                   <span>SEK</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="bookValuePerShare"></small>
               </label>
               <label>
                 <span>ROE</span>
@@ -556,14 +304,14 @@
                   <input data-field="roe" type="number" step="0.1">
                   <span>%</span>
                 </div>
+                <small class="field-meta" data-calculation-meta="roe"></small>
               </label>
               <label>
-                <span>Mid-cycle FCF / share</span>
+                <span>Normalized FCF / share</span>
                 <div class="input-unit">
-                  <input data-field="normalizedFcfPerShare" type="number" step="0.01" readonly aria-describedby="normalizedFcfMeta">
+                  <input data-field="normalizedFcfPerShare" type="number" step="0.01">
                   <span>SEK</span>
                 </div>
-                <small class="field-meta" id="normalizedFcfMeta">Calculated from consecutive official-report years for cyclical companies.</small>
               </label>
               <label>
                 <span>Position weight</span>
@@ -574,6 +322,77 @@
               </label>
             </div>
           </form>
+
+
+          <section class="tool-panel valuation-panel" aria-label="Valuation outputs">
+            <div class="panel-title">
+              <div>
+                <h3>Valuation</h3>
+                <p id="valuationSubtitle">Base case</p>
+              </div>
+              <div class="segmented-control" aria-label="Scenario">
+                <button class="segment is-active" type="button" data-scenario="base">Base</button>
+                <button class="segment" type="button" data-scenario="bear">Bear</button>
+                <button class="segment" type="button" data-scenario="bull">Bull</button>
+              </div>
+            </div>
+
+            <div class="value-grid">
+              <div>
+                <span id="valuationPrimaryLabel">DCF value</span>
+                <strong id="dcfValue">-</strong>
+              </div>
+              <div>
+                <span id="valuationSecondaryLabel">P/E value</span>
+                <strong id="peValue">-</strong>
+              </div>
+              <div>
+                <span id="valuationTertiaryLabel">Current P/E</span>
+                <strong id="currentPe">-</strong>
+              </div>
+            </div>
+
+            <div class="chart-wrap">
+              <canvas id="dcfChart" width="640" height="260" aria-label="Five year free cash flow projection"></canvas>
+            </div>
+          </section>
+
+          <section class="tool-panel outlook-panel" aria-label="Outlook scorecard">
+            <div class="panel-title">
+              <div>
+                <h3>Outlook</h3>
+                <p id="qualitySummary">Industry, company, leadership</p>
+              </div>
+              <span class="score-ring" id="qualityRing">0</span>
+            </div>
+
+            <div class="slider-stack">
+              <label>
+                <span>Industry opportunity <strong data-score-value="industryScore">3</strong></span>
+                <input data-quality="industryScore" type="range" min="1" max="5" step="1">
+              </label>
+              <label>
+                <span>Company advantage <strong data-score-value="companyScore">3</strong></span>
+                <input data-quality="companyScore" type="range" min="1" max="5" step="1">
+              </label>
+              <label>
+                <span>Leadership quality <strong data-score-value="leadershipScore">3</strong></span>
+                <input data-quality="leadershipScore" type="range" min="1" max="5" step="1">
+              </label>
+            </div>
+
+            <div class="outlook-grid">
+              <div>
+                <span>Growth gap</span>
+                <strong id="growthGap">-</strong>
+              </div>
+              <div>
+                <span>Quality score</span>
+                <strong id="qualityScore">-</strong>
+              </div>
+            </div>
+          </section>
+
           <section class="tool-panel target-price-panel" aria-label="Target prices">
             <div class="panel-title">
               <div>
@@ -640,6 +459,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="app.js?v=20260822-eqt-growth"></script>
+  <script src="app.js?v=20260802-ui"></script>
   </body>
 </html>
