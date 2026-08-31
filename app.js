@@ -309,10 +309,6 @@ const elements = {
   dcfValue: document.querySelector("#dcfValue"),
   peValue: document.querySelector("#peValue"),
   currentPe: document.querySelector("#currentPe"),
-  qualityRing: document.querySelector("#qualityRing"),
-  qualitySummary: document.querySelector("#qualitySummary"),
-  growthGap: document.querySelector("#growthGap"),
-  qualityScore: document.querySelector("#qualityScore"),
   riktkursSummary: document.querySelector("#riktkursSummary"),
   riktkursTarget: document.querySelector("#riktkursTarget"),
   riktkursUpside: document.querySelector("#riktkursUpside"),
@@ -1809,7 +1805,6 @@ function renderAll() {
 function renderDependentViews() {
   renderHeader();
   renderMetrics();
-  renderOutlook();
   renderRiktkurser();
   renderSyntheticPortfolio();
   renderFundamentals();
@@ -1920,7 +1915,6 @@ function renderCompanyList(updateHtml = true) {
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
-          <small>${calc.stance.label}</small>
         </span>
       </button>
     `;
@@ -1951,10 +1945,6 @@ function renderForm() {
     input.value = roundFieldValue(company[input.dataset.field]);
   });
 
-
-  document.querySelectorAll("[data-quality]").forEach((input) => {
-    input.value = company[input.dataset.quality] ?? 3;
-  });
 
   document.querySelectorAll("[data-meta]").forEach((input) => {
     input.value = company[input.dataset.meta] ?? "";
@@ -2161,24 +2151,6 @@ function renderMetrics() {
   elements.dcfValue.textContent = formatCurrency(calc.model.primaryValue, company.currency ?? "SEK");
   elements.peValue.textContent = formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK");
   elements.currentPe.textContent = calc.model.tertiaryValue;
-}
-
-function renderOutlook() {
-  const company = getSelectedCompany();
-  if (!company) return;
-
-  const calc = calculateCompany(company);
-  elements.qualityRing.textContent = calc.qualityScore;
-  elements.qualityRing.style.borderColor = calc.qualityScore >= 75 ? "var(--green)" : calc.qualityScore >= 55 ? "var(--amber)" : "var(--red)";
-  elements.qualitySummary.textContent = `${company.industryScore}/5 | ${company.companyScore}/5 | ${company.leadershipScore}/5`;
-  elements.growthGap.textContent = formatPercent(calc.growthGap, 1);
-  elements.growthGap.className = !Number.isFinite(calc.growthGap) ? "" : (calc.growthGap >= 0 ? "is-positive" : "is-negative");
-  elements.qualityScore.textContent = `${calc.qualityScore}/100`;
-
-  document.querySelectorAll("[data-score-value]").forEach((label) => {
-    const field = label.dataset.scoreValue;
-    label.textContent = `${company[field] ?? 3}/5`;
-  });
 }
 
 function renderRiktkurser() {
