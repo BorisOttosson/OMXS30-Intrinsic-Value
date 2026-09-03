@@ -6,6 +6,7 @@ const FUNDAMENTALS_DATA_URL = `${RAW_DATA_BASE_URL}/fundamentals.json`;
 const MARKET_DATA_URL = `${RAW_DATA_BASE_URL}/omxs30-data.json`;
 const PRICE_DATA_URL = `${RAW_DATA_BASE_URL}/prices.json`;
 const MARKETSCREENER_DATA_URL = `${RAW_DATA_BASE_URL}/marketscreener-fcf.json`;
+const FX_DATA_URL = `${RAW_DATA_BASE_URL}/fx-rates.json`;
 const TARGET_PRICE_DATA_URLS = [
   `${RAW_DATA_BASE_URL}/riktkurser.json`,
   `${RAW_DATA_BASE_URL}/price_targets.json`
@@ -97,14 +98,14 @@ const companyCategoryDefinitions = {
   investment: {
     label: "Investment company",
     shortLabel: "Investment",
-    model: "NAV discount/premium + P/E",
-    warning: "Use NAV discount/premium as the primary model; DCF is not reliable here."
+    model: "NAV discount/premium",
+    warning: "Use reported NAV per share and the market discount or premium; operating-company valuation models are not used."
   },
   cyclical: {
     label: "Asset-heavy cyclical",
     shortLabel: "Cyclical",
-    model: "Normalized FCF + EV/EBITDA",
-    warning: "Use normalized mid-cycle earnings or FCF, not one-year FCF."
+    model: "Mid-cycle cash-flow DCF + cross-checks",
+    warning: "Use a complete-cycle cash-flow history and fade forecasts toward a mid-cycle level."
   }
 };
 
@@ -255,6 +256,8 @@ let state = {
   companies: loadCompanies(),
   selectedId: null,
   scenario: "base",
+  analysisModel: "dcf",
+  growthAssumption: loadGrowthAssumptionPreference(),
   marketData: {
     fundamentalsLoaded: false,
     pricesLoaded: false,
@@ -292,7 +295,6 @@ const elements = {
   selectedMeta: document.querySelector("#selectedMeta"),
   inputBadge: document.querySelector("#inputBadge"),
   stanceBadge: document.querySelector("#stanceBadge"),
-  valuationSubtitle: document.querySelector("#valuationSubtitle"),
   metricValue: document.querySelector("#metricValue"),
   metricValueSub: document.querySelector("#metricValueSub"),
   heroCurrentPrice: document.querySelector("#heroCurrentPrice"),
@@ -306,9 +308,59 @@ const elements = {
   valuationPrimaryLabel: document.querySelector("#valuationPrimaryLabel"),
   valuationSecondaryLabel: document.querySelector("#valuationSecondaryLabel"),
   valuationTertiaryLabel: document.querySelector("#valuationTertiaryLabel"),
+  valuationPrimarySub: document.querySelector("#valuationPrimarySub"),
+  valuationSecondarySub: document.querySelector("#valuationSecondarySub"),
+  valuationTertiarySub: document.querySelector("#valuationTertiarySub"),
+  valuationFourthLabel: document.querySelector("#valuationFourthLabel"),
+  valuationFourthValue: document.querySelector("#valuationFourthValue"),
+  valuationFourthSub: document.querySelector("#valuationFourthSub"),
   dcfValue: document.querySelector("#dcfValue"),
   peValue: document.querySelector("#peValue"),
   currentPe: document.querySelector("#currentPe"),
+  analysisPanel: document.querySelector("#analysisPanel"),
+  analysisPanelTitle: document.querySelector("#analysisPanelTitle"),
+  analysisControls: document.querySelector("#analysisControls"),
+  modelControlGroup: document.querySelector("#modelControlGroup"),
+  growthControlGroup: document.querySelector("#growthControlGroup"),
+  scenarioControlGroup: document.querySelector("#scenarioControlGroup"),
+  scenarioGuide: document.querySelector("#scenarioGuide"),
+  analysisMetricsTitle: document.querySelector("#analysisMetricsTitle"),
+  analysisMetricsNote: document.querySelector("#analysisMetricsNote"),
+  analysisChartTitle: document.querySelector("#analysisChartTitle"),
+  analysisChartSubtitle: document.querySelector("#analysisChartSubtitle"),
+  analysisChartUnit: document.querySelector("#analysisChartUnit"),
+  eqtForecastEditor: document.querySelector("#eqtForecastEditor"),
+  eqtFeeEbitdaGrowth: document.querySelector("#eqtFeeEbitdaGrowth"),
+  eqtTerminalMultiple: document.querySelector("#eqtTerminalMultiple"),
+  eqtGrowthScenarioNote: document.querySelector("#eqtGrowthScenarioNote"),
+  eqtMultipleScenarioNote: document.querySelector("#eqtMultipleScenarioNote"),
+  analysisModelTitle: document.querySelector("#analysisModelTitle"),
+  analysisModelDescription: document.querySelector("#analysisModelDescription"),
+  analysisFormula: document.querySelector("#analysisFormula"),
+  analysisAssumptions: document.querySelector("#analysisAssumptions"),
+  cyclicalAudit: document.querySelector("#cyclicalAudit"),
+  cyclicalAuditStatus: document.querySelector("#cyclicalAuditStatus"),
+  specializedCyclicalAudit: document.querySelector("#specializedCyclicalAudit"),
+  genericCyclicalAudit: document.querySelector("#genericCyclicalAudit"),
+  cyclicalSteps: document.querySelector("#cyclicalSteps"),
+  cyclicalSourceLink: document.querySelector("#cyclicalSourceLink"),
+  cyclicalHistoryRows: document.querySelector("#cyclicalHistoryRows"),
+  cyclicalNormalizationFormula: document.querySelector("#cyclicalNormalizationFormula"),
+  cyclicalForecastRows: document.querySelector("#cyclicalForecastRows"),
+  cyclicalValueBridge: document.querySelector("#cyclicalValueBridge"),
+  cyclicalPrimaryValue: document.querySelector("#cyclicalPrimaryValue"),
+  cyclicalEbitdaCheck: document.querySelector("#cyclicalEbitdaCheck"),
+  cyclicalEbitdaNote: document.querySelector("#cyclicalEbitdaNote"),
+  cyclicalPeCheck: document.querySelector("#cyclicalPeCheck"),
+  cyclicalPeNote: document.querySelector("#cyclicalPeNote"),
+  cyclicalSubtype: document.querySelector("#cyclicalSubtype"),
+  cyclicalSubtypeNote: document.querySelector("#cyclicalSubtypeNote"),
+  eqtSotpAudit: document.querySelector("#eqtSotpAudit"),
+  eqtSotpAuditStatus: document.querySelector("#eqtSotpAuditStatus"),
+  eqtSotpAuditBody: document.querySelector("#eqtSotpAuditBody"),
+  scenarioBaseCopy: document.querySelector("#scenarioBaseCopy"),
+  scenarioBullCopy: document.querySelector("#scenarioBullCopy"),
+  scenarioBearCopy: document.querySelector("#scenarioBearCopy"),
   riktkursSummary: document.querySelector("#riktkursSummary"),
   riktkursTarget: document.querySelector("#riktkursTarget"),
   riktkursUpside: document.querySelector("#riktkursUpside"),
@@ -323,17 +375,30 @@ const elements = {
   fundamentalsSubtitle: document.querySelector("#fundamentalsSubtitle"),
   fundamentalsSourceLink: document.querySelector("#fundamentalsSourceLink"),
   fundMarketCap: document.querySelector("#fundMarketCap"),
+  fundRevenueLabel: document.querySelector("#fundRevenueLabel"),
   fundRevenue: document.querySelector("#fundRevenue"),
+  fundEbitdaLabel: document.querySelector("#fundEbitdaLabel"),
   fundEbitda: document.querySelector("#fundEbitda"),
+  fundFcfLabel: document.querySelector("#fundFcfLabel"),
   fundFcf: document.querySelector("#fundFcf"),
+  fundAssetsLabel: document.querySelector("#fundAssetsLabel"),
   fundAssets: document.querySelector("#fundAssets"),
+  fundEquityLabel: document.querySelector("#fundEquityLabel"),
   fundEquity: document.querySelector("#fundEquity"),
+  fundLiabilitiesLabel: document.querySelector("#fundLiabilitiesLabel"),
   fundLiabilities: document.querySelector("#fundLiabilities"),
+  fundDebtLabel: document.querySelector("#fundDebtLabel"),
   fundDebt: document.querySelector("#fundDebt"),
+  fundCashLabel: document.querySelector("#fundCashLabel"),
   fundCash: document.querySelector("#fundCash"),
   fundShares: document.querySelector("#fundShares"),
+  fundSharesLabel: document.querySelector("#fundSharesLabel"),
   fundEvEbitda: document.querySelector("#fundEvEbitda"),
   fundFcfYield: document.querySelector("#fundFcfYield"),
+  ebitdaAuditSummary: document.querySelector("#ebitdaAuditSummary"),
+  ebitdaAuditBody: document.querySelector("#ebitdaAuditBody"),
+  fcfAuditSummary: document.querySelector("#fcfAuditSummary"),
+  fcfAuditBody: document.querySelector("#fcfAuditBody"),
   footerDataNote: document.querySelector("#footerDataNote"),
   tickerSnapshot: document.querySelector("#tickerSnapshot"),
   tickerSource: document.querySelector("#tickerSource"),
@@ -381,18 +446,22 @@ function createDefaultCompanies() {
       normalizedFcfPerShare,
       normalizedEbitdaPerShare,
       growth5y: round(defaults.growth5y + ((index % 5) - 2) * 0.35, 1),
+      dcfGrowth: null,
       consensusGrowth: null,
-      consensusGrowthSource: "",
-      consensusGrowthAsOf: "",
-      consensusGrowthAudit: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" },
       growth5yYears: null,
       fcfSeries: null,
       growth5ySource: null,
       growth5yUpdatedAt: null,
       wacc: round(defaults.wacc + ((index % 3) - 1) * 0.25, 1),
       terminalGrowth: defaults.terminalGrowth,
-      targetPe: round(defaults.targetPe + ((index % 3) - 1) * 0.6, 1),
+      targetPe: round(price / eps, 2),
       targetEvToEbitda,
+      eqtFeeEbitdaGrowth: ticker === "EQT.ST" ? 8 : null,
+      eqtTerminalMultiple: ticker === "EQT.ST" ? 22 : null,
       portfolioWeight: 0,
       industryScore,
       companyScore: clamp(companyScore + ((index % 3) - 1), 1, 5),
@@ -419,23 +488,41 @@ function loadCompanies() {
   }
 }
 
+function loadGrowthAssumptionPreference() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    return parsed?.growthAssumption === "consensus" ? "consensus" : "cagr";
+  } catch {
+    return "cagr";
+  }
+}
+
 function mergeWithSeed(savedCompanies) {
   const defaults = createDefaultCompanies();
   const savedById = new Map(savedCompanies.map((company) => [company.id, company]));
   return defaults.map((company) => {
     const saved = savedById.get(company.id) ?? {};
-    return {
+    const merged = {
       ...company,
       ...saved,
-      companyType: normalizeCompanyType(saved.companyType, company.ticker)
+      companyType: normalizeCompanyType(saved.companyType, company.ticker),
+      dcfGrowth: numberOrNull(saved.dcfGrowth),
+      consensusGrowth: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" }
     };
+    merged.targetPe = getCurrentPeRatio(merged);
+    return merged;
   });
 }
 
 function saveCompanies() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    version: 1,
+    version: 2,
     updatedAt: new Date().toISOString(),
+    growthAssumption: state.growthAssumption,
     companies: state.companies
   }, null, 2));
 }
@@ -466,7 +553,7 @@ async function loadMarketData({ quiet = true } = {}) {
     state.companies = applyMarketData(state.companies, payload.companies);
     nextMarketData.fundamentalsLoaded = true;
     nextMarketData.fundamentalsGeneratedAt = payload.generatedAt ?? null;
-    nextMarketData.fundamentalsProvider = payload.provider ?? "Yahoo Finance via yfinance";
+    nextMarketData.fundamentalsProvider = payload.provider ?? "Official company reports";
     nextMarketData.errors.push(...payload.companies.flatMap((company) => company.errors ?? []));
     changed = true;
   } catch (error) {
@@ -556,7 +643,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
 
   return createDefaultCompanies().map((seedCompany) => {
     const current = currentById.get(seedCompany.id) ?? {};
-    const market = deriveFinancialMetrics(marketById.get(seedCompany.id) ?? {});
+    const market = marketById.get(seedCompany.id) ?? {};
     const fundamentals = {
       previousClose: numberOrNull(market.previousClose),
       marketCap: numberOrNull(market.marketCap),
@@ -567,6 +654,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       ebit: numberOrNull(market.ebit),
       netIncome: numberOrNull(market.netIncome),
       operatingCashFlow: numberOrNull(market.operatingCashFlow),
+      cashFlowMetricLabel: market.cashFlowMetricLabel ?? null,
       capitalExpenditures: numberOrNull(market.capitalExpenditures),
       freeCashFlow: numberOrNull(market.freeCashFlow),
       totalAssets: numberOrNull(market.totalAssets),
@@ -590,10 +678,6 @@ function applyMarketData(currentCompanies, marketCompanies) {
       roe: numberOrNull(market.roe),
       normalizedFcfPerShare: numberOrNull(market.normalizedFcfPerShare),
       normalizedEbitdaPerShare: numberOrNull(market.normalizedEbitdaPerShare),
-      calculationSources: {
-        ...(market.calculationSources ?? {}),
-        ...(current.fundamentals?.calculationSources ?? {})
-      },
       financialCurrency: market.financialCurrency ?? null,
       financialToQuoteFx: numberOrNull(market.financialToQuoteFx),
       latestFiscalDate: market.latestFiscalDate ?? null,
@@ -603,6 +687,7 @@ function applyMarketData(currentCompanies, marketCompanies) {
       balanceSheetPeriod: market.balanceSheetPeriod ?? null,
       cashFlowStatementDate: market.cashFlowStatementDate ?? null,
       cashFlowStatementPeriod: market.cashFlowStatementPeriod ?? null,
+      metricCalculations: market.metricCalculations ?? null,
       independentVerification: market.independentVerification ?? null,
       officialSource: market.officialSource ?? null,
       dataQuality: market.dataQuality ?? null,
@@ -613,38 +698,59 @@ function applyMarketData(currentCompanies, marketCompanies) {
     const fundamentalsUsable = market.dataQuality?.valuationReady !== false;
     const fundamentalInput = (value) => fundamentalsUsable ? numberOrNull(value) : null;
 
+    const resolvedMarketPrice = numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice);
+    const resolvedEps = fundamentalInput(market.eps);
+    const currentPe = getCurrentPeRatio({
+      marketPrice: resolvedMarketPrice,
+      eps: resolvedEps,
+      fundamentals
+    });
+
     return {
       ...seedCompany,
       ...current,
       companyType: normalizeCompanyType(market.companyType ?? current.companyType, seedCompany.ticker),
-      marketPrice: numberOrFallback(market.marketPrice, current.marketPrice ?? seedCompany.marketPrice),
+      marketPrice: resolvedMarketPrice,
       fcfPerShare: fundamentalInput(market.fcfPerShare),
       ebitdaPerShare: fundamentalInput(market.ebitdaPerShare),
-      eps: fundamentalInput(market.eps),
+      eps: resolvedEps,
       netDebtPerShare: fundamentalInput(market.netDebtPerShare),
       bookValuePerShare: numberOrFallback(marketBookValue, current.bookValuePerShare ?? seedCompany.bookValuePerShare),
       navPerShare: numberOrFallback(market.navPerShare, current.navPerShare ?? seedCompany.navPerShare),
       roe: numberOrFallback(market.roe, current.roe ?? seedCompany.roe),
-      normalizedFcfPerShare: numberOrFallback(market.normalizedFcfPerShare, current.normalizedFcfPerShare ?? seedCompany.normalizedFcfPerShare),
-      normalizedEbitdaPerShare: numberOrFallback(market.normalizedEbitdaPerShare, current.normalizedEbitdaPerShare ?? seedCompany.normalizedEbitdaPerShare),
-      calculationSources: market.calculationSources ?? current.calculationSources ?? {},
+      // Normalized values must be explicitly supported by the loaded report data.
+      // Never fall back to generated sample values for a real company.
+      normalizedFcfPerShare: fundamentalInput(market.normalizedFcfPerShare),
+      normalizedEbitdaPerShare: fundamentalInput(market.normalizedEbitdaPerShare),
+      normalizedEpsPerShare: fundamentalInput(market.normalizedEpsPerShare),
+      specializedValuation: market.specializedValuation ?? current.specializedValuation ?? null,
       // Historical 5yr FCF CAGR - always auto, computed by the data pipeline.
       growth5y: fundamentalInput(market.growth5y),
       growth5yYears: market.growth5yYears ?? current.growth5yYears ?? null,
       fcfSeries: market.fcfSeries ?? current.fcfSeries ?? seedCompany.fcfSeries ?? null,
+      fcfHistory: market.fcfHistory ?? current.fcfHistory ?? seedCompany.fcfHistory ?? null,
       growth5ySource: market.growth5ySource ?? current.growth5ySource ?? null,
+      growth5ySourceUrl: market.growth5ySourceUrl ?? current.growth5ySourceUrl ?? null,
       growth5yUpdatedAt: market.growth5yUpdatedAt ?? market.dataUpdatedAt ?? current.growth5yUpdatedAt ?? null,
-      // Preserve the separately loaded MarketScreener consensus while the
-      // fundamentals payload refreshes. loadMarketScreenerFcf validates and
-      // replaces (or clears) this value independently.
-      consensusGrowth: market.consensusGrowthSource
-        ? numberOrFallback(market.consensusGrowth, current.consensusGrowth ?? null)
-        : (current.consensusGrowth ?? seedCompany.consensusGrowth),
-      consensusGrowthSource: current.consensusGrowthSource ?? market.consensusGrowthSource ?? seedCompany.consensusGrowthSource ?? "",
-      consensusGrowthAsOf: current.consensusGrowthAsOf ?? market.consensusGrowthAsOf ?? "",
-      consensusGrowthAudit: current.consensusGrowthAudit ?? market.consensusGrowthAudit ?? null,
-      targetPe: numberOrFallback(market.targetPe, current.targetPe ?? seedCompany.targetPe),
+      dcfGrowth: numberOrNull(current.dcfGrowth),
+      // Populated only from the traceable MarketScreener FCF forecast below.
+      consensusGrowth: null,
+      consensusGrowthSource: null,
+      consensusGrowthAsOf: null,
+      consensusGrowthAudit: { valid: false, reason: "Waiting for verified MarketScreener forecast data" },
+      consensusEpsAudit: { valid: false, reason: "Waiting for verified MarketScreener EPS estimates" },
+      // Base-case target P/E is always anchored to the current trailing P/E
+      // displayed beside the share price.
+      targetPe: currentPe,
       targetEvToEbitda: numberOrFallback(market.targetEvToEbitda, current.targetEvToEbitda ?? seedCompany.targetEvToEbitda),
+      eqtFeeEbitdaGrowth: numberOrFallback(
+        current.eqtFeeEbitdaGrowth,
+        market.specializedValuation?.feeBusiness?.defaultGrowth ?? seedCompany.eqtFeeEbitdaGrowth
+      ),
+      eqtTerminalMultiple: numberOrFallback(
+        current.eqtTerminalMultiple,
+        market.specializedValuation?.feeBusiness?.ebitdaMultiple?.base ?? seedCompany.eqtTerminalMultiple
+      ),
       currency: market.currency ?? current.currency ?? "SEK",
       dataUpdatedAt: market.dataUpdatedAt ?? current.dataUpdatedAt ?? null,
       fundamentalsUsable,
@@ -716,42 +822,32 @@ function applyPriceData(currentCompanies, priceCompanies) {
     const fcfYield = marketCap !== null && freeCashFlow !== null && marketCap > 0
       ? (freeCashFlow / marketCap) * 100
       : numberOrNull(existingFundamentals.fcfYield);
-
-    const calculationSources = {
-      ...(existingFundamentals.calculationSources ?? {})
-    };
-    if (sharesOutstanding !== null) calculationSources.marketCap = "Market price × outstanding shares";
-    if (marketCap !== null && netDebt !== null) calculationSources.enterpriseValue = "Market cap + net debt";
-    if (enterpriseValue !== null && ebitda !== null && ebitda > 0) calculationSources.evToEbitda = "Enterprise value / EBITDA";
-    if (marketCap !== null && freeCashFlow !== null && marketCap > 0) calculationSources.fcfYield = "Free cash flow / market cap";
-    if (trailingEps !== null && trailingEps > 0) calculationSources.trailingPe = "Market price / trailing EPS";
-    const updatedFundamentals = deriveFinancialMetrics({
-      ...existingFundamentals,
-      marketPrice,
-      marketCap,
-      enterpriseValue,
-      evToEbitda,
-      fcfYield,
-      trailingEps,
-      trailingPe: pricePayloadHasPe
-        ? (providerTrailingPe !== null && providerTrailingPe > 0 ? providerTrailingPe : null)
-        : numberOrNull(existingFundamentals.trailingPe),
-      trailingPeSource: price.peSource ?? existingFundamentals.trailingPeSource ?? null,
-      trailingPeUpdatedAt: price.peUpdatedAt ?? price.priceUpdatedAt ?? existingFundamentals.trailingPeUpdatedAt ?? null,
-      calculationSources,
-      previousClose: numberOrNull(price.previousClose) ?? numberOrNull(existingFundamentals.previousClose)
-    });
+    const currentPe = providerTrailingPe !== null && providerTrailingPe > 0
+      ? providerTrailingPe
+      : (trailingEps !== null && trailingEps > 0
+        ? marketPrice / trailingEps
+        : getCurrentPeRatio({ ...company, marketPrice }));
 
     return {
       ...company,
       marketPrice,
+      targetPe: currentPe,
       currency: price.currency ?? company.currency ?? "SEK",
       priceSource: price.source ?? "Yahoo Finance",
       priceUpdatedAt: price.priceUpdatedAt ?? price.dataUpdatedAt ?? null,
-      fundamentals: updatedFundamentals,
-      calculationSources: {
-        ...(company.calculationSources ?? {}),
-        ...(updatedFundamentals.calculationSources ?? {})
+      fundamentals: {
+        ...existingFundamentals,
+        marketCap,
+        enterpriseValue,
+        evToEbitda,
+        fcfYield,
+        trailingEps,
+        trailingPe: pricePayloadHasPe
+          ? (providerTrailingPe !== null && providerTrailingPe > 0 ? providerTrailingPe : null)
+          : numberOrNull(existingFundamentals.trailingPe),
+        trailingPeSource: price.peSource ?? existingFundamentals.trailingPeSource ?? null,
+        trailingPeUpdatedAt: price.peUpdatedAt ?? price.priceUpdatedAt ?? existingFundamentals.trailingPeUpdatedAt ?? null,
+        previousClose: numberOrNull(price.previousClose) ?? numberOrNull(existingFundamentals.previousClose)
       }
     };
   });
@@ -759,6 +855,10 @@ function applyPriceData(currentCompanies, priceCompanies) {
 
 function getSelectedCompany() {
   return state.companies.find((company) => company.id === state.selectedId) ?? state.companies[0];
+}
+
+function getCurrentPeRatio(company) {
+  return getDisplayTrailingPe(company);
 }
 
 function getCompanyType(ticker) {
@@ -879,86 +979,6 @@ function numberOrFallback(value, fallback) {
   return Number.isFinite(number) ? number : fallback;
 }
 
-function deriveFinancialMetrics(input) {
-  const result = { ...(input ?? {}) };
-  const sources = { ...(result.calculationSources ?? {}) };
-  const setIfMissing = (key, value, formula) => {
-    if (numberOrNull(result[key]) === null && numberOrNull(value) !== null) {
-      result[key] = Number(value);
-      sources[key] = formula;
-    }
-  };
-
-  let assets = numberOrNull(result.totalAssets);
-  let liabilities = numberOrNull(result.totalLiabilities);
-  let equity = numberOrNull(result.bookEquity);
-  if (equity === null && assets !== null && liabilities !== null) {
-    setIfMissing("bookEquity", assets - liabilities, "Total assets - total liabilities");
-    equity = numberOrNull(result.bookEquity);
-  }
-  if (liabilities === null && assets !== null && equity !== null) {
-    setIfMissing("totalLiabilities", assets - equity, "Total assets - book equity");
-    liabilities = numberOrNull(result.totalLiabilities);
-  }
-
-  const debt = numberOrNull(result.totalDebt);
-  const cash = numberOrNull(result.cash);
-  if (numberOrNull(result.netDebt) === null && debt !== null && cash !== null) {
-    setIfMissing("netDebt", debt - cash, "Total debt - cash");
-  }
-
-  const shares = numberOrNull(result.sharesOutstanding);
-  if (shares !== null && shares > 0) {
-    [
-      ["equityPerShare", "bookEquity", "Book equity / outstanding shares"],
-      ["bookValuePerShare", "bookEquity", "Book equity / outstanding shares"],
-      ["liabilitiesPerShare", "totalLiabilities", "Total liabilities / outstanding shares"],
-      ["fcfPerShare", "freeCashFlow", "Free cash flow / outstanding shares"],
-      ["ebitdaPerShare", "ebitda", "EBITDA / outstanding shares"],
-      ["eps", "netIncome", "Net income / outstanding shares"],
-      ["netDebtPerShare", "netDebt", "Net debt / outstanding shares"]
-    ].forEach(([outputKey, inputKey, formula]) => {
-      const numerator = numberOrNull(result[inputKey]);
-      if (numerator !== null) setIfMissing(outputKey, numerator / shares, formula);
-    });
-
-    const price = numberOrNull(result.marketPrice);
-    if (price !== null) setIfMissing("marketCap", price * shares, "Market price × outstanding shares");
-  }
-
-  const marketCap = numberOrNull(result.marketCap);
-  const netDebt = numberOrNull(result.netDebt);
-  if (marketCap !== null && netDebt !== null) {
-    setIfMissing("enterpriseValue", marketCap + netDebt, "Market cap + net debt");
-  }
-
-  const enterpriseValue = numberOrNull(result.enterpriseValue);
-  const ebitda = numberOrNull(result.ebitda);
-  if (enterpriseValue !== null && ebitda !== null && ebitda > 0) {
-    setIfMissing("evToEbitda", enterpriseValue / ebitda, "Enterprise value / EBITDA");
-  }
-
-  const freeCashFlow = numberOrNull(result.freeCashFlow);
-  if (freeCashFlow !== null && marketCap !== null && marketCap > 0) {
-    setIfMissing("fcfYield", (freeCashFlow / marketCap) * 100, "Free cash flow / market cap");
-  }
-
-  const netIncome = numberOrNull(result.netIncome);
-  equity = numberOrNull(result.bookEquity);
-  if (netIncome !== null && equity !== null && equity > 0) {
-    setIfMissing("roe", (netIncome / equity) * 100, "Net income / book equity");
-  }
-
-  const price = numberOrNull(result.marketPrice);
-  const trailingEps = numberOrNull(result.trailingEps) ?? numberOrNull(result.eps);
-  if (price !== null && price > 0 && trailingEps !== null && trailingEps > 0) {
-    setIfMissing("trailingPe", price / trailingEps, "Market price / trailing EPS");
-  }
-
-  result.calculationSources = sources;
-  return result;
-}
-
 function round(value, digits = 1) {
   const factor = 10 ** digits;
   return Math.round((asNumber(value) + Number.EPSILON) * factor) / factor;
@@ -992,6 +1012,11 @@ function formatTickerMoney(value, currency = "SEK") {
   return `${formatPriceNumber(value)} ${currency}`;
 }
 
+function formatPerShareMoney(value, currency = "SEK", digits = 2) {
+  if (!Number.isFinite(value)) return "-";
+  return `${formatDecimal(value, digits)} ${currency}`;
+}
+
 function formatCurrency(value, currency = "SEK") {
   if (!Number.isFinite(value)) return "-";
   const abs = Math.abs(value);
@@ -1021,6 +1046,12 @@ function formatPercent(value, digits = 1) {
   if (!Number.isFinite(value)) return "-";
   const sign = value > 0 ? "+" : "";
   return `${sign}${formatDecimal(value, digits)}%`;
+}
+
+function formatSignedNumber(value, digits = 1) {
+  if (!Number.isFinite(value)) return "-";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${formatDecimal(value, digits)}`;
 }
 
 function formatDateTime(value) {
@@ -1151,13 +1182,13 @@ function getDataStatusLabel(marketData = state.marketData) {
   const fundamentalsProvider = marketData.fundamentalsProvider ?? "";
   const priceProvider = marketData.pricesProvider ?? "";
   const targetProvider = marketData.targetPricesProvider ?? "";
-  const fundamentalsLabel = fundamentalsProvider.includes("BörsAPI")
-    ? "BörsAPI fundamentals"
-    : fundamentalsProvider.includes("Financial Modeling Prep")
-    ? "FMP fundamentals"
-    : fundamentalsProvider.includes("EODHD")
-      ? "EODHD fundamentals"
-      : "Yahoo fundamentals";
+  const fundamentalsLabel = fundamentalsProvider.includes("verified;")
+    ? fundamentalsProvider.replace("Official reports: ", "Official fundamentals: ")
+    : fundamentalsProvider.includes("Legacy cached")
+    ? "Legacy fundamentals (unverified) + official report links"
+    : fundamentalsProvider.includes("Official")
+      ? "Official report evidence"
+      : "Fundamentals";
   const priceLabel = priceProvider.includes("Yahoo")
     ? "Yahoo prices"
     : priceProvider.includes("EODHD")
@@ -1174,56 +1205,245 @@ function getDataStatusLabel(marketData = state.marketData) {
   return labels.length ? labels.join(" + ") : "Sample or saved inputs";
 }
 
+function getSelectedGrowthAssumption(company) {
+  const isConsensus = state.growthAssumption === "consensus";
+  const value = numberOrNull(isConsensus ? company?.consensusGrowth : company?.growth5y);
+  return {
+    key: isConsensus ? "consensus" : "cagr",
+    label: isConsensus ? "Market consensus FCF CAGR" : "Historical FCF CAGR",
+    shortLabel: isConsensus ? "Market consensus" : "CAGR",
+    value,
+    source: isConsensus
+      ? (company?.consensusGrowthSource ?? "MarketScreener three-year analyst-consensus FCF forecast")
+      : (company?.growth5ySource ?? "Official company reports"),
+    horizon: isConsensus
+      ? (company?.consensusGrowthAudit?.valid
+          ? `${company.consensusGrowthAudit.firstEstimateYear}E–${company.consensusGrowthAudit.lastEstimateYear}E FCF CAGR; published estimates fill years 1–3 and the CAGR extends years 4–5`
+          : "Three published annual FCF estimates; their CAGR extends forecast years four and five")
+      : `${company?.growth5yYears ?? "Historical"}-year FCF CAGR, applied across the five-year DCF forecast`
+  };
+}
+
+function getFcfUnitMultiplier(unit) {
+  const normalized = String(unit ?? "million").toLowerCase();
+  if (normalized.startsWith("billion")) return 1e9;
+  if (normalized.startsWith("thousand")) return 1e3;
+  return 1e6;
+}
+
+function getMarketConsensusPerShareRows(company, audit) {
+  if (!audit?.valid || !Array.isArray(audit.forecastRows) || audit.forecastRows.length !== 3) {
+    return { valid: false, reason: audit?.reason ?? "Three validated market-consensus estimates are required" };
+  }
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding);
+  if (shares === null || shares <= 0) {
+    return { valid: false, reason: "Outstanding shares are unavailable for the per-share conversion" };
+  }
+  if (!audit.fx?.valid) {
+    return { valid: false, reason: audit.fx?.reason ?? "A valid reporting-currency conversion is unavailable" };
+  }
+  if (String(company?.currency ?? "SEK").toUpperCase() !== "SEK") {
+    return { valid: false, reason: "Market-consensus FCF currently requires a SEK-quoted share" };
+  }
+
+  const multiplier = getFcfUnitMultiplier(audit.unit);
+  const rateToSek = numberOrNull(audit.fx.rateToSek);
+  if (rateToSek === null || rateToSek <= 0) {
+    return { valid: false, reason: "The reporting-currency conversion rate is invalid" };
+  }
+  return {
+    valid: true,
+    rows: audit.forecastRows.map((row) => ({
+      ...row,
+      cashFlowPerShare: row.fcf * multiplier * rateToSek / shares
+    })),
+    shares,
+    multiplier,
+    rateToSek
+  };
+}
+
+function buildMarketConsensusDcfFlows(company, audit, extensionGrowth) {
+  const converted = getMarketConsensusPerShareRows(company, audit);
+  if (!converted.valid) return { valid: false, reason: converted.reason, flows: [] };
+  if (!Number.isFinite(extensionGrowth) || extensionGrowth <= -1) {
+    return { valid: false, reason: "The market-consensus extension rate is invalid", flows: [] };
+  }
+
+  const flows = converted.rows.map((row, index) => ({
+    year: index + 1,
+    fiscalYear: row.year,
+    label: `${row.year}E`,
+    cashFlow: row.cashFlowPerShare,
+    source: "Analyst consensus"
+  }));
+  let cashFlow = flows[flows.length - 1].cashFlow;
+  let fiscalYear = flows[flows.length - 1].fiscalYear;
+  for (let year = 4; year <= 5; year += 1) {
+    cashFlow *= 1 + extensionGrowth;
+    fiscalYear += 1;
+    flows.push({
+      year,
+      fiscalYear,
+      label: `${fiscalYear}E`,
+      cashFlow,
+      source: "Forecast CAGR extension"
+    });
+  }
+  return { valid: true, flows };
+}
+
 function calculateDcf(company, scenario = "base", growthOverride = null) {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const fcf = asNumber(company.fcfPerShare);
-  const growth = (growthOverride ?? (asNumber(company.growth5y) + adjustment.growth)) / 100;
+  const assumption = getSelectedGrowthAssumption(company);
+  const selectedGrowth = growthOverride ?? (assumption.value === null ? null : assumption.value + adjustment.growth);
+  const growth = selectedGrowth === null ? NaN : selectedGrowth / 100;
   const wacc = (asNumber(company.wacc) + adjustment.wacc) / 100;
   const terminalGrowth = asNumber(company.terminalGrowth) / 100;
-  const netDebt = asNumber(company.netDebtPerShare);
+  const usesMarketConsensusPath = growthOverride === null && assumption.key === "consensus";
 
-  if (fcf <= 0 || wacc <= terminalGrowth || wacc <= 0) {
+  if ((!usesMarketConsensusPath && fcf <= 0) || !Number.isFinite(growth) || wacc <= terminalGrowth || wacc <= 0) {
     return {
       value: NaN,
       flows: [],
-      error: "DCF input conflict"
+      error: !Number.isFinite(growth) ? `${assumption.shortLabel} is unavailable` : "DCF input conflict"
     };
   }
 
-  const flows = [];
-  let presentValue = 0;
-
-  for (let year = 1; year <= 5; year += 1) {
-    const cashFlow = fcf * ((1 + growth) ** year);
-    const discounted = cashFlow / ((1 + wacc) ** year);
-    presentValue += discounted;
-    flows.push({ year, cashFlow, discounted });
+  let flows = [];
+  if (usesMarketConsensusPath) {
+    const consensusForecast = buildMarketConsensusDcfFlows(company, company.consensusGrowthAudit, growth);
+    if (!consensusForecast.valid) {
+      return { value: NaN, flows: [], error: consensusForecast.reason };
+    }
+    flows = consensusForecast.flows;
+  } else {
+    for (let year = 1; year <= 5; year += 1) {
+      const cashFlow = fcf * ((1 + growth) ** year);
+      flows.push({ year, label: `Y${year}E`, cashFlow, source: assumption.shortLabel });
+    }
   }
+
+  let presentValue = 0;
+  flows = flows.map((flow) => {
+    const discounted = flow.cashFlow / ((1 + wacc) ** flow.year);
+    presentValue += discounted;
+    return { ...flow, discounted };
+  });
 
   const yearFiveCashFlow = flows[flows.length - 1].cashFlow;
   const terminalValue = (yearFiveCashFlow * (1 + terminalGrowth)) / (wacc - terminalGrowth);
   const discountedTerminal = terminalValue / ((1 + wacc) ** 5);
 
   return {
-    value: presentValue + discountedTerminal - netDebt,
+    value: presentValue + discountedTerminal,
     flows,
+    presentValue,
     terminalValue,
     discountedTerminal,
+    cashFlowBasis: "equity-fcf",
+    forecastMethod: usesMarketConsensusPath ? "published-consensus-plus-cagr-extension" : "constant-growth",
+    growthAssumption: assumption,
+    error: ""
+  };
+}
+
+function getPeSuitability(company, audit) {
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  if (category === "investment") {
+    return "P/E is not used for investment companies because NAV is the more representative equity measure.";
+  }
+  if (category === "cyclical") {
+    return audit?.valid
+      ? "For this cyclical company, analyst EPS estimates are shown only as a 0%-weight cross-check; the cycle-normalized model remains primary."
+      : "P/E is unavailable until three positive, traceable analyst EPS estimates are present.";
+  }
+  if (!audit?.valid) {
+    return "P/E is unavailable until three positive, traceable analyst EPS estimates are present.";
+  }
+  if (category === "bank") {
+    return "Forward P/E can be informative for a bank, but the dashboard keeps P/B as the primary bank model.";
+  }
+  return numberOrNull(company.eps) !== null && Number(company.eps) <= 0
+    ? "This is a higher-risk turnaround valuation because current EPS is non-positive; the model uses only the three positive analyst estimates."
+    : "Suitable as a secondary valuation model because three positive analyst EPS estimates are available.";
+}
+
+function calculateForwardPeModel(company, scenario = "base") {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const audit = company.consensusEpsAudit ?? getMarketScreenerEpsForecastAudit(marketScreenerFcf?.[company.id]);
+  const suitability = getPeSuitability(company, audit);
+  const currentPe = getCurrentPeRatio(company);
+  const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
+  const requiredReturn = (asNumber(company.wacc) + adjustment.wacc) / 100;
+  const years = 5;
+
+  if (!audit?.valid) {
+    return { value: NaN, flows: [], error: audit?.reason ?? suitability, audit, suitability };
+  }
+  if (!Number.isFinite(targetPe) || targetPe <= 0) {
+    return { value: NaN, flows: [], error: "A positive current P/E is required as the terminal multiple anchor.", audit, suitability };
+  }
+  if (!Number.isFinite(requiredReturn) || requiredReturn <= -1) {
+    return { value: NaN, flows: [], error: "A valid required equity return is required.", audit, suitability };
+  }
+
+  const extensionGrowth = audit.growth + adjustment.growth / 100;
+  if (!Number.isFinite(extensionGrowth) || extensionGrowth <= -1) {
+    return { value: NaN, flows: [], error: "The EPS CAGR extension is invalid.", audit, suitability };
+  }
+
+  const flows = audit.forecastRows.map((row) => ({
+    year: row.year,
+    label: `${row.year}E`,
+    eps: row.epsSek,
+    sourceEps: row.eps,
+    source: "Published analyst consensus EPS"
+  }));
+  let extendedEps = flows.at(-1).eps;
+  for (let offset = 1; offset <= 2; offset += 1) {
+    extendedEps *= 1 + extensionGrowth;
+    flows.push({
+      year: audit.lastEstimateYear + offset,
+      label: `${audit.lastEstimateYear + offset}E`,
+      eps: extendedEps,
+      sourceEps: extendedEps / audit.fx.rateToSek,
+      source: "EPS forecast CAGR extension"
+    });
+  }
+  const forecastEps = flows.at(-1).eps;
+  const terminalPrice = forecastEps * targetPe;
+  const discountFactor = (1 + requiredReturn) ** years;
+  const value = terminalPrice / discountFactor;
+
+  return {
+    value,
+    flows,
+    forecastEps,
+    terminalPrice,
+    discountFactor,
+    targetPe,
+    currentPe,
+    publishedGrowth: audit.growth * 100,
+    extensionGrowth: extensionGrowth * 100,
+    requiredReturn,
+    years,
+    startingEps: numberOrNull(company.eps),
+    audit,
+    suitability,
     error: ""
   };
 }
 
 function calculatePeValue(company, scenario = "base") {
-  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
-  const eps = asNumber(company.eps);
-  const targetPe = Math.max(0, asNumber(company.targetPe) + adjustment.targetPe);
-  return eps > 0 && targetPe > 0 ? eps * targetPe : NaN;
+  return calculateForwardPeModel(company, scenario).value;
 }
 
 function calculateEbitdaValue(company, scenario = "base", useNormalized = false) {
   const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
   const ebitdaPerShare = useNormalized
-    ? (numberOrNull(company.normalizedEbitdaPerShare) ?? numberOrNull(company.ebitdaPerShare))
+    ? numberOrNull(company.normalizedEbitdaPerShare)
     : numberOrNull(company.ebitdaPerShare);
   const targetMultiple = Math.max(0, asNumber(company.targetEvToEbitda) + adjustment.targetPe * 0.35);
   const netDebt = asNumber(company.netDebtPerShare);
@@ -1237,11 +1457,91 @@ function averageValid(values) {
   return validValues.length ? validValues.reduce((sum, value) => sum + value, 0) / validValues.length : NaN;
 }
 
-function weightedAverage(items) {
-  const validItems = items.filter((item) => Number.isFinite(item.value) && item.weight > 0);
-  const totalWeight = validItems.reduce((sum, item) => sum + item.weight, 0);
-  if (!validItems.length || totalWeight <= 0) return NaN;
-  return validItems.reduce((sum, item) => sum + item.value * item.weight, 0) / totalWeight;
+function buildValuationBlend(items, crossChecks = []) {
+  const included = items.filter((item) => Number.isFinite(item.value) && item.weight > 0);
+  const totalWeight = included.reduce((sum, item) => sum + item.weight, 0);
+  if (!included.length || totalWeight <= 0) {
+    return {
+      value: NaN,
+      components: [],
+      excluded: items.map((item) => item.label),
+      configured: items.map((item) => ({ label: item.label, weight: item.weight })),
+      crossChecks
+    };
+  }
+
+  const components = included.map((item) => {
+    const effectiveWeight = item.weight / totalWeight;
+    return {
+      ...item,
+      effectiveWeight,
+      contribution: item.value * effectiveWeight
+    };
+  });
+
+  return {
+    value: components.reduce((sum, item) => sum + item.contribution, 0),
+    components,
+    excluded: items
+      .filter((item) => !Number.isFinite(item.value) || item.weight <= 0)
+      .map((item) => item.label),
+    configured: items.map((item) => ({ label: item.label, weight: item.weight })),
+    crossChecks
+  };
+}
+
+function formatBlendWeight(weight) {
+  const percentage = weight * 100;
+  const digits = Math.abs(percentage - Math.round(percentage)) < 0.05 ? 0 : 1;
+  return `${formatDecimal(percentage, digits)}%`;
+}
+
+function describeValuationBlend(blend, currency = "SEK") {
+  if (!blend?.components?.length) return "No valuation model currently has a usable value";
+  const contributions = blend.components
+    .map((item) => `${formatBlendWeight(item.effectiveWeight)} ${item.label} = ${formatCurrency(item.contribution, currency)}`)
+    .join(" + ");
+  const exclusions = blend.excluded?.length
+    ? ` ${blend.excluded.join(" and ")}: excluded because no usable value is available.`
+    : "";
+  const configuredWeights = blend.excluded?.length && blend.configured?.length
+    ? ` Remaining weights are rebalanced from ${blend.configured
+      .map((item) => `${formatBlendWeight(item.weight)} ${item.label}`)
+      .join(", ")}.`
+    : "";
+  const crossChecks = blend.crossChecks?.length
+    ? ` ${blend.crossChecks.join(" and ")}: 0% cross-checks; they do not change the intrinsic value.`
+    : "";
+  return `${contributions}.${exclusions}${configuredWeights}${crossChecks}`;
+}
+
+function renderValuationBreakdown(model, currency = "SEK") {
+  const blend = model?.valuationBlend;
+  const configured = Array.isArray(blend?.configured) ? blend.configured : [];
+  if (!configured.length) {
+    elements.metricValueSub.className = "valuation-breakdown is-message";
+    elements.metricValueSub.textContent = model?.valueDescription ?? "No valuation available";
+    return;
+  }
+
+  const componentsByLabel = new Map(blend.components.map((item) => [item.label, item]));
+  elements.metricValueSub.className = "valuation-breakdown";
+  elements.metricValueSub.innerHTML = configured.map((item) => {
+    const component = componentsByLabel.get(item.label);
+    const weight = component ? formatBlendWeight(component.effectiveWeight) : "0%";
+    const contribution = component ? formatCurrency(component.contribution, currency) : "–";
+    const rowClass = component ? "valuation-model-row" : "valuation-model-row is-excluded";
+    const explanation = component
+      ? `${item.label}: ${weight} effective weight contributes ${contribution} to intrinsic value`
+      : `${item.label}: excluded because no usable value is available`;
+    return `
+      <div class="${rowClass}" title="${escapeHtml(explanation)}" aria-label="${escapeHtml(explanation)}">
+        <span class="valuation-model-name">${escapeHtml(item.label)}</span>
+        <span class="valuation-model-weight">${escapeHtml(weight)}</span>
+        <strong class="valuation-model-contribution">${escapeHtml(contribution)}</strong>
+      </div>
+    `;
+  }).join("");
 }
 
 function getBookValuePerShare(company) {
@@ -1268,14 +1568,44 @@ function getRoe(company) {
 }
 
 function getNormalizedFcfPerShare(company) {
-  return numberOrNull(company.normalizedFcfPerShare) ?? numberOrNull(company.fcfPerShare);
+  return numberOrNull(company.normalizedFcfPerShare);
 }
 
 function getNavPerShare(company) {
   return numberOrNull(company.navPerShare)
     ?? numberOrNull(company.bookValuePerShare)
-    ?? numberOrNull(company.fundamentals?.analystTargetMeanPrice)
+    ?? numberOrNull(company.fundamentals?.bookValuePerShare)
     ?? numberOrNull(company.fundamentals?.equityPerShare);
+}
+
+function getInvestmentNavAudit(company) {
+  const explicitNav = numberOrNull(company.navPerShare);
+  const bookValue = numberOrNull(company.bookValuePerShare)
+    ?? numberOrNull(company.fundamentals?.bookValuePerShare)
+    ?? numberOrNull(company.fundamentals?.equityPerShare);
+  const navPerShare = explicitNav ?? bookValue;
+  const marketPrice = numberOrNull(company.marketPrice);
+  const discountToNav = navPerShare !== null && navPerShare > 0 && marketPrice !== null
+    ? ((navPerShare - marketPrice) / navPerShare) * 100
+    : NaN;
+  const priceToNav = navPerShare !== null && navPerShare > 0 && marketPrice !== null
+    ? marketPrice / navPerShare
+    : NaN;
+  const officialSource = company.officialSource ?? company.fundamentals?.officialSource ?? null;
+  const sourceUrl = officialSource?.sourceUrl ?? officialSource?.directReportUrl ?? null;
+  const sourceName = officialSource?.sourceName ?? "Official company report";
+  const period = officialSource?.period ?? company.balanceSheetDate ?? company.fundamentals?.balanceSheetDate ?? null;
+
+  return {
+    navPerShare,
+    marketPrice,
+    discountToNav,
+    priceToNav,
+    basis: explicitNav !== null ? "Reported NAV per share" : "Reported book equity per share",
+    sourceUrl,
+    sourceName,
+    period
+  };
 }
 
 function calculateOperatingModel(company, scenario) {
@@ -1284,22 +1614,24 @@ function calculateOperatingModel(company, scenario) {
   const ebitdaValue = calculateEbitdaValue(company, scenario);
   const currentPe = asNumber(company.eps) > 0 ? asNumber(company.marketPrice) / asNumber(company.eps) : NaN;
   const currentEvEbitda = numberOrNull(company.fundamentals?.evToEbitda);
-  const reverse = calculateReverseDcf(company);
-  const consensusGrowth = numberOrNull(company.consensusGrowth);
-  const reverseBurdenScore = Number.isFinite(reverse.value) && consensusGrowth !== null
-    ? clamp(100 - Math.max(0, reverse.value - consensusGrowth) * 7, 0, 100)
+  const reverse = calculateReverseDcf(company, scenario);
+  const reverseBurdenScore = Number.isFinite(reverse.value)
+    ? clamp(100 - Math.max(0, reverse.value - asNumber(company.consensusGrowth)) * 7, 0, 100)
     : 50;
+  const currency = company.currency ?? "SEK";
+  const valuationBlend = buildValuationBlend([
+    { label: "DCF", value: dcf.value, weight: 0.45 },
+    { label: "P/E", value: peValue, weight: 0.25 },
+    { label: "EV/EBITDA", value: ebitdaValue, weight: 0.3 }
+  ]);
 
   return {
     dcf,
     peValue,
     ebitdaValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: dcf.value, weight: 0.45 },
-      { value: peValue, weight: 0.25 },
-      { value: ebitdaValue, weight: 0.3 }
-    ]),
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "DCF value",
     primaryValue: dcf.value,
     secondaryLabel: "P/E value",
@@ -1308,9 +1640,9 @@ function calculateOperatingModel(company, scenario) {
     tertiaryValue: formatCurrency(ebitdaValue, company.currency ?? "SEK"),
     reverseLabel: "Reverse DCF",
     reverseValue: reverse.label,
-    reverseSub: consensusGrowth === null ? "Consensus unavailable" : `Consensus FCF CAGR ${formatPercent(consensusGrowth, 1)}`,
-    valueDescription: Number.isFinite(dcf.value) || Number.isFinite(peValue) || Number.isFinite(ebitdaValue)
-      ? `${formatCurrency(dcf.value, company.currency ?? "SEK")} DCF | ${formatCurrency(peValue, company.currency ?? "SEK")} P/E | ${formatCurrency(ebitdaValue, company.currency ?? "SEK")} EV/EBITDA`
+    reverseSub: `Consensus ${formatPercent(asNumber(company.consensusGrowth), 1)}`,
+    valueDescription: Number.isFinite(valuationBlend.value)
+      ? describeValuationBlend(valuationBlend, currency)
       : "Needs FCF, EPS or EBITDA inputs",
     modelSupportScore: reverseBurdenScore,
     modelWarning: "",
@@ -1336,15 +1668,17 @@ function calculateBankModel(company, scenario) {
   const currentPb = bookValuePerShare && bookValuePerShare > 0 ? price / bookValuePerShare : NaN;
   const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
   const roeSpread = Number.isFinite(roe) ? roe - costOfEquity * 100 : NaN;
+  const valuationBlend = buildValuationBlend([
+    { label: "P/B", value: pbValue, weight: 0.65 },
+    { label: "P/E", value: peValue, weight: 0.35 }
+  ]);
 
   return {
     dcf: { value: NaN, flows: [], error: "" },
     peValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: pbValue, weight: 0.65 },
-      { value: peValue, weight: 0.35 }
-    ]),
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "P/B value",
     primaryValue: pbValue,
     secondaryLabel: "P/E value",
@@ -1356,8 +1690,8 @@ function calculateBankModel(company, scenario) {
     reverseLabel: "ROE spread",
     reverseValue: formatPercent(roeSpread, 1),
     reverseSub: "Versus required return",
-    valueDescription: Number.isFinite(pbValue)
-      ? `${formatDecimal(justifiedPb, 1)}x justified P/B | ${formatCurrency(peValue, currency)} P/E`
+    valueDescription: Number.isFinite(valuationBlend.value)
+      ? describeValuationBlend(valuationBlend, currency)
       : "Needs book equity per share and ROE",
     modelSupportScore: Number.isFinite(roeSpread) ? clamp(50 + roeSpread * 5, 0, 100) : 50,
     modelWarning: Number.isFinite(pbValue) ? "" : "Add book value per share and ROE for the bank model.",
@@ -1366,33 +1700,59 @@ function calculateBankModel(company, scenario) {
 }
 
 function calculateInvestmentModel(company, scenario) {
+  if (getSpecializedValuation(company, "eqt-sotp")) {
+    const eqt = calculateEqtSotp(company, scenario);
+    return {
+      ...eqt,
+      dcf: { value: NaN, flows: [], error: eqt.error },
+      peValue: NaN,
+      currentPe: NaN,
+      blendedValue: eqt.value,
+      primaryLabel: "EQT SOTP value",
+      primaryValue: eqt.value,
+      secondaryLabel: "Fee franchise",
+      secondaryValue: eqt.feeBusinessPerShare,
+      tertiaryLabel: "Net asset block",
+      tertiaryValue: formatTickerMoney(eqt.netAssetBlockPerShare, company.currency ?? "SEK"),
+      reverseLabel: "Terminal EBITDA multiple",
+      reverseValue: Number.isFinite(eqt.feeMultiple) ? `${formatDecimal(eqt.feeMultiple, 1)}x` : "-",
+      reverseSub: `${scenarioAdjustments[scenario]?.label ?? "Base case"} assumption`,
+      valueDescription: Number.isFinite(eqt.value)
+        ? `100% EQT SOTP = ${formatCurrency(eqt.value, company.currency ?? "SEK")}. Analyst target prices have 0% weight.`
+        : eqt.error,
+      modelSupportScore: eqt.valid ? 70 : 45,
+      modelWarning: eqt.error,
+      chartTitle: "EQT sum-of-the-parts"
+    };
+  }
+
   const currency = company.currency ?? "SEK";
-  const price = asNumber(company.marketPrice);
-  const navPerShare = getNavPerShare(company);
-  const peValue = calculatePeValue(company, scenario);
-  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
-  const peUseful = Number.isFinite(peValue) && Number.isFinite(currentPe) && currentPe > 0 && currentPe < 45;
-  const navDiscount = navPerShare && navPerShare > 0 ? ((navPerShare - price) / navPerShare) * 100 : NaN;
+  const navAudit = getInvestmentNavAudit(company);
+  const navPerShare = navAudit.navPerShare;
+  const navDiscount = navAudit.discountToNav;
+  const hasDiscount = Number.isFinite(navDiscount) && navDiscount >= 0;
+  const navPositionValue = Number.isFinite(navDiscount) ? formatPercent(Math.abs(navDiscount), 1) : "-";
+  const valuationBlend = buildValuationBlend([
+    { label: "NAV", value: navPerShare, weight: 1 }
+  ]);
 
   return {
     dcf: { value: NaN, flows: [], error: "" },
-    peValue,
-    currentPe,
-    blendedValue: weightedAverage([
-      { value: navPerShare, weight: 0.8 },
-      { value: peUseful ? peValue : NaN, weight: 0.2 }
-    ]),
+    peValue: NaN,
+    currentPe: NaN,
+    blendedValue: valuationBlend.value,
+    valuationBlend,
     primaryLabel: "NAV value",
     primaryValue: navPerShare,
-    secondaryLabel: "P/E value",
-    secondaryValue: peUseful ? peValue : NaN,
-    tertiaryLabel: "NAV discount",
-    tertiaryValue: formatPercent(navDiscount, 1),
-    reverseLabel: "NAV discount",
-    reverseValue: formatPercent(navDiscount, 1),
+    secondaryLabel: "Current price",
+    secondaryValue: navAudit.marketPrice,
+    tertiaryLabel: hasDiscount ? "NAV discount" : "NAV premium",
+    tertiaryValue: navPositionValue,
+    reverseLabel: hasDiscount ? "NAV discount" : "NAV premium",
+    reverseValue: navPositionValue,
     reverseSub: "Discount/premium to NAV",
     valueDescription: Number.isFinite(navPerShare)
-      ? `${formatCurrency(navPerShare, currency)} NAV | ${peUseful ? `${formatCurrency(peValue, currency)} P/E` : "P/E not useful"}`
+      ? `100% NAV = ${formatCurrency(navPerShare, currency)}. The market trades at a ${navPositionValue} ${hasDiscount ? "discount" : "premium"} to that value.`
       : "Needs NAV per share",
     modelSupportScore: Number.isFinite(navDiscount) ? clamp(50 + navDiscount * 1.2, 0, 100) : 50,
     modelWarning: Number.isFinite(navPerShare) ? "" : "Add NAV per share for the investment-company model.",
@@ -1400,45 +1760,572 @@ function calculateInvestmentModel(company, scenario) {
   };
 }
 
-function calculateCyclicalModel(company, scenario) {
-  const currency = company.currency ?? "SEK";
-  const price = asNumber(company.marketPrice);
-  const normalizedFcf = getNormalizedFcfPerShare(company);
-  const normalizedMultiple = clamp(asNumber(company.targetPe) * 0.85, 7, 16);
-  const netDebt = asNumber(company.netDebtPerShare);
-  const normalizedFcfValue = normalizedFcf && normalizedFcf > 0
-    ? normalizedFcf * normalizedMultiple - netDebt
-    : NaN;
-  const ebitdaValue = calculateEbitdaValue(company, scenario, true);
-  const peValue = calculatePeValue(company, scenario);
-  const currentPe = asNumber(company.eps) > 0 ? price / asNumber(company.eps) : NaN;
-  const normalizedFcfYield = price > 0 && normalizedFcf && normalizedFcf > 0 ? (normalizedFcf / price) * 100 : NaN;
+function median(values) {
+  const sorted = values.filter(Number.isFinite).sort((first, second) => first - second);
+  if (!sorted.length) return NaN;
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function getCyclicalSubtype(company) {
+  const ticker = company?.ticker;
+  if (ticker === "BOL.ST") {
+    return {
+      key: "commodity",
+      label: "Commodity producer",
+      note: "Boliden is normalized across reported cash-flow years so one metal-price year cannot set the valuation. A future commodity-price bridge should be shown as a separate cross-check, not hidden inside this DCF."
+    };
+  }
+  if (ticker === "SCA-B.ST") {
+    return {
+      key: "forest-assets",
+      label: "Forest assets + operations",
+      note: "The mid-cycle cash-flow DCF values the operating cash flow. A verified forest-asset NAV should be displayed separately when that dataset is available; book equity is not silently treated as forest NAV."
+    };
+  }
+  if (ticker === "SKA-B.ST") {
+    return {
+      key: "construction",
+      label: "Construction + development",
+      note: "A verified segment sum-of-the-parts is the preferred cross-check for Skanska. Until segment assets and margins are collected, the dashboard does not invent an SOTP value."
+    };
+  }
+  return {
+    key: "industrial",
+    label: "Industrial cycle",
+    note: "The forecast is allowed to follow the selected near-term path, then fades back to the company’s report-derived mid-cycle cash flow before the terminal value is calculated."
+  };
+}
+
+function getCyclicalHistoryNormalization(company) {
+  const hasFcffHistory = Array.isArray(company?.fcffHistory) && company.fcffHistory.length > 0;
+  const rawRows = hasFcffHistory ? company.fcffHistory : company?.fcfHistory;
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding);
+  if (!Array.isArray(rawRows) || rawRows.length < 5) {
+    return {
+      valid: false,
+      reason: `At least five consecutive official-report cash-flow years are required; ${Array.isArray(rawRows) ? rawRows.length : 0} are stored.`,
+      rows: [],
+      basis: hasFcffHistory ? "fcff" : "equity-fcf"
+    };
+  }
+  if (shares === null || shares <= 0) {
+    return { valid: false, reason: "Verified outstanding shares are required for the per-share conversion.", rows: [], basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const rows = rawRows
+    .map((row) => ({ ...row, year: Number(row.year), cashFlow: numberOrNull(row.fcff ?? row.fcf) }))
+    .filter((row) => Number.isInteger(row.year) && row.cashFlow !== null)
+    .sort((first, second) => first.year - second.year);
+  if (rows.length < 5) {
+    return { valid: false, reason: "Fewer than five annual cash-flow observations contain a usable value.", rows: [], basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+  for (let index = 1; index < rows.length; index += 1) {
+    if (rows[index].year !== rows[index - 1].year + 1) {
+      return { valid: false, reason: "The official cash-flow history has a missing fiscal year, so a full-cycle normalization is not shown.", rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+    }
+  }
+  const untraceableRow = rows.find((row) => !row.sourceUrl || String(row.sourceUrl).includes("marketscreener.com"));
+  if (untraceableRow) {
+    return { valid: false, reason: `${untraceableRow.year} is not linked to an official company source.`, rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+  const quoteCurrency = String(company.currency ?? "SEK").toUpperCase();
+  const mismatchedCurrencyRow = rows.find((row) => row.quoteCurrency && String(row.quoteCurrency).toUpperCase() !== quoteCurrency);
+  if (mismatchedCurrencyRow) {
+    return { valid: false, reason: `${mismatchedCurrencyRow.year} is stored in ${mismatchedCurrencyRow.quoteCurrency}, not ${quoteCurrency}.`, rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const normalizedCashFlow = median(rows.map((row) => row.cashFlow));
+  const perShare = normalizedCashFlow / shares;
+  if (!Number.isFinite(perShare) || perShare <= 0) {
+    return { valid: false, reason: "The full-cycle median cash flow is not positive, so the DCF cannot use it.", rows, basis: hasFcffHistory ? "fcff" : "equity-fcf" };
+  }
+
+  const basis = hasFcffHistory
+    ? "fcff"
+    : (rows.every((row) => row.method === "cfo-minus-capex") ? "equity-fcf" : "company-defined-after-capex");
+  return {
+    valid: true,
+    rows,
+    shares,
+    normalizedCashFlow,
+    perShare,
+    basis,
+    firstYear: rows[0].year,
+    lastYear: rows[rows.length - 1].year,
+    observations: rows.length,
+    sourceUrls: [...new Set(rows.map((row) => row.sourceUrl))],
+    sourceNames: [...new Set(rows.map((row) => row.sourceName).filter(Boolean))]
+  };
+}
+
+function buildCyclicalDcfFlows(company, scenario, normalization) {
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const assumption = getSelectedGrowthAssumption(company);
+  const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  const scenarioGrowth = adjustment.growth / 100;
+  const targetGrowth = clamp(terminalGrowth + scenarioGrowth, -0.05, 0.08);
+  const normalizedYearFive = normalization.perShare * ((1 + targetGrowth) ** 5);
+  const flows = [];
+
+  if (assumption.key === "consensus") {
+    const consensus = getMarketConsensusPerShareRows(company, company.consensusGrowthAudit);
+    if (!consensus.valid) return { valid: false, reason: consensus.reason, flows: [] };
+    consensus.rows.forEach((row, index) => {
+      flows.push({
+        year: index + 1,
+        fiscalYear: row.year,
+        label: `${row.year}E`,
+        cashFlow: row.cashFlowPerShare,
+        source: "Published analyst consensus"
+      });
+    });
+  } else {
+    const currentFcf = numberOrNull(company.fcfPerShare);
+    const selectedGrowth = assumption.value === null ? null : (assumption.value + adjustment.growth) / 100;
+    const startingCashFlow = currentFcf !== null && currentFcf > 0 ? currentFcf : normalization.perShare;
+    for (let year = 1; year <= 3; year += 1) {
+      const cashFlow = selectedGrowth === null
+        ? startingCashFlow + (normalizedYearFive - startingCashFlow) * (year / 5)
+        : startingCashFlow * ((1 + selectedGrowth) ** year);
+      flows.push({
+        year,
+        label: `Y${year}E`,
+        cashFlow,
+        source: selectedGrowth === null ? "Mid-cycle fade; historical CAGR unavailable" : "Historical FCF CAGR"
+      });
+    }
+  }
+
+  const yearThreeCashFlow = flows[flows.length - 1].cashFlow;
+  flows.push({ year: 4, label: "Y4E", cashFlow: yearThreeCashFlow + (normalizedYearFive - yearThreeCashFlow) * 0.5, source: "50% fade to mid-cycle" });
+  flows.push({ year: 5, label: "Y5E", cashFlow: normalizedYearFive, source: "Normalized mid-cycle" });
+  return { valid: true, flows, assumption, normalizedYearFive, targetGrowth };
+}
+
+function calculateCyclicalDcf(company, scenario = "base") {
+  const normalization = getCyclicalHistoryNormalization(company);
+  if (!normalization.valid) {
+    return { value: NaN, flows: [], error: normalization.reason, normalization };
+  }
+
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const discountRate = (asNumber(company.wacc) + adjustment.wacc) / 100;
+  const terminalGrowth = asNumber(company.terminalGrowth) / 100;
+  if (discountRate <= 0 || discountRate <= terminalGrowth) {
+    return { value: NaN, flows: [], error: "The discount rate must be positive and above terminal growth.", normalization };
+  }
+
+  const forecast = buildCyclicalDcfFlows(company, scenario, normalization);
+  if (!forecast.valid) {
+    return { value: NaN, flows: [], error: forecast.reason, normalization };
+  }
+
+  let presentValue = 0;
+  const flows = forecast.flows.map((flow) => {
+    const discounted = flow.cashFlow / ((1 + discountRate) ** flow.year);
+    presentValue += discounted;
+    return { ...flow, discounted };
+  });
+  const yearFiveCashFlow = flows[flows.length - 1].cashFlow;
+  const terminalValue = (yearFiveCashFlow * (1 + terminalGrowth)) / (discountRate - terminalGrowth);
+  const discountedTerminal = terminalValue / ((1 + discountRate) ** 5);
+  const netDebtAdjustment = normalization.basis === "fcff" ? -asNumber(company.netDebtPerShare) : 0;
 
   return {
-    dcf: { value: NaN, flows: [], error: "" },
+    value: presentValue + discountedTerminal + netDebtAdjustment,
+    flows,
+    presentValue,
+    terminalValue,
+    discountedTerminal,
+    netDebtAdjustment,
+    normalization,
+    forecastMethod: forecast.assumption?.key === "consensus" ? "consensus-then-mid-cycle-fade" : "historical-path-then-mid-cycle-fade",
+    normalizedYearFive: forecast.normalizedYearFive,
+    targetGrowth: forecast.targetGrowth,
+    cashFlowBasis: normalization.basis,
+    discountRate,
+    error: ""
+  };
+}
+
+function calculateCyclicalPeCrossCheck(company, scenario = "base") {
+  return calculateForwardPeModel(company, scenario).value;
+}
+
+function getSpecializedValuation(company, type = null) {
+  const config = company?.specializedValuation;
+  if (!config || (type && config.type !== type)) return null;
+  return config;
+}
+
+function calculateEqtSotp(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "eqt-sotp");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  const fx = getFxAudit(config?.reportedCurrency ?? "EUR");
+  if (!config || !shares || shares <= 0 || !fx.valid) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: !config
+        ? "EQT needs its official SOTP inputs."
+        : (!shares || shares <= 0 ? "EQT needs a valid official share count." : fx.reason)
+    };
+  }
+
+  const fee = config.feeBusiness ?? {};
+  const feeRelatedEbitdaFy2025 = numberOrNull(fee.feeRelatedEbitdaFy2025);
+  const feeRelatedEbitdaH12026 = numberOrNull(fee.feeRelatedEbitdaH12026);
+  const feeRelatedEbitdaH12025 = numberOrNull(fee.feeRelatedEbitdaH12025);
+  const forecastYears = Number(fee.forecastYears ?? 5);
+  const configuredBaseMultiple = numberOrNull(fee.ebitdaMultiple?.base);
+  const configuredScenarioMultiple = numberOrNull(fee.ebitdaMultiple?.[scenario]);
+  const baseTerminalMultiple = numberOrNull(company.eqtTerminalMultiple) ?? configuredBaseMultiple;
+  const multipleAdjustment = configuredBaseMultiple !== null && configuredScenarioMultiple !== null
+    ? configuredScenarioMultiple - configuredBaseMultiple
+    : null;
+  const feeMultiple = baseTerminalMultiple !== null && multipleAdjustment !== null
+    ? baseTerminalMultiple + multipleAdjustment
+    : null;
+  const baseFeeGrowth = numberOrNull(company.eqtFeeEbitdaGrowth) ?? numberOrNull(fee.defaultGrowth);
+  const growthAdjustment = numberOrNull(fee.growthAdjustment?.[scenario]);
+  const feeGrowth = baseFeeGrowth !== null && growthAdjustment !== null
+    ? baseFeeGrowth + growthAdjustment
+    : null;
+  const baseDiscountRate = numberOrNull(company.wacc);
+  const discountRate = baseDiscountRate !== null
+    ? baseDiscountRate + (scenarioAdjustments[scenario]?.wacc ?? 0)
+    : null;
+  const investments = config.strategicAndFundInvestments ?? {};
+  const investmentFactor = numberOrNull(investments.valueFactor?.[scenario]);
+  const carried = config.carriedInterest ?? {};
+  const carriedFactor = numberOrNull(carried.realizationFactor?.[scenario]);
+  const reportedInvestmentsEurm = numberOrNull(investments.reportedFairValue);
+  const reportedCarriedInterestEurm = numberOrNull(carried.reportedFairValue);
+  const netDebtEurm = numberOrNull(config.netDebt);
+  if ([
+    feeRelatedEbitdaFy2025,
+    feeRelatedEbitdaH12026,
+    feeRelatedEbitdaH12025,
+    Number.isInteger(forecastYears) && forecastYears > 0 ? forecastYears : null,
+    baseTerminalMultiple,
+    feeMultiple,
+    baseFeeGrowth,
+    feeGrowth,
+    discountRate,
+    reportedInvestmentsEurm,
+    investmentFactor,
+    reportedCarriedInterestEurm,
+    carriedFactor,
+    netDebtEurm
+  ].some((value) => value === null)) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: `The EQT ${scenario} SOTP needs every official input and scenario assumption; missing values are never treated as zero.`
+    };
+  }
+
+  if (feeGrowth <= -100 || feeMultiple <= 0 || discountRate <= 0) {
+    return {
+      valid: false,
+      value: NaN,
+      valuationBlend: buildValuationBlend([]),
+      config,
+      shares,
+      fx,
+      error: "EQT growth must be above −100%, while the terminal multiple and discount rate must be positive."
+    };
+  }
+
+  const ltmFeeRelatedEbitda = feeRelatedEbitdaFy2025 + feeRelatedEbitdaH12026 - feeRelatedEbitdaH12025;
+  const forecastRows = Array.from({ length: forecastYears }, (_, index) => {
+    const year = index + 1;
+    return {
+      year,
+      ebitdaEurm: ltmFeeRelatedEbitda * ((1 + feeGrowth / 100) ** year)
+    };
+  });
+  const terminalEbitdaEurm = forecastRows.at(-1)?.ebitdaEurm ?? NaN;
+  const terminalFeeBusinessValueEurm = terminalEbitdaEurm * feeMultiple;
+  const discountFactor = (1 + discountRate / 100) ** forecastYears;
+  const feeBusinessValueEurm = terminalFeeBusinessValueEurm / discountFactor;
+  const investmentValueEurm = reportedInvestmentsEurm * investmentFactor;
+  const carriedInterestValueEurm = reportedCarriedInterestEurm * carriedFactor;
+  const netAssetBlockEurm = investmentValueEurm + carriedInterestValueEurm - netDebtEurm;
+  const totalEquityValueEurm = feeBusinessValueEurm + netAssetBlockEurm;
+  const totalEquityValueSek = totalEquityValueEurm * 1e6 * fx.rateToSek;
+  const value = totalEquityValueSek / shares;
+  const perShare = (valueEurm) => valueEurm * 1e6 * fx.rateToSek / shares;
+  const components = [
+    { label: "Fee-related earnings franchise", valueEurm: feeBusinessValueEurm, perShare: perShare(feeBusinessValueEurm), treatment: `Year ${forecastYears} EBITDA × ${formatDecimal(feeMultiple, 1)}x, discounted at ${formatDecimal(discountRate, 1)}%` },
+    { label: "Strategic and fund investments", valueEurm: investmentValueEurm, perShare: perShare(investmentValueEurm), treatment: `${formatPercent(investmentFactor * 100, 0)} of reported fair value` },
+    { label: "Accrued carried interest", valueEurm: carriedInterestValueEurm, perShare: perShare(carriedInterestValueEurm), treatment: `${formatPercent(carriedFactor * 100, 0)} of reported fair value` },
+    { label: "Less net debt", valueEurm: -netDebtEurm, perShare: perShare(-netDebtEurm), treatment: "Subtracted once" }
+  ];
+  const valuationBlend = buildValuationBlend([{ label: "EQT SOTP", value, weight: 1 }]);
+
+  return {
+    valid: Number.isFinite(value),
+    value,
+    valuationBlend,
+    config,
+    shares,
+    fx,
+    ltmFeeRelatedEbitda,
+    forecastYears,
+    forecastRows,
+    baseFeeGrowth,
+    growthAdjustment,
+    feeGrowth,
+    baseTerminalMultiple,
+    multipleAdjustment,
+    feeMultiple,
+    baseDiscountRate,
+    discountRate,
+    terminalEbitdaEurm,
+    terminalFeeBusinessValueEurm,
+    discountFactor,
+    feeBusinessValueEurm,
+    feeBusinessPerShare: perShare(feeBusinessValueEurm),
+    investmentFactor,
+    investmentValueEurm,
+    carriedFactor,
+    carriedInterestValueEurm,
+    netDebtEurm,
+    netAssetBlockEurm,
+    netAssetBlockPerShare: perShare(netAssetBlockEurm),
+    totalEquityValueEurm,
+    components,
+    error: Number.isFinite(value) ? "" : "The EQT SOTP inputs are incomplete."
+  };
+}
+
+function calculateBolidenCommodityCycle(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "boliden-commodity-cycle");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  const currentEbitda = numberOrNull(company?.fundamentals?.ebitda)
+    ?? (shares && numberOrNull(company?.ebitdaPerShare) !== null ? shares * numberOrNull(company.ebitdaPerShare) : null);
+  if (!config || !shares || shares <= 0 || currentEbitda === null || currentEbitda <= 0) {
+    return { valid: false, value: NaN, error: "Boliden needs the official commodity-cycle inputs, shares and EBITDA." };
+  }
+
+  const drivers = [...(config.metalPrices ?? []), ...(config.exchangeRates ?? [])].map((driver) => {
+    const nearTerm = asNumber(driver.nearTerm);
+    const longTerm = asNumber(driver.longTerm);
+    const relativeChange = nearTerm !== 0 ? longTerm / nearTerm - 1 : NaN;
+    const operatingProfitAdjustment = Number.isFinite(relativeChange)
+      ? asNumber(driver.operatingProfitSensitivityAt10Pct) * (relativeChange / 0.10)
+      : NaN;
+    return { ...driver, relativeChange, operatingProfitAdjustment };
+  });
+  const operatingProfitAdjustmentSekm = drivers.reduce(
+    (sum, driver) => sum + (Number.isFinite(driver.operatingProfitAdjustment) ? driver.operatingProfitAdjustment : 0),
+    0
+  );
+  const normalizedEbitda = currentEbitda + operatingProfitAdjustmentSekm * 1e6;
+  const multiple = numberOrNull(config.normalizedEvEbitdaMultiple?.[scenario]);
+  const netDebt = asNumber(company.netDebtPerShare) * shares;
+  const enterpriseValue = multiple !== null && multiple > 0 ? normalizedEbitda * multiple : NaN;
+  const evEbitdaValue = Number.isFinite(enterpriseValue) ? (enterpriseValue - netDebt) / shares : NaN;
+  // The cash-flow component follows the same visible Growth forecast choice as
+  // the page. Consensus can set years 1–3, but years 4–5 always fade to the
+  // official-report mid-cycle median instead of extending a commodity spike.
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const valuationBlend = buildValuationBlend([
+    { label: "Commodity EV/EBITDA", value: evEbitdaValue, weight: asNumber(config.modelWeights?.commodityCycleEvEbitda) },
+    { label: "Mid-cycle FCF DCF", value: dcf.value, weight: asNumber(config.modelWeights?.forwardFcfDcf) }
+  ]);
+
+  return {
+    valid: Number.isFinite(valuationBlend.value),
+    value: valuationBlend.value,
+    valuationBlend,
+    config,
+    drivers,
+    currentEbitda,
+    operatingProfitAdjustmentSekm,
+    normalizedEbitda,
+    normalizedEbitdaPerShare: normalizedEbitda / shares,
+    multiple,
+    netDebt,
+    enterpriseValue,
+    evEbitdaValue,
+    dcf,
+    shares,
+    error: Number.isFinite(valuationBlend.value) ? "" : "The commodity-cycle valuation has no usable component."
+  };
+}
+
+function calculateSkanskaSotp(company, scenario = "base") {
+  const config = getSpecializedValuation(company, "skanska-sotp");
+  const shares = numberOrNull(company?.fundamentals?.sharesOutstanding) ?? numberOrNull(company?.sharesOutstanding);
+  if (!config || !shares || shares <= 0) {
+    return { valid: false, value: NaN, error: "Skanska needs the official SOTP inputs and outstanding shares." };
+  }
+
+  const construction = config.construction ?? {};
+  const central = config.central ?? {};
+  const normalizedConstructionEbit = averageValid([
+    numberOrNull(construction.operatingIncome2025),
+    numberOrNull(construction.operatingIncome2024)
+  ]);
+  const normalizedCentralCost = averageValid([
+    numberOrNull(central.operatingCost2025),
+    numberOrNull(central.operatingCost2024)
+  ]);
+  const attributableConstructionEbit = normalizedConstructionEbit - normalizedCentralCost;
+  const constructionMultiple = numberOrNull(construction.ebitMultiple?.[scenario]);
+  const constructionValueSekm = attributableConstructionEbit * constructionMultiple;
+  const taxRate = asNumber(config.standardTaxRate);
+  const afterTax = (value) => asNumber(value) * (1 - taxRate);
+  const developmentFactor = asNumber(config.developmentValueFactor?.[scenario], 1);
+  const residentialSekm = (asNumber(config.residentialDevelopment?.capitalEmployed)
+    + afterTax(config.residentialDevelopment?.unrealizedSurplus)) * developmentFactor;
+  const commercialSekm = (asNumber(config.commercialPropertyDevelopment?.capitalEmployed)
+    + afterTax(config.commercialPropertyDevelopment?.unrealizedSurplus)) * developmentFactor;
+  const investmentPropertiesSekm = asNumber(config.investmentProperties?.capitalEmployed) * developmentFactor;
+  const pppSekm = afterTax(config.pppPortfolio?.unrealizedSurplus) * developmentFactor;
+  const adjustedNetCashSekm = asNumber(config.adjustedNetCash);
+  const totalEquityValueSekm = constructionValueSekm + residentialSekm + commercialSekm
+    + investmentPropertiesSekm + pppSekm + adjustedNetCashSekm;
+  const value = totalEquityValueSekm * 1e6 / shares;
+  const components = [
+    { label: "Construction franchise", valueSekm: constructionValueSekm },
+    { label: "Residential development", valueSekm: residentialSekm },
+    { label: "Commercial development", valueSekm: commercialSekm },
+    { label: "Investment properties", valueSekm: investmentPropertiesSekm },
+    { label: "PPP portfolio", valueSekm: pppSekm },
+    { label: "Adjusted net cash", valueSekm: adjustedNetCashSekm }
+  ].map((component) => ({ ...component, perShare: component.valueSekm * 1e6 / shares }));
+  const valuationBlend = buildValuationBlend([{ label: "Skanska SOTP", value, weight: 1 }]);
+
+  return {
+    valid: Number.isFinite(value),
+    value,
+    valuationBlend,
+    config,
+    shares,
+    normalizedConstructionEbit,
+    normalizedCentralCost,
+    attributableConstructionEbit,
+    constructionMultiple,
+    constructionValueSekm,
+    taxRate,
+    developmentFactor,
+    components,
+    totalEquityValueSekm,
+    error: Number.isFinite(value) ? "" : "The Skanska SOTP inputs are incomplete."
+  };
+}
+
+function calculateCyclicalModel(company, scenario) {
+  const boliden = calculateBolidenCommodityCycle(company, scenario);
+  if (getSpecializedValuation(company, "boliden-commodity-cycle")) {
+    const currency = company.currency ?? "SEK";
+    const normalizedFcfYield = asNumber(company.marketPrice) > 0 && Number.isFinite(boliden.dcf?.value)
+      ? (asNumber(company.fcfPerShare) / asNumber(company.marketPrice)) * 100
+      : NaN;
+    return {
+      ...boliden,
+      dcf: boliden.dcf ?? { value: NaN, flows: [], error: boliden.error },
+      peValue: NaN,
+      ebitdaValue: boliden.evEbitdaValue,
+      currentPe: getCurrentPeRatio(company),
+      blendedValue: boliden.value,
+      primaryLabel: "Commodity-cycle value",
+      primaryValue: boliden.value,
+      secondaryLabel: "Normalized EV/EBITDA",
+      secondaryValue: boliden.evEbitdaValue,
+      tertiaryLabel: "Normalized EBITDA/share",
+      tertiaryValue: formatTickerMoney(boliden.normalizedEbitdaPerShare, currency),
+      reverseLabel: "Current FCF yield",
+      reverseValue: formatPercent(normalizedFcfYield, 1),
+      reverseSub: "Current equity FCF / current price",
+      valueDescription: Number.isFinite(boliden.value)
+        ? describeValuationBlend(boliden.valuationBlend, currency)
+        : `Commodity-cycle valuation unavailable: ${boliden.error}`,
+      modelSupportScore: boliden.valid ? 90 : 20,
+      modelWarning: boliden.error,
+      chartTitle: "Boliden commodity-cycle normalization"
+    };
+  }
+
+  const skanska = calculateSkanskaSotp(company, scenario);
+  if (getSpecializedValuation(company, "skanska-sotp")) {
+    const currency = company.currency ?? "SEK";
+    const developmentPerShare = skanska.components
+      ?.filter((component) => !["Construction franchise", "Adjusted net cash"].includes(component.label))
+      .reduce((sum, component) => sum + component.perShare, 0);
+    return {
+      ...skanska,
+      dcf: { value: NaN, flows: [], error: "Skanska is valued with SOTP, not a single-company DCF." },
+      peValue: NaN,
+      ebitdaValue: NaN,
+      currentPe: getCurrentPeRatio(company),
+      blendedValue: skanska.value,
+      primaryLabel: "Sum of the parts",
+      primaryValue: skanska.value,
+      secondaryLabel: "Construction value",
+      secondaryValue: skanska.components?.[0]?.perShare,
+      tertiaryLabel: "Development NAV / share",
+      tertiaryValue: formatTickerMoney(developmentPerShare, currency),
+      reverseLabel: "Adjusted net cash / share",
+      reverseValue: formatTickerMoney(skanska.components?.at(-1)?.perShare, currency),
+      reverseSub: "Added once after the operating and asset values",
+      valueDescription: Number.isFinite(skanska.value)
+        ? describeValuationBlend(skanska.valuationBlend, currency)
+        : `Skanska SOTP unavailable: ${skanska.error}`,
+      modelSupportScore: skanska.valid ? 92 : 20,
+      modelWarning: skanska.error,
+      chartTitle: "Skanska construction and development SOTP"
+    };
+  }
+
+  const currency = company.currency ?? "SEK";
+  const price = asNumber(company.marketPrice);
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const normalizedFcf = dcf.normalization?.valid ? dcf.normalization.perShare : NaN;
+  const currentPe = getCurrentPeRatio(company);
+  const ebitdaValue = calculateEbitdaValue(company, scenario, true);
+  const peValue = calculateCyclicalPeCrossCheck(company, scenario);
+  const normalizedFcfYield = price > 0 && Number.isFinite(normalizedFcf) ? (normalizedFcf / price) * 100 : NaN;
+  const valuationBlend = buildValuationBlend(
+    [{ label: "mid-cycle DCF", value: dcf.value, weight: 1 }],
+    ["normalized EV/EBITDA", "normalized P/E"]
+  );
+
+  return {
+    dcf,
     peValue,
     ebitdaValue,
     currentPe,
-    blendedValue: weightedAverage([
-      { value: normalizedFcfValue, weight: 0.5 },
-      { value: ebitdaValue, weight: 0.3 },
-      { value: peValue, weight: 0.2 }
-    ]),
-    primaryLabel: "Norm. FCF value",
-    primaryValue: normalizedFcfValue,
-    secondaryLabel: "EV/EBITDA value",
+    // Cross-checks are deliberately not blended into the headline value.
+    blendedValue: valuationBlend.value,
+    valuationBlend,
+    primaryLabel: "Mid-cycle DCF",
+    primaryValue: dcf.value,
+    secondaryLabel: "Normalized EV/EBITDA",
     secondaryValue: ebitdaValue,
-    tertiaryLabel: "Norm. FCF yield",
+    tertiaryLabel: "Normalized FCF yield",
     tertiaryValue: formatPercent(normalizedFcfYield, 1),
-    reverseLabel: "Norm. FCF yield",
+    reverseLabel: "Mid-cycle FCF yield",
     reverseValue: formatPercent(normalizedFcfYield, 1),
-    reverseSub: "Mid-cycle cash flow yield",
-    valueDescription: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue)
-      ? `${formatDecimal(normalizedMultiple, 1)}x normalized FCF | ${formatCurrency(ebitdaValue, currency)} EV/EBITDA | ${formatCurrency(peValue, currency)} P/E`
-      : "Needs normalized FCF or EBITDA per share",
-    modelSupportScore: Number.isFinite(normalizedFcfYield) ? clamp(45 + normalizedFcfYield * 5, 0, 100) : 50,
-    modelWarning: Number.isFinite(normalizedFcfValue) || Number.isFinite(ebitdaValue) ? "" : "Add normalized FCF or EBITDA per share for the cyclical model.",
-    chartTitle: "Normalized FCF model"
+    reverseSub: "Median official-report cash flow / current price",
+    valueDescription: Number.isFinite(dcf.value)
+      ? describeValuationBlend(valuationBlend, currency)
+      : `Mid-cycle DCF unavailable: ${dcf.error}`,
+    modelSupportScore: dcf.normalization?.valid ? clamp(45 + dcf.normalization.observations * 6, 0, 90) : 20,
+    modelWarning: dcf.error,
+    chartTitle: "Mid-cycle cash-flow DCF"
   };
 }
 
@@ -1472,11 +2359,11 @@ function calculateCategoryModel(company, scenario) {
   return calculateOperatingModel(company, scenario);
 }
 
-function calculateReverseDcf(company) {
+function calculateReverseDcf(company, scenario = "base") {
   const price = asNumber(company.marketPrice);
   if (price <= 0 || asNumber(company.fcfPerShare) <= 0) return { value: NaN, label: "-" };
 
-  const valueAt = (growth) => calculateDcf(company, "base", growth * 100).value;
+  const valueAt = (growth) => calculateDcf(company, scenario, growth * 100).value;
   const low = -0.4;
   const high = 0.6;
   const lowValue = valueAt(low);
@@ -1534,9 +2421,7 @@ function calculateCompany(company, scenario = state.scenario) {
     model,
     modelWarning: model.modelWarning,
     valuationStance: stance,
-    growthGap: numberOrNull(company.growth5y) !== null && numberOrNull(company.consensusGrowth) !== null
-      ? numberOrNull(company.growth5y) - numberOrNull(company.consensusGrowth)
-      : NaN
+    growthGap: asNumber(company.growth5y) - asNumber(company.consensusGrowth)
   };
 }
 
@@ -1557,129 +2442,371 @@ function getStance(marginOfSafety, qualityScore) {
 }
 
 let marketScreenerFcf = null;
+let riksbankFx = null;
 
-async function loadMarketScreenerFcf() {
-  try {
-    const response = await fetch(`${MARKETSCREENER_DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    marketScreenerFcf = payload?.companies ?? null;
-    state.companies = applyMarketScreenerConsensus(state.companies, marketScreenerFcf);
-    saveCompanies();
-    renderAll();
-  } catch (error) {
-    marketScreenerFcf = null;
-    state.companies = applyMarketScreenerConsensus(state.companies, null);
-    saveCompanies();
-    renderAll();
+function getFxAudit(currency) {
+  const reportedCurrency = String(currency ?? "").toUpperCase();
+  if (!reportedCurrency) {
+    return { valid: false, reason: "The source reporting currency is missing" };
   }
+  if (reportedCurrency === "SEK") {
+    return {
+      valid: true,
+      noConversion: true,
+      fromCurrency: "SEK",
+      toCurrency: "SEK",
+      rateToSek: 1
+    };
+  }
+
+  const row = riksbankFx?.rates?.[reportedCurrency];
+  const rate = numberOrNull(row?.rateToSek);
+  const ageDays = daysSince(row?.date);
+  if (!row || rate === null || rate <= 0 || ageDays === null || ageDays < -1) {
+    return { valid: false, reason: `No valid ${reportedCurrency}/SEK reference rate is available` };
+  }
+  if (ageDays > 7) {
+    return { valid: false, reason: `The ${reportedCurrency}/SEK reference rate is stale (${ageDays} days old)` };
+  }
+  return {
+    valid: true,
+    noConversion: false,
+    fromCurrency: reportedCurrency,
+    toCurrency: "SEK",
+    rateToSek: rate,
+    rateDate: row.date,
+    seriesId: row.seriesId,
+    apiUrl: row.apiUrl,
+    sourceName: riksbankFx.sourceName ?? "Sveriges Riksbank",
+    sourceUrl: riksbankFx.sourceUrl,
+    retrievedAt: riksbankFx.updatedAt,
+    ageDays
+  };
 }
 
-function getMarketScreenerConsensusAudit(row) {
+function getMarketScreenerForecastAudit(row) {
   if (!row) return { valid: false, reason: "No MarketScreener FCF forecast is available" };
   if (!row.sourceUrl || !row.retrievedAt) {
-    return { valid: false, reason: "The forecast is missing its source URL or retrieval timestamp" };
+    return { valid: false, reason: "The forecast is missing its source link or retrieval date" };
   }
-  const retrievedTime = Date.parse(row.retrievedAt);
-  const ageDays = Number.isFinite(retrievedTime)
-    ? Math.floor((Date.now() - retrievedTime) / 86400000)
-    : null;
+
+  const ageDays = daysSince(row.retrievedAt);
   if (ageDays === null || ageDays < -1) {
-    return { valid: false, reason: "The forecast has an invalid retrieval timestamp" };
+    return { valid: false, reason: "The forecast has an invalid retrieval date" };
   }
   if (ageDays > 21) {
     return { valid: false, reason: `The MarketScreener snapshot is stale (${ageDays} days old)` };
   }
-  const actual = Array.isArray(row.fcfHistory)
-    ? row.fcfHistory.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
-    : [];
+
   const forecast = Array.isArray(row.fcfForecast)
     ? row.fcfForecast.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.fcf) !== null)
     : [];
-  actual.sort((left, right) => Number(left.year) - Number(right.year));
   forecast.sort((left, right) => Number(left.year) - Number(right.year));
-  if (!actual.length || !forecast.length) {
-    return { valid: false, reason: "Reported and forecast FCF endpoints are both required" };
+  if (forecast.length < 3) {
+    return { valid: false, reason: "Three annual MarketScreener FCF estimates are required" };
   }
 
-  const start = actual[actual.length - 1];
-  const end = forecast[forecast.length - 1];
-  const startYear = Number(start.year);
-  const endYear = Number(end.year);
-  const startFcf = Number(start.fcf);
-  const endFcf = Number(end.fcf);
-  const spanYears = endYear - startYear;
-  const expectedForecastYears = Array.from({ length: spanYears }, (_, index) => startYear + index + 1);
-  const forecastYears = forecast.map((item) => Number(item.year));
-  if (spanYears <= 0 || startFcf <= 0 || endFcf <= 0) {
-    return { valid: false, reason: "CAGR requires positive FCF endpoints and a forward time span" };
+  const forecastRows = forecast.slice(0, 3).map((item) => ({
+    year: Number(item.year),
+    fcf: Number(item.fcf)
+  }));
+  const forecastYears = forecastRows.map((item) => item.year);
+  if (!forecastYears.every((year, index) => index === 0 || year === forecastYears[index - 1] + 1)) {
+    return { valid: false, reason: "The three forecast fiscal years must be consecutive" };
   }
-  if (forecastYears.length !== expectedForecastYears.length
-      || forecastYears.some((year, index) => year !== expectedForecastYears[index])) {
-    return { valid: false, reason: "The MarketScreener forecast window has missing or non-consecutive years" };
+  const retrievedYear = new Date(row.retrievedAt).getUTCFullYear();
+  if (forecastYears[0] < retrievedYear) {
+    return { valid: false, reason: "The first forecast fiscal year is already in the past" };
   }
-
-  const cagr = (endFcf / startFcf) ** (1 / spanYears) - 1;
-  const storedCagr = numberOrNull(row.consensusFcfCagr);
-  if (!Number.isFinite(cagr) || cagr <= -0.95 || cagr >= 2) {
-    return { valid: false, reason: "The calculated consensus FCF CAGR is outside the accepted range" };
-  }
-  if (storedCagr === null) {
-    return { valid: false, reason: "The source snapshot does not contain a stored consensus CAGR to reconcile" };
-  }
-  if (Math.abs(storedCagr - cagr) > 0.00001) {
-    return { valid: false, reason: "The stored CAGR does not reconcile to the displayed FCF endpoints" };
+  if (forecastRows.some((item) => item.fcf <= 0)) {
+    return { valid: false, reason: "Forecast CAGR requires positive FCF in all three estimate years" };
   }
 
+  const periods = forecastRows.length - 1;
+  const growth = (forecastRows[forecastRows.length - 1].fcf / forecastRows[0].fcf) ** (1 / periods) - 1;
+  const storedGrowth = numberOrNull(row.consensusFcfCagr);
+  if (storedGrowth === null || Math.abs(storedGrowth - growth) > 0.00001) {
+    return { valid: false, reason: "The stored MarketScreener forecast CAGR does not reconcile to its three FCF estimates" };
+  }
+
+  const reportedCurrency = row.reportedCurrency ?? row.currency;
+  const projectionRows = [];
+  let projectedFcf = forecastRows[forecastRows.length - 1].fcf;
+  for (let offset = 1; offset <= 2; offset += 1) {
+    projectedFcf *= 1 + growth;
+    projectionRows.push({
+      year: forecastRows[forecastRows.length - 1].year + offset,
+      fcf: projectedFcf
+    });
+  }
   return {
     valid: true,
-    cagr,
-    startYear,
-    endYear,
-    startFcf,
-    endFcf,
-    spanYears,
-    forecast,
-    currency: row.currency ?? "SEK",
+    growth,
+    periods,
+    forecastRows,
+    projectionRows,
+    firstEstimateYear: forecastRows[0].year,
+    lastEstimateYear: forecastRows[forecastRows.length - 1].year,
+    firstEstimateFcf: forecastRows[0].fcf,
+    lastEstimateFcf: forecastRows[forecastRows.length - 1].fcf,
+    currency: reportedCurrency,
+    reportedCurrency,
+    displayCurrency: "SEK",
     unit: row.unit ?? "million",
-    sourceUrl: row.sourceUrl ?? null,
-    retrievedAt: row.retrievedAt ?? null,
-    ageDays,
-    formula: `(${endFcf} / ${startFcf})^(1/${spanYears}) - 1`
+    fx: getFxAudit(reportedCurrency),
+    currencyEvidence: row.currencyEvidence ?? null,
+    sourceUrl: row.sourceUrl,
+    retrievedAt: row.retrievedAt,
+    ageDays
   };
 }
 
-function applyMarketScreenerConsensus(companies, rows) {
+function getMarketScreenerEpsForecastAudit(row) {
+  if (!row) return { valid: false, reason: "No MarketScreener EPS estimates are available" };
+  if (!row.sourceUrl || !row.retrievedAt) {
+    return { valid: false, reason: "The EPS estimates are missing their source link or retrieval date" };
+  }
+
+  const ageDays = daysSince(row.retrievedAt);
+  if (ageDays === null || ageDays < -1) {
+    return { valid: false, reason: "The EPS estimates have an invalid retrieval date" };
+  }
+  if (ageDays > 21) {
+    return { valid: false, reason: `The MarketScreener EPS snapshot is stale (${ageDays} days old)` };
+  }
+
+  const forecast = Array.isArray(row.epsForecast)
+    ? row.epsForecast.filter((item) => Number.isFinite(Number(item?.year)) && numberOrNull(item?.eps) !== null)
+    : [];
+  forecast.sort((left, right) => Number(left.year) - Number(right.year));
+  if (forecast.length < 3) {
+    return { valid: false, reason: "Three annual MarketScreener EPS estimates are required" };
+  }
+
+  const sourceRows = forecast.slice(0, 3).map((item) => ({
+    year: Number(item.year),
+    eps: Number(item.eps)
+  }));
+  const forecastYears = sourceRows.map((item) => item.year);
+  if (!forecastYears.every((year, index) => index === 0 || year === forecastYears[index - 1] + 1)) {
+    return { valid: false, reason: "The three EPS estimate years must be consecutive" };
+  }
+  const retrievedYear = new Date(row.retrievedAt).getUTCFullYear();
+  if (forecastYears[0] < retrievedYear) {
+    return { valid: false, reason: "The first EPS estimate year is already in the past" };
+  }
+  if (sourceRows.some((item) => item.eps <= 0)) {
+    return { valid: false, reason: "The forward P/E model requires positive EPS in all three estimate years" };
+  }
+
+  const periods = sourceRows.length - 1;
+  const growth = (sourceRows[sourceRows.length - 1].eps / sourceRows[0].eps) ** (1 / periods) - 1;
+  const storedGrowth = numberOrNull(row.consensusEpsCagr);
+  if (storedGrowth === null || Math.abs(storedGrowth - growth) > 0.00001) {
+    return { valid: false, reason: "The stored EPS forecast CAGR does not reconcile to the three published EPS estimates" };
+  }
+
+  const reportedCurrency = row.reportedCurrency ?? row.currency;
+  const fx = getFxAudit(reportedCurrency);
+  if (!fx.valid) {
+    return { valid: false, reason: `EPS currency conversion unavailable: ${fx.reason}`, fx };
+  }
+  const rateToSek = fx.rateToSek;
+  const forecastRows = sourceRows.map((item) => ({
+    ...item,
+    epsSek: item.eps * rateToSek
+  }));
+
+  return {
+    valid: true,
+    growth,
+    periods,
+    sourceRows,
+    forecastRows,
+    firstEstimateYear: forecastRows[0].year,
+    lastEstimateYear: forecastRows[forecastRows.length - 1].year,
+    reportedCurrency,
+    displayCurrency: "SEK",
+    fx,
+    currencyEvidence: row.currencyEvidence ?? null,
+    sourceUrl: row.sourceUrl,
+    retrievedAt: row.retrievedAt,
+    ageDays
+  };
+}
+
+function applyMarketScreenerForecastGrowth(companies, rows) {
   return companies.map((company) => {
     const category = normalizeCompanyType(company.companyType, company.ticker);
+    const epsAudit = category === "investment"
+      ? { valid: false, notApplicable: true, reason: "NAV is used instead of P/E for investment companies" }
+      : getMarketScreenerEpsForecastAudit(rows?.[company.id]);
     if (category === "bank" || category === "investment") {
       return {
         ...company,
         consensusGrowth: null,
-        consensusGrowthSource: "Not applicable: FCF consensus is unsuitable for this company type",
+        consensusGrowthSource: "Not applicable for this company type",
         consensusGrowthAsOf: null,
-        consensusGrowthAudit: { valid: false, notApplicable: true }
+        consensusGrowthAudit: { valid: false, notApplicable: true },
+        consensusEpsAudit: epsAudit
       };
     }
 
-    const audit = getMarketScreenerConsensusAudit(rows?.[company.id]);
-    if (!audit.valid) {
-      return {
-        ...company,
-        consensusGrowth: null,
-        consensusGrowthSource: null,
-        consensusGrowthAsOf: null,
-        consensusGrowthAudit: audit
-      };
-    }
+    const audit = getMarketScreenerForecastAudit(rows?.[company.id]);
     return {
       ...company,
-      consensusGrowth: audit.cagr * 100,
-      consensusGrowthSource: "MarketScreener analyst-consensus FCF forecasts",
-      consensusGrowthAsOf: audit.retrievedAt,
-      consensusGrowthAudit: audit
+      consensusGrowth: audit.valid ? audit.growth * 100 : null,
+      consensusGrowthSource: audit.valid ? "MarketScreener three-year analyst-consensus FCF forecast" : null,
+      consensusGrowthAsOf: audit.valid ? audit.retrievedAt : null,
+      consensusGrowthAudit: audit,
+      consensusEpsAudit: epsAudit
     };
   });
+}
+
+function normalizeHistoricalFcfRows(rows) {
+  if (!Array.isArray(rows)) return [];
+  const byYear = new Map();
+  rows.forEach((item) => {
+    const year = Number(item?.year);
+    const fcf = numberOrNull(item?.fcf ?? item?.freeCashFlow);
+    if (!Number.isInteger(year) || fcf === null) return;
+    byYear.set(year, {
+      ...item,
+      year,
+      fcf,
+      sourceName: item?.sourceName ?? null,
+      sourceUrl: item?.sourceUrl ?? null
+    });
+  });
+  return [...byYear.values()].sort((left, right) => left.year - right.year);
+}
+
+function validateHistoricalFcfSeries(rows, metadata = {}) {
+  const normalized = normalizeHistoricalFcfRows(rows).slice(-6);
+  if (normalized.length < 2) {
+    return { valid: false, reason: "At least two annual FCF observations are required" };
+  }
+
+  for (let index = 1; index < normalized.length; index += 1) {
+    if (normalized[index].year !== normalized[index - 1].year + 1) {
+      return { valid: false, reason: "The annual FCF history has a missing fiscal year" };
+    }
+  }
+
+  const oldest = normalized[0];
+  const latest = normalized[normalized.length - 1];
+  const years = latest.year - oldest.year;
+  if (years < 1) return { valid: false, reason: "The FCF history does not span a full fiscal year" };
+  const metadataResult = {
+    rows: normalized,
+    oldest,
+    latest,
+    years,
+    currency: metadata.currency ?? "SEK",
+    unit: metadata.unit ?? null,
+    source: metadata.source ?? "Source unavailable",
+    sourceUrl: metadata.sourceUrl ?? null,
+    updatedAt: metadata.updatedAt ?? null,
+    sourceKind: metadata.sourceKind ?? "unknown",
+    fx: metadata.fx ?? getFxAudit(metadata.currency ?? "SEK"),
+    currencyEvidence: metadata.currencyEvidence ?? null
+  };
+  if (oldest.fcf <= 0 || latest.fcf <= 0) {
+    return { ...metadataResult, valid: false, reason: "CAGR requires positive FCF in both the first and last fiscal year" };
+  }
+
+  const cagr = (latest.fcf / oldest.fcf) ** (1 / years) - 1;
+  const supplied = numberOrNull(metadata.suppliedCagr);
+  if (supplied !== null && Math.abs(supplied - cagr) > 0.00001) {
+    return { valid: false, reason: "The stored CAGR does not reconcile to the displayed annual FCF values" };
+  }
+
+  return {
+    ...metadataResult,
+    valid: true,
+    cagr,
+  };
+}
+
+function getHistoricalFcfAudit(company, fallbackRow) {
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  if (category === "bank" || category === "investment") {
+    return {
+      valid: false,
+      notApplicable: true,
+      reason: "Ordinary free-cash-flow CAGR is not meaningful for this company type"
+    };
+  }
+
+  const officialRows = normalizeHistoricalFcfRows(company.fcfHistory);
+  if (officialRows.length) {
+    return validateHistoricalFcfSeries(officialRows, {
+      suppliedCagr: numberOrNull(company.growth5y) === null ? null : Number(company.growth5y) / 100,
+      currency: company.fcfHistoryCurrency ?? company.quoteCurrency ?? "SEK",
+      unit: company.fcfHistoryUnit ?? null,
+      source: company.growth5ySource ?? "Official company reports (independently verified)",
+      sourceUrl: company.growth5ySourceUrl ?? company.officialSource?.sourceUrl ?? null,
+      updatedAt: company.growth5yUpdatedAt ?? company.dataUpdatedAt ?? null,
+      sourceKind: "official"
+    });
+  }
+
+  if (!fallbackRow) {
+    return { valid: false, reason: "No annual free-cash-flow history is available" };
+  }
+  if (!fallbackRow.sourceUrl || !fallbackRow.retrievedAt) {
+    return { valid: false, reason: "The fallback history is missing its source link or retrieval date" };
+  }
+  return validateHistoricalFcfSeries(fallbackRow.fcfHistory, {
+    suppliedCagr: fallbackRow.historicalFcfCagr,
+    currency: fallbackRow.reportedCurrency ?? fallbackRow.currency,
+    unit: fallbackRow.unit ?? "million",
+    source: "MarketScreener reported FCF history (fallback)",
+    sourceUrl: fallbackRow.sourceUrl,
+    updatedAt: fallbackRow.retrievedAt,
+    sourceKind: "third-party-fallback",
+    fx: getFxAudit(fallbackRow.reportedCurrency ?? fallbackRow.currency),
+    currencyEvidence: fallbackRow.currencyEvidence ?? null
+  });
+}
+
+function applyHistoricalFcfGrowth(companies, rows) {
+  return companies.map((company) => {
+    const audit = getHistoricalFcfAudit(company, rows?.[company.id]);
+    return {
+      ...company,
+      growth5y: audit.valid ? audit.cagr * 100 : null,
+      growth5yYears: audit.valid ? audit.years : null,
+      growth5ySource: audit.valid ? audit.source : null,
+      growth5ySourceUrl: audit.valid ? audit.sourceUrl : null,
+      growth5yUpdatedAt: audit.valid ? audit.updatedAt : null,
+      historicalFcfAudit: audit
+    };
+  });
+}
+
+async function loadMarketScreenerFcf() {
+  try {
+    const cacheBuster = Date.now();
+    const [response, fxResponse] = await Promise.all([
+      fetch(`${MARKETSCREENER_DATA_URL}?t=${cacheBuster}`, { cache: "no-store" }),
+      fetch(`${FX_DATA_URL}?t=${cacheBuster}`, { cache: "no-store" }).catch(() => null)
+    ]);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    riksbankFx = fxResponse?.ok ? await fxResponse.json() : null;
+    marketScreenerFcf = payload?.companies ?? null;
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
+    renderAll();
+  } catch (error) {
+    marketScreenerFcf = null;
+    riksbankFx = null;
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, null);
+    state.companies = applyHistoricalFcfGrowth(state.companies, null);
+    renderAll();
+  }
 }
 
 function initialize() {
@@ -1733,12 +2860,28 @@ function bindEvents() {
     renderCompanyList();
   });
 
+  document.querySelectorAll("[data-growth-assumption]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.growthAssumption = button.dataset.growthAssumption === "consensus" ? "consensus" : "cagr";
+      saveCompanies();
+      renderAll();
+      showToast(`${state.growthAssumption === "consensus" ? "Market consensus" : "CAGR"} selected as the growth forecast`);
+    });
+  });
+
   document.addEventListener("input", (event) => {
     const company = getSelectedCompany();
     const field = event.target.dataset.field;
+    const eqtField = event.target.dataset.eqtField;
     const quality = event.target.dataset.quality;
     const meta = event.target.dataset.meta;
-    if (!field && !quality && !meta) return;
+    if (!field && !eqtField && !quality && !meta) return;
+    if (eqtField && company) {
+      company[eqtField] = numberOrNull(event.target.value);
+      saveCompanies();
+      renderDependentViews();
+      return;
+    }
     if (meta && company) {
       company[meta] = event.target.value;
       saveCompanies();
@@ -1748,7 +2891,14 @@ function bindEvents() {
     }
 
     if (field) {
-      company[field] = field === "notes" ? event.target.value : asNumber(event.target.value);
+      company[field] = field === "notes"
+        ? event.target.value
+        : (field === "dcfGrowth" ? numberOrNull(event.target.value) : asNumber(event.target.value));
+      if (field === "marketPrice" || field === "eps") {
+        company.targetPe = getCurrentPeRatio(company);
+        const targetPeInput = document.querySelector('[data-field="targetPe"]');
+        if (targetPeInput) targetPeInput.value = roundFieldValue(company.targetPe);
+      }
       company.source = "Edited";
     }
 
@@ -1767,8 +2917,19 @@ function bindEvents() {
   document.querySelectorAll("[data-scenario]").forEach((button) => {
     button.addEventListener("click", () => {
       state.scenario = button.dataset.scenario;
-      document.querySelectorAll("[data-scenario]").forEach((item) => item.classList.toggle("is-active", item === button));
+      document.querySelectorAll("[data-scenario]").forEach((item) => {
+        item.classList.toggle("is-active", item.dataset.scenario === state.scenario);
+      });
       renderDependentViews();
+    });
+  });
+
+  document.querySelectorAll("[data-model-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.analysisModel = button.dataset.modelView;
+      document.querySelectorAll("[data-model-view]").forEach((item) => item.classList.toggle("is-active", item === button));
+      renderMetrics();
+      drawDcfChart();
     });
   });
 
@@ -1796,6 +2957,10 @@ function bindEvents() {
 }
 
 function renderAll() {
+  if (marketScreenerFcf) {
+    state.companies = applyMarketScreenerForecastGrowth(state.companies, marketScreenerFcf);
+    state.companies = applyHistoricalFcfGrowth(state.companies, marketScreenerFcf);
+  }
   renderDataStatus();
   renderCompanyList();
   renderForm();
@@ -1803,6 +2968,7 @@ function renderAll() {
 }
 
 function renderDependentViews() {
+  renderGrowthAssumptionControl();
   renderHeader();
   renderMetrics();
   renderRiktkurser();
@@ -1810,6 +2976,14 @@ function renderDependentViews() {
   renderFundamentals();
   renderCompanyList();
   drawDcfChart();
+}
+
+function renderGrowthAssumptionControl() {
+  document.querySelectorAll("[data-growth-assumption]").forEach((button) => {
+    const active = button.dataset.growthAssumption === state.growthAssumption;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function renderHeader() {
@@ -1833,14 +3007,18 @@ function renderHeader() {
   elements.selectedLogoImage.src = logoUrl;
   elements.selectedName.textContent = company.name;
   elements.selectedMeta.textContent = `${company.ticker} | Nasdaq Stockholm | ${company.sector} | ${getCompanyTypeShortLabel(category)} | ${getCompanySourceLabel(company)}`;
+  const specializedModelLabel = getSpecializedValuation(company, "eqt-sotp")
+    ? "EQT sum-of-the-parts"
+    : null;
   elements.inputBadge.textContent = company.fundamentalsUsable === false
     ? (company.dataQuality?.status === "unverified" ? "Not independently verified" : "Fundamentals rejected")
-    : (category !== "operating"
+    : (specializedModelLabel
+      ? specializedModelLabel
+      : category !== "operating"
       ? getCompanyModelLabel(category)
       : (company.source !== "Sample input" && company.source !== "Edited" ? "Fundamentals loaded" : (company.source === "Edited" ? "Edited inputs" : "Sample inputs")));
   elements.stanceBadge.textContent = calc.stance.label;
   elements.stanceBadge.className = `status-badge ${calc.stance.key}`;
-  elements.valuationSubtitle.textContent = `${scenarioAdjustments[state.scenario].label} | ${getCompanyModelLabel(category)}`;
 }
 
 function renderDataStatus() {
@@ -1894,9 +3072,7 @@ function renderCompanyList(updateHtml = true) {
   elements.companyList.innerHTML = filtered.map(({ company, calc }) => {
     const mosClass = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
     const trailingPe = getDisplayTrailingPe(company);
-    const peSource = company.fundamentals?.trailingPeSource
-      ?? company.fundamentals?.calculationSources?.trailingPe
-      ?? "Market price / trailing EPS";
+    const peSource = company.fundamentals?.trailingPeSource ?? "Market price / trailing EPS";
     return `
       <button class="company-row ${company.id === state.selectedId ? "is-active" : ""}" type="button" data-company-id="${company.id}" data-logo-fit="${escapeHtml(getCompanyLogoFit(company))}">
         <span class="company-price">
@@ -1915,6 +3091,7 @@ function renderCompanyList(updateHtml = true) {
         </span>
         <span class="company-side">
           <strong class="${mosClass}">${formatPercent(calc.marginOfSafety, 0)}</strong>
+          <small>${calc.stance.label}</small>
         </span>
       </button>
     `;
@@ -1942,23 +3119,24 @@ function renderForm() {
   if (!company) return;
 
   document.querySelectorAll("[data-field]").forEach((input) => {
-    input.value = roundFieldValue(company[input.dataset.field]);
+    if (input.dataset.field === "normalizedFcfPerShare" && normalizeCompanyType(company.companyType, company.ticker) === "cyclical") {
+      const normalization = getCyclicalHistoryNormalization(company);
+      input.value = roundFieldValue(normalization.valid ? normalization.perShare : null);
+      input.title = normalization.valid
+        ? `Median of ${normalization.observations} official-report years (${normalization.firstYear}–${normalization.lastYear})`
+        : normalization.reason;
+    } else {
+      input.value = roundFieldValue(company[input.dataset.field]);
+    }
   });
 
+
+  document.querySelectorAll("[data-quality]").forEach((input) => {
+    input.value = company[input.dataset.quality] ?? 3;
+  });
 
   document.querySelectorAll("[data-meta]").forEach((input) => {
     input.value = company[input.dataset.meta] ?? "";
-  });
-
-  document.querySelectorAll("[data-calculation-meta]").forEach((element) => {
-    const field = element.dataset.calculationMeta;
-    const formula = company.calculationSources?.[field]
-      ?? company.fundamentals?.calculationSources?.[field];
-    const value = numberOrNull(company[field]);
-    element.textContent = value === null
-      ? "Not available from current inputs"
-      : (formula ? `Calculated: ${formula}` : "Imported from source");
-    element.classList.toggle("is-calculated", value !== null && Boolean(formula));
   });
 
   renderGrowthMeta(company);
@@ -1982,27 +3160,35 @@ function daysSince(value) {
 function renderGrowthMeta(company) {
   const cagrMeta = document.querySelector("#growth5yMeta");
   if (cagrMeta) {
-    const years = Number(company.growth5yYears);
-    const label = Number.isFinite(years) && years > 0 && years < 5 ? `${years}yr CAGR` : "5yr CAGR";
-    if (!Number.isFinite(asNumber(company.growth5y)) || company.growth5y === null || company.growth5y === "") {
-      cagrMeta.textContent = "N/A - not enough positive FCF history";
+    const audit = company.historicalFcfAudit ?? getHistoricalFcfAudit(company, marketScreenerFcf?.[company?.id]);
+    if (audit?.notApplicable) {
+      cagrMeta.textContent = "N/A — use EPS/book-value growth for banks and NAV growth for investment companies";
+    } else if (!audit?.valid) {
+      cagrMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated annual FCF history"}`;
     } else {
-      cagrMeta.textContent = `${label} | Source: ${company.growth5ySource ?? "BorsAPI"} | Updated: ${formatShortDate(company.growth5yUpdatedAt) ?? "n/a"}`;
+      const source = audit.sourceKind === "official" ? "Verified official reports" : "MarketScreener fallback";
+      const fx = audit.fx?.valid && !audit.fx.noConversion
+        ? ` | ${audit.currency}→SEK ${audit.fx.rateToSek.toFixed(5)} (${audit.fx.rateDate})`
+        : "";
+      cagrMeta.textContent = `${audit.years}yr CAGR (${audit.oldest.year}–${audit.latest.year}) | ${source}${fx} | Updated: ${formatShortDate(audit.updatedAt) ?? "n/a"}`;
     }
   }
 
   const consensusMeta = document.querySelector("#consensusGrowthMeta");
   if (consensusMeta) {
-    const audit = company.consensusGrowthAudit ?? getMarketScreenerConsensusAudit(marketScreenerFcf?.[company?.id]);
+    const audit = company.consensusGrowthAudit ?? getMarketScreenerForecastAudit(marketScreenerFcf?.[company?.id]);
     if (audit?.notApplicable) {
       consensusMeta.textContent = "N/A — use EPS/book-value growth for banks and NAV growth for investment companies";
     } else if (!audit?.valid) {
-      consensusMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated forecast data"}`;
+      consensusMeta.textContent = `Unavailable — ${audit?.reason ?? "no validated three-estimate forecast"}`;
     } else {
       const asOf = formatShortDate(audit.retrievedAt);
       consensusMeta.innerHTML =
-        `${audit.startYear}A → ${audit.endYear}E | ` +
+        `${audit.firstEstimateYear}E → ${audit.lastEstimateYear}E | ${audit.periods}yr forecast CAGR | ` +
         `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">MarketScreener cash-flow forecast</a>` +
+        (audit.fx?.valid && !audit.fx.noConversion
+          ? ` | ${escapeHtml(audit.currency)}→SEK ${audit.fx.rateToSek.toFixed(5)} (${escapeHtml(audit.fx.rateDate)})`
+          : "") +
         (asOf ? ` | Retrieved ${escapeHtml(asOf)}` : "");
     }
   }
@@ -2014,38 +3200,71 @@ function formatConsensusFcf(value, audit) {
   return `${formatted} ${audit.unit ?? "million"} ${audit.currency ?? "SEK"}`;
 }
 
+function formatSekEquivalent(value, audit) {
+  if (!Number.isFinite(value) || !audit?.fx?.valid || audit.fx.noConversion) return null;
+  const converted = value * audit.fx.rateToSek;
+  return `${converted.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${audit.unit ?? "million"} SEK`;
+}
+
+function renderFcfValue(value, audit) {
+  const sourceValue = escapeHtml(formatConsensusFcf(value, audit));
+  const sekValue = formatSekEquivalent(value, audit);
+  return sekValue
+    ? `<span class="fcf-source-value">${sourceValue}</span><small class="fx-equivalent">≈ ${escapeHtml(sekValue)}</small>`
+    : `<span class="fcf-source-value">${sourceValue}</span>`;
+}
+
+function renderFxDisclosure(audit) {
+  const currency = audit?.reportedCurrency ?? audit?.currency ?? "unknown currency";
+  const currencyEvidence = audit?.currencyEvidence;
+  const evidenceLink = currencyEvidence?.sourceUrl
+    ? `<a href="${escapeHtml(currencyEvidence.sourceUrl)}" target="_blank" rel="noopener">official company report</a>`
+    : "official company report";
+  if (currency === "SEK") {
+    return `<p class="fx-disclosure"><strong>Currency:</strong> MarketScreener values are reported in SEK, cross-checked against the ${evidenceLink}. No FX conversion is applied.</p>`;
+  }
+  if (!audit?.fx?.valid) {
+    return `<p class="fx-disclosure is-warning"><strong>Currency:</strong> MarketScreener values are reported in ${escapeHtml(currency)}, cross-checked against the ${evidenceLink}. SEK equivalents are unavailable because ${escapeHtml(audit?.fx?.reason ?? "the official reference rate could not be validated")}.</p>`;
+  }
+  const sourceLink = audit.fx.sourceUrl
+    ? `<a href="${escapeHtml(audit.fx.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(audit.fx.sourceName)}</a>`
+    : escapeHtml(audit.fx.sourceName);
+  return `<p class="fx-disclosure"><strong>Currency:</strong> MarketScreener values are reported in ${escapeHtml(currency)}, cross-checked against the ${evidenceLink}. SEK equivalents use the indicative ${sourceLink} reference rate: <strong>1 ${escapeHtml(currency)} = ${audit.fx.rateToSek.toFixed(5)} SEK</strong>, dated ${escapeHtml(audit.fx.rateDate)} and retrieved ${escapeHtml(formatShortDate(audit.fx.retrievedAt) ?? "date unavailable")}. Rates refresh each weekday and are rejected when more than seven days old. The growth percentage is calculated from the source-currency values, so FX does not change it.</p>`;
+}
+
 function renderConsensusGrowthBreakdown(company) {
   const container = document.querySelector("#consensusGrowthBreakdown");
   const details = document.querySelector("#consensusGrowthDetails");
   if (!container || !details) return;
-  const audit = company.consensusGrowthAudit ?? getMarketScreenerConsensusAudit(marketScreenerFcf?.[company?.id]);
+
+  const audit = company.consensusGrowthAudit ?? getMarketScreenerForecastAudit(marketScreenerFcf?.[company?.id]);
   if (audit?.notApplicable) {
-    container.innerHTML = `<p>FCF consensus is not used for this company type.</p>`;
+    container.innerHTML = "<p class=\"cagr-note\">FCF growth is not used for this company type.</p>";
     details.open = false;
     return;
   }
-  if (!audit?.valid) {
-    container.innerHTML = `<p>${escapeHtml(audit?.reason ?? "No validated MarketScreener forecast is available.")}</p>`;
+  if (!audit?.valid && !audit?.rows?.length) {
+    container.innerHTML = `<p class="cagr-note">${escapeHtml(audit?.reason ?? "No validated MarketScreener forecast is available.")}</p>`;
     details.open = false;
     return;
   }
 
-  const forecastRows = audit.forecast.map((item) => `
-    <tr>
-      <td>${escapeHtml(String(item.year))}E</td>
-      <td>${escapeHtml(formatConsensusFcf(Number(item.fcf), audit))}</td>
-      <td>Analyst consensus</td>
-    </tr>`).join("");
+  const percentage = audit.growth * 100;
+  const displayedRows = [
+    ...audit.forecastRows.map((row) => ({ ...row, basis: "Analyst consensus" })),
+    ...audit.projectionRows.map((row) => ({ ...row, basis: "Dashboard CAGR extension" }))
+  ];
+  details.open = true;
   container.innerHTML = `
-    <table>
+    <table class="cagr-table">
       <thead><tr><th>Period</th><th>Free cash flow</th><th>Basis</th></tr></thead>
       <tbody>
-        <tr><td>${audit.startYear}A</td><td>${escapeHtml(formatConsensusFcf(audit.startFcf, audit))}</td><td>Latest reported</td></tr>
-        ${forecastRows}
+        ${displayedRows.map((row) => `<tr><td>${row.year}E</td><td>${renderFcfValue(row.fcf, audit)}</td><td>${escapeHtml(row.basis)}</td></tr>`).join("")}
       </tbody>
     </table>
-    <p><strong>Formula:</strong> (${escapeHtml(formatConsensusFcf(audit.endFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.startFcf, audit))})<sup>1/${audit.spanYears}</sup> − 1 = <strong>${escapeHtml(formatPercent(audit.cagr * 100, 2))}</strong></p>
-    <p>Source snapshot retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")} · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a></p>`;
+    <p class="cagr-formula">Forecast CAGR = (${escapeHtml(formatConsensusFcf(audit.lastEstimateFcf, audit))} ÷ ${escapeHtml(formatConsensusFcf(audit.firstEstimateFcf, audit))})<sup>1/${audit.periods}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>
+    ${renderFxDisclosure(audit)}
+    <p class="cagr-note">Years 1–3 use the three published analyst-consensus FCF estimates. Years 4–5 extend the final estimate using the displayed forecast CAGR. The DCF converts each amount to SEK per share using the disclosed FX rate and official outstanding shares · <a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">Open MarketScreener source</a> · Retrieved ${escapeHtml(formatShortDate(audit.retrievedAt) ?? "date unavailable")}.</p>`;
 }
 
 function formatFcfAmount(value, currency = "SEK") {
@@ -2058,75 +3277,937 @@ function formatFcfAmount(value, currency = "SEK") {
   return `${value.toFixed(0)} ${currency}`;
 }
 
+function formatHistoricalFcf(value, audit) {
+  if (!Number.isFinite(value)) return "n/a";
+  if (audit?.unit === "per-share") {
+    return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${audit.currency ?? "SEK"}/share`;
+  }
+  if (audit?.unit === "million") {
+    return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} million ${audit.currency ?? "SEK"}`;
+  }
+  return formatFcfAmount(value, audit?.currency ?? "SEK");
+}
+
+function historicalComponent(value, audit) {
+  return Number.isFinite(Number(value)) ? formatHistoricalFcf(Number(value), audit) : "—";
+}
+
+function renderHistoricalMethod(row) {
+  const label = escapeHtml(row.methodLabel ?? row.calculation ?? "Reported cash-flow measure");
+  const definition = row.definition ? `<small class="cagr-method-note">${escapeHtml(row.definition)}</small>` : "";
+  const reportedUnit = row.reportedUnit ? ` ${row.reportedUnit}` : "";
+  const reportedFormula = row.method === "cfo-minus-capex"
+    ? `${Number(row.reportedOperatingCashFlow).toLocaleString("en-US")} − ${Number(row.reportedCapitalExpenditures).toLocaleString("en-US")} = ${Number(row.reportedFreeCashFlow).toLocaleString("en-US")}${reportedUnit}`
+    : `${Number(row.reportedFreeCashFlow).toLocaleString("en-US")}${reportedUnit}`;
+  const fxNote = Number(row.financialToQuoteFx) !== 1
+    ? ` · 1 ${row.reportedCurrency} = ${Number(row.financialToQuoteFx).toFixed(5)} ${row.quoteCurrency}`
+    : "";
+  const reported = `<small class="cagr-method-note">Reported: ${escapeHtml(reportedFormula + fxNote)}</small>`;
+  const sourcePage = row.sourcePage ? `, p. ${escapeHtml(String(row.sourcePage))}` : "";
+  const evidence = row.sourceUrl
+    ? `<a href="${escapeHtml(row.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(row.sourceName ?? "official report")}${sourcePage}</a>`
+    : "Official report";
+  return `<span>${label}</span>${definition}${reported}<small class="cagr-method-note">${evidence}</small>`;
+}
+
+function renderHistoricalFcfValue(value, audit) {
+  const sourceValue = escapeHtml(formatHistoricalFcf(value, audit));
+  const sekValue = formatSekEquivalent(value, audit);
+  return sekValue
+    ? `<span class="fcf-source-value">${sourceValue}</span><small class="fx-equivalent">≈ ${escapeHtml(sekValue)}</small>`
+    : `<span class="fcf-source-value">${sourceValue}</span>`;
+}
+
 function renderCagrBreakdown(company) {
   const host = document.querySelector("#cagrBreakdown");
   if (!host) return;
 
-  const currency = company.currency ?? "SEK";
-  const series = Array.isArray(company.fcfSeries)
-    ? company.fcfSeries.map(Number).filter((value) => Number.isFinite(value))
-    : [];
-  const cagr = asNumber(company.growth5y);
-  const source = company.growth5ySource ?? "not set";
-  const updated = formatShortDate(company.growth5yUpdatedAt) ?? "n/a";
-
-  if (!series.length) {
+  const audit = company.historicalFcfAudit ?? getHistoricalFcfAudit(company, marketScreenerFcf?.[company?.id]);
+  if (audit?.notApplicable) {
+    host.innerHTML = `<p class="cagr-note">${escapeHtml(audit.reason)}. The dashboard therefore leaves historical FCF CAGR blank.</p>`;
+    return;
+  }
+  if (!audit?.valid) {
     host.innerHTML = `
-      <p class="cagr-note">No free-cash-flow history stored for ${company.ticker} yet.</p>
-      <p class="cagr-note">The pipeline saves the FCF series next time the data workflow runs. Current stored CAGR: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong> (source: ${source}, updated ${updated}).</p>
-    `;
+      <p class="cagr-note">Historical FCF CAGR is unavailable: ${escapeHtml(audit?.reason ?? "no validated annual history")}. No estimate is substituted.</p>
+      <p class="cagr-note">Official company-report history is preferred. MarketScreener actual-year figures are used only as a clearly labelled fallback.</p>`;
     return;
   }
 
-  // Mirror the pipeline: newest-first window, shrink until both ends are positive.
-  let window = series.slice(0, 6);
-  while (window.length >= 2 && !(window[0] > 0 && window[window.length - 1] > 0)) {
-    window = window.slice(0, -1);
-  }
-  const usable = window.length >= 2 && window[0] > 0 && window[window.length - 1] > 0;
-  const years = usable ? window.length - 1 : null;
-  const newest = usable ? window[0] : null;
-  const oldest = usable ? window[window.length - 1] : null;
-  const computed = usable ? ((newest / oldest) ** (1 / years) - 1) * 100 : null;
-
-  const rows = series
-    .map((value, index) => {
-      const label = index === 0 ? "Latest FY" : `FY -${index}`;
-      const inWindow = index < window.length;
-      const prev = series[index + 1];
-      const yoyValue = Number.isFinite(prev) && prev > 0 && value > 0 ? (value / prev - 1) * 100 : null;
+  const rows = audit.rows
+    .map((row, index) => {
+      const previous = index > 0 ? audit.rows[index - 1] : null;
+      const yoyValue = previous && previous.fcf > 0 && row.fcf > 0 ? (row.fcf / previous.fcf - 1) * 100 : null;
       const yoy = yoyValue === null
         ? '<span class="cagr-na">n/a</span>'
         : `<span class="${yoyValue >= 0 ? "cagr-up" : "cagr-down"}">${yoyValue >= 0 ? "+" : ""}${yoyValue.toFixed(1)} %</span>`;
-      return `<tr class="${inWindow ? "" : "is-muted"}">
-        <td>${label}</td>
-        <td>${formatFcfAmount(value, currency)}</td>
+      const officialComponents = audit.sourceKind === "official" && row.method === "cfo-minus-capex";
+      return `<tr>
+        <td>${escapeHtml(row.fiscalLabel ?? `${row.year}A`)}</td>
+        <td>${officialComponents ? escapeHtml(historicalComponent(row.operatingCashFlow, audit)) : "—"}</td>
+        <td>${officialComponents ? escapeHtml(historicalComponent(row.capitalExpenditures, audit)) : "—"}</td>
+        <td>${renderHistoricalFcfValue(row.fcf, audit)}</td>
         <td>${yoy}</td>
-        <td>${inWindow ? "used" : "outside window"}</td>
+        <td class="cagr-method">${audit.sourceKind === "official" ? renderHistoricalMethod(row) : "MarketScreener fallback"}</td>
       </tr>`;
     })
     .join("");
 
+  const sourceLink = audit.sourceUrl
+    ? `<a href="${escapeHtml(audit.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(audit.source)}</a>`
+    : escapeHtml(audit.source);
+  const percentage = audit.valid ? audit.cagr * 100 : null;
+  const historyNote = audit.sourceKind === "official"
+    ? "Independently verified annual figures from official company reports."
+    : "Temporary third-party fallback because a verified official annual series is not stored yet.";
+
   host.innerHTML = `
     <div class="cagr-head">
       <div>
-        <span class="cagr-label">${usable ? `${years}yr FCF CAGR` : "FCF CAGR"}</span>
-        <strong class="cagr-value">${computed === null ? "N/A" : `${computed.toFixed(2)} %`}</strong>
+        <span class="cagr-label">${audit.rows.length} observations · ${audit.years}-year FCF CAGR (${audit.oldest.year}–${audit.latest.year})</span>
+        <strong class="cagr-value">${percentage === null ? "N/A" : `${percentage.toFixed(2)} %`}</strong>
       </div>
-      <p class="cagr-note">Source: ${source} | Updated: ${updated}</p>
+      <p class="cagr-note">Source: ${sourceLink} | Retrieved/verified: ${escapeHtml(formatShortDate(audit.updatedAt) ?? "n/a")}</p>
     </div>
     <table class="cagr-table">
-      <thead><tr><th>Period</th><th>Free cash flow</th><th>Growth</th><th>Window</th></tr></thead>
+      <thead><tr><th>Period</th><th>CFO</th><th>Capex</th><th>FCF</th><th>Growth</th><th>Method &amp; evidence</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <p class="cagr-formula">CAGR = (FCF<sub>latest</sub> / FCF<sub>oldest</sub>)<sup>1/${years ?? "n"}</sup> - 1</p>
-    ${usable
-      ? `<p class="cagr-formula">= (${formatFcfAmount(newest, currency)} / ${formatFcfAmount(oldest, currency)})<sup>1/${years}</sup> - 1 = <strong>${computed.toFixed(2)} %</strong></p>`
-      : `<p class="cagr-note">Cannot compute: the window needs a positive start and end value.</p>`}
-    <p class="cagr-note">Stored value used by the DCF: <strong>${Number.isFinite(cagr) ? `${cagr.toFixed(2)} %` : "N/A"}</strong>. Consensus growth is a separate manual input and never feeds this calculation.</p>
+    ${percentage === null
+      ? `<p class="cagr-formula"><strong>CAGR: N/A.</strong> ${escapeHtml(audit.reason)}</p>`
+      : `<p class="cagr-formula">CAGR = (FCF<sub>${audit.latest.year}</sub> ÷ FCF<sub>${audit.oldest.year}</sub>)<sup>1/${audit.years}</sup> − 1</p>
+         <p class="cagr-formula">= (${escapeHtml(formatHistoricalFcf(audit.latest.fcf, audit))} ÷ ${escapeHtml(formatHistoricalFcf(audit.oldest.fcf, audit))})<sup>1/${audit.years}</sup> − 1 = <strong>${percentage.toFixed(2)} %</strong></p>`}
+    ${renderFxDisclosure(audit)}
+    <p class="cagr-note">${historyNote} “CFO − capex” rows show the two report inputs explicitly. A company-defined row is never presented as statutory CFO − capex. The years must be consecutive and the first and last FCF must be positive; otherwise the dashboard shows N/A. This CAGR is read-only and drives the DCF only when CAGR is selected in the page-level Growth forecast control.</p>
   `;
 }
 
+
+function getScenarioExplanation(scenario = state.scenario, model = state.analysisModel) {
+  const usesConsensus = state.growthAssumption === "consensus";
+  const growthLabel = usesConsensus ? "market-consensus FCF CAGR" : "historical FCF CAGR";
+  if (model === "ev-ebitda") {
+    if (scenario === "bull") return "Bull uses the saved EV/EBITDA multiple plus 0.7x.";
+    if (scenario === "bear") return "Bear uses the saved EV/EBITDA multiple minus 0.7x.";
+    return "Base uses the saved EV/EBITDA multiple without adjustment.";
+  }
+  if (model === "reverse-dcf") {
+    if (scenario === "bull") return "Bull solves the market-implied growth rate using a required equity return 0.7 pp lower.";
+    if (scenario === "bear") return "Bear solves the market-implied growth rate using a required equity return 1.0 pp higher.";
+    return "Base solves the five-year growth rate implied by today’s price and the saved required equity return.";
+  }
+  if (model === "pe") {
+    if (scenario === "bull") return "Bull keeps the three published EPS estimates, extends years 4–5 at their EPS CAGR +2.0 pp, uses current P/E +2.0x and lowers required equity return by 0.7 pp.";
+    if (scenario === "bear") return "Bear keeps the three published EPS estimates, extends years 4–5 at their EPS CAGR −2.0 pp, uses current P/E −2.0x and raises required equity return by 1.0 pp.";
+    return "Base uses three separately sourced analyst EPS estimates, extends years 4–5 at their EPS CAGR, applies the current P/E in year 5 and discounts the terminal price to today.";
+  }
+  if (usesConsensus) {
+    if (scenario === "bull") return "Bull keeps the three published FCF estimates, extends years 4–5 at forecast CAGR +2.0 pp and lowers required equity return by 0.7 pp.";
+    if (scenario === "bear") return "Bear keeps the three published FCF estimates, extends years 4–5 at forecast CAGR −2.0 pp and raises required equity return by 1.0 pp.";
+    return "Base uses the three published FCF estimates, then extends years 4–5 with their forecast CAGR.";
+  }
+  if (scenario === "bull") return `Bull applies ${growthLabel} +2.0 pp and required equity return −0.7 pp.`;
+  if (scenario === "bear") return `Bear applies ${growthLabel} −2.0 pp and required equity return +1.0 pp.`;
+  return `Base uses the page-level ${growthLabel} choice and the saved required equity return.`;
+}
+
+function getAnalysisPresentation(company) {
+  const currency = company.currency ?? "SEK";
+  const scenario = state.scenario;
+  const adjustment = scenarioAdjustments[scenario] ?? scenarioAdjustments.base;
+  const scenarioLabel = adjustment.label;
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const price = asNumber(company.marketPrice);
+  const currentFcf = asNumber(company.fcfPerShare);
+  const growthAssumption = getSelectedGrowthAssumption(company);
+  const baseDcfGrowth = growthAssumption.value;
+  const growth = baseDcfGrowth === null ? NaN : baseDcfGrowth + adjustment.growth;
+  const wacc = asNumber(company.wacc) + adjustment.wacc;
+  const currentPe = getCurrentPeRatio(company);
+  const targetPe = currentPe === null ? NaN : Math.max(0, currentPe + adjustment.targetPe);
+  const difference = (value) => price > 0 && Number.isFinite(value) ? ((value - price) / price) * 100 : NaN;
+  const differenceText = (value) => {
+    const result = difference(value);
+    if (!Number.isFinite(result)) return "Cannot calculate from current inputs";
+    return `${formatPercent(result, 1)} ${result >= 0 ? "upside" : "downside"} vs current price`;
+  };
+
+  const bolidenModel = getSpecializedValuation(company, "boliden-commodity-cycle")
+    ? calculateBolidenCommodityCycle(company, scenario)
+    : null;
+  const skanskaModel = getSpecializedValuation(company, "skanska-sotp")
+    ? calculateSkanskaSotp(company, scenario)
+    : null;
+  const eqtSotpModel = getSpecializedValuation(company, "eqt-sotp")
+    ? calculateEqtSotp(company, scenario)
+    : null;
+
+  if (eqtSotpModel) {
+    const m = eqtSotpModel;
+    const config = m.config ?? {};
+    const context = config.operatingContext ?? {};
+    const sourcePeriod = config.period ? formatShortDate(config.period) : "latest reported period";
+    return {
+      key: "eqt-sotp",
+      title: `EQT sum-of-the-parts · ${scenarioLabel}`,
+      note: "The recurring fee franchise now uses an explicit five-year EBITDA forecast and discounted terminal value. Financial assets are added separately and net debt is subtracted once. Analyst target prices have 0% weight.",
+      chartTitle: "Five-year fee-related EBITDA forecast",
+      chartSubtitle: `${formatPercent(m.feeGrowth, 1)} annual growth in the ${scenarioLabel.toLowerCase()} · official LTM starting value`,
+      chartUnit: "EUR million",
+      modelTitle: "EQT — Alternative Asset Manager SOTP",
+      modelDescription: "EQT is an alternative-asset manager, not a conventional holding company. The model forecasts fee-related EBITDA for five years, applies an exit multiple to year-five EBITDA and discounts that franchise value to today. It then adds reported financial investments and scenario-adjusted accrued carry before subtracting net debt.",
+      sourceUrl: config.sourcePageUrl ?? config.sourceUrl,
+      sourceLabel: `${config.sourceName ?? "EQT H1 2026 report"} · ${sourcePeriod}`,
+      formula: "[Year-5 fee-related EBITDA × terminal EV/EBITDA] ÷ discount factor + investments + carried interest − net debt",
+      assumptions: [
+        ["LTM fee-related EBITDA", `${formatDecimal(m.ltmFeeRelatedEbitda, 0)} EUR million`],
+        ["Base growth input", Number.isFinite(m.baseFeeGrowth) ? `${formatPercent(m.baseFeeGrowth, 1)} manual assumption` : "Unavailable"],
+        ["Scenario growth", Number.isFinite(m.feeGrowth) ? `${formatPercent(m.feeGrowth, 1)} for years 1–5` : "Unavailable"],
+        ["Year-5 fee-related EBITDA", Number.isFinite(m.terminalEbitdaEurm) ? `${formatDecimal(m.terminalEbitdaEurm, 0)} EUR million` : "Unavailable"],
+        ["Terminal EV/EBITDA", Number.isFinite(m.feeMultiple) ? `${formatDecimal(m.feeMultiple, 1)}x in year 5` : "Unavailable"],
+        ["Fee-franchise discount rate", Number.isFinite(m.discountRate) ? `${formatDecimal(m.discountRate, 1)}%` : "Unavailable"],
+        ["Strategic/fund investment factor", Number.isFinite(m.investmentFactor) ? formatPercent(m.investmentFactor * 100, 0) : "Unavailable"],
+        ["Carried-interest realization factor", Number.isFinite(m.carriedFactor) ? formatPercent(m.carriedFactor * 100, 0) : "Unavailable"],
+        ["EUR/SEK conversion", m.fx?.valid ? `1 EUR = ${formatDecimal(m.fx.rateToSek, 5)} SEK · Sveriges Riksbank ${m.fx.rateDate}` : (m.fx?.reason ?? "Unavailable")],
+        ["Operating context", `${formatDecimal(asNumber(context.feeGeneratingAum) / 1000, 0)}bn EUR fee-generating AUM · ${formatPercent(asNumber(context.h12026FeeRelatedEbitdaMargin) * 100, 0)} H1 fee-related EBITDA margin`],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["SOTP value / share", formatTickerMoney(m.value, currency), differenceText(m.value)],
+        ["Current price", formatTickerMoney(price, currency), "Latest market price"],
+        ["Fee franchise / share", formatTickerMoney(m.feeBusinessPerShare, currency), `Year-5 EBITDA × ${formatDecimal(m.feeMultiple, 1)}x, discounted ${m.forecastYears} years`],
+        ["Net asset block / share", formatTickerMoney(m.netAssetBlockPerShare, currency), "Investments + carried interest − net debt"]
+      ],
+      chartValues: [
+        { label: "LTM", value: m.ltmFeeRelatedEbitda },
+        ...(m.forecastRows ?? []).map((row) => ({ label: `Y${row.year}E`, value: row.ebitdaEurm }))
+      ]
+    };
+  }
+
+  if (category === "investment") {
+    const nav = getInvestmentNavAudit(company);
+    const hasDiscount = Number.isFinite(nav.discountToNav) && nav.discountToNav >= 0;
+    const discountPremiumLabel = hasDiscount ? "Discount to NAV" : "Premium to NAV";
+    const discountPremiumValue = Number.isFinite(nav.discountToNav)
+      ? formatPercent(Math.abs(nav.discountToNav), 1)
+      : "-";
+    const sourcePeriod = nav.period ? formatShortDate(nav.period) : "latest reported period";
+    return {
+      key: "nav",
+      title: "NAV discount / premium",
+      note: "Investment companies are valued from their latest reported NAV or equity per share. DCF, Reverse DCF, P/E, EV/EBITDA, growth forecasts and scenarios are not used.",
+      chartTitle: "Market price compared with reported NAV",
+      chartSubtitle: `${nav.basis} from ${sourcePeriod}`,
+      chartUnit: `${currency} / share`,
+      modelTitle: "NAV — Net Asset Value",
+      modelDescription: "NAV represents the reported value of the investment portfolio and other assets after liabilities. The dashboard compares the current share price with that value per share. A lower market price is a discount; a higher market price is a premium.",
+      sourceUrl: nav.sourceUrl,
+      sourceLabel: nav.sourceUrl ? `${nav.sourceName} · ${sourcePeriod}` : null,
+      formula: "Discount / premium = (reported NAV per share − current share price) ÷ reported NAV per share",
+      assumptions: [
+        ["NAV basis", nav.basis],
+        ["Reported period", sourcePeriod],
+        ["Valuation weight", "100% reported NAV · 0% P/E · 0% DCF · 0% EV/EBITDA"],
+        ["Target prices", "0% weight"],
+        ["Interpretation", hasDiscount ? "The share trades below reported NAV" : "The share trades above reported NAV"]
+      ],
+      metrics: [
+        ["Reported NAV / equity per share", formatTickerMoney(nav.navPerShare, currency), nav.basis],
+        ["Current price", formatTickerMoney(nav.marketPrice, currency), "Latest market price"],
+        [discountPremiumLabel, discountPremiumValue, "Compared directly with reported NAV"],
+        ["Price / NAV", Number.isFinite(nav.priceToNav) ? `${formatDecimal(nav.priceToNav, 2)}x` : "-", "1.00x means price equals NAV"]
+      ],
+      chartValues: [
+        { label: "Market price", value: nav.marketPrice },
+        { label: "Reported NAV", value: nav.navPerShare }
+      ]
+    };
+  }
+
+  if (state.analysisModel === "pe") {
+    const pe = calculateForwardPeModel(company, scenario);
+    const suitability = pe.suitability ?? "P/E suitability cannot be assessed from current inputs.";
+    const audit = pe.audit;
+    const publishedEstimates = audit?.valid
+      ? audit.forecastRows.map((row) => {
+          const source = `${formatDecimal(row.eps, 3)} ${audit.reportedCurrency}/share`;
+          const sek = `${formatDecimal(row.epsSek, 2)} SEK/share`;
+          return `${row.year}E ${audit.reportedCurrency === "SEK" ? sek : `${source} = ${sek}`}`;
+        }).join(" · ")
+      : "Unavailable";
+    const fxDescription = audit?.valid
+      ? (audit.fx.noConversion
+          ? "No conversion — estimates and share price are in SEK"
+          : `1 ${audit.reportedCurrency} = ${formatDecimal(audit.fx.rateToSek, 5)} SEK · Sveriges Riksbank ${audit.fx.rateDate}`)
+      : "Unavailable";
+    return {
+      key: "pe",
+      title: `Forward P/E · ${scenarioLabel}`,
+      note: Number.isFinite(pe.value) ? getScenarioExplanation(scenario, "pe") : pe.error,
+      chartTitle: "Projected earnings per share",
+      chartSubtitle: Number.isFinite(pe.value)
+        ? `${scenarioLabel}: five-year EPS path before the terminal P/E is applied`
+        : pe.error,
+      chartUnit: `${currency} EPS`,
+      modelTitle: "P/E — Forward Earnings Value",
+      modelDescription: `${suitability} Years 1–3 come directly from the displayed analyst EPS estimates. Years 4–5 extend their EPS CAGR. FCF growth is never used in this model.`,
+      sourceUrl: audit?.valid ? audit.sourceUrl : null,
+      sourceLabel: audit?.valid ? `MarketScreener EPS estimates · retrieved ${formatShortDate(audit.retrievedAt)}` : null,
+      formula: "EPS₄–₅ = final published EPS × (1 + EPS forecast CAGR); value today = EPS₅ × target P/E ÷ (1 + required equity return)⁵",
+      assumptions: [
+        ["Published EPS estimates", publishedEstimates],
+        ["Published EPS CAGR", Number.isFinite(pe.publishedGrowth) ? formatPercent(pe.publishedGrowth, 1) : "Unavailable"],
+        ["Years 4–5 extension", Number.isFinite(pe.extensionGrowth) ? `${formatPercent(pe.extensionGrowth, 1)} EPS CAGR` : "Unavailable"],
+        ["Currency conversion", fxDescription],
+        ["Target P/E in year 5", Number.isFinite(pe.targetPe) ? `${formatDecimal(pe.targetPe, 1)}x` : "Unavailable"],
+        ["Required equity return", Number.isFinite(pe.requiredReturn) ? formatPercent(pe.requiredReturn * 100, 1) : "Unavailable"],
+        ["Suitability", suitability]
+      ],
+      metrics: [
+        ["Present value / share", formatTickerMoney(pe.value, currency), differenceText(pe.value)],
+        ["Current price", formatTickerMoney(price, currency), "Market price input"],
+        ["Forecast EPS · Year 5", Number.isFinite(pe.forecastEps) ? formatPerShareMoney(pe.forecastEps, currency) : "-", Number.isFinite(pe.extensionGrowth) ? `Years 4–5 extended at ${formatPercent(pe.extensionGrowth, 1)} EPS CAGR` : "Needs three EPS estimates"],
+        ["Year-5 target P/E", Number.isFinite(pe.targetPe) ? `${formatDecimal(pe.targetPe, 1)}x` : "-", state.scenario === "base" ? "Current trailing P/E anchor" : `${formatDecimal(adjustment.targetPe, 1)}x scenario adjustment`]
+      ],
+      chartValues: [
+        ...(Number.isFinite(pe.startingEps) ? [{ label: "Current", value: pe.startingEps }] : []),
+        ...(pe.flows ?? []).map((flow) => ({ label: flow.label, value: flow.eps }))
+      ]
+    };
+  }
+
+  if (state.analysisModel === "ev-ebitda") {
+    const isCyclical = category === "cyclical";
+    const normalizedEbitda = bolidenModel?.normalizedEbitdaPerShare
+      ?? (isCyclical ? numberOrNull(company.normalizedEbitdaPerShare) : numberOrNull(company.ebitdaPerShare));
+    const targetMultiple = bolidenModel?.multiple
+      ?? Math.max(0, asNumber(company.targetEvToEbitda) + adjustment.targetPe * 0.35);
+    const value = skanskaModel
+      ? NaN
+      : (bolidenModel?.evEbitdaValue ?? calculateEbitdaValue(company, scenario, isCyclical));
+    const currentMultiple = numberOrNull(company.fundamentals?.evToEbitda);
+    const netDebtPerShare = numberOrNull(company.netDebtPerShare);
+    const unavailableReason = skanskaModel
+      ? "Skanska is valued with a construction and development SOTP. Consolidated EV/EBITDA would mix unlike businesses, so no number is fabricated here."
+      : (isCyclical && normalizedEbitda === null
+          ? "Normalized EBITDA has not been explicitly supported. Current-cycle EBITDA is never substituted silently."
+          : "Cannot calculate from current inputs");
+    return {
+      key: "ev-ebitda",
+      title: `${isCyclical ? "Normalized EV/EBITDA" : "EV/EBITDA"} · ${scenarioLabel}`,
+      note: Number.isFinite(value) ? getScenarioExplanation(scenario, "ev-ebitda") : unavailableReason,
+      chartTitle: "EV/EBITDA valuation compared with market price",
+      chartSubtitle: Number.isFinite(value)
+        ? `${formatDecimal(normalizedEbitda, 2)} ${currency} EBITDA/share × ${formatDecimal(targetMultiple, 1)}x − net debt/share`
+        : unavailableReason,
+      chartUnit: `${currency} / share`,
+      modelTitle: "EV/EBITDA — Enterprise Value Multiple",
+      modelDescription: skanskaModel
+        ? unavailableReason
+        : bolidenModel
+          ? "Uses Boliden’s commodity-normalized EBITDA, applies the explicit scenario multiple, then subtracts net debt to reach equity value per share."
+          : isCyclical
+            ? "Uses explicitly normalized EBITDA for a full-cycle cross-check. It remains unavailable when normalized EBITDA has not been verified."
+            : "Values the operating business before financing, then subtracts net debt to reach the value attributable to shareholders.",
+      formula: "EBITDA / share × target EV/EBITDA − net debt / share = equity value / share",
+      assumptions: [
+        [isCyclical ? "Normalized EBITDA / share" : "EBITDA / share", formatTickerMoney(normalizedEbitda, currency)],
+        ["Target EV/EBITDA", Number.isFinite(targetMultiple) ? `${formatDecimal(targetMultiple, 1)}x` : "-"],
+        ["Net debt / share", formatTickerMoney(netDebtPerShare, currency)],
+        ["Current EV/EBITDA", currentMultiple !== null ? `${formatDecimal(currentMultiple, 1)}x` : "N/A"]
+      ],
+      metrics: [
+        ["EV/EBITDA value / share", formatTickerMoney(value, currency), Number.isFinite(value) ? differenceText(value) : unavailableReason],
+        ["Current price", formatTickerMoney(price, currency), "Market price input"],
+        [isCyclical ? "Normalized EBITDA / share" : "EBITDA / share", formatTickerMoney(normalizedEbitda, currency), isCyclical ? "Cycle-normalized input" : "Operating earnings before D&A"],
+        ["Target EV/EBITDA", Number.isFinite(targetMultiple) ? `${formatDecimal(targetMultiple, 1)}x` : "-", state.scenario === "base" ? "Saved base assumption" : `${formatDecimal(adjustment.targetPe * 0.35, 1)}x scenario adjustment`]
+      ],
+      chartValues: [
+        { label: "Current price", value: price },
+        { label: `${scenarioLabel} value`, value }
+      ]
+    };
+  }
+
+  if (state.analysisModel === "dcf" && bolidenModel) {
+    return {
+      key: "dcf",
+      title: `Boliden commodity-cycle valuation · ${scenarioLabel}`,
+      note: "70% commodity-normalized EV/EBITDA + 30% mid-cycle FCF DCF. Analyst target prices have 0% weight.",
+      chartTitle: "Two independent valuation components",
+      chartSubtitle: "The displayed intrinsic value is the weighted result, not a target-price fit",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Boliden — Commodity-cycle normalization",
+      modelDescription: "Starts with reported EBITDA, adjusts it from near-term planning prices to Boliden’s long-term metal prices and exchange rates using the company’s published sensitivities, then applies an explicit EV/EBITDA assumption. The second component uses the selected forecast for years 1–3 and fades years 4–5 to the median official-report cash flow across the full cycle.",
+      formula: "70% × commodity EV/EBITDA value + 30% × mid-cycle FCF DCF value",
+      assumptions: [
+        ["Reported EBITDA / share", formatTickerMoney(bolidenModel.currentEbitda / bolidenModel.shares, currency)],
+        ["Commodity-cycle adjustment", formatTickerMoney(bolidenModel.operatingProfitAdjustmentSekm * 1e6 / bolidenModel.shares, currency)],
+        ["Normalized EBITDA / share", formatTickerMoney(bolidenModel.normalizedEbitdaPerShare, currency)],
+        ["Scenario EV/EBITDA", `${formatDecimal(bolidenModel.multiple, 1)}x`],
+        ["Valuation weights", "70% EV/EBITDA · 30% DCF"],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["Intrinsic value / share", formatTickerMoney(bolidenModel.value, currency), differenceText(bolidenModel.value)],
+        ["Commodity EV/EBITDA", formatTickerMoney(bolidenModel.evEbitdaValue, currency), "70% configured weight"],
+        ["Mid-cycle FCF DCF", formatTickerMoney(bolidenModel.dcf?.value, currency), "30% configured weight; years 4–5 return to normal"],
+        ["Normalized EBITDA / share", formatTickerMoney(bolidenModel.normalizedEbitdaPerShare, currency), "Reported EBITDA plus the official sensitivity bridge"]
+      ],
+      chartValues: [
+        { label: "Current price", value: price },
+        { label: "EV/EBITDA", value: bolidenModel.evEbitdaValue },
+        { label: "Mid-cycle DCF", value: bolidenModel.dcf?.value },
+        { label: "Weighted value", value: bolidenModel.value }
+      ]
+    };
+  }
+
+  if (state.analysisModel === "dcf" && skanskaModel) {
+    const chartComponents = skanskaModel.components.map((component) => ({
+      label: component.label
+        .replace("Construction franchise", "Construction")
+        .replace("Residential development", "Residential")
+        .replace("Commercial development", "Commercial")
+        .replace("Investment properties", "Properties")
+        .replace("PPP portfolio", "PPP")
+        .replace("Adjusted net cash", "Net cash"),
+      value: component.perShare
+    }));
+    const developmentPerShare = skanskaModel.components
+      .filter((component) => !["Construction franchise", "Adjusted net cash"].includes(component.label))
+      .reduce((sum, component) => sum + component.perShare, 0);
+    return {
+      key: "dcf",
+      title: `Skanska sum of the parts · ${scenarioLabel}`,
+      note: "Construction earnings, development assets, investment properties, PPP surplus and adjusted net cash are valued separately. Analyst target prices have 0% weight.",
+      chartTitle: "Value contributed by each Skanska business",
+      chartSubtitle: "Every bar is additive; together they equal the SOTP equity value",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Skanska — Construction and development SOTP",
+      modelDescription: "Skanska contains unlike businesses. The model values normalized Construction earnings with an EBIT multiple, values development and property assets from reported capital employed plus after-tax disclosed surplus values, and then adds adjusted net cash once.",
+      formula: "Construction franchise + development NAV + properties + PPP surplus + adjusted net cash",
+      assumptions: [
+        ["Normalized Construction EBIT", `${formatDecimal(skanskaModel.normalizedConstructionEbit, 0)} SEK million`],
+        ["Normalized central cost", `−${formatDecimal(skanskaModel.normalizedCentralCost, 0)} SEK million`],
+        ["Construction EBIT multiple", `${formatDecimal(skanskaModel.constructionMultiple, 1)}x`],
+        ["Development scenario factor", `${formatPercent((skanskaModel.developmentFactor - 1) * 100, 0)}`],
+        ["Tax on disclosed surplus", `${formatPercent(skanskaModel.taxRate * 100, 0)}`],
+        ["Target prices", "0% weight"]
+      ],
+      metrics: [
+        ["SOTP value / share", formatTickerMoney(skanskaModel.value, currency), differenceText(skanskaModel.value)],
+        ["Construction franchise", formatTickerMoney(skanskaModel.components[0]?.perShare, currency), "Normalized Construction EBIT after central cost"],
+        ["Development and property NAV", formatTickerMoney(developmentPerShare, currency), "Reported capital plus after-tax disclosed surplus"],
+        ["Adjusted net cash", formatTickerMoney(skanskaModel.components.at(-1)?.perShare, currency), "Added once at the end"]
+      ],
+      chartValues: [...chartComponents, { label: "Total SOTP", value: skanskaModel.value }]
+    };
+  }
+
+  if (state.analysisModel === "reverse-dcf") {
+    const reverse = category === "operating" ? calculateReverseDcf(company, scenario) : { value: NaN, label: "-" };
+    const reverseFlows = Number.isFinite(reverse.value) ? calculateDcf(company, scenario, reverse.value).flows : [];
+    const consensus = numberOrNull(company.consensusGrowth);
+    return {
+      key: "reverse-dcf",
+      title: `Reverse DCF · ${scenarioLabel}`,
+      note: getScenarioExplanation(scenario),
+      chartTitle: "Market-implied free cash flow / share",
+      chartSubtitle: "The five-year FCF path required for the DCF value to equal today’s market price",
+      chartUnit: `${currency} / share`,
+      modelTitle: "Reverse DCF — Implied Growth",
+      modelDescription: category === "operating"
+        ? "Works backwards from the current share price to find the annual five-year equity-FCF growth required by the market. Net debt is not subtracted because the cash flow already belongs to shareholders."
+        : "Reverse DCF is not used for this company type because ordinary free cash flow is not its primary valuation basis.",
+      formula: "Solve equity-FCF growth until present value of equity FCF = current price",
+      assumptions: [
+        ["Current price", formatTickerMoney(price, currency)],
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
+        ["Required equity return", formatPercent(wacc, 1)],
+        ["Consensus forecast CAGR", Number.isFinite(consensus) ? `${formatPercent(consensus, 1)} (different method)` : "N/A"]
+      ],
+      metrics: [
+        ["Required 5yr FCF growth", reverse.label, "Annual growth implied by today’s price"],
+        ["Current price", formatTickerMoney(price, currency), "The value the model solves back to"],
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency), "Latest FCF input"],
+        ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+      ],
+      chartValues: [{ label: "Actual", value: currentFcf }, ...reverseFlows.map((flow) => ({ label: `Y${flow.year}E`, value: flow.cashFlow }))]
+    };
+  }
+
+  const isCyclical = category === "cyclical";
+  const dcf = category === "operating"
+    ? calculateDcf(company, scenario)
+    : (isCyclical ? calculateCyclicalDcf(company, scenario) : { value: NaN, flows: [], error: "DCF is not used for this company type." });
+  const usesConsensusForecast = growthAssumption.key === "consensus";
+  const consensusPerShare = usesConsensusForecast
+    ? getMarketConsensusPerShareRows(company, company.consensusGrowthAudit)
+    : { valid: false, rows: [] };
+  const cyclicalNormalization = isCyclical ? dcf.normalization : null;
+  const dcfAssumptions = isCyclical
+    ? [
+        ["Official history", cyclicalNormalization?.valid ? `${cyclicalNormalization.firstYear}–${cyclicalNormalization.lastYear} · ${cyclicalNormalization.observations} years` : "Unavailable"],
+        ["Mid-cycle cash flow / share", cyclicalNormalization?.valid ? formatPerShareMoney(cyclicalNormalization.perShare, currency) : "-"],
+        ["Years 1–3", usesConsensusForecast ? "Published market consensus" : (baseDcfGrowth === null ? "Fade toward mid-cycle; CAGR unavailable" : `${formatPercent(growth, 1)} historical FCF CAGR`)],
+        ["Years 4–5", "Fade to normalized mid-cycle cash flow"],
+        [dcf.cashFlowBasis === "fcff" ? "WACC" : "Required equity return", formatPercent(wacc, 1)],
+        ["Net debt treatment", dcf.cashFlowBasis === "fcff" ? "Subtracted once after enterprise value" : "Not subtracted; cash flow is after financing"]
+      ]
+    : usesConsensusForecast
+    ? [
+        ...(consensusPerShare.valid
+          ? consensusPerShare.rows.map((row) => [`${row.year}E consensus FCF / share`, formatTickerMoney(row.cashFlowPerShare, currency)])
+          : [["Published estimates", "Unavailable"]]),
+        ["Years 4–5 forecast CAGR", formatPercent(growth, 1)],
+        ["Required equity return", formatPercent(wacc, 1)],
+        ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
+      ]
+    : [
+        ["Starting FCF / share", formatTickerMoney(currentFcf, currency)],
+        [growthAssumption.label, formatPercent(growth, 1)],
+        ["Required equity return", formatPercent(wacc, 1)],
+        ["Terminal growth", formatPercent(asNumber(company.terminalGrowth), 1)]
+      ];
+  return {
+    key: "dcf",
+    title: `${isCyclical ? "Mid-cycle DCF" : "DCF"} · ${scenarioLabel}`,
+    note: isCyclical
+      ? (dcf.error || `${usesConsensusForecast ? "Consensus sets years 1–3" : "The selected historical path sets years 1–3"}; years 4–5 return to a report-derived mid-cycle level.`)
+      : getScenarioExplanation(scenario),
+    chartTitle: isCyclical ? "Forecast path and return to mid-cycle" : "Projected free cash flow / share",
+    chartSubtitle: isCyclical
+      ? (usesConsensusForecast
+          ? `${scenarioLabel}: three published estimates, then a two-year fade to mid-cycle`
+          : `${scenarioLabel}: ${baseDcfGrowth === null ? "mid-cycle fade because CAGR is unavailable" : "historical CAGR for years 1–3, then a two-year fade to mid-cycle"}`)
+      : (usesConsensusForecast
+          ? `${scenarioLabel}: three published estimates, then forecast CAGR for years 4–5`
+          : `${scenarioLabel} five-year forecast using ${growthAssumption.shortLabel}`),
+    chartUnit: `${currency} / share`,
+    modelTitle: isCyclical ? "Mid-cycle DCF — Cyclical Cash Flow" : "DCF — Discounted Cash Flow",
+    modelDescription: isCyclical
+      ? (cyclicalNormalization?.valid
+          ? `Uses the median of ${cyclicalNormalization.observations} consecutive official-report cash-flow years as the mid-cycle anchor. The selected forecast controls years 1–3, while years 4–5 fade to that anchor before terminal value. ${dcf.cashFlowBasis === "fcff" ? "Verified FCFF is discounted at WACC and net debt is subtracted once." : "The stored history is an after-financing cash-flow measure, so it is discounted at the required equity return and net debt is not subtracted again."}`
+          : `No cyclical DCF is shown: ${dcf.error}`)
+      : category === "operating"
+      ? (usesConsensusForecast
+          ? "Uses the three published analyst-consensus FCF estimates for years 1–3. Years 4–5 extend the third estimate with the forecast CAGR. Each total FCF estimate is converted to SEK per share before discounting."
+          : `Projects five years of equity free cash flow using the page-level ${growthAssumption.shortLabel} choice, then discounts those cash flows and the terminal value back to today. Net debt is not subtracted again because this cash flow already belongs to shareholders.`)
+      : "DCF is not used for this company type in the dashboard’s existing category model.",
+    formula: isCyclical
+      ? `${dcf.cashFlowBasis === "fcff" ? "PV of 5yr FCFF + PV of terminal FCFF − net debt" : "PV of 5yr after-financing FCF + PV of terminal FCF"} = value per share`
+      : "Present value of 5yr equity FCF + present value of terminal equity FCF",
+    assumptions: dcfAssumptions,
+    metrics: isCyclical
+      ? [
+          ["Mid-cycle value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
+          ["Current price", formatTickerMoney(price, currency), "Market price input"],
+          ["Mid-cycle cash flow / share", cyclicalNormalization?.valid ? formatPerShareMoney(cyclicalNormalization.perShare, currency) : "-", cyclicalNormalization?.valid ? `Median of ${cyclicalNormalization.firstYear}–${cyclicalNormalization.lastYear}` : "Needs at least five official years"],
+          [dcf.cashFlowBasis === "fcff" ? "WACC" : "Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+        ]
+      : [
+          ["Intrinsic value / share", formatTickerMoney(dcf.value, currency), differenceText(dcf.value)],
+          ["Current price", formatTickerMoney(price, currency), "Market price input"],
+          [usesConsensusForecast ? "Forecast CAGR" : "5yr DCF growth", formatPercent(growth, 1), baseDcfGrowth === null ? `${growthAssumption.shortLabel} unavailable` : (usesConsensusForecast ? "Applied only to forecast years 4–5" : `${formatPercent(baseDcfGrowth, 1)} ${growthAssumption.shortLabel}`)],
+          ["Required equity return", formatPercent(wacc, 1), `${formatPercent(asNumber(company.wacc), 1)} saved input`]
+        ],
+    chartValues: [{ label: "Current", value: currentFcf }, ...dcf.flows.map((flow) => ({ label: flow.label ?? `Y${flow.year}E`, value: flow.cashFlow }))]
+  };
+}
+
+function renderSpecializedCyclicalAudit(company, scenario) {
+  const boliden = getSpecializedValuation(company, "boliden-commodity-cycle")
+    ? calculateBolidenCommodityCycle(company, scenario)
+    : null;
+  const skanska = getSpecializedValuation(company, "skanska-sotp")
+    ? calculateSkanskaSotp(company, scenario)
+    : null;
+  const model = boliden ?? skanska;
+  if (!model || !elements.specializedCyclicalAudit) return false;
+
+  const config = model.config;
+  const sourcePages = (config.sourcePages ?? []).map((page) => `p. ${page}`).join(", ");
+  const sourceLink = `<a href="${escapeHtml(config.sourceUrl)}" target="_blank" rel="noreferrer">Open official report · ${escapeHtml(sourcePages)}</a>`;
+  elements.cyclicalAuditStatus.textContent = boliden
+    ? "Official planning prices + published sensitivities → normalized EBITDA → weighted valuation"
+    : "Official segment earnings + development assets + surplus values + net cash → equity value";
+
+  if (boliden) {
+    const driverRows = boliden.drivers.map((driver) => `
+      <tr>
+        <td><strong>${escapeHtml(driver.label)}</strong><br><small>${escapeHtml(driver.unit ?? "rate")}</small></td>
+        <td>${escapeHtml(formatDecimal(driver.nearTerm, driver.nearTerm < 100 ? 2 : 0))}</td>
+        <td>${escapeHtml(formatDecimal(driver.longTerm, driver.longTerm < 100 ? 2 : 0))}</td>
+        <td>${escapeHtml(formatPercent(driver.relativeChange * 100, 1))}</td>
+        <td>${escapeHtml(`${formatDecimal(driver.operatingProfitAdjustment, 0)} SEK m`)}</td>
+      </tr>
+    `).join("");
+    const blendRows = boliden.valuationBlend.components.map((component) => `
+      <div><dt>${escapeHtml(component.label)} · ${escapeHtml(formatBlendWeight(component.effectiveWeight))}</dt><dd>${escapeHtml(formatTickerMoney(component.contribution, "SEK"))}</dd></div>
+    `).join("");
+    const flowRows = boliden.dcf?.flows?.length
+      ? boliden.dcf.flows.map((flow) => `
+          <tr><td>${escapeHtml(flow.label ?? `Y${flow.year}E`)}</td><td>${escapeHtml(formatPerShareMoney(flow.cashFlow, "SEK"))}</td><td>${escapeHtml(formatPerShareMoney(flow.discounted, "SEK"))}</td><td><span class="audit-evidence">${escapeHtml(flow.source)}</span></td></tr>
+        `).join("")
+      : `<tr><td colspan="4" class="empty-row">${escapeHtml(boliden.dcf?.error ?? "Forward FCF DCF unavailable")}</td></tr>`;
+    elements.specializedCyclicalAudit.innerHTML = `
+      <div class="cyclical-step-grid">
+        ${[
+          ["1", "Set a normal cycle", "Use Boliden’s 2029 long-term metal prices and exchange rates instead of assuming today’s cycle lasts forever."],
+          ["2", "Bridge EBITDA", "Scale each published 10% operating-profit sensitivity by the actual move from the near-term planning value to the long-term value."],
+          ["3", "Value operations", "Apply the explicit scenario EV/EBITDA multiple to normalized EBITDA, then subtract net debt once."],
+          ["4", "Cross-check and weight", "Blend 70% commodity EV/EBITDA with 30% mid-cycle FCF DCF. Years 4–5 return to the full-cycle median instead of extending a commodity spike; analyst target prices have 0% weight."]
+        ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+      </div>
+      <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>${escapeHtml(config.sourceExplanation)}</small></div>${sourceLink}</div>
+      <div class="cyclical-audit-grid">
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Official sensitivity bridge</span><h5>Near-term planning values → long-term cycle</h5></div></div>
+          <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Driver</th><th>Near term</th><th>Long term</th><th>Change</th><th>EBIT effect</th></tr></thead><tbody>${driverRows}</tbody></table></div>
+          <p class="cyclical-formula">Effect for each driver = published operating-profit sensitivity at +10% × ((long-term value ÷ near-term value − 1) ÷ 10%).<br><strong>Total commodity and FX adjustment: ${escapeHtml(`${formatDecimal(boliden.operatingProfitAdjustmentSekm, 0)} SEK million`)}</strong></p>
+        </div>
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Valuation bridge</span><h5>Normalized operations → equity value per share</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Reported TTM EBITDA <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatCurrency(boliden.currentEbitda, "SEK"))}</dd></div>
+            <div><dt>Commodity and FX adjustment <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(boliden.operatingProfitAdjustmentSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Normalized EBITDA <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(formatCurrency(boliden.normalizedEbitda, "SEK"))}</dd></div>
+            <div><dt>Scenario EV/EBITDA <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(boliden.multiple, 1)}x`)}</dd></div>
+            <div><dt>Less net debt <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatCurrency(boliden.netDebt, "SEK"))}</dd></div>
+            <div class="is-total"><dt>Commodity EV/EBITDA value</dt><dd>${escapeHtml(formatTickerMoney(boliden.evEbitdaValue, "SEK"))}</dd></div>
+          </dl>
+          <p class="cyclical-formula"><strong>The ${escapeHtml(`${formatDecimal(boliden.multiple, 1)}x`)} multiple is a visible dashboard assumption.</strong> It is not taken from an analyst target price and is not calibrated to today’s share price.</p>
+        </div>
+      </div>
+      <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Independent cash-flow component</span><h5>Selected forecast → mid-cycle FCF DCF</h5></div></div>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Forecast year</th><th>FCF/share</th><th>Present value</th><th>Basis</th></tr></thead><tbody>${flowRows}</tbody></table></div>
+        <dl class="cyclical-bridge">${blendRows}<div class="is-total"><dt>Weighted intrinsic value</dt><dd>${escapeHtml(formatTickerMoney(boliden.value, "SEK"))}</dd></div></dl>
+      </div>
+      <div class="specialized-caveats"><strong>What is deliberately not assumed</strong><ul>${(config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}<li>Analyst target prices: 0% weight in every component.</li></ul></div>
+    `;
+  } else {
+    const componentRows = skanska.components.map((component) => `
+      <div><dt>${escapeHtml(component.label)}</dt><dd>${escapeHtml(`${formatDecimal(component.valueSekm, 0)} SEK m · ${formatPerShareMoney(component.perShare, "SEK")}`)}</dd></div>
+    `).join("");
+    const c = config;
+    elements.specializedCyclicalAudit.innerHTML = `
+      <div class="cyclical-step-grid">
+        ${[
+          ["1", "Normalize Construction", "Average 2024 and 2025 Construction operating income, then deduct the average recurring central cost."],
+          ["2", "Value the franchise", "Apply the explicit scenario EBIT multiple to normalized Construction earnings after central cost."],
+          ["3", "Value development assets", "Add reported capital employed and after-tax disclosed surplus values for each development and property business."],
+          ["4", "Reach equity value", "Add adjusted net cash once, sum every component and divide by reported shares. Analyst target prices have 0% weight."]
+        ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+      </div>
+      <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>${escapeHtml(config.sourceExplanation)}</small></div>${sourceLink}</div>
+      <div class="cyclical-audit-grid">
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Construction franchise</span><h5>Normalize earnings before applying a multiple</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Construction operating income 2025 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(c.construction.operatingIncome2025, 0)} SEK m`)}</dd></div>
+            <div><dt>Construction operating income 2024 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(c.construction.operatingIncome2024, 0)} SEK m`)}</dd></div>
+            <div><dt>Two-year average</dt><dd>${escapeHtml(`${formatDecimal(skanska.normalizedConstructionEbit, 0)} SEK m`)}</dd></div>
+            <div><dt>Less normalized central cost</dt><dd>${escapeHtml(`${formatDecimal(skanska.normalizedCentralCost, 0)} SEK m`)}</dd></div>
+            <div><dt>Scenario EBIT multiple <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(`${formatDecimal(skanska.constructionMultiple, 1)}x`)}</dd></div>
+            <div class="is-total"><dt>Construction franchise value</dt><dd>${escapeHtml(`${formatDecimal(skanska.constructionValueSekm, 0)} SEK m`)}</dd></div>
+          </dl>
+          <p class="cyclical-formula">Construction value = ((7,094 + 5,854) ÷ 2 − (712 + 440) ÷ 2) × ${escapeHtml(formatDecimal(skanska.constructionMultiple, 1))} = <strong>${escapeHtml(`${formatDecimal(skanska.constructionValueSekm, 0)} SEK million`)}</strong>.</p>
+        </div>
+        <div class="cyclical-audit-card">
+          <div class="cyclical-card-heading"><div><span class="eyebrow">Development and property assets</span><h5>Reported capital + after-tax disclosed surplus</h5></div></div>
+          <dl class="cyclical-bridge">
+            <div><dt>Residential capital + after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[1].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Commercial capital + after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[2].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Investment properties</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[3].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>PPP after-tax surplus</dt><dd>${escapeHtml(`${formatDecimal(skanska.components[4].valueSekm, 0)} SEK m`)}</dd></div>
+            <div><dt>Scenario factor <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(formatPercent((skanska.developmentFactor - 1) * 100, 0))}</dd></div>
+          </dl>
+          <p class="cyclical-formula">Disclosed surplus is reduced by Skanska’s ${escapeHtml(formatPercent(skanska.taxRate * 100, 0))} standard tax rate before it is added. The scenario factor applies only to the development and property block.</p>
+        </div>
+      </div>
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Sum of the parts</span><h5>Every component’s contribution</h5></div></div>
+        <dl class="cyclical-bridge">${componentRows}<div class="is-total"><dt>Total equity value ÷ ${escapeHtml(formatShares(skanska.shares))} shares</dt><dd>${escapeHtml(formatTickerMoney(skanska.value, "SEK"))}</dd></div></dl>
+      </div>
+      <div class="specialized-caveats"><strong>What is deliberately not assumed</strong><ul>${(config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}<li>Analyst target prices: 0% weight in every SOTP component.</li></ul></div>
+    `;
+  }
+  elements.specializedCyclicalAudit.hidden = false;
+  return true;
+}
+
+function renderCyclicalAudit(company) {
+  if (!elements.cyclicalAudit) return;
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const shouldShow = category === "cyclical" && state.analysisModel === "dcf";
+  elements.cyclicalAudit.hidden = !shouldShow;
+  if (!shouldShow) return;
+
+  const specialized = renderSpecializedCyclicalAudit(company, state.scenario);
+  if (elements.genericCyclicalAudit) elements.genericCyclicalAudit.hidden = specialized;
+  if (specialized) return;
+  if (elements.specializedCyclicalAudit) {
+    elements.specializedCyclicalAudit.hidden = true;
+    elements.specializedCyclicalAudit.innerHTML = "";
+  }
+
+  const currency = company.currency ?? "SEK";
+  const scenario = state.scenario;
+  const dcf = calculateCyclicalDcf(company, scenario);
+  const normalization = dcf.normalization ?? getCyclicalHistoryNormalization(company);
+  const ebitdaValue = calculateEbitdaValue(company, scenario, true);
+  const peValue = calculateCyclicalPeCrossCheck(company, scenario);
+  const subtype = getCyclicalSubtype(company);
+  const basisLabel = normalization.basis === "fcff"
+    ? "FCFF before financing"
+    : (normalization.basis === "equity-fcf" ? "CFO − capex, after financing" : "Company-defined after-capex cash flow");
+
+  elements.cyclicalAuditStatus.textContent = normalization.valid
+    ? `${normalization.firstYear}–${normalization.lastYear} · ${normalization.observations} official years · ${basisLabel}`
+    : dcf.error;
+  elements.cyclicalSteps.innerHTML = [
+    ["1", "Normalize", normalization.valid ? `Take the median of ${normalization.observations} consecutive official-report years.` : "Wait until at least five consecutive official years are available."],
+    ["2", "Forecast", `${state.growthAssumption === "consensus" ? "Market consensus" : "Historical CAGR"} sets years 1–3; missing CAGR triggers a clearly labelled fade.`],
+    ["3", "Return to mid-cycle", "Year 4 moves halfway to the normalized level; year 5 reaches it."],
+    ["4", "Discount", normalization.basis === "fcff" ? "Discount FCFF at WACC, then subtract net debt once." : "Discount after-financing cash flow at the required equity return; do not subtract net debt again."]
+  ].map(([number, title, copy]) => `
+    <div class="cyclical-step">
+      <span>${number}</span>
+      <div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div>
+    </div>
+  `).join("");
+
+  const sourceUrl = normalization.valid ? normalization.sourceUrls[0] : null;
+  elements.cyclicalSourceLink.hidden = !sourceUrl;
+  if (sourceUrl) {
+    elements.cyclicalSourceLink.href = sourceUrl;
+    elements.cyclicalSourceLink.textContent = normalization.sourceNames[0] ? `Open ${normalization.sourceNames[0]}` : "Open official report";
+  }
+
+  elements.cyclicalHistoryRows.innerHTML = normalization.rows?.length
+    ? normalization.rows.map((row) => `
+        <tr>
+          <td>${row.year}</td>
+          <td>${escapeHtml(formatCurrency(row.cashFlow, currency))}</td>
+          <td>${escapeHtml(formatPerShareMoney(row.cashFlow / (normalization.shares || 1), currency))}</td>
+          <td><span class="audit-evidence">${escapeHtml(row.methodLabel ?? row.method ?? "Reported cash-flow measure")}</span></td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="4" class="empty-row">${escapeHtml(dcf.error || "No verified history available")}</td></tr>`;
+  elements.cyclicalNormalizationFormula.innerHTML = normalization.valid
+    ? `Mid-cycle cash flow / share = median of ${normalization.observations} annual cash flows ÷ ${escapeHtml(formatShares(normalization.shares))} shares = <strong>${escapeHtml(formatPerShareMoney(normalization.perShare, currency))}</strong>. Every year remains in the calculation; peak and trough years are not manually removed.`
+    : `<strong>Not calculated.</strong> ${escapeHtml(dcf.error || normalization.reason)}`;
+
+  elements.cyclicalForecastRows.innerHTML = dcf.flows.length
+    ? dcf.flows.map((flow) => `
+        <tr>
+          <td>${escapeHtml(flow.label)}</td>
+          <td>${escapeHtml(formatPerShareMoney(flow.cashFlow, currency))}</td>
+          <td>${escapeHtml(formatPerShareMoney(flow.discounted, currency))}</td>
+          <td><span class="audit-evidence">${escapeHtml(flow.source)}</span></td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="4" class="empty-row">${escapeHtml(dcf.error || "Forecast unavailable")}</td></tr>`;
+
+  const bridgeRows = [
+    ["Present value of years 1–5", formatTickerMoney(dcf.presentValue, currency)],
+    ["Present value of terminal cash flow", formatTickerMoney(dcf.discountedTerminal, currency)],
+    ["Net debt adjustment", Number.isFinite(dcf.netDebtAdjustment) ? formatTickerMoney(dcf.netDebtAdjustment, currency) : "-"],
+    ["Value per share", formatTickerMoney(dcf.value, currency)]
+  ];
+  elements.cyclicalValueBridge.innerHTML = bridgeRows.map(([label, value], index) => `
+    <div class="${index === bridgeRows.length - 1 ? "is-total" : ""}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
+  `).join("");
+
+  elements.cyclicalPrimaryValue.textContent = formatTickerMoney(dcf.value, currency);
+  elements.cyclicalEbitdaCheck.textContent = formatTickerMoney(ebitdaValue, currency);
+  elements.cyclicalEbitdaNote.textContent = Number.isFinite(ebitdaValue)
+    ? `${formatPerShareMoney(numberOrNull(company.normalizedEbitdaPerShare), currency)} normalized EBITDA/share × ${formatDecimal(asNumber(company.targetEvToEbitda) + (scenarioAdjustments[scenario]?.targetPe ?? 0) * 0.35, 1)}x, then net debt`
+    : "Unavailable: normalized EBITDA is not explicitly supported; current EBITDA is not substituted.";
+  elements.cyclicalPeCheck.textContent = formatTickerMoney(peValue, currency);
+  elements.cyclicalPeNote.textContent = Number.isFinite(peValue)
+    ? "Three published analyst EPS estimates plus a two-year EPS-CAGR extension; valued at the terminal P/E and discounted to today. This is a 0%-weight cross-check."
+    : "Unavailable: three positive, traceable analyst EPS estimates are required; FCF growth is never substituted.";
+  elements.cyclicalSubtype.textContent = subtype.label;
+  elements.cyclicalSubtypeNote.textContent = subtype.note;
+}
+
+function renderEqtSotpAudit(company) {
+  if (!elements.eqtSotpAudit || !elements.eqtSotpAuditBody) return;
+  const config = getSpecializedValuation(company, "eqt-sotp");
+  const model = config ? calculateEqtSotp(company, state.scenario) : null;
+  elements.eqtSotpAudit.hidden = !model;
+  if (!model) {
+    elements.eqtSotpAuditBody.innerHTML = "";
+    return;
+  }
+
+  const scenarioLabel = scenarioAdjustments[state.scenario]?.label ?? "Base case";
+  const currency = company.currency ?? "SEK";
+  const sourceUrl = config.sourcePageUrl ?? config.sourceUrl;
+  const fy2025SourceUrl = config.feeBusiness?.fy2025SourceUrl;
+  elements.eqtSotpAuditStatus.textContent = `${scenarioLabel} · report period ${config.period} · values translated from EUR to SEK`;
+  const sourceLink = sourceUrl
+    ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">Open official EQT report</a>`
+    : "";
+  const componentRows = (model.components ?? []).map((component) => `
+    <tr>
+      <td>${escapeHtml(component.label)}</td>
+      <td>${escapeHtml(`${formatDecimal(component.valueEurm, 0)} EUR m`)}</td>
+      <td>${escapeHtml(formatTickerMoney(component.perShare, currency))}</td>
+      <td><span class="audit-evidence">${escapeHtml(component.treatment)}</span></td>
+    </tr>
+  `).join("");
+  const forecastRows = (model.forecastRows ?? []).map((row) => `
+    <tr>
+      <td>Year ${row.year}</td>
+      <td>${escapeHtml(`${formatDecimal(row.ebitdaEurm, 0)} EUR m`)}</td>
+      <td><span class="audit-evidence">Prior year × ${escapeHtml(formatDecimal(1 + model.feeGrowth / 100, 3))}</span></td>
+    </tr>
+  `).join("");
+  const omissions = (config.omissions ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  elements.eqtSotpAuditBody.innerHTML = `
+    <div class="cyclical-step-grid">
+      ${[
+        ["1", "Normalize fee earnings", `LTM fee-related EBITDA = FY2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaFy2025, 0)} + H1 2026 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} − H1 2025 ${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} = ${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR million.`],
+        ["2", "Forecast five years", `Grow the official LTM starting value by the visible ${formatPercent(model.feeGrowth, 1)} ${scenarioLabel.toLowerCase()} assumption each year.`],
+        ["3", "Calculate terminal value", `Multiply year-${model.forecastYears} EBITDA by ${formatDecimal(model.feeMultiple, 1)}x, then discount the result back ${model.forecastYears} years at ${formatDecimal(model.discountRate, 1)}%.`],
+        ["4", "Add financial assets", `Include ${formatPercent(model.investmentFactor * 100, 0)} of strategic/fund investments and ${formatPercent(model.carriedFactor * 100, 0)} of accrued carried interest.`],
+        ["5", "Reach SEK per share", `Subtract ${formatDecimal(model.netDebtEurm, 0)} EUR million net debt once, translate at the Riksbank rate and divide by ${formatShares(model.shares)} shares.`]
+      ].map(([number, title, copy]) => `<div class="cyclical-step"><span>${number}</span><div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></div></div>`).join("")}
+    </div>
+    <div class="specialized-source"><div><span class="audit-badge is-official">Official report inputs</span><strong>${escapeHtml(config.sourceName)}</strong><small>Period ${escapeHtml(config.period)} · reported in EUR million</small></div>${sourceLink}</div>
+    <div class="cyclical-audit-grid">
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Recurring business</span><h5>Fee-related earnings franchise</h5></div></div>
+        ${fy2025SourceUrl ? `<p class="audit-note"><a href="${escapeHtml(fy2025SourceUrl)}" target="_blank" rel="noopener">Open official FY2025 source</a> for the full-year starting value; H1 values come from the H1 2026 report above.</p>` : ""}
+        <dl class="cyclical-bridge">
+          <div><dt>FY2025 fee-related EBITDA <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaFy2025, 0)} EUR m`)}</dd></div>
+          <div><dt>Plus H1 2026 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12026, 0)} EUR m`)}</dd></div>
+          <div><dt>Less H1 2025 <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(`${formatDecimal(config.feeBusiness?.feeRelatedEbitdaH12025, 0)} EUR m`)}</dd></div>
+          <div><dt>LTM fee-related EBITDA <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(model.ltmFeeRelatedEbitda, 0)} EUR m`)}</dd></div>
+          <div><dt>Base growth input <span class="audit-badge is-assumption">editable</span></dt><dd>${escapeHtml(formatPercent(model.baseFeeGrowth, 1))}</dd></div>
+          <div><dt>${scenarioLabel} growth <span class="audit-badge is-assumption">assumption</span></dt><dd>${escapeHtml(formatPercent(model.feeGrowth, 1))}</dd></div>
+        </dl>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Forecast</th><th>Fee-related EBITDA</th><th>Calculation</th></tr></thead><tbody>${forecastRows}</tbody></table></div>
+        <dl class="cyclical-bridge">
+          <div><dt>Year-${model.forecastYears} terminal multiple <span class="audit-badge is-assumption">editable base</span></dt><dd>${escapeHtml(`${formatDecimal(model.feeMultiple, 1)}x`)}</dd></div>
+          <div><dt>Terminal franchise value <span class="audit-badge is-calculated">calculated</span></dt><dd>${escapeHtml(`${formatDecimal(model.terminalFeeBusinessValueEurm, 0)} EUR m`)}</dd></div>
+          <div><dt>Discount factor at ${escapeHtml(`${formatDecimal(model.discountRate, 1)}%`)}</dt><dd>${escapeHtml(`${formatDecimal(model.discountFactor, 3)}x`)}</dd></div>
+          <div class="is-total"><dt>Present value of fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m · ${formatTickerMoney(model.feeBusinessPerShare, currency)}`)}</dd></div>
+        </dl>
+        <p class="audit-note">No interim EBITDA is added as cash flow. This is a discounted exit-multiple model; treating EBITDA itself as distributable cash would overstate value.</p>
+      </div>
+      <div class="cyclical-audit-card">
+        <div class="cyclical-card-heading"><div><span class="eyebrow">Balance sheet</span><h5>Financial assets and debt</h5></div></div>
+        <div class="table-scroll"><table class="cyclical-table"><thead><tr><th>Component</th><th>Scenario value</th><th>Per share</th><th>Treatment</th></tr></thead><tbody>${componentRows}</tbody></table></div>
+      </div>
+    </div>
+    <div class="cyclical-audit-card">
+      <div class="cyclical-card-heading"><div><span class="eyebrow">Valuation bridge</span><h5>EUR enterprise components → SEK equity value per share</h5></div></div>
+      <dl class="cyclical-bridge">
+        <div><dt>Present value of fee franchise</dt><dd>${escapeHtml(`${formatDecimal(model.feeBusinessValueEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Net asset block</dt><dd>${escapeHtml(`${formatDecimal(model.netAssetBlockEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Total equity value</dt><dd>${escapeHtml(`${formatDecimal(model.totalEquityValueEurm, 0)} EUR m`)}</dd></div>
+        <div><dt>Riksbank FX <span class="audit-badge is-calculated">current reference</span></dt><dd>${escapeHtml(`1 EUR = ${formatDecimal(model.fx.rateToSek, 5)} SEK · ${model.fx.rateDate}`)}</dd></div>
+        <div><dt>Shares <span class="audit-badge is-official">official</span></dt><dd>${escapeHtml(formatShares(model.shares))}</dd></div>
+        <div class="is-total"><dt>EQT SOTP value per share</dt><dd>${escapeHtml(formatTickerMoney(model.value, currency))}</dd></div>
+      </dl>
+    </div>
+    <div class="specialized-caveats"><strong>What is deliberately excluded</strong><ul>${omissions}<li>Analyst target prices: 0% weight.</li></ul></div>
+  `;
+}
+
+function renderAnalysis(company) {
+  const presentation = getAnalysisPresentation(company);
+  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const isCyclical = category === "cyclical";
+  const isInvestment = category === "investment";
+  const isEqtSotp = Boolean(getSpecializedValuation(company, "eqt-sotp"));
+  const isNavInvestment = isInvestment && !isEqtSotp;
+  elements.analysisPanelTitle.textContent = isEqtSotp ? "EQT Sum-of-the-Parts" : (isNavInvestment ? "NAV Analysis" : "Financial Analysis");
+  elements.analysisPanel.setAttribute("aria-label", isEqtSotp ? "EQT sum-of-the-parts analysis" : (isNavInvestment ? "NAV analysis" : "Financial analysis"));
+  elements.analysisControls.hidden = isNavInvestment;
+  elements.modelControlGroup.hidden = isEqtSotp;
+  elements.growthControlGroup.hidden = isEqtSotp;
+  elements.scenarioControlGroup.hidden = false;
+  elements.scenarioGuide.hidden = isNavInvestment;
+  elements.analysisPanel.classList.toggle("is-investment-nav", isNavInvestment);
+  elements.eqtForecastEditor.hidden = !isEqtSotp;
+  const eqtModel = isEqtSotp ? calculateEqtSotp(company, state.scenario) : null;
+  if (isEqtSotp && eqtModel) {
+    elements.eqtFeeEbitdaGrowth.value = roundFieldValue(eqtModel.baseFeeGrowth);
+    elements.eqtTerminalMultiple.value = roundFieldValue(eqtModel.baseTerminalMultiple);
+    elements.eqtGrowthScenarioNote.textContent = state.scenario === "base"
+      ? `Base uses ${formatPercent(eqtModel.feeGrowth, 1)}`
+      : `${scenarioAdjustments[state.scenario]?.label}: ${formatPercent(eqtModel.baseFeeGrowth, 1)} ${formatSignedNumber(eqtModel.growthAdjustment, 1)} pp = ${formatPercent(eqtModel.feeGrowth, 1)}`;
+    elements.eqtMultipleScenarioNote.textContent = state.scenario === "base"
+      ? `Applied to year-${eqtModel.forecastYears} EBITDA`
+      : `${scenarioAdjustments[state.scenario]?.label}: ${formatDecimal(eqtModel.baseTerminalMultiple, 1)}x ${formatSignedNumber(eqtModel.multipleAdjustment, 1)}x = ${formatDecimal(eqtModel.feeMultiple, 1)}x`;
+  }
+  const metricTargets = [
+    [elements.valuationPrimaryLabel, elements.dcfValue, elements.valuationPrimarySub],
+    [elements.valuationSecondaryLabel, elements.peValue, elements.valuationSecondarySub],
+    [elements.valuationTertiaryLabel, elements.currentPe, elements.valuationTertiarySub],
+    [elements.valuationFourthLabel, elements.valuationFourthValue, elements.valuationFourthSub]
+  ];
+  presentation.metrics.forEach(([label, value, sub], index) => {
+    metricTargets[index][0].textContent = label;
+    metricTargets[index][1].textContent = value;
+    metricTargets[index][2].textContent = sub;
+  });
+
+  elements.analysisMetricsTitle.textContent = presentation.title;
+  elements.analysisMetricsNote.textContent = presentation.note;
+  elements.analysisChartTitle.textContent = presentation.chartTitle;
+  elements.analysisChartSubtitle.textContent = presentation.chartSubtitle;
+  elements.analysisChartUnit.textContent = presentation.chartUnit;
+  elements.analysisModelTitle.textContent = presentation.modelTitle;
+  elements.analysisModelDescription.innerHTML = `${escapeHtml(presentation.modelDescription)}${presentation.sourceUrl
+    ? ` <a href="${escapeHtml(presentation.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(presentation.sourceLabel ?? "Open source")}</a>`
+    : ""}`;
+  elements.analysisFormula.textContent = presentation.formula;
+  elements.analysisAssumptions.innerHTML = presentation.assumptions
+    .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
+    .join("");
+  if (isEqtSotp) {
+    const bullModel = calculateEqtSotp(company, "bull");
+    const bearModel = calculateEqtSotp(company, "bear");
+    elements.scenarioBaseCopy.textContent = `${formatPercent(eqtModel?.feeGrowth, 1)} annual fee-EBITDA growth; ${formatDecimal(eqtModel?.feeMultiple, 1)}x year-5 terminal multiple; 100% of investments; 75% of accrued carry.`;
+    elements.scenarioBullCopy.textContent = `${formatPercent(bullModel.feeGrowth, 1)} growth; ${formatDecimal(bullModel.feeMultiple, 1)}x terminal multiple; discount rate −0.7 pp; 105% of investments; 100% of accrued carry.`;
+    elements.scenarioBearCopy.textContent = `${formatPercent(bearModel.feeGrowth, 1)} growth; ${formatDecimal(bearModel.feeMultiple, 1)}x terminal multiple; discount rate +1.0 pp; 90% of investments; 50% of accrued carry.`;
+  } else if (isInvestment) {
+    elements.scenarioBaseCopy.textContent = "Investment companies use the latest reported NAV or equity per share without a scenario adjustment.";
+    elements.scenarioBullCopy.textContent = "Not used for NAV analysis.";
+    elements.scenarioBearCopy.textContent = "Not used for NAV analysis.";
+  } else if (state.analysisModel === "pe") {
+    elements.scenarioBaseCopy.textContent = "Uses the three published analyst EPS estimates, extends years 4–5 at their EPS CAGR, applies the current P/E in year 5 and discounts the result.";
+    elements.scenarioBullCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR +2.0 pp, year-5 P/E +2.0x and required return −0.7 pp.";
+    elements.scenarioBearCopy.textContent = "Published EPS years 1–3 stay unchanged; years 4–5 EPS CAGR −2.0 pp, year-5 P/E −2.0x and required return +1.0 pp.";
+  } else if (getSpecializedValuation(company, "boliden-commodity-cycle")) {
+    elements.scenarioBaseCopy.textContent = "Uses Boliden’s long-term prices, a 7.5x normalized EV/EBITDA assumption and the selected years 1–3 forecast; years 4–5 fade to full-cycle cash flow.";
+    elements.scenarioBullCopy.textContent = "Uses an 8.0x normalized EV/EBITDA assumption, FCF growth +2.0 pp and required return −0.7 pp.";
+    elements.scenarioBearCopy.textContent = "Uses a 7.0x normalized EV/EBITDA assumption, FCF growth −2.0 pp and required return +1.0 pp.";
+  } else if (getSpecializedValuation(company, "skanska-sotp")) {
+    elements.scenarioBaseCopy.textContent = "Uses an 8.0x Construction EBIT multiple and 100% of the calculated development and property NAV.";
+    elements.scenarioBullCopy.textContent = "Uses a 9.0x Construction EBIT multiple and 105% of the calculated development and property NAV.";
+    elements.scenarioBearCopy.textContent = "Uses a 7.0x Construction EBIT multiple and 90% of the calculated development and property NAV.";
+  } else if (isCyclical) {
+    elements.scenarioBaseCopy.textContent = "Uses the selected years 1–3 forecast and fades years 4–5 to the report-derived mid-cycle cash flow.";
+    elements.scenarioBullCopy.textContent = "Uses a stronger mid-cycle path (+2.0 pp) and a required return 0.7 pp lower; consensus years 1–3 stay unchanged.";
+    elements.scenarioBearCopy.textContent = "Uses a weaker mid-cycle path (−2.0 pp) and a required return 1.0 pp higher; consensus years 1–3 stay unchanged.";
+  } else {
+    elements.scenarioBaseCopy.textContent = "Uses the selected Growth forecast, required return and EV/EBITDA assumption without adjustment.";
+    elements.scenarioBullCopy.textContent = "Growth +2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return −0.7 pp and EV/EBITDA +0.7x.";
+    elements.scenarioBearCopy.textContent = "Growth −2.0 pp; for Market consensus this adjusts only the years 4–5 CAGR extension. Required return +1.0 pp and EV/EBITDA −0.7x.";
+  }
+  renderCyclicalAudit(company);
+  renderEqtSotpAudit(company);
+}
 
 function renderMetrics() {
   const company = getSelectedCompany();
@@ -2134,7 +4215,7 @@ function renderMetrics() {
 
   const calc = calculateCompany(company);
   elements.metricValue.textContent = formatCurrency(calc.blendedValue, company.currency ?? "SEK");
-  elements.metricValueSub.textContent = calc.model.valueDescription;
+  renderValuationBreakdown(calc.model, company.currency ?? "SEK");
   elements.heroCurrentPrice.textContent = formatTickerMoney(asNumber(company.marketPrice), company.currency ?? "SEK");
   elements.metricMos.textContent = formatPercent(calc.marginOfSafety, 1);
   elements.metricMos.className = calc.marginOfSafety >= 0 ? "is-positive" : "is-negative";
@@ -2145,12 +4226,7 @@ function renderMetrics() {
   elements.metricScore.textContent = Number.isFinite(calc.researchScore) ? `${calc.researchScore}` : "-";
   elements.metricScoreSub.textContent = calc.stance.label;
 
-  elements.valuationPrimaryLabel.textContent = calc.model.primaryLabel;
-  elements.valuationSecondaryLabel.textContent = calc.model.secondaryLabel;
-  elements.valuationTertiaryLabel.textContent = calc.model.tertiaryLabel;
-  elements.dcfValue.textContent = formatCurrency(calc.model.primaryValue, company.currency ?? "SEK");
-  elements.peValue.textContent = formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK");
-  elements.currentPe.textContent = calc.model.tertiaryValue;
+  renderAnalysis(company);
 }
 
 function renderRiktkurser() {
@@ -2220,7 +4296,7 @@ function renderSyntheticPortfolio() {
     ${renderPortfolioSection("Best 12 Across Fit Models", "Equal-weight synthetic portfolio candidates", topPortfolio)}
     ${renderPortfolioSection("Operating Companies", getCompanyModelLabel("operating"), rankedByCategory.operating)}
     ${renderPortfolioSection("Banks", getCompanyModelLabel("bank"), rankedByCategory.bank)}
-    ${renderPortfolioSection("Investment Companies", getCompanyModelLabel("investment"), rankedByCategory.investment)}
+    ${renderPortfolioSection("Investment Companies", "Reported NAV for Investor/Industrivärden · dedicated SOTP for EQT", rankedByCategory.investment)}
     ${renderPortfolioSection("Asset-heavy Cyclicals", getCompanyModelLabel("cyclical"), rankedByCategory.cyclical)}
   `;
 }
@@ -2291,6 +4367,67 @@ function renderPortfolioSection(title, subtitle, items) {
   `;
 }
 
+function formatReportedMetricAmount(value, audit) {
+  if (!Number.isFinite(numberOrNull(value))) return "-";
+  const digits = Math.abs(value) < 10 && !Number.isInteger(value) ? 3 : 0;
+  const number = Number(value).toLocaleString("sv-SE", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+  return `${number} ${audit?.unit ?? audit?.reportedCurrency ?? ""}`.trim();
+}
+
+function renderMetricAudit(audit, summaryElement, bodyElement, currency) {
+  if (!summaryElement || !bodyElement) return;
+  if (!audit) {
+    summaryElement.textContent = "Not documented";
+    bodyElement.innerHTML = `<p>No calculation audit is stored for this metric.</p>`;
+    return;
+  }
+
+  const statusLabels = {
+    reported: "Reported",
+    derived: "Derived from report",
+    standardized: "Standardized",
+    "company-defined": "Company-defined fallback",
+    unavailable: "Unavailable",
+    "not-applicable": "Not applicable"
+  };
+  const statusLabel = statusLabels[audit.status] ?? audit.status ?? "Unknown";
+  const result = numberOrNull(audit.result);
+  summaryElement.textContent = result === null ? statusLabel : formatCurrency(result, currency);
+
+  const components = Array.isArray(audit.components) ? audit.components : [];
+  const componentRows = components.map((component) => {
+    const sign = Number(component.sign ?? 1) < 0 ? "−" : "+";
+    return `<tr><td>${sign} ${escapeHtml(component.label ?? "Component")}</td><td>${escapeHtml(formatReportedMetricAmount(Math.abs(component.reportedValue ?? 0), audit))}</td></tr>`;
+  }).join("");
+  const sourceRows = [...new Map([
+    [audit.sourceUrl, audit.sourceName],
+    ...components.map((component) => [component.sourceUrl, component.sourceName])
+  ].filter(([url]) => url).map(([url, name]) => [url, name ?? "Official company report"])).entries()]
+    .map(([url, name]) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(name)}</a>`)
+    .join(" · ");
+  const reportedResult = numberOrNull(audit.reportedResult);
+  const formulaResult = reportedResult === null ? null : formatReportedMetricAmount(reportedResult, audit);
+  const fx = numberOrNull(audit.financialToQuoteFx);
+  const conversion = result !== null && fx !== null && audit.reportedCurrency !== audit.quoteCurrency
+    ? `<p><strong>Currency conversion:</strong> ${escapeHtml(formulaResult)} × ${formatDecimal(fx, 4)} ${escapeHtml(audit.quoteCurrency)}/${escapeHtml(audit.reportedCurrency)} = <strong>${escapeHtml(formatCurrency(result, currency))}</strong>.</p>`
+    : "";
+
+  bodyElement.innerHTML = `
+    <div class="metric-audit-head">
+      <span class="metric-audit-status">${escapeHtml(statusLabel)}</span>
+      <span>${escapeHtml(audit.label ?? "Metric")} · ${escapeHtml(audit.period ?? "Period unavailable")}</span>
+    </div>
+    ${audit.formula ? `<p class="metric-audit-formula"><strong>Formula:</strong> ${escapeHtml(audit.formula)}${formulaResult ? ` = <strong>${escapeHtml(formulaResult)}</strong>` : ""}</p>` : ""}
+    ${componentRows ? `<table class="metric-audit-components"><tbody>${componentRows}</tbody></table>` : ""}
+    ${conversion}
+    ${audit.note ? `<p>${escapeHtml(audit.note)}</p>` : ""}
+    <p class="metric-audit-source">${sourceRows ? `Source: ${sourceRows}` : "Source unavailable"} · Verified ${escapeHtml(formatDate(audit.verifiedAt) ?? "date unavailable")}</p>
+  `;
+}
+
 function renderFundamentals() {
   const company = getSelectedCompany();
   if (!company) return;
@@ -2313,6 +4450,20 @@ function renderFundamentals() {
   const verificationText = verification?.status === "verified"
     ? `Independently verified: ${verification.sourceName} (${verification.period})`
     : "Independent verification: missing";
+  const balancePeriodLabel = verification?.status === "verified" ? "latest quarter" : "cached period";
+  elements.fundRevenueLabel.textContent = verification?.status === "verified" ? "Revenue (TTM)" : "Revenue (cached TTM)";
+  elements.fundEbitdaLabel.textContent = verification?.status === "verified" ? "EBITDA (TTM)" : "EBITDA (cached TTM)";
+  const metricCalculations = fundamentals.metricCalculations ?? {};
+  const fcfAudit = metricCalculations.freeCashFlow;
+  const ebitdaAudit = metricCalculations.ebitda;
+  elements.fundFcfLabel.textContent = verification?.status === "verified"
+    ? (fcfAudit?.label ?? "Equity free cash flow (TTM)")
+    : "Free cash flow (cached TTM)";
+  elements.fundAssetsLabel.textContent = `Total assets (${balancePeriodLabel})`;
+  elements.fundEquityLabel.textContent = `Book equity (${balancePeriodLabel})`;
+  elements.fundLiabilitiesLabel.textContent = `Liabilities (${balancePeriodLabel})`;
+  elements.fundDebtLabel.textContent = `Total debt (${balancePeriodLabel})`;
+  elements.fundCashLabel.textContent = `Cash (${balancePeriodLabel})`;
 
   elements.fundamentalsSubtitle.textContent = [
     company.source,
@@ -2325,7 +4476,9 @@ function renderFundamentals() {
   if (officialSource?.sourceUrl) {
     elements.fundamentalsSourceLink.hidden = false;
     elements.fundamentalsSourceLink.href = officialSource.sourceUrl;
-    elements.fundamentalsSourceLink.textContent = `Source: ${officialSource.sourceName ?? "Official company report"}`;
+    elements.fundamentalsSourceLink.textContent = verification?.status === "verified"
+      ? `Verified source: ${officialSource.sourceName ?? "Official company report"}`
+      : `Official report for verification: ${officialSource.sourceName ?? "Official company report"}`;
   } else {
     elements.fundamentalsSourceLink.hidden = true;
     elements.fundamentalsSourceLink.removeAttribute("href");
@@ -2335,8 +4488,10 @@ function renderFundamentals() {
   elements.fundRevenue.textContent = formatCurrency(numberOrNull(fundamentals.totalRevenue), currency);
   const isBank = normalizeCompanyType(company.companyType, company.ticker) === "bank";
   const naText = "N/A (not applicable)";
-  const naTitle = "EBITDA is not a meaningful metric for banks.";
-  if (isBank) {
+  const ebitdaNotApplicable = ebitdaAudit?.status === "not-applicable" || isBank;
+  const fcfNotApplicable = fcfAudit?.status === "not-applicable";
+  const naTitle = ebitdaAudit?.note ?? "EBITDA is not a meaningful metric for this company type.";
+  if (ebitdaNotApplicable) {
     elements.fundEbitda.textContent = naText;
     elements.fundEbitda.className = "is-na";
     elements.fundEbitda.style.color = "var(--muted)";
@@ -2349,17 +4504,23 @@ function renderFundamentals() {
     elements.fundEbitda.style.fontSize = "";
     elements.fundEbitda.title = "";
   }
-  elements.fundFcf.textContent = formatCurrency(numberOrNull(fundamentals.freeCashFlow), currency);
+  const displayedCashFlow = numberOrNull(fundamentals.freeCashFlow);
+  elements.fundFcf.textContent = fcfNotApplicable ? naText : formatCurrency(displayedCashFlow, currency);
+  elements.fundFcf.className = fcfNotApplicable ? "is-na" : "";
+  elements.fundFcf.title = fcfNotApplicable ? (fcfAudit?.note ?? "Not used for this company type.") : "";
   elements.fundAssets.textContent = formatCurrency(numberOrNull(fundamentals.totalAssets), currency);
   elements.fundEquity.textContent = formatCurrency(numberOrNull(fundamentals.bookEquity), currency);
   elements.fundLiabilities.textContent = formatCurrency(numberOrNull(fundamentals.totalLiabilities), currency);
   elements.fundDebt.textContent = formatCurrency(numberOrNull(fundamentals.totalDebt), currency);
   elements.fundCash.textContent = formatCurrency(numberOrNull(fundamentals.cash), currency);
   elements.fundShares.textContent = formatShares(numberOrNull(fundamentals.sharesOutstanding));
+  elements.fundSharesLabel.textContent = verification?.status === "verified"
+    ? "Outstanding shares (official report)"
+    : "Outstanding shares (cached)";
   elements.fundShares.title = fundamentals.sharesOutstandingSource
     ? `Outstanding shares - ${fundamentals.sharesOutstandingSource}`
     : "Outstanding shares from Yahoo Finance";
-  if (isBank) {
+  if (ebitdaNotApplicable) {
     elements.fundEvEbitda.textContent = naText;
     elements.fundEvEbitda.className = "is-na";
     elements.fundEvEbitda.style.color = "var(--muted)";
@@ -2374,8 +4535,10 @@ function renderFundamentals() {
     elements.fundEvEbitda.style.fontSize = "";
     elements.fundEvEbitda.title = "";
   }
-  elements.fundFcfYield.textContent = formatPercent(fcfYield, 1);
-  elements.fundFcfYield.className = fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative");
+  elements.fundFcfYield.textContent = fcfNotApplicable ? naText : formatPercent(fcfYield, 1);
+  elements.fundFcfYield.className = fcfNotApplicable ? "is-na" : (fcfYield === null ? "" : (fcfYield >= 0 ? "is-positive" : "is-negative"));
+  renderMetricAudit(ebitdaAudit, elements.ebitdaAuditSummary, elements.ebitdaAuditBody, currency);
+  renderMetricAudit(fcfAudit, elements.fcfAuditSummary, elements.fcfAuditBody, currency);
 }
 
 function drawDcfChart() {
@@ -2392,68 +4555,74 @@ function drawDcfChart() {
 
   const width = rect.width;
   const height = rect.height;
-  const calc = calculateCompany(company);
-  const flows = calc.dcf.flows;
-  const category = normalizeCompanyType(company.companyType, company.ticker);
+  const presentation = getAnalysisPresentation(company);
+  const values = presentation.chartValues.filter((item) => Number.isFinite(item.value) && item.value >= 0);
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#071b2e";
   context.fillRect(0, 0, width, height);
 
-  if (category !== "operating") {
-    context.fillStyle = "#f8fbff";
-    context.font = `14px ${CHART_FONT_STACK}`;
-    context.fillText(calc.model.chartTitle, 22, 34);
+  if (!values.length) {
     context.fillStyle = "#b8c0ca";
-    context.fillText(calc.model.valueDescription, 22, 62);
-    context.fillText(`${calc.model.primaryLabel}: ${formatCurrency(calc.model.primaryValue, company.currency ?? "SEK")}`, 22, 92);
-    context.fillText(`${calc.model.secondaryLabel}: ${formatCurrency(calc.model.secondaryValue, company.currency ?? "SEK")}`, 22, 120);
+    context.font = `15px ${CHART_FONT_STACK}`;
+    context.textAlign = "center";
+    context.fillText("This model is unavailable from the existing inputs for this company.", width / 2, height / 2);
     return;
   }
 
-  if (!flows.length) {
-    context.fillStyle = "#b8c0ca";
-    context.font = `14px ${CHART_FONT_STACK}`;
-    context.fillText("DCF input conflict", 22, 34);
-    return;
-  }
-
-  const padding = { top: 26, right: 22, bottom: 42, left: 46 };
+  const padding = { top: 48, right: 26, bottom: 54, left: 62 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
-  const maxFlow = Math.max(...flows.map((flow) => flow.cashFlow), asNumber(company.fcfPerShare));
-  const barWidth = Math.min(58, chartWidth / flows.length * 0.54);
+  const maxValue = Math.max(...values.map((item) => item.value));
+  const chartMax = maxValue > 0 ? maxValue * 1.18 : 1;
+  const slotWidth = chartWidth / values.length;
+  const barWidth = Math.min(82, slotWidth * 0.56);
 
-  context.strokeStyle = "rgba(220, 229, 240, 0.28)";
-  context.lineWidth = 1;
-  context.beginPath();
-  context.moveTo(padding.left, padding.top);
-  context.lineTo(padding.left, height - padding.bottom);
-  context.lineTo(width - padding.right, height - padding.bottom);
-  context.stroke();
+  context.font = `11px ${CHART_FONT_STACK}`;
+  context.textAlign = "right";
+  context.textBaseline = "middle";
+  for (let line = 0; line <= 4; line += 1) {
+    const ratio = line / 4;
+    const y = height - padding.bottom - chartHeight * ratio;
+    const tick = chartMax * ratio;
+    context.strokeStyle = line === 0 ? "rgba(220, 229, 240, 0.34)" : "rgba(220, 229, 240, 0.1)";
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(width - padding.right, y);
+    context.stroke();
+    context.fillStyle = "#7f8ea5";
+    context.fillText(formatDecimal(tick, tick >= 100 ? 0 : 1), padding.left - 10, y);
+  }
 
-  flows.forEach((flow, index) => {
-    const x = padding.left + (chartWidth / flows.length) * index + (chartWidth / flows.length - barWidth) / 2;
-    const barHeight = Math.max(2, (flow.cashFlow / maxFlow) * chartHeight);
+  values.forEach((item, index) => {
+    const x = padding.left + slotWidth * index + (slotWidth - barWidth) / 2;
+    const barHeight = Math.max(2, (item.value / chartMax) * chartHeight);
     const y = height - padding.bottom - barHeight;
     const gradient = context.createLinearGradient(0, y, 0, height - padding.bottom);
-    gradient.addColorStop(0, "#6aa7ff");
-    gradient.addColorStop(1, "#72d05f");
+    if (state.scenario === "bear") {
+      gradient.addColorStop(0, "#ff7694");
+      gradient.addColorStop(1, "#a64267");
+    } else if (state.scenario === "bull") {
+      gradient.addColorStop(0, "#72c8ff");
+      gradient.addColorStop(1, "#72d05f");
+    } else {
+      gradient.addColorStop(0, "#6aa7ff");
+      gradient.addColorStop(1, state.analysisModel === "reverse-dcf" ? "#8f7cff" : "#72d05f");
+    }
 
     context.fillStyle = gradient;
     roundedRect(context, x, y, barWidth, barHeight, 6);
     context.fill();
 
+    context.fillStyle = "#f8fbff";
+    context.font = `600 12px ${CHART_FONT_STACK}`;
+    context.textAlign = "center";
+    context.textBaseline = "alphabetic";
+    context.fillText(formatDecimal(item.value, item.value >= 100 ? 0 : 2), x + barWidth / 2, Math.max(18, y - 10));
     context.fillStyle = "#b8c0ca";
     context.font = `12px ${CHART_FONT_STACK}`;
-    context.textAlign = "center";
-    context.fillText(`Y${flow.year}`, x + barWidth / 2, height - 18);
+    context.fillText(item.label, x + barWidth / 2, height - 20);
   });
-
-  context.fillStyle = "#f8fbff";
-  context.font = `13px ${CHART_FONT_STACK}`;
-  context.textAlign = "left";
-  context.fillText(calc.model.chartTitle, padding.left, 18);
 }
 
 function roundedRect(context, x, y, width, height, radius) {
