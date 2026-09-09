@@ -12,6 +12,11 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+try:
+    from scripts.omxs30_universe import company_id, load_omxs30_universe
+except (ImportError, ModuleNotFoundError):
+    from omxs30_universe import company_id, load_omxs30_universe
+
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
 OUTPUT_PATH = ROOT / "data" / "prices.json"
@@ -29,19 +34,6 @@ PRICE_UPDATE_SLOTS = [
     day_time(15, 1), day_time(15, 25), day_time(15, 49),
     day_time(16, 13), day_time(16, 37),
 ]
-
-
-def company_id(ticker: str) -> str:
-    return "".join(ch.lower() if ch.isalnum() else "-" for ch in ticker).strip("-")
-
-
-def load_omxs30_universe() -> list[tuple[str, str, str]]:
-    """Use the checked-in price snapshot as the canonical 30-company universe."""
-    payload = json.loads((ROOT / "data" / "prices.json").read_text(encoding="utf-8"))
-    rows = payload.get("companies")
-    if not isinstance(rows, list) or len(rows) != 30:
-        raise RuntimeError("data/prices.json must contain the 30-company OMXS30 universe")
-    return [(str(row["ticker"]), str(row["name"]), str(row["sector"])) for row in rows]
 
 
 def finite(value: Any) -> float | None:

@@ -19,9 +19,9 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from scripts.update_data import OMXS30, company_id, normalize_ticker
+    from scripts.omxs30_universe import company_id, load_omxs30_universe, normalize_ticker
 except (ImportError, ModuleNotFoundError):
-    from update_data import OMXS30, company_id, normalize_ticker
+    from omxs30_universe import company_id, load_omxs30_universe, normalize_ticker
 
 SCRIPT_PATH = Path(__file__).resolve()
 ROOT = SCRIPT_PATH.parents[1] if SCRIPT_PATH.parent.name == "scripts" else SCRIPT_PATH.parent
@@ -549,22 +549,34 @@ def main(argv: list[str] | None = None) -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     existing = load_existing(output_path)
 
-    universe = list(OMXS30)
+    universe = load_omxs30_universe()
+    fetch_universe = universe
     if args.ticker:
         wanted = normalize_ticker(args.ticker)
-        universe = [row for row in universe if row[0] == wanted]
-        if not universe:
+        fetch_universe = [row for row in universe if row[0] == wanted]
+        if not fetch_universe:
             raise SystemExit(f"Unknown OMXS30 ticker: {args.ticker}")
     elif args.max_companies and args.max_companies > 0:
-        universe = universe[:args.max_companies]
+        fetch_universe = universe[:args.max_companies]
 
-    companies: list[dict[str, Any]] = []
-    for index, (ticker, name, _sector) in enumerate(universe, start=1):
-        print(f"[{index}/{len(universe)}] Fetching {ticker} {name}")
+    fetched_by_id: dict[str, dict[str, Any]] = {}
+    for index, (ticker, name, _sector) in enumerate(fetch_universe, start=1):
+        print(f"[{index}/{len(fetch_universe)}] Fetching {ticker} {name}")
         fetched = fetch_company(ticker, name, args.timeout)
-        companies.append(merge_with_existing(fetched, existing.get(company_id(ticker))))
-        if index < len(universe) and args.delay > 0:
+        fetched_by_id[company_id(ticker)] = merge_with_existing(fetched, existing.get(company_id(ticker)))
+        if index < len(fetch_universe) and args.delay > 0:
             time.sleep(args.delay)
+
+    if args.ticker:
+        missing = [company_id(ticker) for ticker, _name, _sector in universe if company_id(ticker) not in existing and company_id(ticker) not in fetched_by_id]
+        if missing:
+            raise RuntimeError("A single-ticker update requires an existing complete price-target file")
+        companies = [
+            fetched_by_id[company_id(ticker)] if company_id(ticker) in fetched_by_id else existing[company_id(ticker)]
+            for ticker, _name, _sector in universe
+        ]
+    else:
+        companies = [fetched_by_id[company_id(ticker)] for ticker, _name, _sector in fetch_universe]
 
     payload = {
         "provider": "Börskollen riktkurser",
