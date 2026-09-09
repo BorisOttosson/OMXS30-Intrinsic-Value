@@ -110,12 +110,12 @@ SLUG_CANDIDATES = {
     "ESSITY-B.ST": ["essity"],
     "EVO.ST": ["evolution-gaming-gr", "evolution"],
     "SHB-A.ST": ["svenska-handelsbanken", "handelsbanken"],
-    "HM-B.ST": ["hm", "hennes-mauritz", "hennes-mauritz-b"],
+    "HM-B.ST": ["hennes-mauritz", "hennes-mauritz-b", "hm"],
     "HEXA-B.ST": ["hexagon"],
     "INDU-C.ST": ["industrivarden", "industrivarden-c"],
     "INVE-B.ST": ["investor", "investor-b"],
     "LIFCO-B.ST": ["lifco"],
-    "NIBE-B.ST": ["nibe"],
+    "NIBE-B.ST": ["nibe-industrier", "nibe"],
     "NDA-SE.ST": ["nordea", "nordea-bank"],
     "SAAB-B.ST": ["saab"],
     "SAND.ST": ["sandvik"],
@@ -125,7 +125,7 @@ SLUG_CANDIDATES = {
     "SKF-B.ST": ["skf"],
     "SWED-A.ST": ["swedbank"],
     "TEL2-B.ST": ["tele2"],
-    "TELIA.ST": ["telia", "telia-company"],
+    "TELIA.ST": ["telia-company", "telia"],
     "VOLV-B.ST": ["volvo", "volvo-b"],
 }
 
