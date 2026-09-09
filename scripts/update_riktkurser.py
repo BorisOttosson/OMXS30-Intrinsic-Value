@@ -108,7 +108,7 @@ SLUG_CANDIDATES = {
     "EQT.ST": ["eqt"],
     "ERIC-B.ST": ["ericsson"],
     "ESSITY-B.ST": ["essity"],
-    "EVO.ST": ["evolution"],
+    "EVO.ST": ["evolution-gaming-gr", "evolution"],
     "SHB-A.ST": ["svenska-handelsbanken", "handelsbanken"],
     "HM-B.ST": ["hm", "hennes-mauritz", "hennes-mauritz-b"],
     "HEXA-B.ST": ["hexagon"],
