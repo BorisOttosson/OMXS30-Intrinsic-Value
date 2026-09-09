@@ -27,6 +27,12 @@ class Omxs30UniverseTests(unittest.TestCase):
         self.assertEqual(company_id("SEB-A.ST"), "seb-a-st")
         self.assertNotIn("update_data", (ROOT / "scripts" / "update_riktkurser.py").read_text(encoding="utf-8"))
 
+    def test_evolution_uses_current_borskollen_slug(self):
+        self.assertEqual(
+            update_riktkurser.slug_candidates("EVO.ST", "Evolution")[0],
+            "evolution-gaming-gr",
+        )
+
     def test_legacy_workflow_command_imports_successfully(self):
         result = subprocess.run(
             [sys.executable, "scripts/scrape_riktkurser.py", "--help"],
