@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-15T19:46:48.441739+00:00",
+  "updatedAt": "2026-09-16T19:39:11.723490+00:00",
   "baseCurrency": "SEK",
   "sourceName": "Sveriges Riksbank",
   "sourceUrl": "https://www.riksbank.se/en-gb/statistics/interest-rates-and-exchange-rates/",
@@ -7,14 +7,14 @@
   "usage": "Indicative reference rates for dashboard translation, not transaction pricing",
   "rates": {
     "USD": {
-      "rateToSek": 9.77034,
-      "date": "2026-09-15",
+      "rateToSek": 9.78374,
+      "date": "2026-09-16",
       "seriesId": "sekusdpmi",
       "apiUrl": "https://api.riksbank.se/swea/v1/Observations/Latest/sekusdpmi"
     },
     "EUR": {
-      "rateToSek": 11.274,
-      "date": "2026-09-15",
+      "rateToSek": 11.2875,
+      "date": "2026-09-16",
       "seriesId": "sekeurpmi",
       "apiUrl": "https://api.riksbank.se/swea/v1/Observations/Latest/sekeurpmi"
     }
