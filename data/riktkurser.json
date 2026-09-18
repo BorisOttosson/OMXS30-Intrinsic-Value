@@ -1,7 +1,7 @@
 {
   "provider": "Börskollen riktkurser",
   "source": "https://www.borskollen.se",
-  "generatedAt": "2026-09-17T10:03:51.787910+00:00",
+  "generatedAt": "2026-09-18T09:51:04.984405+00:00",
   "universe": "OMXS30",
   "companies": [
     {
@@ -69,7 +69,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:20.486710+00:00",
-      "errors": []
+      "errors": [
+        "abb: HTTP 500",
+        "abb-ltd: HTTP 404"
+      ]
     },
     {
       "id": "addt-b-st",
@@ -156,7 +159,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:21.803209+00:00",
-      "errors": []
+      "errors": [
+        "addtech: HTTP 500",
+        "addt: HTTP 404"
+      ]
     },
     {
       "id": "alfa-st",
@@ -333,7 +339,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:23.088557+00:00",
-      "errors": []
+      "errors": [
+        "alfa-laval: HTTP 500",
+        "alfa: HTTP 404"
+      ]
     },
     {
       "id": "assa-b-st",
@@ -490,7 +499,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:24.130174+00:00",
-      "errors": []
+      "errors": [
+        "assa-abloy: HTTP 500",
+        "assa: HTTP 404"
+      ]
     },
     {
       "id": "azn-st",
@@ -527,7 +539,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:25.154489+00:00",
-      "errors": []
+      "errors": [
+        "astrazeneca: HTTP 500",
+        "azn: HTTP 404"
+      ]
     },
     {
       "id": "atco-a-st",
@@ -744,7 +759,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:26.440539+00:00",
-      "errors": []
+      "errors": [
+        "atlas-copco: HTTP 500",
+        "atlas-copco-a: HTTP 404",
+        "atco: HTTP 404"
+      ]
     },
     {
       "id": "bol-st",
@@ -961,7 +980,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:27.477513+00:00",
-      "errors": []
+      "errors": [
+        "boliden: HTTP 500",
+        "bol: HTTP 404"
+      ]
     },
     {
       "id": "epi-a-st",
@@ -1148,7 +1170,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:28.497393+00:00",
-      "errors": []
+      "errors": [
+        "epiroc: HTTP 500",
+        "epi: HTTP 404"
+      ]
     },
     {
       "id": "eqt-st",
@@ -1295,7 +1320,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:29.530220+00:00",
-      "errors": []
+      "errors": [
+        "eqt: HTTP 500"
+      ]
     },
     {
       "id": "eric-b-st",
@@ -1482,7 +1509,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:30.556113+00:00",
-      "errors": []
+      "errors": [
+        "ericsson: HTTP 500",
+        "eric: HTTP 404"
+      ]
     },
     {
       "id": "essity-b-st",
@@ -1639,7 +1669,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:31.593917+00:00",
-      "errors": []
+      "errors": [
+        "essity: HTTP 500"
+      ]
     },
     {
       "id": "evo-st",
@@ -1786,7 +1818,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:32.608347+00:00",
-      "errors": []
+      "errors": [
+        "evolution-gaming-gr: HTTP 500",
+        "evolution: HTTP 404",
+        "evo: HTTP 404"
+      ]
     },
     {
       "id": "shb-a-st",
@@ -1813,7 +1849,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:33.638549+00:00",
-      "errors": []
+      "errors": [
+        "svenska-handelsbanken: HTTP 500",
+        "handelsbanken: HTTP 404",
+        "shb: HTTP 404"
+      ]
     },
     {
       "id": "hm-b-st",
@@ -2030,7 +2070,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:34.925338+00:00",
-      "errors": []
+      "errors": [
+        "hennes-mauritz: HTTP 500",
+        "hennes-mauritz-b: HTTP 404",
+        "hm: HTTP 404"
+      ]
     },
     {
       "id": "hexa-b-st",
@@ -2217,7 +2261,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:35.957609+00:00",
-      "errors": []
+      "errors": [
+        "hexagon: HTTP 500",
+        "hexa: HTTP 404"
+      ]
     },
     {
       "id": "indu-c-st",
@@ -2284,7 +2331,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:36.984754+00:00",
-      "errors": []
+      "errors": [
+        "industrivarden: HTTP 500",
+        "industrivarden-c: HTTP 404",
+        "indu: HTTP 404"
+      ]
     },
     {
       "id": "inve-b-st",
@@ -2381,7 +2432,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:38.125339+00:00",
-      "errors": []
+      "errors": [
+        "investor: HTTP 500",
+        "investor-b: HTTP 404",
+        "inve: HTTP 404"
+      ]
     },
     {
       "id": "lifco-b-st",
@@ -2488,7 +2543,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:39.145637+00:00",
-      "errors": []
+      "errors": [
+        "lifco: HTTP 500"
+      ]
     },
     {
       "id": "nibe-b-st",
@@ -2645,7 +2702,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:40.186323+00:00",
-      "errors": []
+      "errors": [
+        "nibe-industrier: HTTP 500",
+        "nibe: HTTP 404"
+      ]
     },
     {
       "id": "nda-se-st",
@@ -2702,7 +2762,12 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:41.214067+00:00",
-      "errors": []
+      "errors": [
+        "nordea: HTTP 500",
+        "nordea-bank: HTTP 404",
+        "nordea-bank-abp: HTTP 404",
+        "nda-se: HTTP 404"
+      ]
     },
     {
       "id": "saab-b-st",
@@ -2889,7 +2954,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:42.253438+00:00",
-      "errors": []
+      "errors": [
+        "saab: HTTP 500"
+      ]
     },
     {
       "id": "sand-st",
@@ -3096,7 +3163,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:43.271634+00:00",
-      "errors": []
+      "errors": [
+        "sandvik: HTTP 500",
+        "sand: HTTP 404"
+      ]
     },
     {
       "id": "sca-b-st",
@@ -3283,7 +3353,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:44.590494+00:00",
-      "errors": []
+      "errors": [
+        "sca: HTTP 500"
+      ]
     },
     {
       "id": "seb-a-st",
@@ -3310,7 +3382,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:45.633156+00:00",
-      "errors": []
+      "errors": [
+        "seb: HTTP 500"
+      ]
     },
     {
       "id": "ska-b-st",
@@ -3397,7 +3471,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:46.643515+00:00",
-      "errors": []
+      "errors": [
+        "skanska: HTTP 500",
+        "ska: HTTP 404"
+      ]
     },
     {
       "id": "skf-b-st",
@@ -3594,7 +3671,9 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:47.691318+00:00",
-      "errors": []
+      "errors": [
+        "skf: HTTP 500"
+      ]
     },
     {
       "id": "swed-a-st",
@@ -3631,7 +3710,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:48.720045+00:00",
-      "errors": []
+      "errors": [
+        "swedbank: HTTP 500",
+        "swed: HTTP 404"
+      ]
     },
     {
       "id": "tel2-b-st",
@@ -3778,7 +3860,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:49.748302+00:00",
-      "errors": []
+      "errors": [
+        "tele2: HTTP 500",
+        "tel2: HTTP 404"
+      ]
     },
     {
       "id": "telia-st",
@@ -3935,7 +4020,10 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:50.761987+00:00",
-      "errors": []
+      "errors": [
+        "telia-company: HTTP 500",
+        "telia: HTTP 404"
+      ]
     },
     {
       "id": "volv-b-st",
@@ -4152,7 +4240,11 @@
         }
       ],
       "dataUpdatedAt": "2026-09-17T10:03:51.787712+00:00",
-      "errors": []
+      "errors": [
+        "volvo: HTTP 500",
+        "volvo-b: HTTP 404",
+        "volv: HTTP 404"
+      ]
     }
   ]
 }
