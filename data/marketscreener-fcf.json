@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-02T12:46:22.647424+00:00",
+  "updatedAt": "2026-11-09T13:12:09.777155+00:00",
   "source": "MarketScreener (financials page) via Firecrawl",
   "currencyPolicy": "FCF and EPS values stay in the company's official reporting currency; the dashboard converts SEK display equivalents with a dated Sveriges Riksbank rate",
   "consensusFcfCagrPolicy": "CAGR from the first forecast FCF to the third forecast FCF over two fiscal-year intervals",
@@ -16,7 +16,7 @@
       "ticker": "ABB.ST",
       "id": "abb-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ABB-LTD-8943400/finances/",
-      "retrievedAt": "2026-11-02T12:41:27.167597+00:00",
+      "retrievedAt": "2026-11-09T13:07:30.748865+00:00",
       "currency": "USD",
       "reportedCurrency": "USD",
       "displayCurrency": "SEK",
@@ -158,7 +158,7 @@
       "ticker": "ADDT-B.ST",
       "id": "addt-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ADDTECH-AB-15223809/finances/",
-      "retrievedAt": "2026-11-02T12:41:37.020455+00:00",
+      "retrievedAt": "2026-11-09T13:07:40.141040+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -300,7 +300,7 @@
       "ticker": "ALFA.ST",
       "id": "alfa-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ALFA-LAVAL-AB-6494532/finances/",
-      "retrievedAt": "2026-11-02T12:41:48.286140+00:00",
+      "retrievedAt": "2026-11-09T13:07:50.264721+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -442,7 +442,7 @@
       "ticker": "ASSA-B.ST",
       "id": "assa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASSA-ABLOY-AB-22363198/finances/",
-      "retrievedAt": "2026-11-02T12:41:57.500474+00:00",
+      "retrievedAt": "2026-11-09T13:08:00.055005+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -479,11 +479,11 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 20343.0
+          "fcf": 20338.0
         },
         {
           "year": 2027,
-          "fcf": 20474.0
+          "fcf": 20484.0
         },
         {
           "year": 2028,
@@ -515,23 +515,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 20343.0,
-          "growth": 0.081269
+          "fcf": 20338.0,
+          "growth": 0.081004
         },
         {
           "year": 2027,
-          "fcf": 20474.0,
-          "growth": 0.00644
+          "fcf": 20484.0,
+          "growth": 0.007179
         },
         {
           "year": 2028,
           "fcf": 23388.0,
-          "growth": 0.142327
+          "growth": 0.141769
         }
       ],
       "historicalFcfCagr": 0.148136,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.072233,
+      "consensusFcfCagr": 0.072364,
       "consensusYears": [
         2026,
         2027,
@@ -562,18 +562,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 15.66
+          "eps": 15.69
         },
         {
           "year": 2027,
-          "eps": 18.05
+          "eps": 18.01
         },
         {
           "year": 2028,
-          "eps": 19.78
+          "eps": 19.69
         }
       ],
-      "consensusEpsCagr": 0.123873,
+      "consensusEpsCagr": 0.120241,
       "consensusEpsYears": [
         2026,
         2027,
@@ -584,7 +584,7 @@
       "ticker": "AZN.ST",
       "id": "azn-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ASTRAZENECA-PLC-9065830/finances/",
-      "retrievedAt": "2026-11-02T12:42:07.923437+00:00",
+      "retrievedAt": "2026-11-09T13:08:10.265434+00:00",
       "currency": "USD",
       "reportedCurrency": "USD",
       "displayCurrency": "SEK",
@@ -621,15 +621,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 9933.0
+          "fcf": 9136.0
         },
         {
           "year": 2027,
-          "fcf": 12862.0
+          "fcf": 12561.0
         },
         {
           "year": 2028,
-          "fcf": 14784.0
+          "fcf": 14652.0
         }
       ],
       "historyYoy": [
@@ -657,23 +657,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 9933.0,
-          "growth": -0.155716
+          "fcf": 9136.0,
+          "growth": -0.223459
         },
         {
           "year": 2027,
-          "fcf": 12862.0,
-          "growth": 0.294876
+          "fcf": 12561.0,
+          "growth": 0.374891
         },
         {
           "year": 2028,
-          "fcf": 14784.0,
-          "growth": 0.149432
+          "fcf": 14652.0,
+          "growth": 0.166468
         }
       ],
       "historicalFcfCagr": 0.246583,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.219989,
+      "consensusFcfCagr": 0.266399,
       "consensusYears": [
         2026,
         2027,
@@ -704,18 +704,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 7.644
+          "eps": 7.611
         },
         {
           "year": 2027,
-          "eps": 8.957
+          "eps": 8.911
         },
         {
           "year": 2028,
-          "eps": 10.11
+          "eps": 10.09
         }
       ],
-      "consensusEpsCagr": 0.150046,
+      "consensusEpsCagr": 0.151396,
       "consensusEpsYears": [
         2026,
         2027,
@@ -726,7 +726,7 @@
       "ticker": "ATCO-A.ST",
       "id": "atco-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ATLAS-COPCO-AB-43306890/finances/",
-      "retrievedAt": "2026-11-02T12:42:17.863731+00:00",
+      "retrievedAt": "2026-11-09T13:08:19.443010+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -846,18 +846,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 6.046
+          "eps": 6.044
         },
         {
           "year": 2027,
-          "eps": 7.582
+          "eps": 7.581
         },
         {
           "year": 2028,
-          "eps": 8.486
+          "eps": 8.488
         }
       ],
-      "consensusEpsCagr": 0.184725,
+      "consensusEpsCagr": 0.18506,
       "consensusEpsYears": [
         2026,
         2027,
@@ -868,7 +868,7 @@
       "ticker": "BOL.ST",
       "id": "bol-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/BOLIDEN-AB-58808448/finances/",
-      "retrievedAt": "2026-11-02T12:42:27.501202+00:00",
+      "retrievedAt": "2026-11-09T13:08:26.941550+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -988,18 +988,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 46.45
+          "eps": 46.72
         },
         {
           "year": 2027,
-          "eps": 54.65
+          "eps": 54.99
         },
         {
           "year": 2028,
-          "eps": 59.34
+          "eps": 59.51
         }
       ],
-      "consensusEpsCagr": 0.130267,
+      "consensusEpsCagr": 0.128609,
       "consensusEpsYears": [
         2026,
         2027,
@@ -1010,7 +1010,7 @@
       "ticker": "EPI-A.ST",
       "id": "epi-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EPIROC-AB-44292455/finances/",
-      "retrievedAt": "2026-11-02T12:42:37.263444+00:00",
+      "retrievedAt": "2026-11-09T13:08:36.301496+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1130,18 +1130,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 8.111
+          "eps": 8.11
         },
         {
           "year": 2027,
-          "eps": 9.972
+          "eps": 9.952
         },
         {
           "year": 2028,
-          "eps": 11.07
+          "eps": 11.03
         }
       ],
-      "consensusEpsCagr": 0.168252,
+      "consensusEpsCagr": 0.166212,
       "consensusEpsYears": [
         2026,
         2027,
@@ -1152,7 +1152,7 @@
       "ticker": "EQT.ST",
       "id": "eqt-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EQT-AB-66480635/finances/",
-      "retrievedAt": "2026-11-02T12:42:46.586586+00:00",
+      "retrievedAt": "2026-11-09T13:08:45.696874+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -1294,7 +1294,7 @@
       "ticker": "ERIC-B.ST",
       "id": "eric-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ERICSSON-6494918/finances/",
-      "retrievedAt": "2026-11-02T12:42:55.884696+00:00",
+      "retrievedAt": "2026-11-09T13:08:56.276350+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1436,7 +1436,7 @@
       "ticker": "ESSITY-B.ST",
       "id": "essity-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ESSITY-AB-35897701/finances/",
-      "retrievedAt": "2026-11-02T12:43:05.119639+00:00",
+      "retrievedAt": "2026-11-09T13:09:05.777232+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1578,7 +1578,7 @@
       "ticker": "EVO.ST",
       "id": "evo-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/EVOLUTION-AB-58808466/finances/",
-      "retrievedAt": "2026-11-02T12:43:15.064279+00:00",
+      "retrievedAt": "2026-11-09T13:09:13.259630+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -1615,15 +1615,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 1086.0
+          "fcf": 1083.0
         },
         {
           "year": 2027,
-          "fcf": 1093.0
+          "fcf": 1090.0
         },
         {
           "year": 2028,
-          "fcf": 1156.0
+          "fcf": 1152.0
         }
       ],
       "historyYoy": [
@@ -1651,23 +1651,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 1086.0,
-          "growth": -0.030357
+          "fcf": 1083.0,
+          "growth": -0.033036
         },
         {
           "year": 2027,
-          "fcf": 1093.0,
-          "growth": 0.006446
+          "fcf": 1090.0,
+          "growth": 0.006464
         },
         {
           "year": 2028,
-          "fcf": 1156.0,
-          "growth": 0.05764
+          "fcf": 1152.0,
+          "growth": 0.056881
         }
       ],
       "historicalFcfCagr": 0.186253,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.031725,
+      "consensusFcfCagr": 0.031364,
       "consensusYears": [
         2026,
         2027,
@@ -1698,18 +1698,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 5.249
+          "eps": 5.311
         },
         {
           "year": 2027,
-          "eps": 6.026
+          "eps": 6.016
         },
         {
           "year": 2028,
-          "eps": 6.6
+          "eps": 6.577
         }
       ],
-      "consensusEpsCagr": 0.121331,
+      "consensusEpsCagr": 0.112822,
       "consensusEpsYears": [
         2026,
         2027,
@@ -1720,7 +1720,7 @@
       "ticker": "SHB-A.ST",
       "id": "shb-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-HANDELSBANKEN-AB-22252916/finances/",
-      "retrievedAt": "2026-11-02T12:43:24.992896+00:00",
+      "retrievedAt": "2026-11-09T13:09:22.159709+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1765,18 +1765,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 11.54
+          "eps": 11.55
         },
         {
           "year": 2027,
-          "eps": 12.29
+          "eps": 12.3
         },
         {
           "year": 2028,
-          "eps": 12.84
+          "eps": 12.85
         }
       ],
-      "consensusEpsCagr": 0.054823,
+      "consensusEpsCagr": 0.054777,
       "consensusEpsYears": [
         2026,
         2027,
@@ -1787,7 +1787,7 @@
       "ticker": "HM-B.ST",
       "id": "hm-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HENNES-MAURITZ-AB-6491104/finances/",
-      "retrievedAt": "2026-11-02T12:43:35.023477+00:00",
+      "retrievedAt": "2026-11-09T13:09:32.874813+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -1929,7 +1929,7 @@
       "ticker": "HEXA-B.ST",
       "id": "hexa-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/HEXAGON-AB-6491358/finances/",
-      "retrievedAt": "2026-11-02T12:43:43.999101+00:00",
+      "retrievedAt": "2026-11-09T13:09:42.325418+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -2071,7 +2071,7 @@
       "ticker": "INVE-B.ST",
       "id": "inve-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/INVESTOR-AB-6491105/finances/",
-      "retrievedAt": "2026-11-02T12:44:02.578969+00:00",
+      "retrievedAt": "2026-11-09T13:10:00.336843+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2162,7 +2162,7 @@
       "ticker": "LIFCO-B.ST",
       "id": "lifco-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/LIFCO-AB-20957320/finances/",
-      "retrievedAt": "2026-11-02T12:44:13.343384+00:00",
+      "retrievedAt": "2026-11-09T13:10:09.351717+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2304,7 +2304,7 @@
       "ticker": "NIBE-B.ST",
       "id": "nibe-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NIBE-INDUSTRIER-AB-27811937/finances/",
-      "retrievedAt": "2026-11-02T12:44:22.448674+00:00",
+      "retrievedAt": "2026-11-09T13:10:16.867678+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2446,7 +2446,7 @@
       "ticker": "NDA-SE.ST",
       "id": "nda-se-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/NORDEA-BANK-ABP-46475558/finances/",
-      "retrievedAt": "2026-11-02T12:44:32.321119+00:00",
+      "retrievedAt": "2026-11-09T13:10:26.877692+00:00",
       "currency": "EUR",
       "reportedCurrency": "EUR",
       "displayCurrency": "SEK",
@@ -2487,7 +2487,7 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 1.39
+          "eps": 1.394
         },
         {
           "year": 2027,
@@ -2495,10 +2495,10 @@
         },
         {
           "year": 2028,
-          "eps": 1.695
+          "eps": 1.687
         }
       ],
-      "consensusEpsCagr": 0.104276,
+      "consensusEpsCagr": 0.100085,
       "consensusEpsYears": [
         2026,
         2027,
@@ -2509,7 +2509,7 @@
       "ticker": "SAAB-B.ST",
       "id": "saab-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SAAB-AB-6491624/finances/",
-      "retrievedAt": "2026-11-02T12:44:39.799794+00:00",
+      "retrievedAt": "2026-11-09T13:10:36.794091+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2629,18 +2629,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 14.98
+          "eps": 14.95
         },
         {
           "year": 2027,
-          "eps": 19.26
+          "eps": 19.27
         },
         {
           "year": 2028,
-          "eps": 23.43
+          "eps": 23.51
         }
       ],
-      "consensusEpsCagr": 0.250634,
+      "consensusEpsCagr": 0.254024,
       "consensusEpsYears": [
         2026,
         2027,
@@ -2651,7 +2651,7 @@
       "ticker": "SAND.ST",
       "id": "sand-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SANDVIK-AB-6491091/finances/",
-      "retrievedAt": "2026-11-02T12:44:49.346413+00:00",
+      "retrievedAt": "2026-11-09T13:10:46.058933+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2771,18 +2771,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 17.01
+          "eps": 17.13
         },
         {
           "year": 2027,
-          "eps": 19.78
+          "eps": 20.0
         },
         {
           "year": 2028,
-          "eps": 21.25
+          "eps": 21.55
         }
       ],
-      "consensusEpsCagr": 0.117705,
+      "consensusEpsCagr": 0.121618,
       "consensusEpsYears": [
         2026,
         2027,
@@ -2793,7 +2793,7 @@
       "ticker": "SCA-B.ST",
       "id": "sca-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SVENSKA-CELLULOSA-AKTIEBO-6491109/finances/",
-      "retrievedAt": "2026-11-02T12:45:00.099634+00:00",
+      "retrievedAt": "2026-11-09T13:10:55.243906+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2935,7 +2935,7 @@
       "ticker": "SEB-A.ST",
       "id": "seb-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/ENSKILDA-BANKEN-6491107/finances/",
-      "retrievedAt": "2026-11-02T12:45:13.469487+00:00",
+      "retrievedAt": "2026-11-09T13:11:04.636422+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -2980,18 +2980,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 16.08
+          "eps": 16.02
         },
         {
           "year": 2027,
-          "eps": 18.71
+          "eps": 18.73
         },
         {
           "year": 2028,
-          "eps": 20.13
+          "eps": 20.11
         }
       ],
-      "consensusEpsCagr": 0.118868,
+      "consensusEpsCagr": 0.120404,
       "consensusEpsYears": [
         2026,
         2027,
@@ -3002,7 +3002,7 @@
       "ticker": "SKA-B.ST",
       "id": "ska-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKANSKA-AB-6491108/finances/",
-      "retrievedAt": "2026-11-02T12:45:22.908471+00:00",
+      "retrievedAt": "2026-11-09T13:11:13.801343+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -3035,15 +3035,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 10536.0
+          "fcf": 10420.0
         },
         {
           "year": 2027,
-          "fcf": 9259.0
+          "fcf": 9092.0
         },
         {
           "year": 2028,
-          "fcf": 10024.0
+          "fcf": 10309.0
         }
       ],
       "historyYoy": [
@@ -3066,23 +3066,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 10536.0,
-          "growth": 1.489603
+          "fcf": 10420.0,
+          "growth": 1.462193
         },
         {
           "year": 2027,
-          "fcf": 9259.0,
-          "growth": -0.121203
+          "fcf": 9092.0,
+          "growth": -0.127447
         },
         {
           "year": 2028,
-          "fcf": 10024.0,
-          "growth": 0.082622
+          "fcf": 10309.0,
+          "growth": 0.133854
         }
       ],
       "historicalFcfCagr": -0.089246,
       "historicalFcfCagrYears": 3,
-      "consensusFcfCagr": -0.0246,
+      "consensusFcfCagr": -0.005341,
       "consensusYears": [
         2026,
         2027,
@@ -3113,18 +3113,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 17.19
+          "eps": 16.56
         },
         {
           "year": 2027,
-          "eps": 18.71
+          "eps": 18.89
         },
         {
           "year": 2028,
-          "eps": 20.19
+          "eps": 20.45
         }
       ],
-      "consensusEpsCagr": 0.083753,
+      "consensusEpsCagr": 0.111262,
       "consensusEpsYears": [
         2026,
         2027,
@@ -3135,7 +3135,7 @@
       "ticker": "SKF-B.ST",
       "id": "skf-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SKF-AB-6493347/finances/",
-      "retrievedAt": "2026-11-02T12:45:34.435422+00:00",
+      "retrievedAt": "2026-11-09T13:11:23.307068+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -3172,15 +3172,15 @@
       "fcfForecast": [
         {
           "year": 2026,
-          "fcf": 6075.0
+          "fcf": 5709.0
         },
         {
           "year": 2027,
-          "fcf": 7905.0
+          "fcf": 7205.0
         },
         {
           "year": 2028,
-          "fcf": 8982.0
+          "fcf": 8566.0
         }
       ],
       "historyYoy": [
@@ -3208,23 +3208,23 @@
       "forecastYoy": [
         {
           "year": 2026,
-          "fcf": 6075.0,
-          "growth": 0.332821
+          "fcf": 5709.0,
+          "growth": 0.252523
         },
         {
           "year": 2027,
-          "fcf": 7905.0,
-          "growth": 0.301235
+          "fcf": 7205.0,
+          "growth": 0.262042
         },
         {
           "year": 2028,
-          "fcf": 8982.0,
-          "growth": 0.136243
+          "fcf": 8566.0,
+          "growth": 0.188897
         }
       ],
       "historicalFcfCagr": 0.213777,
       "historicalFcfCagrYears": 4,
-      "consensusFcfCagr": 0.215943,
+      "consensusFcfCagr": 0.224924,
       "consensusYears": [
         2026,
         2027,
@@ -3259,14 +3259,14 @@
         },
         {
           "year": 2027,
-          "eps": 16.3
+          "eps": 16.01
         },
         {
           "year": 2028,
-          "eps": 18.4
+          "eps": 18.23
         }
       ],
-      "consensusEpsCagr": 0.180652,
+      "consensusEpsCagr": 0.175185,
       "consensusEpsYears": [
         2026,
         2027,
@@ -3277,7 +3277,7 @@
       "ticker": "SWED-A.ST",
       "id": "swed-a-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/SWEDBANK-AB-6496651/finances/",
-      "retrievedAt": "2026-11-02T12:45:43.800148+00:00",
+      "retrievedAt": "2026-11-09T13:11:33.376448+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -3322,18 +3322,18 @@
       "epsForecast": [
         {
           "year": 2026,
-          "eps": 27.46
+          "eps": 27.45
         },
         {
           "year": 2027,
-          "eps": 31.34
+          "eps": 31.54
         },
         {
           "year": 2028,
-          "eps": 33.6
+          "eps": 33.85
         }
       ],
-      "consensusEpsCagr": 0.106164,
+      "consensusEpsCagr": 0.110473,
       "consensusEpsYears": [
         2026,
         2027,
@@ -3344,7 +3344,7 @@
       "ticker": "TEL2-B.ST",
       "id": "tel2-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELE2-AB-13247047/finances/",
-      "retrievedAt": "2026-11-02T12:45:53.757112+00:00",
+      "retrievedAt": "2026-11-09T13:11:44.303710+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -3486,7 +3486,7 @@
       "ticker": "TELIA.ST",
       "id": "telia-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/TELIA-COMPANY-AB-6491092/finances/",
-      "retrievedAt": "2026-11-02T12:46:03.160461+00:00",
+      "retrievedAt": "2026-11-09T13:11:53.550694+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
@@ -3628,7 +3628,7 @@
       "ticker": "VOLV-B.ST",
       "id": "volv-b-st",
       "sourceUrl": "https://www.marketscreener.com/quote/stock/AB-VOLVO-6492152/finances/",
-      "retrievedAt": "2026-11-02T12:46:15.647268+00:00",
+      "retrievedAt": "2026-11-09T13:12:02.776987+00:00",
       "currency": "SEK",
       "reportedCurrency": "SEK",
       "displayCurrency": "SEK",
