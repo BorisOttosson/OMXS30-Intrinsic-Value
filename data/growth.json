@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-02T13:30:12.020105+00:00",
+  "updatedAt": "2026-11-09T13:54:39.956281+00:00",
   "source": "Yahoo Finance via yfinance (growth estimates + cash-flow statement)",
   "count": 29,
   "failures": [
@@ -13,10 +13,10 @@
       "symbol": "ABB.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.3449,
-      "growthNextYear": 0.1742,
+      "growthCurrentYear": 0.2839,
+      "growthNextYear": 0.23,
       "historicalFcfCagr": 1.0416656419608379,
-      "growth5yUsed": 0.256655,
+      "growth5yUsed": 0.256661,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -33,30 +33,30 @@
       "symbol": "ASSA-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.1439,
-      "growthNextYear": 0.1384,
+      "growthCurrentYear": 0.1344,
+      "growthNextYear": 0.1418,
       "historicalFcfCagr": 0.1466348731700602,
-      "growth5yUsed": 0.141147,
+      "growth5yUsed": 0.138094,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "AZN.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.1321,
-      "growthNextYear": 0.0868,
+      "growthCurrentYear": 0.1317,
+      "growthNextYear": 0.096499994,
       "historicalFcfCagr": 0.06207089668936838,
-      "growth5yUsed": 0.109219,
+      "growth5yUsed": 0.113961,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "ATCO-A.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.12529999,
-      "growthNextYear": 0.23120001,
+      "growthCurrentYear": 0.1246,
+      "growthNextYear": 0.2321,
       "historicalFcfCagr": 0.17295750335402005,
-      "growth5yUsed": 0.17706,
+      "growth5yUsed": 0.177123,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -84,9 +84,9 @@
       "growth5y": null,
       "growthPast5y": null,
       "growthCurrentYear": -0.3939,
-      "growthNextYear": 1.277,
+      "growthNextYear": 1.1966001,
       "historicalFcfCagr": null,
-      "growth5yUsed": 0.174772,
+      "growth5yUsed": 0.153845,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -103,20 +103,20 @@
       "symbol": "ESSITY-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.0095,
-      "growthNextYear": 0.0706,
+      "growthCurrentYear": 0.0114,
+      "growthNextYear": 0.066700004,
       "historicalFcfCagr": 0.03916313059020937,
-      "growth5yUsed": 0.039601,
+      "growth5yUsed": 0.038682,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "EVO.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.0241,
-      "growthNextYear": 0.1368,
+      "growthCurrentYear": 0.0239,
+      "growthNextYear": 0.131,
       "historicalFcfCagr": 0.1280462225187078,
-      "growth5yUsed": 0.07898,
+      "growth5yUsed": 0.076118,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -124,9 +124,9 @@
       "growth5y": null,
       "growthPast5y": null,
       "growthCurrentYear": 0.17469999,
-      "growthNextYear": 0.1034,
+      "growthNextYear": 0.1033,
       "historicalFcfCagr": 0.05704550337732539,
-      "growth5yUsed": 0.138492,
+      "growth5yUsed": 0.13844,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -134,19 +134,19 @@
       "growth5y": null,
       "growthPast5y": null,
       "growthCurrentYear": 0.057600003,
-      "growthNextYear": 0.0296,
+      "growthNextYear": 0.0295,
       "historicalFcfCagr": 0.02949412863197809,
-      "growth5yUsed": 0.043506,
+      "growth5yUsed": 0.043455,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "HEXA-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": -0.2159,
-      "growthNextYear": 0.097399995,
+      "growthCurrentYear": -0.2132,
+      "growthNextYear": 0.098500006,
       "historicalFcfCagr": 0.03720307333031525,
-      "growth5yUsed": -0.072384,
+      "growth5yUsed": -0.070323,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -163,20 +163,20 @@
       "symbol": "NDA-SE.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.044899996,
-      "growthNextYear": 0.076799996,
+      "growthCurrentYear": 0.0438,
+      "growthNextYear": 0.081499994,
       "historicalFcfCagr": null,
-      "growth5yUsed": 0.06073,
+      "growth5yUsed": 0.062483,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "NIBE-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.3934,
+      "growthCurrentYear": 0.39349997,
       "growthNextYear": 0.2226,
       "historicalFcfCagr": 1.0554206026798996,
-      "growth5yUsed": 0.305209,
+      "growth5yUsed": 0.305256,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -193,50 +193,50 @@
       "symbol": "SAND.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.471,
-      "growthNextYear": 0.1415,
+      "growthCurrentYear": 0.4723,
+      "growthNextYear": 0.1419,
       "historicalFcfCagr": 0.37361184724571017,
-      "growth5yUsed": 0.295819,
+      "growth5yUsed": 0.296618,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "SCA-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": -0.22049999,
-      "growthNextYear": 0.3967,
+      "growthCurrentYear": -0.215,
+      "growthNextYear": 0.39490002,
       "historicalFcfCagr": 0.4891359947697953,
-      "growth5yUsed": 0.043421,
+      "growth5yUsed": 0.046421,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "SEB-A.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.031400003,
-      "growthNextYear": 0.16370001,
+      "growthCurrentYear": 0.0279,
+      "growthNextYear": 0.1708,
       "historicalFcfCagr": null,
-      "growth5yUsed": 0.095555,
+      "growth5yUsed": 0.097026,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "SHB-A.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": -0.08,
-      "growthNextYear": 0.0688,
+      "growthCurrentYear": -0.0787,
+      "growthNextYear": 0.0681,
       "historicalFcfCagr": null,
-      "growth5yUsed": -0.008387,
+      "growth5yUsed": -0.008012,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
       "symbol": "SINCH.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 1.2379,
-      "growthNextYear": 0.16049999,
+      "growthCurrentYear": 1.2629,
+      "growthNextYear": 0.16379999,
       "historicalFcfCagr": -0.08068746232335766,
-      "growth5yUsed": 0.611547,
+      "growth5yUsed": 0.622826,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
@@ -283,10 +283,10 @@
       "symbol": "VOLV-B.ST",
       "growth5y": null,
       "growthPast5y": null,
-      "growthCurrentYear": 0.20809999,
-      "growthNextYear": 0.17709999,
+      "growthCurrentYear": 0.20639999,
+      "growthNextYear": 0.1712,
       "historicalFcfCagr": 0.38053268624981906,
-      "growth5yUsed": 0.192499,
+      "growth5yUsed": 0.18867,
       "growth5ySource": "yahoo-derived-from-0y-1y"
     },
     {
